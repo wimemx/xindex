@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ titulo }}</title>
+    </head>
+    <body>
+        <h4>{{ titulo }}</h4>
+        <form id="formulario" method="POST" action="">{% csrf_token %}
+            {{ formulario.as_p }}
+            <p><input id="submit_agregar" type="submit" value="Agregar"/><p>
+        </form>
+    </body>
+</html>

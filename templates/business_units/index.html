@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="add/">Nueva unidad de negocio</a></li>
+        </ul>
+    </nav>
+    <div id="messages">
+        {% if message %}
+            {{ message }}
+        {% endif %}
+    </div>
+    <h3>Unidades de negocio</h3>
+    <section>
+        {% for b_u in all_business_units %}
+            <article>
+                {{ b_u.name }}
+                <a href="/business_units/remove/{{ b_u.id }}">Eliminar</a> | <a href="/business_units/update/{{ b_u.id }}">Editar</a>
+            </article>
+        {% endfor %}
+    </section>
+</body>
+</html>

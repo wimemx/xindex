@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tipos de subsidiarias</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="add/">Nuevo tipo de subsidiaria</a></li>
+        </ul>
+    </nav>
+    <div id="messages">
+        {% if message %}
+            {{ message }}
+        {% endif %}
+    </div>
+    <h4>Lista de tipos de subsidiarias</h4>
+    <section>
+        {% for s_t in all_subsidiary_types %}
+            <article>
+                {{ s_t.name }}
+                <a href="/subsidiary_types/remove/{{ s_t.id }}">Eliminar</a> | <a href="/subsidiary_types/update/{{ s_t.id }}">Editar</a>
+            </article>
+        {% endfor %}
+    </section>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subsidiarias</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="add/">Nueva subsidiaria</a></li>
+        </ul>
+    </nav>
+    <div id="messages">
+        {% if message %}
+            {{ message }}
+        {% endif %}
+    </div>
+    <h4>Lista de subsidiarias</h4>
+    <section>
+        {% for s in all_subsidiaries %}
+            <article>
+                {{ s.name }}
+                <a href="/subsidiaries/remove/{{ s.id }}">Eliminar</a> | <a href="/subsidiaries/edit/{{ s.id }}">Editar</a>
+            </article>
+        {% endfor %}
+    </section>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question {{ question.id }} Edit</title>
+    <script type="text/javascript" src="{{ STATIC_URL }}/static/js/jquery-2.0.3.js">
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}/static/js/questions_selector.js">
+    </script>
+    <style>
+        input[type="text"]{
+              display: block;
+              margin-bottom: 10px;
+              margin-top: 10px;
+        }
+
+        input[type="submit"]{
+              display: inline;
+              margin-bottom: 10px;
+              margin-top: 10px;
+        }
+
+        input.option_added{
+            display: flex;
+        }
+
+        div.dynamic_inputs{
+            display: flex;
+        }
+        div.delete_option{
+            align-self: center;
+            background-color: #EEEEEE;
+            border-radius: 5px 5px 5px 5px;
+            margin-left: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    </style>
+</head>
+<body>
+{% if question %}
+    <div style="margin-left: 200px">
+        <a href="../../">Go back</a>
+    </div>
+
+    <h1>Edit question</h1>
+    Select the Question type
+    <select name="question_type_select" id="question_type_select" disabled>
+        {% for type in question_types %}
+            {% if type == question.type %}
+                <option value="{{ type.id }}" selected>{{type.name}}</option>
+            {% else %}
+                <option value="{{ type.id }}">{{type.name}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br/><br/><br/>
+
+    <input type="hidden" id="question_id" value="{{ question.id }}">
+    {% if question.type.name == "Matrix" %}
+        <div id="question_type_1" style="display: inline" class='question matrix'>
+            <form id='question_type_1_form'>{% csrf_token %}
+                <p><label>Title:</label>
+                    <input class="matrix_title" type="text" name="m_title"
+                           maxlength="100" value="{{ question.title }}"/>
+                </p>
+                <p>Set each one of the columns</p>
+                <div class="matrix_cols">
+                    {% for option in options %}
+                        {% if option.active %}
+                            <div class="dynamic_inputs">
+                                <input type="hidden" value="{{ option.id }}" />
+                                <input type="text" maxlength="100" class="option_added" value="{{ option.label }}"/>
+                                <div class="delete_option" onclick="deleteOption(event);"> - </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <input type="text" maxlength="100" class="dummy_option" value='Click to add another row'/>
+                </div>
+                <p>Set the name of the rows</p>
+                <div class="matrix_rows">
+                    {% for row in rows %}
+                        {% if row.active %}
+                            <div class="dynamic_inputs">
+                                <input type="hidden" value="{{ row.id }}" />
+                                <input type="text" maxlength="100" class="option_added" value="{{ row.title }}"/>
+                                <div class="delete_option" onclick="deleteOption(event);"> - </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <input type="text" maxlength="100" class="dummy_option" value='Click to add another column'/>
+                </div>
+                <input id="edit_matrix" type="submit" value="Edit Question" />
+            </form>
+        </div>
+    {% endif %}
+
+    {% if question.type.name == "Multiple Choice" %}
+    <div id="question_type_2" class='question multiple_choice'>
+         <form id='question_type_2_form'>{% csrf_token %}
+            <p><label>Title:</label>
+                <input class="multiple_choice_title" type="text" name="mo_title"
+                       maxlength="100" value="{{ question.title }}"/>
+            </p>
+            <p>Options</p>
+            <div class="multiple_choice_options_set">
+                {% for option in options%}
+                    {% if option.active %}
+                        <div class="dynamic_inputs">
+                            <input type="hidden" value="{{ option.id }}" />
+                            <input type="text" maxlength="100" class="option_added" value="{{ option.label }}"/>
+                            <div class="delete_option" onclick="deleteOption(event);"> - </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <input type="text" maxlength="100" class="dummy_option" value='Click to add another option'/>
+            </div>
+            <input id="edit_multiple_choice" type="submit" value="Edit Question" />
+        </form>
+    </div>
+    {% endif %}
+
+    {% if question.type.name == "Open question" %}
+    <div id="question_type_3" class='question open_question'>
+        <form id='question_type_3_form'>{% csrf_token %}
+            <p><label>Title:</label>
+                <input class="open_question_title" type="text" name="oq_title"
+                       maxlength="100" value="{{ question.title }}" size="100"/>
+            </p>
+            <input id="edit_open_question" type="submit" value="Edit Question" />
+        </form>
+    </div>
+    {% endif %}
+
+    {% if question.type.name == "Range" %}
+    <div id="question_type_4" class='question range'>
+        <form id='question_type_4_form'>{% csrf_token %}
+            <p><label>Title:</label>
+                <input class="range_title" type="text" name="range_title"
+                       maxlength="100" value="{{ question.title }}" />
+            </p>
+            <p>Set each one of the information</p>
+            <div class="range_field_set">
+                <label>Start value:</label>
+                <input type="text" maxlength="100" class="start_number"
+                        value="{{ first.value }}"/>
+                <label>Start label:</label>
+                <input type="text" maxlength="100" class="start_label"
+                        value="{{ first.label }}"/>
+
+                <label>End value:</label>
+                <input type="text" maxlength="100" class="end_number"
+                        value="{{ last.value }}"/>
+                <label>End Label:</label>
+                <input type="text" maxlength="100" class="end_label"
+                        value="{{ last.label }}"/>
+            </div>
+            <input id="edit_range_question" type="submit" value="Edit Question" />
+        </form>
+    </div>
+    {% endif %}
+
+    {% if question.type.name == "True and False" %}
+    <div id="question_type_5" class='question true_and_false'>
+        <form id='question_type_5_form'>{% csrf_token %}
+            <p><label>Title:</label>
+                <input class="true_and_false_title" type="text" name="true_and_false_title"
+                       maxlength="100" value="{{ question.title }}" />
+            </p>
+            <input id="edit_true_and_false_question" type="submit" value="Edit Question" />
+        </form>
+    </div>
+    {% endif %}
+{% endif %}
+</body>
+</html>

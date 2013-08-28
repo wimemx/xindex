@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+</head>
+<body>
+
+<p>All Companies Types will be here!</p>
+<a href="add/">Add new Company type</a>
+{% if company_types %}
+    <table>
+        <tr>
+            <td style="width: 400px">Name</td><td>Options</td>
+        </tr>
+    {% for c_type in company_types %}
+        <tr>
+            <td><a href="{{ c_type.id }}/">{{ c_type.name }}</a></td>
+            <td><a href="{{ c_type.id }}/edit/">Edit</a></td>
+            <td><a href="{{ c_type.id }}/remove/">Remove</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No companies types are available now.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Questions</title>
+    <script type="text/javascript" src="{{ STATIC_URL }}/static/js/jquery-2.0.3.js">
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}/static/js/questions_selector.js">
+    </script>
+</head>
+<body>
+All Questions go here! <br/><br/>
+
+<div style="margin-left: 200px">
+    <a href="add/">Add New Question</a>
+</div>
+{% if all_questions %}
+    <table>
+    {% for question in all_questions %}
+        {% if not question.parent_question %}
+        <tr>
+            <td style="padding-right: 100px">
+                <a href="{{ question.id }}/">{{ question.title }}</a>
+                of type {{ question.type.name }}
+            </td>
+            <td style="padding-right: 50px">
+                <label><a href="{{ question.id }}/edit/" class="edit_question">Edit</a></label>
+            </td>
+            <td style="padding-right: 50px">
+                <label><a href="{{ question.id }}/remove/" class="remove_question"> Delete </a></label>
+            </td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No questions are available.</p>
+{% endif %}
+</body>
+</html>

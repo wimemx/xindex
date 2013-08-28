@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action="/subsidiaries/{{ action }}/" method="POST">
+        Nombre:
+        <input name="name" value="{{ sub.name|escape}}"><br/>
+        <input type="submit" value="{{ buttonescape}}">
+    </form>
+</body>
+</html>

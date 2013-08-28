@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="add/">Nuevo servicio</a></li>
+        </ul>
+    </nav>
+    <div id="messages">
+        {% if message %}
+            {{ message }}
+        {% endif %}
+    </div>
+    <h3>Servicios</h3>
+    <section>
+        {% for s in all_services %}
+            <article>
+                {{ s.name }}
+                <a href="/services/remove/{{ s.id }}">Eliminar</a> | <a href="/services/update/{{ s.id }}">Editar</a>
+            </article>
+        {% endfor %}
+    </section>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Attribute {{ attribute.id }} Detail</title>
+</head>
+<body>
+{% if attribute %}
+<ul>
+    <li><a href="remove/">Borrar</a></li>
+    <li><a href="edit/">Editar</a></li>
+    <li>Nombre: {{ attribute.name }}</li>
+    <li>Descripcion: {{attribute.description}}</li>
+    </li>
+
+</ul>
+{% else %}
+<p>No existe información</p>
+{% endif %}
+</body>
+</html>

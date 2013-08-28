@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Indicator {{ indicator.id }} Detail</title>
+</head>
+<body>
+{% if indicator %}
+<ul>
+    <li><a href="remove/">Borrar</a></li>
+    <li><a href="edit/">Editar</a></li>
+    <li>Nombre: {{ indicator.name }}</li>
+    <li>Description: {{indicator.description}}</li>
+    <li>Type: {{indicator.type}}</li>
+    <li>Min val: {{indicator.min_value}}</li>
+    <li>Max val: {{indicator.max_value}}</li>
+    <li>Threshold: {{indicator.threshold}}</li>
+    <li>Weight: {{indicator.weight}}</li>
+    <li>Attributes:
+        <ul>
+            {% for attributes in indicator.attributes.all %}
+            <li>{{ attributes.name }}</li>
+        </ul>
+    </li>
+</ul>
+{% else %}
+<p>No existe información</p>
+{% endif %}
+</body>
+</html>

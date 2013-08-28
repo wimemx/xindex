@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+</head>
+<body>
+
+<p>All Companies will be here!</p>
+<a href="add/">Add new Company</a>
+{% if companies %}
+    <table>
+        <tr>
+            <td style="width: 200px">Name</td><td>Options</td>
+        </tr>
+    {% for company in companies %}
+        <tr>
+            <td><a href="{{ company.id }}/">{{ company.name }}</a></td>
+            <td><a href="{{ company.id }}/edit/">Edit</a></td>
+            <td><a href="{{ company.id }}/remove/">Remove</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No companies are available now.</p>
+{% endif %}
+</body>
+</html>

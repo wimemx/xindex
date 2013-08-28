@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ company_type.name }} Detail</title>
+</head>
+<body>
+{% if company_type %}
+    <ul>
+        <li><a href="javascript:history.go(-1)">Back</a></li>
+        <li><a href="remove/">Remove company type</a></li>
+        <li><a href="edit/">Edit company type</a></li>
+        <li>Name: {{ company_type.name }}</li>
+        <li>About: {{ company_type.description }}</li>
+        <li>Status: {{ status }}</li>
+    </ul>
+{% else %}
+    <p>No information available for that company type.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+
+<p>All zones will be here!</p>
+<a href="add/">Add new Zone</a>
+{% if zones %}
+    <table>
+        <tr>
+            <td style="width: 400px">Name</td><td>Options</td>
+        </tr>
+    {% for zone in zones %}
+        <tr>
+            <td><a href="{{ zone.id }}/">{{ zone.name }}</a></td>
+            <td><a href="{{ zone.id }}/edit/">Edit</a></td>
+            <td><a href="{{ zone.id }}/remove/">Remove</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No zones are available now.</p>
+{% endif %}
+</body>
+</html>

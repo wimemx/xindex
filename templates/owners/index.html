@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+
+<h1>Owners</h1>
+
+{% if owners %}
+<ul>
+    {% for owner in owners %}
+    <li><a href="{{ owner.id }}/">{{ owner.name }}</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no owners</p>
+{% endif %}
+
+<a href="add">Add Owner</a><br>
+
+</body>
+</html>

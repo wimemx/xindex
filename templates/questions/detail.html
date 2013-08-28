@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question {{ question.id }} Detail</title>
+</head>
+<body>
+<div style="margin-left: 200px">
+    <a href="../">Go back</a>
+</div>
+{% if question %}
+    <h1>{{ question.title }}</h1>
+    <ul>
+        <li>Type: {{ question.type.name }}</li>
+        <li>Description: {{ question.type.description }}</li>
+        <li>Help Text: {{ question.type.help_text }}</li>
+    </ul>
+
+    {% if question.type.name == "Matrix" %}
+        {% for row in question.question_set.all %}
+            {% if row.active %}
+                <label><b>{{ row.title }}</b></label>
+            {% endif %}
+
+            {% for option in row.option_set.all %}
+                {% if option.active %}
+                    <input type="radio" name="{{ row.id }}" value="{{ option.value }}"> {{ option.label }}
+                {% endif %}
+            {% endfor %}
+        <br>
+        {% endfor %}
+    {% endif %}
+
+    {% if question.type.name == "Multiple Choice" %}
+        {% for option in options %}
+            {% if option.active %}
+                <input type="radio" name="{{ question.id }}" value="{{ option.value }}"> {{ option.label }}<br>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if question.type.name == "Open question" %}
+        <textarea name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+    {% endif %}
+
+    {% if question.type.name == "Range" %}
+        {% for option in options %}
+            {% if option.active %}
+                {% if option.label != "" %}
+                    <input type="radio" name="{{ question.id }}" value="{{ option.value }}"> {{ option.label }}
+                {% else %}
+                    <input type="radio" name="{{ question.id }}" value="{{ option.value }}"> {{ option.label }}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if question.type.name == "True and False" %}
+        {% for option in question.option_set.all %}
+            <input type="radio" name="{{ question.id }}" value="{{ option.value }}"> {{ option.label }}<br>
+        {% endfor %}
+    {% endif %}
+
+{% else %}
+    <p>No information available for that question.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ company.name }} Detail</title>
+</head>
+<body>
+{% if company %}
+    <ul>
+        <li><a href="javascript:history.go(-1)">Back</a></li>
+        <li><a href="remove/">Remove company</a></li>
+        <li><a href="edit/">Edit company</a></li>
+        <li>Name: {{ company.name }}</li>
+        <li>Type:
+            <ul>
+            {% for type in company.types.all %}
+            <li>{{ type.name }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li>Parent: {{ company.parent_company }}</li>
+        <li>About: {{ company.about }}</li>
+        <li>Address: {{ company.address }}</li>
+        <li>RFC: {{ company.rfc }}</li>
+        <li>Phone: {{ company.phone}}</li>
+        <li>Status: {{ status }}</li>
+        <li>Zone:
+            <ul>
+            {% for zone in company.zone.all %}
+            <li>{{ zone.name }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+    </ul>
+{% else %}
+    <p>No information available for that company.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zone {{ zone.name }} Detail</title>
+</head>
+<body>
+{% if zone %}
+    <ul>
+        <li><a href="javascript:history.go(-1)">Back</a></li>
+        <li><a href="remove/">Remove zone</a></li>
+        <li><a href="edit/">Edit zone</a></li>
+        <li>Name: {{ zone.name }}</li>
+        <li>Countries:
+            <ul>
+            {% for country in zone.countries.all %}
+            <li>{{ country.name }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li>States:
+            <ul>
+            {% for state in zone.states.all %}
+            <li>{{ state.name }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li>Cities:
+            <ul>
+            {% for city in zone.cities.all %}
+            <li>{{ city.name }}</li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li>Description: {{ zone.description }}</li>
+        <li>Parent:
+            {% if zone.parent_zone == None %}
+                ---------
+            {% else %}
+                {{ zone.parent_zone }}
+            {% endif %}
+        </li>
+        <li>Status: {{ status }}</li>
+    </ul>
+{% else %}
+    <p>No information available for that zone.</p>
+{% endif %}
+</body>
+</html>

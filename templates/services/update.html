@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Editar servicio</title>
+    </head>
+    <body>
+        <h4>{{ titulo }}</h4>
+        <form id="formulario" method="POST" enctype="multipart/form-data">{% csrf_token %}
+            {{ formulario.as_p }}
+            <p><input id="submit_agregar" type="submit" value="Modificar"/><p>
+        </form>
+    </body>
+</html>
