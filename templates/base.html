@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Xindex{% endblock %}</title>
+    <meta name="description"
+          content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/font.css" cache="false">
+    <link rel="stylesheet" href="/static/css/plugin.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <!--[if lt IE 9]>
+      <script src="js/ie/respond.min.js" cache="false"></script>
+      <script src="js/ie/html5.js" cache="false"></script>
+      <script src="js/ie/fix.js" cache="false"></script>
+    <![endif]-->
+</head>
+<body>
+<!-- Seccion Principal -->
+<section class="hbox stretch">
+    <aside class="bg-dark aside-md">
+        <!-- Yellow Section -->
+        <section class="vbox bg-dark aside-md">
+            <header class="dker nav-bar">
+                <a href="#" class="nav-brand" data-toggle="fullscreen">
+                    <!-- Bloque titulo -->
+                    {% block titulo %}
+                        Hotel Holiday Inn
+                    {% endblock %}
+                    <!-- Termina bloque titulo -->
+                </a>
+            </header>
+            <!--Seccion Usuario-->
+            <div class="bg-info nav-brand hidden-xs pos-rlt">
+                <div class="nav-avatar">
+                    <a href="#" class="animated rollIn" data-toggle="dropdown">
+                        {% block username %}
+                            Osvaldo Morales
+                        {% endblock %}
+                        <span class="caret caret-white"></span>
+                    </a>
+                    <ul class="dropdown-menu m-t-sm animated fadeInRightBig">
+                        <span class="arrow top"></span>
+                        <li>
+                            <a href="#">Settings</a>
+                        </li>
+                        <li>
+                            <a href="profile.html">Profile</a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="badge bg-danger pull-right">3</span>
+                                Notifications
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="docs.html">Help</a>
+                        </li>
+                        <li>
+                            <a href="signin.html">Logout</a>
+                        </li>
+                    </ul>
+                    <div class="visible-xs m-t m-b">
+                        <a href="#" class="h3">John.Smith</a>
+
+                        <p><i class="icon-map-marker"></i> London, UK</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Termina Seccion Usuario-->
+            <!-- Seccion Menu-->
+            <nav class="nav-primary hidden-xs">
+                <ul class="accordion nav" id="nav-accordion">
+                    <li class="accordion-group">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#nav-accordion"
+                           href="#collapseOne">
+                            Mi Empresa
+                        </a>
+                        <ul id="collapseOne" class="nav accordion-body out collapse">
+                            <li>
+                                <a href="buttons.html">Informaci&oacute;n General</a>
+                            </li>
+                            <li>
+                                <a href="/subsidiaries/">
+                                    Mis Sucursales
+                                </a>
+                            </li>
+                            <li>
+                                <a href="grid.html">Zonas</a>
+                            </li>
+                            <li>
+                                <a href="/business_units/">
+                                    Mis unidades de servicio
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#nav-accordion"
+                           href="#SubIndicadores">
+                            <span>Mis indicadores</span>
+                        </a>
+                        <ul id="SubIndicadores" class="nav according-body out collapse">
+                            <li>
+                                <a>Indicador 1</a>
+                            </li>
+                            <li>
+                                <a>Indicador 2</a>
+                            </li>
+                            <li>
+                                <a>Indicador 3</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span>Mis clientes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span>Mis encuestas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span>Mis reportes</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!--Termina Seccion Menu-->
+        </section>
+        <!-- Ends Yellow Section -->
+    </aside>
+    <section id="content">
+        {% block mainContent %}
+            <section class="vbox">
+                <header class="header b-b">
+                    <p class="h4 animated bounceInDown">Xindex</p>
+                </header>
+            </section>
+        {% endblock %}
+    </section>
+</section>
+<!-- Termina Seccion Principal -->
+{% block header %}
+{% endblock %}
+{% block contenido %}
+
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
+<script src="/static/js/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/static/js/bootstrap.js"></script>
+<!-- Sparkline Chart -->
+<script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+<!-- App -->
+<script src="/static/js/app.js"></script>
+<script src="/static/js/app.plugin.js"></script>
+<script src="/static/js/app.data.js"></script>
+</body>
+</html>

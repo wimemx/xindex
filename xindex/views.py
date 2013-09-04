@@ -8,4 +8,4 @@ def index(request):
         #vars
     }
     request_context = RequestContext(request, template_vars)
-    return render_to_response("base.html", request_context)
+    return render_to_response("xindex/index.html", request_context)
