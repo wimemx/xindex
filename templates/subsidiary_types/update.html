@@ -8,7 +8,18 @@
         <h4>{{ titulo }}</h4>
     </div>
     <form id="form_update" method="POST">{% csrf_token %}
-        {{ formulario.as_p }}
+        <section>
+            <article>
+                <label for="id_name">Nombre:</label>
+                {{ formulario.name.errors }}
+                {{ formulario.name }}
+            </article>
+            <article>
+                <label for="id_description">Descripci&oacute;n:</label>
+                {{ formulario.description.errors }}
+                {{ formulario.description }}
+            </article>
+        </section>
         <input type="submit" value="Modificar">
     </form>
 </body>

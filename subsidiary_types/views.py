@@ -31,7 +31,14 @@ def add(request):
             #return render_to_response("subsidiary_types/index.html", request_context)
             return HttpResponseRedirect('/subsidiary_types')
         else:
-            return HttpResponse("El formulario no es valido %s.")
+            template_vars = {
+                "titulo": "Agregar tipo de subsidiaria",
+                "message": "",
+                "formulario": formulario
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("subsidiary_types/add.html", request_context)
+
     else:
         formulario = AddSubsidiaryType()
         template_vars = {
@@ -60,6 +67,14 @@ def update(request, subsidiary_type_id):
                 }
                 request_context = RequestContext(request, template_vars)
                 return HttpResponseRedirect('/subsidiary_types/')
+            else:
+                template_vars = {
+                    "titulo": "Editar tipo de subsidiaria",
+                    "message": "",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return render_to_response("subsidiary_types/update.html", request_context)
         else:
             formulario = AddSubsidiaryType(request.POST or None, instance=sub_type)
             template_vars = {
@@ -110,4 +125,5 @@ def remove(request, subsidiary_type_id):
         }
         request_context = RequestContext(request, template_vars)
         #return render_to_response("subsidiary_types/index.html", request_context)
-        return HttpResponse('No se encontro el tipo de subsidiaria')
+        #return HttpResponse('No se encontro el tipo de subsidiaria')
+        return HttpResponseRedirect('/subsidiary_types')

@@ -1,30 +1,31 @@
 __author__ = 'osvaldo'
-"""
-from django import forms
-#import datetime
-#from django.forms import ModelForm
-#from django.forms.widgets import RadioSelect
-from django.forms.widgets import Select
-#from django.forms.widgets import SelectMultiple
-from xindex.models import Company as c
-from xindex.models import Subsidiary_Type
-from xindex.models import BusinessUnit
-from xindex.models import Zone
-"""
+
 from django import forms
 from xindex.models import Subsidiary
 from xindex.models import Subsidiary_Type
 
 
 class SubsidiaryForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SubsidiaryForm, self).__init__(*args, **kwargs)
+        self.fields['company'].error_messages = {
+            'required': 'Seleccione una compania',
+            'invalid': 'Seleccione una compania valida'
+        }
+        self.fields['name'].error_messages = {
+            'required': 'Ingrese un nombre'
+        }
+
+
     class Meta:
         model = Subsidiary
-        fields = ('company', 'name', 'status', 'subsidiary_types', 'business_unit', 'zone')
+        fields = ('company', 'name', 'active', 'subsidiary_types', 'business_unit', 'zone')
 
 class UpdateForm(forms.ModelForm):
     class Meta:
         model = Subsidiary
-        fields = ('company', 'name', 'status', 'subsidiary_types', 'business_unit', 'zone')
+        fields = ('company', 'name', 'active', 'subsidiary_types', 'business_unit', 'zone')
 
 class AddSubsidiaryType(forms.ModelForm):
     class Meta:

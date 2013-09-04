@@ -31,7 +31,13 @@ def add(request):
             #return render_to_response("services/index.html", request_context)
             return HttpResponseRedirect('/services/')
         else:
-            return HttpResponse("El formulario no es valido %s.")
+            template_vars = {
+                "titulo": "Agregar servicio",
+                "message": "",
+                "formulario": formulario
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("services/add.html", request_context)
     else:
         formulario = AddService()
         template_vars = {
@@ -60,6 +66,14 @@ def update(request, service_id):
                 }
                 request_context = RequestContext(request, template_vars)
                 return HttpResponseRedirect('/services/')
+            else:
+                template_vars = {
+                    "titulo": "Editar servicio",
+                    "message": "",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return render_to_response("services/update.html", request_context)
         else:
             formulario = AddService(instance=ser)
             template_vars = {

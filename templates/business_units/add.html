@@ -6,7 +6,28 @@
     <body>
         <h4>{{ titulo }}</h4>
         <form id="formulario" method="POST" action="">{% csrf_token %}
-            {{ formulario.as_p }}
+            <section>
+                <article>
+                    <label for="id_name">Nombre:</label>
+                    {{ formulario.name.errors }}
+                    {{ formulario.name }}
+                </article>
+                <article>
+                    <label for="id_description">Descripci&oacute;n:</label>
+                    {{ formulario.description.errors }}
+                    {{ formulario.description }}
+                </article>
+                <article>
+                    <label for="id_service">Servicio:</label>
+                    {{ formulario.service.errors }}
+                    {{ formulario.service }}
+                </article>
+                <article>
+                    <label for="id_active">¿Activa?:</label>
+                    {{ formulario.active.errors }}
+                    {{ formulario.active }}
+                </article>
+            </section>
             <p><input id="submit_agregar" type="submit" value="Agregar"/><p>
         </form>
     </body>

@@ -1,27 +1,31 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Subsidiarias</title>
+    <title>{% block title %}Subsidiarias{% endblock %}</title>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="add/">Nueva subsidiaria</a></li>
-        </ul>
-    </nav>
-    <div id="messages">
-        {% if message %}
-            {{ message }}
-        {% endif %}
-    </div>
-    <h4>Lista de subsidiarias</h4>
-    <section>
-        {% for s in all_subsidiaries %}
-            <article>
-                {{ s.name }}
-                <a href="/subsidiaries/remove/{{ s.id }}">Eliminar</a> | <a href="/subsidiaries/edit/{{ s.id }}">Editar</a>
-            </article>
-        {% endfor %}
+<nav>
+    <ul>
+        <li><a href="add/">Nueva subsidiaria</a></li>
+    </ul>
+</nav>
+{% block mainContent %}
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Subsidiarias</p>
+        </header>
+        <section class="clearfix padder">
+            <h4>Lista de subsidiarias</h4>
+            {% for s in all_subsidiaries %}
+                <article>
+                    {{ s.name }}
+                    <a href="/subsidiaries/remove/{{ s.id }}">Eliminar</a> | <a
+                        href="/subsidiaries/edit/{{ s.id }}">Editar</a>
+                </article>
+            {% endfor %}
+        </section>
     </section>
+{% endblock %}
 </body>
 </html>

@@ -29,7 +29,13 @@ def add(request):
             #return render_to_response("business_units/index.html", request_context)
             return HttpResponseRedirect('/business_units')
         else:
-            return HttpResponse("El formulario no es valido %s.")
+            template_vars = {
+                "titulo": "Agregar unidad de negocio",
+                "message": "",
+                "formulario": formulario
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("business_units/add.html", request_context)
     else:
         formulario = AddBusinessUnit()
         template_vars = {
@@ -59,7 +65,13 @@ def update(request, business_unit_id):
                 request_context = RequestContext(request, template_vars)
                 return HttpResponseRedirect('/business_units/')
             else:
-                return HttpResponse('El formulario no es valido')
+                template_vars = {
+                    "titulo": "Modificar unidad de negocio",
+                    "message": "",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return render_to_response("business_units/update.html", request_context)
         else:
             formulario = AddBusinessUnit(request.POST or None, instance=bus_unit)
             template_vars = {
@@ -110,4 +122,5 @@ def remove(request, business_unit_id):
         }
         request_context = RequestContext(request, template_vars)
         #return render_to_response("business_units/index.html", request_context)
-        return HttpResponse('No se pudo encontrar la unidad de negocio')
+        #return HttpResponse('No se pudo encontrar la unidad de negocio')
+        return HttpResponseRedirect('/business_units')
