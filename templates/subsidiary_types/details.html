@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Modificar Tipo de Sucursal{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+        <section class="vbox">
+            <header class="header b-b bg-white">
+                <p class="h4 animated bounceInDown">Detalles</p>
+            </header>
+            <section class="wrapper animated fadeInRightBig" id="basic">
+                {% if sub_t %}
+                    <section class="bg-white nav hidden-xs">
+                        <section class="wrapper text-center stretch b-b">
+                            <div class="h3 m-t-xs m-b-xs"> <i class="icon-tags icon-xlarge"></i> {{ sub_t.name }}</div>
+                        </section>
+                        <section class="scrollable wrapper">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <section class="panel lter no-borders">
+                                        <div class="panel-body">
+                                            <header class="h4 header bg-info wrapper text-center">
+                                                Descripción
+                                            </header>
+                                        </div>
+                                        <footer class="panel-footer lt">
+                                            <div class="row col-lg-4">
+                                                <div>
+                                                    <p>
+                                                        {{ sub_t.description }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <a class="pull-right btn btn-white btn-sm" href="/subsidiary_types">
+                                    <i class="icon-backward"></i>
+                                    Regresar
+                                </a>
+                            </div>
+                        </section>
+                    </section>
+                {% else %}
+                    <section class="bg-white wrapper-lg text-center">
+                        <div class="">
+                            <span class="icon-stack">
+                                <i class="icon-circle text-white icon-stack-base"></i>
+                                <i class="icon-warning-sign icon-light icon-xlarge text-warning"></i>
+                            </span>
+                        </div>
+                        <span class="h4">
+                            No se encontro el tipo de sucursal
+                        </span>
+                    </section>
+                    <div class="row wrapper">
+                        <a class="pull-right btn btn-white btn-sm" href="/subsidiary_types">
+                            <i class="icon-backward"></i>
+                            Regresar
+                        </a>
+                    </div>
+                {% endif %}
+            </section>
+        </section>
+    </section>
+{% endblock %}
+</body>
+</html>

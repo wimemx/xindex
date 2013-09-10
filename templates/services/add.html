@@ -1,39 +1,64 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Agregar servicio</title>
-    </head>
-    <body>
-        <h4>{{ titulo }}</h4>
-        <form id="formulario" method="POST" enctype="multipart/form-data">{% csrf_token %}
-            <section>
-                <article>
-                    <label for="id_name">Nombre:</label>
-                    {{ formulario.name.errors }}
-                    {{ formulario.name }}
-                </article>
-                <article>
-                    <label for="id_description">Descripci&oacute;n:</label>
-                    {{ formulario.description.errors }}
-                    {{ formulario.description }}
-                </article>
-                <article>
-                    <label for="id_picture">Imagen:</label>
-                    {{ formulario.picture.errors }}
-                    {{ formulario.picture }}
-                </article>
-                <article>
-                    <label for="id_moments">Momentos:</label>
-                    {{ formulario.moments.errors }}
-                    {{ formulario.moments }}
-                </article>
-                <article>
-                    <label for="id_active">¿Activo?:</label>
-                    {{ formulario.active.errors }}
-                    {{ formulario.active }}
-                </article>
+<head>
+    <title>{% block title %}Servicios{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+        <section class="vbox">
+            <header class="header b-b">
+                <p class="h4 animated bounceInDown">Servicios</p>
+            </header>
+            <section class="wrapper" id="basic">
+                <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
+                      action="" enctype="multipart/form-data">{% csrf_token %}
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Nombre:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.name }}
+                            {{ formulario.name.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Descripci&oacute;n:</label>
+
+                        <div class="col-sm-6">
+                            {{ formulario.description }}
+                            {{ formulario.description.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Imagen:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.picture }}
+                            {{ formulario.picture.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Momentos:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.moments }}
+                            {{ formulario.moments.errors }}
+                        </div>
+                        <div class="line line-dashed m-t-xs"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-sm-offset-6">
+                            <button type="submit" class="btn btn-twitter">Agregar</button>
+                            <a class="btn btn-white" href="/services">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </section>
-            <p><input id="submit_agregar" type="submit" value="Agregar"/><p>
-        </form>
-    </body>
+        </section>
+    </section>
+{% endblock %}
+</body>
 </html>

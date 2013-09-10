@@ -19,10 +19,14 @@ class AddService(forms.ModelForm):
             'required': 'Seleccione una imagen del servicio',
             'invalid': 'Seleccione un archivo de imagen valido'
         }
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control'})
+        self.fields['picture'].widget.attrs.update({'class': 'btn btn-sm btn-info m-b-sm form-control'})
+        self.fields['moments'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Service
-        fields = ('name', 'description', 'picture', 'moments', 'active')
+        fields = ('name', 'description', 'picture', 'moments')
 
 
 

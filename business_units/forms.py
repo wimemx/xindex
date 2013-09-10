@@ -13,7 +13,13 @@ class AddBusinessUnit(forms.ModelForm):
             'required': 'Ingrese una descripcion para la unidad de negocio',
             'invalid': 'Ingrese una descripcion valida'
         }
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control'})
+        self.fields['service'].widget.attrs.update({'class': 'form-control'})
+
+
+
 
     class Meta:
         model = BusinessUnit
-        fields = ('name', 'description', 'service', 'active')
+        fields = ('name', 'description', 'service')

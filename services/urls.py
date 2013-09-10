@@ -8,4 +8,8 @@ urlpatterns = patterns('services.views',
     #url(r'^(?P<question_id>\d+)/$', 'detail'),
     url(r'update/(?P<service_id>\d+)', 'update'),
     url(r'remove/(?P<service_id>\d+)', 'remove'),
+
+    #test
+    url(r'^json/$', 'getSInJson'),
+    url(r'details/(?P<service_id>\d+)', 'details'),
 )

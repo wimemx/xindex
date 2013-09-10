@@ -171,8 +171,13 @@ $(document).ready(function() {
 		},
 
 		data: function (options, callback) {
-			var url = 'js/data/datagrid.json';
+			//var url = '/static/js/data/datagrid.json';
+            //Inician pruebas
+            var url = '/subsidiaries/json'
+            //terminan pruebas
 			var self = this;
+
+
 
 			setTimeout(function () {
 
@@ -183,8 +188,9 @@ $(document).ready(function() {
 					async: false,
 					type: 'GET'
 				}).done(function (response) {
-
-					data = response.geonames;
+                    alert(response)
+					data = response.subsidiarias;
+                    alert(data)
 					// SEARCHING
 					if (options.search) {
 						data = _.filter(data, function (item) {
@@ -239,7 +245,7 @@ $(document).ready(function() {
 
 					callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
 				}).fail(function(e){
-
+                    alert('¡No se pueden consultar las sucursales, intente mas tarde!')
 				});
 			}, self._delay);
 		}
@@ -250,37 +256,33 @@ $(document).ready(function() {
 	        dataSource: new DataGridDataSource({
 			    // Column definitions for Datagrid
 			    columns: [
+                    {
+                        property: 'name',
+                        label: 'Nombre',
+                        sortable: true
+                    },
 					{
-						property: 'toponymName',
-						label: 'Name',
+						property: 'active',
+						label: '¿Activa?',
 						sortable: true
 					},
 					{
-						property: 'countrycode',
-						label: 'Country',
+						property: 'subsidiaryId',
+						label: 'Editar',
 						sortable: true
 					},
-					{
-						property: 'population',
-						label: 'Population',
-						sortable: true
-					},
-					{
-						property: 'fcodeName',
-						label: 'Type',
-						sortable: true
-					},
-					{
-						property: 'geonameId',
-						label: 'Edit',
-						sortable: true
-					}
+                    {
+                        property: 'subsidiaryIds',
+                        label: 'Eliminar',
+                        sortable: true
+                    }
 				],
 
 			    // Create IMG tag for each returned image
 			    formatter: function (items) {
 			      $.each(items, function (index, item) {
-			        item.geonameId = '<a href="#edit?geonameid='+item.geonameId+'"><i class="icon-pencil"></i></a>';
+			        item.subsidiaryId = '<a href="/subsidiaries/edit/'+item.subsidiaryId+'"><i class="icon-pencil"></i></a>';
+                    item.subsidiaryIds = '<a href="/subsidiaries/remove/'+item.subsidiaryIds+'"><i class="icon-pencil"></i></a>';
 			      });
 			    }
 		  })

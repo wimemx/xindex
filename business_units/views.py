@@ -4,6 +4,7 @@ from xindex.models import BusinessUnit
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from business_units.forms import AddBusinessUnit
+from django.utils import simplejson
 
 
 def index(request, message = ''):
@@ -83,7 +84,7 @@ def update(request, business_unit_id):
             return render_to_response("business_units/update.html", request_context)
     else:
         message = "No se ha podido encontrar la unidad de negocio"
-        return HttpResponse(message+"%s." % business_unit_id)
+        return HttpResponseRedirect('/business_units/')
 
 
 def remove(request, business_unit_id):
@@ -95,7 +96,8 @@ def remove(request, business_unit_id):
 
     if bus_unit:
         try:
-            bus_unit.delete()
+            bus_unit.active = False
+            bus_unit.save()
             message="Se ha eliminado la unidad de negocio"
             template_vars = {
                 "titulo": "Unidades de negocio",
@@ -124,3 +126,40 @@ def remove(request, business_unit_id):
         #return render_to_response("business_units/index.html", request_context)
         #return HttpResponse('No se pudo encontrar la unidad de negocio')
         return HttpResponseRedirect('/business_units')
+
+
+
+def getBUInJson(request):
+    b_u = {}
+    b_u['business_u'] = []
+
+    for bu in BusinessUnit.objects.filter(active=True).order_by('-date'):
+        b_u['business_u'].append(
+            {
+                "name": bu.name,
+                "description":bu.description,
+                "bu_det": bu.id,
+                "bu_up": bu.id,
+                "bu_del": bu.id
+            }
+        )
+
+    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+
+    return HttpResponse(simplejson.dumps(b_u))
+
+
+def details(request, business_unit_id):
+    template_vars = {
+        'titulo': 'Detalles'
+    }
+    try:
+        bus_u = BusinessUnit.objects.get(id=business_unit_id)
+
+        bus_u = False if bus_u.active==False else bus_u
+    except BusinessUnit.DoesNotExist:
+        bus_u = False
+
+    template_vars['bus_u'] = bus_u
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('business_units/details.html', request_context)

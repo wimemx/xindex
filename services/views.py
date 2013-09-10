@@ -5,6 +5,7 @@ from xindex.models import Service
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from services.forms import AddService
+from django.utils import simplejson
 
 
 def index(request, message = ''):
@@ -98,7 +99,8 @@ def remove(request, service_id):
 
     if ser:
         try:
-            ser.delete()
+            ser.active = False
+            ser.save()
             message="Se ha eliminado el servicio"
             template_vars = {
                 "titulo": "Servicios",
@@ -128,3 +130,37 @@ def remove(request, service_id):
         return HttpResponseRedirect('/services/')
 
 
+def getSInJson(request):
+    s = {}
+    s['services'] = []
+
+    for ser in Service.objects.filter(active=True).order_by('-date'):
+        s['services'].append(
+            {
+                "name": ser.name,
+                "description": ser.description,
+                "s_det": ser.id,
+                "s_up": ser.id,
+                "s_del": ser.id
+            }
+        )
+
+    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+
+    return HttpResponse(simplejson.dumps(s))
+
+
+def details(request, service_id):
+    template_vars = {
+        'titulo': 'Detalles'
+    }
+    try:
+        s = Service.objects.get(id=service_id)
+
+        s = False if s.active==False else s
+    except Service.DoesNotExist:
+        s = False
+
+    template_vars['service'] = s
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('services/details.html', request_context)

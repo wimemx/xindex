@@ -13,4 +13,8 @@ urlpatterns = patterns('subsidiaries.views',
     #url(r'^(?P<question_id>\d+)/$', 'detail'),
     url(r'edit/(?P<subsidiary_id>\d+)', 'edit'),
     url(r'remove/(?P<subsidiary_id>\d+)', 'remove'),
+
+    #test
+    url(r'^json/$', 'getSubsidiariesInJson'),
+    url(r'details/(?P<subsidiary_id>\d+)', 'details'),
 )

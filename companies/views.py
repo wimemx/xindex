@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from xindex.models import Company
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyForm
-
+from django.utils import simplejson
 
 def index(request):
     all_companies = Company.objects.all().filter(active=True).order_by('-date')
@@ -91,3 +91,37 @@ def detail(request, company_id):
         raise Http404
     return render_to_response('companies/detail.html', {'company': company,
                                                         'status': status})
+
+def getCInJson(request):
+    companies = {}
+    companies['companies'] = []
+
+    for c in Company.objects.filter(active=True).order_by('-date'):
+        companies['companies'].append(
+            {
+                "name": c.name,
+                "address":c.address,
+                "rfc": c.rfc,
+                "c_det": c.id,
+                "c_up": c.id,
+                "c_del": c.id
+            }
+        )
+
+    return HttpResponse(simplejson.dumps(companies))
+
+
+def details(request, business_unit_id):
+    template_vars = {
+        'titulo': 'Detalles'
+    }
+    try:
+        c = Company.objects.get(id=business_unit_id)
+
+        c = False if c.active==False else c
+    except Company.DoesNotExist:
+        c = False
+
+    template_vars['company'] = c
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('company/details.html', request_context)

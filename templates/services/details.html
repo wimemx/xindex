@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Detalles del Servicio{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+        <section class="vbox">
+            <header class="header b-b bg-white">
+                <p class="h4 animated bounceInDown">Detalles</p>
+            </header>
+            <section class="wrapper animated fadeInRightBig" id="basic">
+                {% if service %}
+                    <section class="bg-gradient nav hidden-xs">
+                        <section class="wrapper text-center stretch b-b">
+                            <div class="h3 m-t-xs m-b-xs"><i
+                                    class="icon-briefcase icon-xlarge"></i> {{ service.name }}
+                            </div>
+                        </section>
+                        <section class="scrollable wrapper">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <section class="panel lter no-borders">
+                                        <div class="panel-body text-center padder v-middle">
+                                            <div class="bg-light text-center media-lg thumb-lg padder-v">
+                                                <i class="icon-user inline icon-light icon-3x m-t-lg m-b-lg"></i>
+                                                <img src="{{ service.picture.url }}"
+                                                     width="300"
+                                                     height="200"/>
+                                            </div>
+                                            <p class="text-muted"><em>Imagen del
+                                                servicio</em></p>
+                                        </div>
+                                    </section>
+                                </div>
+                                <aside>
+                                    <div class="pos-rlt">
+                                        <span class="arrow top hidden-xs"></span>
+
+                                    </div>
+                                </aside>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <section class="panel lter no-borders">
+                                        <div class="panel-body">
+                                            <header class="h4 header bg-info wrapper text-center">
+                                                Descripci&oacute;n
+                                            </header>
+                                        </div>
+                                        <div class=" wrapper v-middle">
+                                            <p>{{ service.description }}</p>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <section class="panel lter no-borders">
+                                        <div class="panel-body">
+                                            <header class="h4 header bg-info wrapper text-center">
+                                                Momentos
+                                            </header>
+                                        </div>
+                                        <div class="">
+                                            {% if service.moments.all %}
+                                                {% for m in service.moments.all %}
+                                                    <div class="list-group list-group-alt no-radius no-borders">
+                                                        <a class="list-group-item">
+                                                            <i class="icon-circle text-success text-xs"></i>
+                                                            <span>{{ m.name }}</span>
+                                                        </a>
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class=" wrapper v-middle">
+                                                    <p>No hay momentos asociados
+                                                        a este servicio</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                            <div class="row wrapper">
+                                <a class="pull-right btn btn-white btn-sm"
+                                   href="/services">
+                                    <i class="icon-backward"></i>
+                                    Regresar
+                                </a>
+                            </div>
+                        </section>
+                    </section>
+                {% else %}
+                    <section class="bg-white wrapper-lg text-center">
+                        <div class="">
+                            <span class="icon-stack">
+                                <i class="icon-circle text-white icon-stack-base"></i>
+                                <i class="icon-warning-sign icon-light icon-xlarge text-warning"></i>
+                            </span>
+                        </div>
+                        <span class="h4">
+                            No se encontro el servicio
+                        </span>
+                    </section>
+                    <div class="row wrapper">
+                        <a class="pull-right btn btn-white btn-sm"
+                           href="/services">
+                            <i class="icon-backward"></i>
+                            Regresar
+                        </a>
+                    </div>
+                {% endif %}
+            </section>
+        </section>
+    </section>
+{% endblock %}
+</body>
+</html>

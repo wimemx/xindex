@@ -161,9 +161,12 @@
 <script src="/static/js/bootstrap.js"></script>
 <!-- Sparkline Chart -->
 <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
-<!-- App -->
-<script src="/static/js/app.js"></script>
-<script src="/static/js/app.plugin.js"></script>
-<script src="/static/js/app.data.js"></script>
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.data.js"></script>
+{% endblock %}
 </body>
 </html>

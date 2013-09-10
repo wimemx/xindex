@@ -4,10 +4,13 @@ from xindex.models import Subsidiary
 from django.http import HttpResponseRedirect, HttpResponse
 from subsidiaries.forms import SubsidiaryForm, UpdateForm
 from django.template.context import RequestContext
+from django.core import serializers
+from django.utils import simplejson
 
-def index(request, message = ''):
+
+def index(request, message=''):
     print "Entrando a vista subsidiarias"
-    all_subsidiaries = Subsidiary.objects.all().order_by('-name')
+    all_subsidiaries = Subsidiary.objects.filter(active='True')
     print all_subsidiaries
     return render_to_response(
         'subsidiaries/index.html',
@@ -17,14 +20,22 @@ def index(request, message = ''):
         }
     )
 
-def new(request):
-    return render_to_response(
-        'subsidiaries/new.html',
-        {
-            'action': 'add',
-            'button': 'Agregar'
-        }
-    )
+
+def details(request, subsidiary_id):
+    template_vars = {
+        'titulo': 'Detalles'
+    }
+    try:
+        sub = Subsidiary.objects.get(id=subsidiary_id)
+
+        sub = False if sub.active==False else sub
+    except Subsidiary.DoesNotExist:
+        sub = False
+
+    template_vars['sub'] = sub
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('subsidiaries/details.html', request_context)
+
 
 def add(request):
     if request.POST:
@@ -42,6 +53,7 @@ def add(request):
             #return render_to_response("subsidiaries/index.html", request_context)
             return HttpResponseRedirect('/subsidiaries')
         else:
+
             template_vars = {
                 "titulo": "Agregar subsidiaria",
                 "message": "",
@@ -66,8 +78,6 @@ def edit(request, subsidiary_id):
     except Subsidiary.DoesNotExist:
         sub = False
 
-    print sub.name
-    print sub.business_unit
     if sub:
         #formulario = UpdateForm(initial={'id': sub.id,'name': sub.name, 'business_unit': [1,2]})
 
@@ -100,11 +110,10 @@ def edit(request, subsidiary_id):
             return render_to_response("subsidiaries/update.html", request_context)
     else:
         message = "No se ha podido encontrar la subsidiaria"
-        return HttpResponse(message+"%s." % subsidiary_id)
+        return HttpResponseRedirect('/subsidiaries/')
 
 
 def remove(request, subsidiary_id):
-
     try:
         sub = Subsidiary.objects.get(id=subsidiary_id)
     except Subsidiary.DoesNotExist:
@@ -112,8 +121,9 @@ def remove(request, subsidiary_id):
 
     if sub:
         try:
-            sub.delete()
-            message="Se ha eliminado la subsidiaria"
+            sub.active = False
+            sub.save()
+            message = "Se ha eliminado la subsidiaria"
             template_vars = {
                 "titulo": "Subsidiarias",
                 "message": "Se ha eliminado la subsidiaria"
@@ -142,3 +152,22 @@ def remove(request, subsidiary_id):
         return HttpResponseRedirect('/subsidiaries')
 
 
+def getSubsidiariesInJson(request):
+    subsidiaries = {}
+    subsidiaries['subsidiarias'] = []
+
+    for s in Subsidiary.objects.filter(active=True).order_by('-date'):
+        print s.name
+        subsidiaries['subsidiarias'].append(
+            {
+                "subsidiaryId": s.id,
+                "subsidiaryIds": s.id,
+                "name": s.name,
+                "active": s.active,
+                "detalles": s.id
+            }
+        )
+
+    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+
+    return HttpResponse(simplejson.dumps(subsidiaries))

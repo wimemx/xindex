@@ -1,44 +1,71 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>{% block title %}Modificar Sucursal{% endblock %}</title>
 </head>
 <body>
-    <h4>{{ titulo }}</h4>
-    <form id="form_update" method="POST">{% csrf_token %}
-        <section>
-            <article>
-                <label for="id_company">Compañia:</label>
-                {{ formulario.company.errors }}
-                {{ formulario.company }}
-            </article>
-            <article>
-                <label for="id_name">Nombre:</label>
-                {{ formulario.name.errors }}
-                {{ formulario.name }}
-            </article>
-            <article>
-                <label for="id_active">¿Activa?</label>
-                {{ formulario.active.errors }}
-                {{ formulario.active }}
-            </article>
-            <article>
-                <label for="id_subsidiary_types">Tipo de subsidiaria:</label>
-                {{ formulario.subsidiary_types.errors }}
-                {{ formulario.subsidiary_types }}
-            </article>
-            <article>
-                <label for="id_business_unit">Unidad de negocio:</label>
-                {{ formulario.business_unit.errors }}
-                {{ formulario.business_unit }}
-            </article>
-            <article>
-                <label for="id_zone">Zona:</label>
-                {{ formulario.zone.errors }}
-                {{ formulario.zone }}
-            </article>
+{% block mainContent %}
+    <section id="content">
+        <section class="vbox">
+            <header class="header b-b">
+                <p class="h4 animated bounceInDown">Modificar Sucursal</p>
+            </header>
+            <section class="wrapper" id="basic">
+                <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
+                      action="">{% csrf_token %}
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Compañia:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.company }}
+                            {{ formulario.company.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Nombre:</label>
+
+                        <div class="col-sm-6">
+                            {{ formulario.name }}
+                            {{ formulario.name.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Tipo de Sucursal:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.subsidiary_types }}
+                            {{ formulario.subsidiar_types.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Unidad de Servicio:</label>
+
+                        <div class="col-sm-6">
+                            {{ formulario.business_unit }}
+                            {{ formulario.business_unit.errors }}
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Zonas:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.zone }}
+                            <div class="line line-dashed m-t-xs"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-sm-offset-6">
+                            <button type="submit" class="btn btn-twitter">Modificar</button>
+                            <a class="btn btn-white" href="/subsidiaries">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </section>
         </section>
-        <input type="submit" value="Modificar">
-    </form>
+    </section>
+{% endblock %}
 </body>
 </html>

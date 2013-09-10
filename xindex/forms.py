@@ -67,6 +67,35 @@ class CompanyForm(ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(CompanyForm, self).__init__(*args, **kwargs)
+        self.fields['name'].error_messages = {
+            'required': 'Ingrese un nombre',
+            'invalid': 'Ingrese un nombre valido'
+        }
+        self.fields['address'].error_messages = {
+            'required': 'Ingrese la direccion de la compania',
+            'invalid': 'Ingrese una direccion valida'
+        }
+        self.fields['rfc'].error_messages = {
+            'required': 'Ingrese el RFC de la compania',
+            'invalid': 'Ingrese un RFC valido'
+        }
+        self.fields['phone'].error_messages = {
+            'required': 'Ingrese el numero de telefono',
+            'invalid': 'Ingrese un numero de telefono valido'
+        }
+
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['types'].widget.attrs.update({'class': 'form-control'})
+        self.fields['parent_company'].widget.attrs.update({'class': 'form-control'})
+        self.fields['about'].widget.attrs.update({'class': 'form-control'})
+        self.fields['address'].widget.attrs.update({'class': 'form-control'})
+        self.fields['rfc'].widget.attrs.update({'class': 'form-control'})
+        self.fields['phone'].widget.attrs.update({'class': 'form-control'})
+        self.fields['staff'].widget.attrs.update({'class': 'form-control'})
+        self.fields['zone'].widget.attrs.update({'class': 'form-control'})
+
     class Meta:
         model = Company
         fields = ('name', 'types', 'parent_company', 'about', 'address', 'rfc',

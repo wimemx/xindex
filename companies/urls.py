@@ -9,4 +9,8 @@ urlpatterns = patterns('companies.views',
     url(r'^(?P<company_id>\d+)/$', 'detail'),
     url(r'^(?P<company_id>\d+)/edit/$', 'edit'),
     url(r'^(?P<company_id>\d+)/remove/$', 'remove'),
+
+    #test
+    url(r'^json/$', 'getCInJson'),
+    url(r'^(?P<company_id>\d+)/details/$', 'details'),
 )

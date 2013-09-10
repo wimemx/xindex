@@ -1,27 +1,128 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ titulo }}</title>
+    <title>{% block title %}Compañias{% endblock %}</title>
 </head>
 <body>
+{% block mainContent %}
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Compañias</p>
+        </header>
+        <section class="panel padder padder-v animated fadeInRight">
+            <div id="datagrid">
+                <section class="panel">
+                    <div class="table-responsive">
+                        <table id="myComGrid" class="table table-striped datagrid m-b-sm">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <div class="row">
+                                        <div class="col-sm-8 m-t-xs m-b-xs">
+                                            <div>
+                                                <a class="btn btn-white btn-sm" href="/companies/add">
+                                                    <i class="icon-plus-sign"></i>
+                                                    Agregar
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 m-t-xs m-b-xs">
+                                            <div class="input-group search datagrid-search">
+                                                <input type="text" class="input-sm form-control" placeholder="Buscar">
 
-<p>All Companies will be here!</p>
-<a href="add/">Add new Company</a>
-{% if companies %}
-    <table>
-        <tr>
-            <td style="width: 200px">Name</td><td>Options</td>
-        </tr>
-    {% for company in companies %}
-        <tr>
-            <td><a href="{{ company.id }}/">{{ company.name }}</a></td>
-            <td><a href="{{ company.id }}/edit/">Edit</a></td>
-            <td><a href="{{ company.id }}/remove/">Remove</a></td>
-        </tr>
-    {% endfor %}
-    </table>
-{% else %}
-    <p>No companies are available now.</p>
-{% endif %}
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-white btn-sm"><i class="icon-search"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+
+                            <tfoot class="">
+                            <tr>
+                                <th class="row">
+                                    <div class="datagrid-footer-left col-sm-6 text-center-xs m-l-n"
+                                         style="display:none;">
+                                        <div class="grid-controls m-t-sm">
+                              <span>
+                                <span class="grid-start"></span> -
+                                <span class="grid-end"></span> de
+                                <span class="grid-count"></span>
+                              </span>
+
+                                            <div class="select grid-pagesize dropup" data-resize="auto">
+                                                <button data-toggle="dropdown"
+                                                        class="btn btn-sm btn-white dropdown-toggle">
+                                                    <span class="dropdown-label"></span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li data-value="5"><a href="#">5</a></li>
+                                                    <li data-value="10"><a href="#">10</a></li>
+                                                    <li data-value="20" data-selected="true"><a href="#">20</a></li>
+                                                    <li data-value="50"><a href="#">50</a></li>
+                                                    <li data-value="100"><a href="#">100</a></li>
+                                                </ul>
+                                            </div>
+                                            <span>Por p&aacute;gina</span>
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-footer-right col-sm-6 text-left text-xs"
+                                         style="display:none;">
+                                        <div class="grid-pager m-r-n">
+                                            <button type="button" class="btn btn-sm btn-white grid-prevpage"><i
+                                                    class="icon-chevron-left"></i></button>
+                                            <span>P&aacute;gina</span>
+
+                                            <div class="inline">
+                                                <div class="input-group dropdown combobox">
+                                                    <input class="input-sm form-control" type="text">
+
+                                                    <div class="input-group-btn dropup">
+                                                        <button class="btn btn-sm btn-white" data-toggle="dropdown"><i
+                                                                class="caret"></i></button>
+                                                        <ul class="dropdown-menu pull-right"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span>de <span class="grid-pages"></span></span>
+                                            <button type="button" class="btn btn-sm btn-white grid-nextpage"><i
+                                                    class="icon-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <script src="/static/js/libs/underscore-min.js"></script>
+    <!-- datatables -->
+    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+    <!-- Sparkline Chart -->
+    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+    <!-- Easy Pie Chart -->
+    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
+
+    <script src="/static/js/app.grids.xindex.js"></script>
+{% endblock %}
+
 </body>
 </html>

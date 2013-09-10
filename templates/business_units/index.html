@@ -10,23 +10,121 @@
         <header class="header b-b">
             <p class="h4 animated bounceInDown">Unidades de Servicio</p>
         </header>
-        <section class="clearfix padder">
-            <section class="clear padder-v stretch">
-                <button href="#moreless" class="btn btn-sm btn-white">
-                    <i class="icon-plus text"></i>
-                    <span class="text">Agregar</span>
-                </button>
-            </section>
-            <h4>Lista de subsidiarias</h4>
-            {% for b_u in all_business_units %}
-                <article>
-                    {{ b_u.name }}
-                    <a href="/business_units/remove/{{ b_u.id }}">Eliminar</a> | <a
-                        href="/business_units/update/{{ b_u.id }}">Editar</a>
-                </article>
-            {% endfor %}
+        <section class="panel padder padder-v animated fadeInRight">
+            <div id="datagrid">
+                <section class="panel">
+                    <div class="table-responsive">
+                        <table id="myBUGrid" class="table table-striped datagrid m-b-sm">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <div class="row">
+                                        <div class="col-sm-8 m-t-xs m-b-xs">
+                                            <div>
+                                                <a class="btn btn-white btn-sm" href="/business_units/add">
+                                                    <i class="icon-plus-sign"></i>
+                                                    Agregar
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 m-t-xs m-b-xs">
+                                            <div class="input-group search datagrid-search">
+                                                <input type="text" class="input-sm form-control" placeholder="Buscar">
+
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-white btn-sm"><i class="icon-search"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+
+                            <tfoot class="">
+                            <tr>
+                                <th class="row">
+                                    <div class="datagrid-footer-left col-sm-6 text-center-xs m-l-n"
+                                         style="display:none;">
+                                        <div class="grid-controls m-t-sm">
+                              <span>
+                                <span class="grid-start"></span> -
+                                <span class="grid-end"></span> de
+                                <span class="grid-count"></span>
+                              </span>
+
+                                            <div class="select grid-pagesize dropup" data-resize="auto">
+                                                <button data-toggle="dropdown"
+                                                        class="btn btn-sm btn-white dropdown-toggle">
+                                                    <span class="dropdown-label"></span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li data-value="5"><a href="#">5</a></li>
+                                                    <li data-value="10"><a href="#">10</a></li>
+                                                    <li data-value="20" data-selected="true"><a href="#">20</a></li>
+                                                    <li data-value="50"><a href="#">50</a></li>
+                                                    <li data-value="100"><a href="#">100</a></li>
+                                                </ul>
+                                            </div>
+                                            <span>Por p&aacute;gina</span>
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-footer-right col-sm-6 text-left text-xs"
+                                         style="display:none;">
+                                        <div class="grid-pager m-r-n">
+                                            <button type="button" class="btn btn-sm btn-white grid-prevpage"><i
+                                                    class="icon-chevron-left"></i></button>
+                                            <span>P&aacute;gina</span>
+
+                                            <div class="inline">
+                                                <div class="input-group dropdown combobox">
+                                                    <input class="input-sm form-control" type="text">
+
+                                                    <div class="input-group-btn dropup">
+                                                        <button class="btn btn-sm btn-white" data-toggle="dropdown"><i
+                                                                class="caret"></i></button>
+                                                        <ul class="dropdown-menu pull-right"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span>de <span class="grid-pages"></span></span>
+                                            <button type="button" class="btn btn-sm btn-white grid-nextpage"><i
+                                                    class="icon-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
         </section>
     </section>
 {% endblock %}
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+
+
+
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <script src="/static/js/libs/underscore-min.js"></script>
+    <!-- datatables -->
+    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+    <!-- Sparkline Chart -->
+    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+    <!-- Easy Pie Chart -->
+    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
+
+    <script src="/static/js/app.grids.xindex.js"></script>
+{% endblock %}
+
 </body>
 </html>

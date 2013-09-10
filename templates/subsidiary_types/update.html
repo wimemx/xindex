@@ -1,26 +1,48 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>{% block title %}Modificar Tipo de Sucursal{% endblock %}</title>
 </head>
 <body>
-    <div>
-        <h4>{{ titulo }}</h4>
-    </div>
-    <form id="form_update" method="POST">{% csrf_token %}
-        <section>
-            <article>
-                <label for="id_name">Nombre:</label>
+{% block mainContent %}
+    <section id="content">
+        <section class="vbox">
+            <header class="header b-b">
+                <p class="h4 animated bounceInDown">Modificar Sucursal</p>
+            </header>
+            <section class="wrapper" id="basic">
+                <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
+                      action="">{% csrf_token %}
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Tipo de sucursal:</label>
+
+                        <div class="col-sm-5">
+                            {{ formulario.name }}
                 {{ formulario.name.errors }}
-                {{ formulario.name }}
-            </article>
-            <article>
-                <label for="id_description">Descripci&oacute;n:</label>
-                {{ formulario.description.errors }}
-                {{ formulario.description }}
-            </article>
+                        </div>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-4 control-label">Descripci&oacute;n:</label>
+
+                        <div class="col-sm-6">
+                            {{ formulario.description }}
+                            {{ formulario.description.errors }}
+                        </div>
+                        <div class="line line-dashed m-t-xs"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-sm-offset-6">
+                            <button type="submit" class="btn btn-twitter">Modificar</button>
+                            <a class="btn btn-white" href="/subsidiary_types">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </section>
         </section>
-        <input type="submit" value="Modificar">
-    </form>
+    </section>
+{% endblock %}
 </body>
 </html>
