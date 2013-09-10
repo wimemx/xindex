@@ -2544,7 +2544,8 @@ textarea.input-group-sm > .input-group-btn > .btn {
 .nav > li > a:hover,
 .nav > li > a:focus {
   text-decoration: none;
-  background-color: #eeeeee;
+  background-color: #edd515;
+  color: #6d6e71;
 }
 .nav > li.disabled > a {
   color: #999999;
