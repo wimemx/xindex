@@ -7,7 +7,7 @@ urlpatterns = patterns('subsidiaries.views',
     url(r'^add/$', 'add'),
 
     #pruebas
-    url(r'^new/$', 'new'),
+    #url(r'^new/$', 'new'),
     url(r'^add/$', 'add'),
     #fin pruebas
     #url(r'^(?P<question_id>\d+)/$', 'detail'),
