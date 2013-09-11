@@ -5,7 +5,8 @@
     <title>{% block title %}Xindex{% endblock %}</title>
     <meta name="description"
           content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.css">
     <link rel="stylesheet" href="/static/css/animate.css">
     <link rel="stylesheet" href="/static/css/font-awesome.min.css">
@@ -20,201 +21,215 @@
 </head>
 <body>
 {% if user.is_authenticated %}
-<!-- Seccion Principal -->
-<section class="hbox stretch">
+    <!-- Seccion Principal -->
+    <section class="hbox stretch">
     <aside class="aside-md yellow-xindex-nohover" id="nav">
-        <!-- Yellow Section -->
-        <section class="vbox">
-            <!--header deleted-->
-            <!--Footer-->
-            <footer class="footer bg-gradient hidden-xs">
-                <a href="#nav" data-toggle="class:nav-vertical" class="btn btn-sm btn-link m-l-n-sm">
-                    <i class="icon-reorder"></i>
-                </a>
-            </footer>
-            <!--End Footer-->
-            <section>
-                <div class="blue-xindex nav-bar">
-                    <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen" data-target="body">
-                        <i class="icon-reorder"></i>
+    <!-- Yellow Section -->
+    <section class="vbox">
+    <!--header deleted-->
+    <!--Footer-->
+    <footer class="footer bg-gradient hidden-xs">
+        <a href="#nav" data-toggle="class:nav-vertical"
+           class="btn btn-sm btn-link m-l-n-sm">
+            <i class="icon-reorder"></i>
+        </a>
+    </footer>
+    <!--End Footer-->
+    <section>
+    <div class="blue-xindex nav-bar">
+        <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen"
+           data-target="body">
+            <i class="icon-reorder"></i>
+        </a>
+        <a href="#" class="nav-brand" data-toggle="fullscreen">
+            {% block title-menu %}
+                Company name
+            {% endblock %}
+        </a>
+        <a class="btn btn-link visible-xs" data-toggle="class:show"
+           data-target=".nav-user">
+            <i class="icon-comment-alt"></i>
+        </a>
+    </div>
+    <!--Seccion Usuario-->
+    <div class="blue-xindex nav-user hidden-xs pos-rlt">
+        <div class="nav-avatar pos-rlt">
+            <a href="#" class="thumb-sm avatar animated rollIn"
+               data-toggle="dropdown">
+                <i><img src="{{ STATIC_URL }}images/avatar2.jpg" alt class/></i>
+                <i class="hidden-vertical" style="margin-left: 20px;">
+                    {% block username %}
+                        Username
+                    {% endblock %}
+                    <span class="caret caret-white"></span>
+                </i>
+            </a>
+            <ul class="dropdown-menu m-t-sm animated fadeInLeft">
+                <span class="arrow top"></span>
+                <li>
+                    <a href="#">Settings</a>
+                </li>
+                <li>
+                    <a href="profile.html">Profile</a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="badge bg-danger pull-right">3</span>
+                        Notifications
                     </a>
-                    <a href="#" class="nav-brand" data-toggle="fullscreen">
-                        {% block title-menu %}
-                            Company name
-                        {% endblock %}
-                    </a>
-                    <a class="btn btn-link visible-xs" data-toggle="class:show" data-target=".nav-user">
-                        <i class="icon-comment-alt"></i>
-                    </a>
-                </div>
-                <!--Seccion Usuario-->
-                <div class="blue-xindex nav-user hidden-xs pos-rlt">
-                    <div class="nav-avatar pos-rlt">
-                        <a href="#" class="thumb-sm avatar animated rollIn" data-toggle="dropdown">
-                            <i><img src="{{STATIC_URL}}images/avatar2.jpg" alt class /></i>
-                            <i class="hidden-vertical" style="margin-left: 20px;">
-                                {% block username %}
-                                    Username
-                                {% endblock %}
-                                <span class="caret caret-white"></span>
-                            </i>
-                        </a>
-                        <ul class="dropdown-menu m-t-sm animated fadeInLeft">
-                            <span class="arrow top"></span>
-                            <li>
-                                <a href="#">Settings</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <span class="badge bg-danger pull-right">3</span>
-                                    Notifications
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="docs.html">Help</a>
-                            </li>
-                            <li>
-                                <a href="/logout/">Logout</a>
-                            </li>
-                        </ul>
-                        <div class="visible-xs m-t m-b">
-                            <a href="#" class="h3">John.Smith</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="docs.html">Help</a>
+                </li>
+                <li>
+                    <a href="/logout/">Logout</a>
+                </li>
+            </ul>
+            <div class="visible-xs m-t m-b">
+                <a href="#" class="h3">John.Smith</a>
 
-                            <p><i class="icon-map-marker"></i> London, UK</p>
-                        </div>
-                    </div>
-                    <div class="nav-msg">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <b class="badge badge-white count-n">2</b>
-                        </a>
-                        <section class="dropdown-menu m-l-sm pull-left animated fadeInRight">
-                            <div class="arrow left"></div>
-                            <section class="panel bg-white">
-                                <header class="panel-heading">
-                                    <strong>You have <span class="count-n">2</span> notifications</strong>
-                                </header>
-                                <div class="list-group">
-                                    <a href="#" class="media list-group-item">
+                <p><i class="icon-map-marker"></i> London, UK</p>
+            </div>
+        </div>
+        <div class="nav-msg">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <b class="badge badge-white count-n">2</b>
+            </a>
+            <section
+                    class="dropdown-menu m-l-sm pull-left animated fadeInRight">
+                <div class="arrow left"></div>
+                <section class="panel bg-white">
+                    <header class="panel-heading">
+                        <strong>You have <span class="count-n">2</span>
+                            notifications</strong>
+                    </header>
+                    <div class="list-group">
+                        <a href="#" class="media list-group-item">
                                         <span class="pull-left thumb-sm">
-                                            <img src="images/ipad.png" alt="John said" class="img-circle">
+                                            <img src="images/ipad.png"
+                                                 alt="John said"
+                                                 class="img-circle">
                                         </span>
                                         <span class="media-body block m-b-none">
                                              Use awesome animate.css<br>
-                                            <small class="text-muted">28 Aug 13</small>
+                                            <small class="text-muted">28 Aug
+                                                13
+                                            </small>
                                         </span>
-                                    </a>
-                                    <a href="#" class="media list-group-item">
+                        </a>
+                        <a href="#" class="media list-group-item">
                                         <span class="media-body block m-b-none">
                                             1.0 initial released<br>
-                                            <small class="text-muted">27 Aug 13</small>
+                                            <small class="text-muted">27 Aug
+                                                13
+                                            </small>
                                         </span>
-                                    </a>
-                                </div>
-                                <footer class="panel-footer text-sm">
-                                    <a href="#" class="pull-right"><i class="icon-cog"></i></a>
-                                    <a href="#">See all the notifications</a>
-                                </footer>
-                            </section>
-                        </section>
+                        </a>
                     </div>
-                </div>
-                <!-- Termina Seccion Usuario-->
-                <!-- Seccion Menu-->
-                <nav class="nav-primary hidden-xs">
-                    <ul class="nav" id="nav-accordion">
-                        <li>
-                            <a href="/xindex/">
-                                <i class="icon-beer"></i>
-                                <span>Inicio</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-toggle="collapse" data-parent="#nav-accordion" href="#collapseOne">
-                                <i class="icon-building"></i>
-                                <span>Mi Empresa</span>
-                            </a>
-                            <ul id="collapseOne" class="nav accordion-body out collapse">
-                                <li>
-                                    <a href="buttons.html">Informaci&oacute;n General</a>
-                                </li>
-                                <li>
-                                    <a href="/subsidiaries/">
-                                        Mis Sucursales
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/zones/">Zonas</a>
-                                </li>
-                                <li>
-                                    <a href="/business_units/">
-                                        Mis unidades de servicio
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="accordion-group">
-                            <a data-toggle="collapse" data-parent="#nav-accordion"
-                               href="#SubIndicadores">
-                                <i class="icon-bar-chart"></i>
-                                <span>Mis indicadores</span>
-                            </a>
-                            <ul id="SubIndicadores" class="nav according-body out collapse">
-                                <li>
-                                    <a>Indicador 1</a>
-                                </li>
-                                <li>
-                                    <a>Indicador 2</a>
-                                </li>
-                                <li>
-                                    <a>Indicador 3</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-group"></i>
-                                <span>Mis clientes</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-file-text-alt"></i>
-                                <span>Mis encuestas</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-book"></i>
-                                <span>Mis reportes</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <!--Termina Seccion Menu-->
-            {% endif %}
-                <!-- note bgdanger text-sm-->
-                <div class="blue-xindex wrapper hidden-vertical animated rollIn text-sm">
-                    <a href="#" data-dismiss="alert" class="pull-right m-r-n-sm m-t-n-sm"><i class="icon-close icon-remove"></i></a>
-                    Hi, welcome to [ x i n d e x ].
-                </div>
-                <!-- / note -->
+                    <footer class="panel-footer text-sm">
+                        <a href="#" class="pull-right"><i class="icon-cog"></i></a>
+                        <a href="#">See all the notifications</a>
+                    </footer>
+                </section>
             </section>
+        </div>
+    </div>
+    <!-- Termina Seccion Usuario-->
+    <!-- Seccion Menu-->
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body out collapse">
+                    <li>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="accordion-group">
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#SubIndicadores">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis indicadores</span>
+                </a>
+                <ul id="SubIndicadores" class="nav according-body out collapse">
+                    <li>
+                        <a>Indicador 1</a>
+                    </li>
+                    <li>
+                        <a>Indicador 2</a>
+                    </li>
+                    <li>
+                        <a>Indicador 3</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-group"></i>
+                    <span>Mis clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-book"></i>
+                    <span>Mis reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <!--Termina Seccion Menu-->
+{% endif %}
+<!-- note bgdanger text-sm-->
+<div class="blue-xindex wrapper hidden-vertical animated rollIn text-sm">
+    <a href="#" data-dismiss="alert" class="pull-right m-r-n-sm m-t-n-sm"><i
+            class="icon-close icon-remove"></i></a>
+    Hi, welcome to [ x i n d e x ].
+</div>
+<!-- / note -->
+</section>
+</section>
+<!-- Ends Yellow Section -->
+</aside>
+<section id="content">
+    {% block mainContent %}
+        <section class="vbox">
+            <header class="header b-b">
+                <p class="h4 animated bounceInDown">Xindex</p>
+            </header>
         </section>
-        <!-- Ends Yellow Section -->
-    </aside>
-    <section id="content">
-        {% block mainContent %}
-            <section class="vbox">
-                <header class="header b-b">
-                    <p class="h4 animated bounceInDown">Xindex</p>
-                </header>
-            </section>
-        {% endblock %}
-    </section>
+    {% endblock %}
+</section>
 </section>
 <!-- Termina Seccion Principal -->
 {% block header %}
@@ -230,9 +245,12 @@
 <script src="/static/js/bootstrap.js"></script>
 <!-- Sparkline Chart -->
 <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
-<!-- App -->
-<script src="/static/js/app.js"></script>
-<script src="/static/js/app.plugin.js"></script>
-<script src="/static/js/app.data.js"></script>
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.data.js"></script>
+{% endblock %}
 </body>
 </html>

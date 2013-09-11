@@ -7,7 +7,7 @@
  */
 $(window).ready(function(){
 
-
+    alert("asdasdasd");
     var data_url, table_grid;
 
     if($('#MyStretchGrid')[0]){
@@ -15,6 +15,7 @@ $(window).ready(function(){
     } else if($('#mySTGrid')[0]){
         subsidiaryTypesDatagrid();
     } else if($('#myBUGrid')[0]){
+        alert('hdkjasgfdgdsffgdsg')
         businessUnitsDatagrid();
     } else if($('#mySGrid')[0]){
         servicesDatagrid();
@@ -22,6 +23,4 @@ $(window).ready(function(){
         alert('compañias')
         companiesDatagrid();
     }
-
-
 })
