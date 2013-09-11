@@ -290,6 +290,8 @@ function subsidiaryTypesDatagrid() {
     });
 }
 
+var sucursales = [], zonas = [];
+
 function businessUnitsDatagrid() {
     // fuelux subsidiaries datagrid
     var DataGridDataSource = function (options) {
@@ -297,6 +299,7 @@ function businessUnitsDatagrid() {
         this._columns = options.columns;
         this._delay = options.delay;
     };
+
 
     DataGridDataSource.prototype = {
 
@@ -334,15 +337,34 @@ function businessUnitsDatagrid() {
                             });
                         }
 
+                        $(".dropdown-menu.mainM li a").click(function () {
+                            var selText = $(this).text();
+                            switch (selText) {
+                                case 'Sucursal':
+                                    $('#second-filter').children().remove();
+                                    for (i = 0; i < sucursales.length; i++) {
+                                        $('#second-filter').append("<li data-value='" + sucursales[i] + "' data-selected='true'><a href='#'>" + sucursales[i] + "</a></li>")
+                                    }
+                                    break;
+                                case 'Zona':
+                                    $('#second-filter').children().remove();
+                                    for (i = 0; i < zonas.length; i++) {
+                                        $('#second-filter').append("<li data-value='" + zonas[i] + "' data-selected='true'><a href='#'>" + zonas[i] + "</a></li>")
+                                    }
+                                    break;
+                            }
+
+                        });
+
                         // FILTERING
                         if (options.filter) {
                             data = _.filter(data, function (item) {
                                 switch (options.filter.value) {
-                                    case 'lt5m':
-                                        if (item.population < 5000000) return true;
+                                    case 'Sucursal 1':
+                                        if (item.subsidiary == 'Sucursal 1') return true;
                                         break;
-                                    case 'gte5m':
-                                        if (item.population >= 5000000) return true;
+                                    case 'Subsidiaria 2':
+                                        if (item.subsidiary == 'Subsidiaria 2') return true;
                                         break;
                                     default:
                                         return true;
@@ -390,8 +412,8 @@ function businessUnitsDatagrid() {
                         sortable: true
                     },
                     {
-                        property: 'description',
-                        label: 'Descripción',
+                        property: 'subsidiary',
+                        label: 'Sucursal',
                         sortable: false
                     },
                     /*
@@ -402,36 +424,81 @@ function businessUnitsDatagrid() {
                      },
                      */
                     {
-                        property: 'bu_det',
-                        label: 'Detalles',
+                        property: 'zone',
+                        label: 'Zona',
                         sortable: false
                     },
                     {
-                        property: 'bu_up',
-                        label: 'Editar',
+                        property: 'business_unit_id',
+                        label: 'Opciones',
                         sortable: false
-                    },
-                    {
-                        property: 'bu_del',
-                        label: 'Eliminar'
                     }
                 ],
 
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.bu_det = '<a href="/business_units/details/' + item.bu_det + '"><i class="icon-eye-open"></i></a>';
-                        item.bu_up = '<a href="/business_units/update/' + item.bu_up + '"><i class="icon-edit-sign"></i></a>';
-                        item.bu_del = '<a href="/business_units/remove/' + item.bu_del + '"><i class="icon-remove-sign"></i></a>';
+                        var buid = item.business_unit_id;
+                        item.name = '<a href="/business_units/details/' + buid + '">' + item.name + '</a>';
+                        item.business_unit_id = '<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>' + ' | ' +
+                            '<a href="/business_units/update/' + item.business_unit_id + '"><i class="icon-edit-sign"></i></a>' + ' | ' +
+                            '<a href="/business_units/remove/' + item.business_unit_id + '"><i class="icon-remove-sign"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
+
                     });
+
+                    $.each(items, function (index, item) {
+
+                        if (sucursales.length == 0) {
+                            var sucursal = item.subsidiary;
+                            sucursales.push(sucursal);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < sucursales.length; i++) {
+                            if (sucursales[i] == item.subsidiary) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var sucursal = item.subsidiary;
+                            sucursales.push(sucursal)
+                        }
+
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (zonas.length == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < zonas.length; i++) {
+                            if (zonas[i] == item.zone) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona)
+                        }
+
+                    });
+
                 }
+
+                //Crear filtros
+
+
             })
         });
     });
 }
-
 
 
 function servicesDatagrid() {
@@ -711,9 +778,9 @@ function companiesDatagrid() {
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.c_det = '<a href="/companies/'+ item.c_det +'/details/"><i class="icon-eye-open"></i></a>';
-                        item.c_up = '<a href="/companies/'+ item.c_up +'/edit/"><i class="icon-edit-sign"></i></a>';
-                        item.c_del = '<a href="/companies/'+ item.c_del +'/remove/"><i class="icon-remove-sign"></i></a>';
+                        item.c_det = '<a href="/companies/' + item.c_det + '/details/"><i class="icon-eye-open"></i></a>';
+                        item.c_up = '<a href="/companies/' + item.c_up + '/edit/"><i class="icon-edit-sign"></i></a>';
+                        item.c_del = '<a href="/companies/' + item.c_del + '/remove/"><i class="icon-remove-sign"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
                     });

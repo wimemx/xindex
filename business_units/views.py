@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response
-from xindex.models import BusinessUnit
+from xindex.models import BusinessUnit, Subsidiary
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from business_units.forms import AddBusinessUnit
@@ -133,6 +133,20 @@ def getBUInJson(request):
     b_u = {}
     b_u['business_u'] = []
 
+    subsidiaries = Subsidiary.objects.filter(company__id=1,active=True)
+    for subsidiary in subsidiaries:
+        print "Sucursal: "+subsidiary.name+", Zona: "+subsidiary.zone.name
+        for business_unit in subsidiary.business_unit.all():
+            b_u['business_u'].append(
+                {
+                    "name": business_unit.name,
+                    "subsidiary": subsidiary.name,
+                    "zone": subsidiary.zone.name,
+                    "business_unit_id": business_unit.id
+                }
+            )
+    """
+    print(subsidiaries)
     for bu in BusinessUnit.objects.filter(active=True).order_by('-date'):
         b_u['business_u'].append(
             {
@@ -140,10 +154,10 @@ def getBUInJson(request):
                 "description":bu.description,
                 "bu_det": bu.id,
                 "bu_up": bu.id,
-                "bu_del": bu.id
+                "bu_del": bu.id,
             }
         )
-
+    """
     #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(b_u))
