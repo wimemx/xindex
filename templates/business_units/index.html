@@ -3,10 +3,14 @@
 <html>
 <head>
     <title>{% block title %}Unidades de servicio{% endblock %}</title>
+    {% block externalCss %}
+        <link rel="stylesheet" href="/static/js/fuelux/fuelux.css">
+        <link rel="stylesheet" href="/static/js/datatables/datatables.css">
+    {% endblock %}
 </head>
 <body>
 {% block mainContent %}
-    <section class="vbox">
+    <section class="vbox wrapper-lg">
         <header class="header b-b">
             <p class="h4 animated bounceInDown">Unidades de Servicio</p>
         </header>
@@ -14,26 +18,64 @@
             <div id="datagrid">
                 <section class="panel">
                     <div class="table-responsive">
-                        <table id="myBUGrid" class="table table-striped datagrid m-b-sm">
+                        <table id="myBUGrid"
+                               class="table table-striped datagrid m-b-sm">
                             <thead>
                             <tr>
                                 <th>
                                     <div class="row">
                                         <div class="col-sm-8 m-t-xs m-b-xs">
                                             <div>
-                                                <a class="btn btn-white btn-sm" href="/business_units/add">
+                                                <a class="btn btn-white btn-sm"
+                                                   href="/business_units/add">
                                                     <i class="icon-plus-sign"></i>
-                                                    Agregar
+                                                    Agregar Unidad de Servicio
                                                 </a>
                                             </div>
                                         </div>
                                         <div class="col-sm-4 m-t-xs m-b-xs">
                                             <div class="input-group search datagrid-search">
-                                                <input type="text" class="input-sm form-control" placeholder="Buscar">
+                                                <input type="text"
+                                                       class="input-sm form-control"
+                                                       placeholder="Buscar">
 
                                                 <div class="input-group-btn">
-                                                    <button class="btn btn-white btn-sm"><i class="icon-search"></i>
+                                                    <button class="btn btn-white btn-sm">
+                                                        <i class="icon-search"></i>
                                                     </button>
+                                                </div>
+                                                <div class="select padder"
+                                                     data-resize="auto" id="filterby">
+                                                    <span>
+                                                        Filtrar:
+                                                    </span>
+                                                    <button data-toggle="dropdown"
+                                                            class="btn btn-sm btn-white dropdown-toggle">
+                                                        <span class="dropdown-label"></span>
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu mainM">
+                                                        <li data-value="Sucursal"
+                                                            data-selected="true">
+                                                            <a href="#">Sucursal</a>
+                                                        </li>
+                                                        <li data-value="Zona">
+                                                            <a href="#">Zona</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="select filter"
+                                                     data-resize="auto">
+                                                    <button data-toggle="dropdown"
+                                                            class="btn btn-sm btn-white dropdown-toggle">
+                                                        <span class="dropdown-label"></span>
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" id="second-filter">
+                                                        <li data-value="default" data-selected="true">
+                                                            <a href="#">Todas</a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         </div>
@@ -54,44 +96,60 @@
                                 <span class="grid-count"></span>
                               </span>
 
-                                            <div class="select grid-pagesize dropup" data-resize="auto">
+                                            <div class="select grid-pagesize dropup"
+                                                 data-resize="auto">
                                                 <button data-toggle="dropdown"
                                                         class="btn btn-sm btn-white dropdown-toggle">
                                                     <span class="dropdown-label"></span>
                                                     <span class="caret"></span>
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    <li data-value="5"><a href="#">5</a></li>
-                                                    <li data-value="10"><a href="#">10</a></li>
-                                                    <li data-value="20" data-selected="true"><a href="#">20</a></li>
-                                                    <li data-value="50"><a href="#">50</a></li>
-                                                    <li data-value="100"><a href="#">100</a></li>
+                                                    <li data-value="5"><a
+                                                            href="#">5</a></li>
+                                                    <li data-value="10"><a
+                                                            href="#">10</a></li>
+                                                    <li data-value="20"
+                                                        data-selected="true"><a
+                                                            href="#">20</a></li>
+                                                    <li data-value="50"><a
+                                                            href="#">50</a></li>
+                                                    <li data-value="100"><a
+                                                            href="#">100</a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                             <span>Por p&aacute;gina</span>
                                         </div>
                                     </div>
-                                    <div class="datagrid-footer-right col-sm-6 text-left text-xs"
+                                    <div class="datagrid-footer-right col-sm-6 text-right text-center-xs"
                                          style="display:none;">
                                         <div class="grid-pager m-r-n">
-                                            <button type="button" class="btn btn-sm btn-white grid-prevpage"><i
-                                                    class="icon-chevron-left"></i></button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-prevpage">
+                                                <i class="icon-chevron-left"></i>
+                                            </button>
                                             <span>P&aacute;gina</span>
 
                                             <div class="inline">
                                                 <div class="input-group dropdown combobox">
-                                                    <input class="input-sm form-control" type="text">
+                                                    <input class="input-sm form-control"
+                                                           type="text">
 
                                                     <div class="input-group-btn dropup">
-                                                        <button class="btn btn-sm btn-white" data-toggle="dropdown"><i
-                                                                class="caret"></i></button>
+                                                        <button class="btn btn-sm btn-white"
+                                                                data-toggle="dropdown">
+                                                            <i class="caret"></i>
+                                                        </button>
                                                         <ul class="dropdown-menu pull-right"></ul>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span>de <span class="grid-pages"></span></span>
-                                            <button type="button" class="btn btn-sm btn-white grid-nextpage"><i
-                                                    class="icon-chevron-right"></i></button>
+                                            <span>de <span
+                                                    class="grid-pages"></span></span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-nextpage">
+                                                <i class="icon-chevron-right"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </th>

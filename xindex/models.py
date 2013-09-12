@@ -321,7 +321,7 @@ class Subsidiary(models.Model):
     subsidiary_types = models.ManyToManyField(Subsidiary_Type, blank=True, null=True)
     business_unit = models.ManyToManyField(BusinessUnit, blank=True, null=True)
     #services = models.ManyToManyField(Service)
-    zone = models.ManyToManyField(Zone, blank=True, null=True)
+    zone = models.ForeignKey(Zone, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
