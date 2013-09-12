@@ -1,15 +1,82 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<form id="formulario" method="post" enctype="multipart/form-data" action="">
-    {% csrf_token %}
-    {{ formulario.as_p }}
-    <input type="reset" value="Cancel">
-    <input type="submit" value="Add">
-</form>
-</body>
-</html>
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Agregar Momento de Contacto</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="moment_form" method="POST"
+                  action="/moments/add/{{ service_id }}">{% csrf_token %}
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Nombre:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Atributos:</label>
+
+                    <div class=" col-md-5">
+                        {{ formulario.attributes }}
+                        {{ formulario.attributes.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Propietarios:</label>
+
+                    <div class="col-sm-5">
+                        {{ formulario.owners }}
+                        {{ formulario.owners.errors }}
+                    </div>
+                    <div class="line line-dashed m-t-xs"></div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-white"
+                       data-dismiss="modal">Cancelar</a>
+                    <a href="#" class="btn btn-twitter" id="">Agregar</a>
+                    <button type="submit"
+                            class="btn btn-twitter">Add
+                    </button>
+                    <input type="hidden" value="{{ service_id }}" id="service_id"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+    $(function () {
+//twitter bootstrap script
+        $("#moment_form").on('submit', function (e) {
+            e.preventDefault();
+
+            var service_id = $('#service_id').val();
+            var url = "/moments/add/"+service_id;
+            var action = $('#moment_form').attr('action');
+            alert(url);
+            alert(action);
+            $.ajax({
+                type: "POST",
+                url: $('#moment_form').attr('action'),
+                data: $('#moment_form').serialize(),
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (msg_failu) {
+                    alert('La peticion no ha podido realizarse!')
+                }
+            });
+        });
+    });
+</script>

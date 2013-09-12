@@ -4,6 +4,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from xindex.models import Moment
 from xindex.forms import MomentForm
+from xindex.models import Service
 
 def index(request):
     moments = Moment.objects.all().order_by('-date')
@@ -19,17 +20,27 @@ def detail(request, moment_id):
         raise Http404
     return render(request, 'moments/detail.html', {'moment': moment})
 
-def add(request):
+def add(request, service_id):
+    print("Entrando al metodo")
     if request.method=='POST':
+        print "Si se envio por post"
         form = MomentForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/moments')
+            id_return = form.save()
+            print id_return.id
+            service = Service.objects.get(id=service_id)
+            service.moments.add(id_return)
+            return HttpResponse("El Momento de contacto se ha dado de alta!")
+            #return HttpResponseRedirect('/moments')
+        else:
+            return HttpResponse("Verifique los campos y vuelva a intentar!")
     else:
         form = MomentForm()
+        return render(request, "moments/add.html", {"formulario": form, "service_id": service_id})
 
-    request_context = RequestContext(request)
-    return render(request, "moments/add.html", {"formulario": form})
+    #request_context = RequestContext(request)
+
+    #return render(request, "moments/add.html", {"formulario": form})
 
 def edit(request, moment_id):
     moment = Moment.objects.get(pk=moment_id)

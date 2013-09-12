@@ -33,16 +33,18 @@
                         <section class="scrollable wrapper">
                             <div class="row">
                                 <div class="col-lg-9">
-                                    <div class="col-lg-6 col-sm-6">
-                                        <section class="panel lter no-borders">
-                                            <div class="panel-body text-center padder v-middle">
-                                                <div class="text-center media-lg thumb-lg padder-v">
-                                                    <i class="icon-ok inline icon-light text-success icon-3x m-t-lg m-b-lg"></i>
+                                    <a href="/moments/add/{{ service_id }}" data-toggle="ajaxModal">
+                                        <div class="col-lg-6 col-sm-6">
+                                            <section class="panel lter no-borders">
+                                                <div class="panel-body text-center padder v-middle">
+                                                    <div class="text-center media-lg thumb-lg padder-v">
+                                                        <i class="icon-ok inline icon-light text-success icon-3x m-t-lg m-b-lg"></i>
+                                                    </div>
+                                                    <p class="text-muted"><em>Agregar Momento</em></p>
                                                 </div>
-                                                <p class="text-muted"><em>Add one</em></p>
-                                            </div>
-                                        </section>
-                                    </div>
+                                            </section>
+                                        </div>
+                                    </a>
                                     {% if service %}
                                         {% for Moment in service.moments.all %}
                                             <div class="col-lg-6 col-sm-6">
@@ -145,6 +147,12 @@
             </section>
         </section>
     </section>
+{% endblock %}
+{% block externalJs %}
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.data.js"></script>
+    <script src="/static/js/app.forms.xindex.js"></script>
 {% endblock %}
 </body>
 </html>

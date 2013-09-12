@@ -8,10 +8,31 @@ import datetime
 class MomentForm(ModelForm):
 
     name = forms.CharField(label="Name:")
+    """
     attributes = forms.ModelMultipleChoiceField(queryset=Attributes.objects.all(),
         label="Attribute:",
         widget=forms.CheckboxSelectMultiple,
         required=False)
+    """
+    def __init__(self, *args, **kwargs):
+        super(MomentForm, self).__init__(*args, **kwargs)
+        self.fields['name'].error_messages = {
+            'required': 'Ingrese un nombre',
+            'invalid': 'Ingrese un nombre valido'
+        }
+        self.fields['description'].error_messages = {
+            'required': 'Ingrese una descripcion',
+            'invalid': 'Ingrese una descripcion valida'
+        }
+        self.fields['owners'].error_messages = {
+            'required': 'Seleccione un propietario',
+            'invalid': 'Seleccione un propietario valido'
+        }
+
+        self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['attributes'].widget.attrs.update({'class': 'form-control'})
+        self.fields['owners'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Moment

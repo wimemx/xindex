@@ -13,7 +13,14 @@ function addBusinessUnit(){
 }
 
 $(document).ready(function(){
-    $('#business_unit_form').on('submit', function(e){
+
+    alert('Getting');
+
+    $('#')
+
+
+    $('#moment_form').on('submit', function(e){
+        alert(e);
       e.preventDefault();
       $.post('/business_unit/add',
          $('#business_unit_form').serialize(),

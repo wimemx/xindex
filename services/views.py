@@ -187,7 +187,8 @@ def details(request, service_id):
     template_vars = {
         'titulo': 'Detalles',
         'service': moments,
-        'counter': counter
+        'counter': counter,
+        'service_id': service_id
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)
