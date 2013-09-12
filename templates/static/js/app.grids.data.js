@@ -359,17 +359,34 @@ function businessUnitsDatagrid() {
                         // FILTERING
                         if (options.filter) {
                             data = _.filter(data, function (item) {
+                                for (i = 0; i < sucursales.length; i++) {
+                                    switch (options.filter.value){
+                                        case sucursales[i]:
+                                            if (item.subsidiary == sucursales[i]) return true;
+                                            break;
+                                    }
+                                }
+                                for (i = 0; i < zonas.length; i++) {
+                                    switch (options.filter.value){
+                                        case zonas[i]:
+                                            if (item.zone == zonas[i]) return true;
+                                            break;
+                                    }
+                                }
+
+                                /*
                                 switch (options.filter.value) {
-                                    case 'Sucursal 1':
+
+                                    case 'Sucursal':
                                         if (item.subsidiary == 'Sucursal 1') return true;
                                         break;
-                                    case 'Subsidiaria 2':
+                                    case 'Zona':
                                         if (item.subsidiary == 'Subsidiaria 2') return true;
                                         break;
                                     default:
                                         return true;
                                         break;
-                                }
+                                }*/
                             });
                         }
 
@@ -921,3 +938,14 @@ function attributesDatagrid() {
         });
     });
 }
+
+
+//funcion para agregar una unidad de servicio
+$('#addBusinessUnit').click(function () {
+
+    $('.modal-body').load('/render/62805', function (result) {
+        $('#myModal').modal({show: true});
+    });
+
+
+});
