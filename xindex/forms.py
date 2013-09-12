@@ -1,14 +1,14 @@
 from django.forms import ModelForm, Form
 from django.forms.widgets import CheckboxSelectMultiple, Textarea
 from django import forms
-from xindex.models import Company, Company_Type, Zone,Country, State, City, Moment, Attribute, Owner, Indicator
+from xindex.models import Company, Company_Type, Zone,Country, State, City, Moment, Attributes, Owner
 import datetime
 
 
 class MomentForm(ModelForm):
 
     name = forms.CharField(label="Name:")
-    attributes = forms.ModelMultipleChoiceField(queryset=Attribute.objects.all(),
+    attributes = forms.ModelMultipleChoiceField(queryset=Attributes.objects.all(),
         label="Attribute:",
         widget=forms.CheckboxSelectMultiple,
         required=False)
@@ -29,27 +29,12 @@ class OwnerForm(ModelForm):
         exclude = ('date','meta')
 
 
-class AttributeForm(ModelForm):
-
+class AttributesForm(ModelForm):
     name = forms.CharField(label="Name:")
 
     class Meta:
-        model = Attribute
-        fields = ('name', 'description')
-        exclude = ('date', 'meta')
-
-
-class IndicatorForm(ModelForm):
-    name = forms.CharField(label="Name:")
-    attributes = forms.ModelMultipleChoiceField(queryset=Attribute.objects.all(),
-        label="Attribute:",
-        widget=forms.CheckboxSelectMultiple,
-        required=False)
-
-
-    class Meta:
-        model = Indicator
-        fields = ('name', 'description', 'type', 'min_value','max_value','threshold','weight', 'attributes','questions','active')
+        model = Attributes
+        fields = ('name', 'description', 'type', 'min_value','max_value','threshold','weight','questions','active')
         exclude = ('date', 'meta')
 
 

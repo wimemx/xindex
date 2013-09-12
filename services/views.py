@@ -1,14 +1,14 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 import services
-from xindex.models import Service
-from django.http import HttpResponseRedirect, HttpResponse
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
 from django.utils import simplejson
 
 
-def index(request, message = ''):
+def index(request, message=''):
     all_services = Service.objects.all().order_by('-name')
     print all_services
     template_vars = {
@@ -17,6 +17,7 @@ def index(request, message = ''):
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("services/index.html", request_context)
+
 
 def add(request):
     if request.POST:
@@ -58,7 +59,8 @@ def update(request, service_id):
 
     if ser:
         if request.POST:
-            formulario = AddService(request.POST or None, request.FILES, instance=ser)
+            formulario = AddService(request.POST or None, request.FILES,
+                                    instance=ser)
             if formulario.is_valid():
                 formulario.save()
                 template_vars = {
@@ -74,7 +76,8 @@ def update(request, service_id):
                     "formulario": formulario
                 }
                 request_context = RequestContext(request, template_vars)
-                return render_to_response("services/update.html", request_context)
+                return render_to_response("services/update.html",
+                                          request_context)
         else:
             formulario = AddService(instance=ser)
             template_vars = {
@@ -91,7 +94,6 @@ def update(request, service_id):
 
 
 def remove(request, service_id):
-
     try:
         ser = Service.objects.get(id=service_id)
     except Service.DoesNotExist:
@@ -101,7 +103,7 @@ def remove(request, service_id):
         try:
             ser.active = False
             ser.save()
-            message="Se ha eliminado el servicio"
+            message = "Se ha eliminado el servicio"
             template_vars = {
                 "titulo": "Servicios",
                 "message": "Se ha eliminado el servicio"
@@ -131,25 +133,29 @@ def remove(request, service_id):
 
 
 def getSInJson(request):
-    s = {}
-    s['services'] = []
+    service = {}
+    service['services'] = []
+    service_query = Service.objects.filter(active=True).order_by('-date')
+    business_unit_query = BusinessUnit.objects.filter(active=True)
 
-    for ser in Service.objects.filter(active=True).order_by('-date'):
-        s['services'].append(
+    for each_service in service_query:
+        service['services'].append(
             {
-                "name": ser.name,
-                "description": ser.description,
-                "s_det": ser.id,
-                "s_up": ser.id,
-                "s_del": ser.id
+                "name": each_service.name,
+                "business_unit": "Unidad de servicio",
+                "subsidiary": "Sucursal",
+                "zone": "Ubicacion",
+                "delete": each_service.id,
+                "edit": each_service.id,
+                "details": each_service.id
             }
         )
 
-    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+#subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
-    return HttpResponse(simplejson.dumps(s))
+    return HttpResponse(simplejson.dumps(service))
 
-
+'''
 def details(request, service_id):
     template_vars = {
         'titulo': 'Detalles'
@@ -162,5 +168,26 @@ def details(request, service_id):
         s = False
 
     template_vars['service'] = s
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('services/details.html', request_context)
+'''
+
+
+def details(request, service_id):
+    try:
+        moments = Service.objects.get(pk=service_id)
+        status = str(moments.active)
+    except Service.DoesNotExist:
+        raise Http404
+
+    counter=0
+    for a in moments.moments.all():
+        counter = counter+1
+
+    template_vars = {
+        'titulo': 'Detalles',
+        'service': moments,
+        'counter': counter
+    }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)

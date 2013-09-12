@@ -22,9 +22,9 @@ urlpatterns = patterns('',
     url(r'^owners/', include('owners.urls')),
 
     #Attributes
-    url(r'^attributes/', include('attributes.urls')),
+    #url(r'^attributes/', include('attributes.urls')),
 
-    #Indicators
+    #Attributes
     url(r'^indicators/', include('indicators.urls')),
 
     #Questions
