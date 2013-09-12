@@ -156,23 +156,6 @@ class Company(models.Model):
         verbose_name = "Company"
 
 
-class Attribute(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
-    name = models.CharField(max_length=50, null=False)
-    description = models.TextField()
-    active = models.BooleanField(default=True)
-    date = models.DateField(default=datetime.now, blank=True, null=True)
-    meta = models.TextField(blank=True, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Attributes"
-        verbose_name = "Attribute"
-
-
 class Question_Type(models.Model):
     #id = models.AutoField(primary_key=True, null=False, unique=True, \
     #                      blank=True)
@@ -273,7 +256,7 @@ class Survey(models.Model):
         verbose_name = "Survey"
 
 
-class Indicator(models.Model):
+class Attributes(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
     type = models.CharField(max_length=20, null=False)
@@ -281,7 +264,6 @@ class Indicator(models.Model):
     max_value = models.DecimalField(max_digits=5, decimal_places=2)
     threshold = models.DecimalField(max_digits=5, decimal_places=2)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
-    attributes = models.ManyToManyField(Attribute, blank=True, null=True)
     questions = models.ManyToManyField(Question, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -291,8 +273,8 @@ class Indicator(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = "Indicator"
-        verbose_name = "Indicator"
+        verbose_name_plural = "Attributes"
+        verbose_name = "Attribute"
 
 
 class Service(models.Model):
@@ -375,7 +357,7 @@ class Moment(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
     previous_moment = models.ForeignKey('Moment', blank=True, null=True)
-    attributes = models.ManyToManyField(Attribute, blank=True, null=True)
+    attributes = models.ManyToManyField(Attributes, blank=True, null=True)
     owners = models.ManyToManyField(Owner, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)

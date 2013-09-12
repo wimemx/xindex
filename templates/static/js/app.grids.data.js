@@ -618,39 +618,37 @@ function servicesDatagrid() {
                         sortable: true
                     },
                     {
-                        property: 'description',
-                        label: 'Descripción',
-                        sortable: false
-                    },
-                    /*
-                     {
-                     property: 'active',
-                     label: '¿Activa?',
-                     sortable: true
-                     },
-                     */
-                    {
-                        property: 's_det',
-                        label: 'Detalles',
+                        property: 'business_unit',
+                        label: 'Unidad de servicio',
                         sortable: false
                     },
                     {
-                        property: 's_up',
-                        label: 'Editar',
+                        property: 'subsidiary',
+                        label: 'Sucursal',
                         sortable: false
                     },
                     {
-                        property: 's_del',
-                        label: 'Eliminar'
+                        property: 'zone',
+                        label: 'Ubicación',
+                        sortable: false
+                    },
+                    {
+                        property: 'delete',
+                        label: 'Acciones'
                     }
                 ],
 
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.s_det = '<a href="/services/details/' + item.s_det + '"><i class="icon-eye-open"></i></a>';
-                        item.s_up = '<a href="/services/update/' + item.s_up + '"><i class="icon-edit-sign"></i></a>';
-                        item.s_del = '<a href="/services/remove/' + item.s_del + '"><i class="icon-remove-sign"></i></a>';
+                        item.name = '<a href="/services/details/' + item.details + ' ">' + item.name + '</a>';
+                        //item.detail = '<a href="/services/details/' + item.detail + '"><i class="icon-eye-open"></i></a>';
+                        item.delete =
+                            '<a href="/services/update/' + item.edit + '"><i class="icon-edit text-warning"></i></a>'
+                                +
+                                '<label>|</label>'
+                                +
+                            '<a href="/services/remove/' + item.delete + '"><i class="icon-remove text-danger"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
                     });

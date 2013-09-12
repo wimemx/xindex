@@ -1,24 +1,22 @@
-/**
- * Created with PyCharm.
- * User: osvaldo
- * Date: 6/09/13
- * Time: 01:07 PM
- * To change this template use File | Settings | File Templates.
- */
 $(window).ready(function(){
 
+    alert(".ready");
     var data_url, table_grid;
 
     if($('#MyStretchGrid')[0]){
+        alert('subsidiaries');
         subsidiariesDatagrid();
     } else if($('#mySTGrid')[0]){
+        alert('subsidiarytypes');
         subsidiaryTypesDatagrid();
     } else if($('#myBUGrid')[0]){
+        alert('bussinesunits')
         businessUnitsDatagrid();
     } else if($('#mySGrid')[0]){
+        alert('services');
         servicesDatagrid();
     } else if($('#myComGrid')[0]){
-        alert('compañias')
+        alert('companies')
         companiesDatagrid();
     }
 })

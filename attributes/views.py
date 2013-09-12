@@ -1,3 +1,5 @@
+'''
+
 from django.shortcuts import render, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -39,3 +41,4 @@ def edit(request, attribute_id):
     else:
         form = AttributeForm(instance=attribute)
     return render(request, "attributes/add.html", {"formulario":form})
+    '''

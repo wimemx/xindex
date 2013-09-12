@@ -1,3 +1,4 @@
+'''
 from django.conf.urls import patterns, url
 from attributes import views
 
@@ -7,3 +8,4 @@ urlpatterns = patterns('',
     url(r'^add/$', views.add, name="add"),
     url(r'^(?P<attribute_id>\d+)/edit/$', views.edit, name='edit'),
 )
+'''
