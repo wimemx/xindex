@@ -1,56 +1,66 @@
-{% extends "base.html" %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}Agregar Unidad de Servicio{% endblock %}</title>
-</head>
-<body>
-{% block mainContent %}
-    <section id="content">
-        <section class="vbox">
-            <header class="header b-b">
-                <p class="h4 animated bounceInDown">Agregar Unidad de Servicio</p>
-            </header>
-            <section class="wrapper" id="basic">
-                <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
-                      action="">{% csrf_token %}
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Nombre:</label>
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Agregar Unidad de Servicio</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="business_unit_form" method="POST"
+                  action="">{% csrf_token %}
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Nombre:</label>
 
-                        <div class="col-sm-5">
-                            {{ formulario.name }}
-                            {{ formulario.name.errors }}
-                        </div>
+                    <div class=" col-md-7">
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
                     </div>
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Descripci&oacute;n:</label>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
 
-                        <div class="col-sm-6">
-                            {{ formulario.description }}
-                            {{ formulario.description.errors }}
-                        </div>
+                    <div class=" col-md-7">
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
                     </div>
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Servicio:</label>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Sucursales:</label>
 
-                        <div class="col-sm-5">
-                            {{ formulario.service }}
-                            {{ formulario.service.errors }}
-                        </div>
-                        <div class="line line-dashed m-t-xs"></div>
+                    <div class=" col-md-5">
+                        {{ formulario.subsidiaries }}
+                        {{ formulario.subsidiaries.errors }}
                     </div>
-                    <div class="form-group">
-                        <div class="col-sm-6 col-sm-offset-6">
-                            <button type="submit" class="btn btn-twitter">Agregar</button>
-                            <a class="btn btn-white" href="/business_units">
-                                Cancelar
-                            </a>
-                        </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Servicio:</label>
+
+                    <div class="col-sm-5">
+                        {{ formulario.service }}
+                        {{ formulario.service.errors }}
                     </div>
-                </form>
-            </section>
-        </section>
-    </section>
-{% endblock %}
-</body>
-</html>
+                    <div class="line line-dashed m-t-xs"></div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-white"
+                       data-dismiss="modal">Cancelar</a>
+                    <a href="#" class="btn btn-twitter" id="">Agregar</a>
+                    <button type="submit"
+                                        class="btn btn-twitter">Add
+                                </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script type="text/javascript">
+    $('#business_unit_form').on('submit', function(e){
+      e.preventDefault();
+      $.post('/business_unit/add',
+         $('#business_unit_form').serialize(),
+         function(data, status, xhr){
+           alert('Yeh!')
+         });
+    });
+</script>
