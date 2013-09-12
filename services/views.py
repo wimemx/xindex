@@ -180,14 +180,21 @@ def details(request, service_id):
     except Service.DoesNotExist:
         raise Http404
 
-    counter=0
+    counter_moments = 0
     for a in moments.moments.all():
-        counter = counter+1
+        counter_moments += 1
+
+    counter_attributes_= 0
+    for each_moment in moments.moments.all():
+        each_moment_to_compare = Moment.objects.get(pk=each_moment.id)
+        for attribute in each_moment_to_compare.attributes.all():
+            counter_attributes_ += 1
 
     template_vars = {
         'titulo': 'Detalles',
         'service': moments,
-        'counter': counter
+        'counter_moments': counter_moments,
+        'counter_attributes': counter_attributes_
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)

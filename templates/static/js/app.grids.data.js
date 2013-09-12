@@ -632,8 +632,6 @@ function servicesDatagrid() {
                                 '<label>|</label>'
                                 +
                             '<a href="/services/remove/' + item.delete + '"><i class="icon-remove text-danger"></i></a>';
-                        //c = (item.active == true) ? "checked" : ""
-                        //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
                     });
                 }
             })
@@ -781,6 +779,142 @@ function companiesDatagrid() {
                         item.c_del = '<a href="/companies/' + item.c_del + '/remove/"><i class="icon-remove-sign"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
+                    });
+                }
+            })
+        });
+    });
+}
+
+/*
+* Tabla de indicadores/atributos
+* */
+function attributesDatagrid() {
+    // fuelux subsidiaries datagrid
+    var DataGridDataSource = function (options) {
+        this._formatter = options.formatter;
+        this._columns = options.columns;
+        this._delay = options.delay;
+    };
+
+    DataGridDataSource.prototype = {
+
+        columns: function () {
+            return this._columns;
+        },
+
+        data: function (options, callback) {
+            var url = '/indicators/json'
+            var self = this;
+
+
+            setTimeout(function () {
+
+                var data = $.extend(true, [], self._data);
+
+                $.ajax(url, {
+                    dataType: 'json',
+                    async: false,
+                    type: 'GET'
+                }).done(function (response) {
+                        data = response.attributes;
+                        // SEARCHING
+                        if (options.search) {
+                            data = _.filter(data, function (item) {
+                                var match = false;
+
+                                _.each(item, function (prop) {
+                                    if (_.isString(prop) || _.isFinite(prop)) {
+                                        if (prop.toString().toLowerCase().indexOf(options.search.toLowerCase()) !== -1) match = true;
+                                    }
+                                });
+
+                                return match;
+                            });
+                        }
+
+                        // FILTERING == FILTRADO DEL CONTENIDO
+                        if (options.filter) {
+                            data = _.filter(data, function (item) {
+                                switch (options.filter.value) {
+                                    case 'lt5m':
+                                        if (item.population < 5000000) return true;
+                                        break;
+                                    case 'gte5m':
+                                        if (item.population >= 5000000) return true;
+                                        break;
+                                    default:
+                                        return true;
+                                        break;
+                                }
+                            });
+                        }
+
+                        var count = data.length;
+
+                        // SORTING
+                        if (options.sortProperty) {
+                            data = _.sortBy(data, options.sortProperty);
+                            if (options.sortDirection === 'desc') data.reverse();
+                        }
+
+                        // PAGING
+                        var startIndex = options.pageIndex * options.pageSize;
+                        var endIndex = startIndex + options.pageSize;
+                        var end = (endIndex > count) ? count : endIndex;
+                        var pages = Math.ceil(count / options.pageSize);
+                        var page = options.pageIndex + 1;
+                        var start = startIndex + 1;
+
+                        data = data.slice(startIndex, endIndex);
+
+                        if (self._formatter) self._formatter(data);
+
+                        callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+                    }).fail(function (e) {
+                        alert('¡No se pueden consultar los atributos!')
+                    });
+            }, self._delay);
+        }
+    };
+
+    $('#myAttributesGrid').each(function () {
+        $(this).datagrid({
+            dataSource: new DataGridDataSource({
+                // Column definitions for Datagrid
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Nombre',
+                        sortable: true
+                    },
+                    {
+                        property: 'questions',
+                        label: 'Preguntas Asociadas',
+                        sortable: false
+                    },
+                    {
+                        property: 'subsidiary',
+                        label: 'Sucursales asociadas',
+                        sortable: false
+                    },
+                    {
+                        property: 'attribute_id',
+                        label: 'Acciones',
+                        sortable: false
+                    }
+                ],
+
+                // Create IMG tag for each returned image
+                formatter: function (items) {
+                    $.each(items, function (index, item) {
+                        item.name = '<a href="/indicators/details/' + item.attribute_id + ' ">' + item.name + '</a>';
+                        item.attribute_id =
+                            '<a href="/indicators/update/' + item.attribute_id + '"><i class="icon-edit text-warning"></i></a>'
+                                +
+                                '<label>|</label>'
+                                +
+                            '<a href="/indicators/remove/' + item.attribute_id + '"><i class="icon-remove text-danger"></i></a>';
                     });
                 }
             })

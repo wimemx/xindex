@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Indicator {{ attribute_details.id }} Detail</title>
+</head>
+<body>
+{% if attribute_details %}
+<ul>
+    <li><a href="remove/">Borrar</a></li>
+    <li><a href="edit/">Editar</a></li>
+    <li>Nombre: {{ attribute_details.name }}</li>
+    <li>Description: {{attribute_details.description}}</li>
+    <li>Type: {{attribute_details.type}}</li>
+    <li>Min val: {{attribute_details.min_value}}</li>
+    <li>Max val: {{attribute_details.max_value}}</li>
+    <li>Threshold: {{attribute_details.threshold}}</li>
+    <li>Weight: {{attribute_details.weight}}</li>
+    <li>Questions:
+        <ul>
+            {% for each_question in attribute_details.questions.all %}
+            <li>{{ each_question.name }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
+{% else %}
+<p>No details available</p>
+{% endif %}
+</body>
+</html>

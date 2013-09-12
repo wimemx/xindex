@@ -19,4 +19,8 @@ $(window).ready(function(){
         alert('companies')
         companiesDatagrid();
     }
+    else if($('#myAttributesGrid')[0]){
+        alert('attributes')
+        attributesDatagrid();
+    }
 })
