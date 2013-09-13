@@ -36,20 +36,34 @@ def add(request, service_id):
             return HttpResponse("Verifique los campos y vuelva a intentar!")
     else:
         form = MomentForm()
-        return render(request, "moments/add.html", {"formulario": form, "service_id": service_id})
+        return render(request, "moments/add.html", {"formulario": form,
+                                                    "service_id": service_id})
 
     #request_context = RequestContext(request)
 
     #return render(request, "moments/add.html", {"formulario": form})
 
 def edit(request, moment_id):
+    print("Entrando edit")
     moment = Moment.objects.get(pk=moment_id)
     if request.method=='POST':
+        print("POST")
         form = MomentForm(request.POST, instance=moment)
         if form.is_valid():
+            print("formulario valido")
             form.save()
-            return HttpResponseRedirect('/moments')
+            #return HttpResponse("el momento de ha editado")
+            return HttpResponseRedirect('/services/')
     else:
         form = MomentForm(instance=moment)
 
-    return render(request, "moments/add.html", {"formulario": form})
+    return render(request, "moments/edit.html", {"formulario": form,
+                                                 "moment_id": moment_id})
+
+
+def remove(request, service_id, moment_id):
+    moment = Moment.objects.get(pk=moment_id)
+    service = Service.objects.get(pk=service_id)
+    service.moments.remove(moment)
+    service.save()
+    return HttpResponseRedirect("/services/details/"+service_id)

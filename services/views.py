@@ -193,8 +193,8 @@ def details(request, service_id):
     template_vars = {
         'titulo': 'Detalles',
         'service': moments,
-        'counter': counter,
-        'service_id': service_id
+        #'counter': counter,
+        'service_id': service_id,
         'counter_moments': counter_moments,
         'counter_attributes': counter_attributes_
     }
