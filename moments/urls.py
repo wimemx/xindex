@@ -6,4 +6,5 @@ urlpatterns = patterns('',
     url(r'^add/(?P<service_id>\d)', views.add, name='add'),
     url(r'^(?P<moment_id>\d+)/$', views.detail, name='detail'),
     url(r'^(?P<moment_id>\d+)/edit/$', views.edit, name='edit'),
+    url(r'^(?P<service_id>\d+)/(?P<moment_id>\d+)/remove/$', views.remove, name='remove'),
 )

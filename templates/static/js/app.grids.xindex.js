@@ -10,17 +10,16 @@ $(window).ready(function(){
         alert('subsidiarytypes');
         subsidiaryTypesDatagrid();
     } else if($('#myBUGrid')[0]){
-        alert('bussinesunits')
+        alert('bussinesunits');
         businessUnitsDatagrid();
     } else if($('#mySGrid')[0]){
         alert('services');
         servicesDatagrid();
     } else if($('#myComGrid')[0]){
-        alert('companies')
+        alert('companies');
         companiesDatagrid();
-    }
-    else if($('#myAttributesGrid')[0]){
-        alert('attributes')
+    }else if($('#myAttributesGrid')[0]){
+        alert('attributes');
         attributesDatagrid();
     }
-})
+});

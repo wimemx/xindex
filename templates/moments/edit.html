@@ -1,0 +1,76 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Editar Momento de Contacto</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="moment_form" method="POST"
+                  action="/moments/{{ moment_id }}/edit/"  enctype="multipart/form-data">{% csrf_token %}
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Nombre:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Atributos:</label>
+
+                    <div class=" col-md-5">
+                        {{ formulario.attributes }}
+                        {{ formulario.attributes.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Propietarios:</label>
+
+                    <div class="col-sm-5">
+                        {{ formulario.owners }}
+                        {{ formulario.owners.errors }}
+                    </div>
+                    <div class="line line-dashed m-t-xs"></div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-white"
+                       data-dismiss="modal">Cancelar</a>
+                    <a href="#" class="btn btn-twitter" id="">Agregar</a>
+                    <button type="submit" class="btn btn-twitter">Add</button>
+                    <input type="hidden" value="{{ moment_id }}" id="moment_id">
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+    $(function () {
+        $("#moment_form").on('submit', function (e) {
+            e.preventDefault();
+            var moment_id = $('#moment_id').val();
+            var url = "/moments/"+moment_id+"/edit/";
+            var action = $('#moment_form').attr('action');
+            $.ajax({
+                type: "POST",
+                url: $('#moment_form').attr('action'),
+                data: $('#moment_form').serialize(),
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (msg_failu) {
+                    alert('La peticion no ha podido realizarse!')
+                }
+            });
+        });
+    });
+</script>

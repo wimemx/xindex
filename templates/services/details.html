@@ -59,19 +59,17 @@
                                                 <section
                                                         class="panel lter no-borders">
                                                     <header class="h4 header wrapper text-left">
-                                                        {{ Moment.name }}
-                                                        <a class="pull-right text-danger"
-                                                           href="#">
-                                                            <i class="icon-close icon-remove"></i>
-                                                        </a>
-                                                    </header>
+                                                            {{ Moment.name }}
+                                                            <a class="pull-right text-danger" href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
+                                                                <i class="icon-close icon-remove"></i>
+                                                            </a>
+                                                        </header>
                                                     <div class="panel-body">
                                                         <div>
                                                             {{ Moment.description }}
                                                         </div>
                                                         <div>
-                                                            <a class="pull-right text-warning"
-                                                               href="#">
+                                                            <a class="pull-right text-warning" href="/moments/{{ Moment.id }}/edit/" data-toggle="ajaxModal">
                                                                 <i class="icon-edit"></i>
                                                             </a>
                                                         </div>
