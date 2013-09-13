@@ -30,10 +30,10 @@ def add(request, service_id):
             print id_return.id
             service = Service.objects.get(id=service_id)
             service.moments.add(id_return)
-            return HttpResponse("El Momento de contacto se ha dado de alta!")
+            return HttpResponse("Si")
             #return HttpResponseRedirect('/moments')
         else:
-            return HttpResponse("Verifique los campos y vuelva a intentar!")
+            return HttpResponse("No")
     else:
         form = MomentForm()
         return render(request, "moments/add.html", {"formulario": form, "service_id": service_id})

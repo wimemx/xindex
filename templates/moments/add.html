@@ -1,4 +1,4 @@
-<div class="modal-dialog">
+<div class="modal-dialog" id="addMomentModal">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close"
@@ -42,13 +42,14 @@
                     <div class="line line-dashed m-t-xs"></div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-white"
+                    <a href="/services/details/{{ service_id }}"
+                       class="btn btn-white"
                        data-dismiss="modal">Cancelar</a>
-                    <a href="#" class="btn btn-twitter" id="">Agregar</a>
                     <button type="submit"
-                            class="btn btn-twitter">Add
+                            class="btn btn-twitter">Agregar
                     </button>
-                    <input type="hidden" value="{{ service_id }}" id="service_id"/>
+                    <input type="hidden" value="{{ service_id }}"
+                           id="service_id"/>
                 </div>
             </form>
         </div>
@@ -62,19 +63,41 @@
             e.preventDefault();
 
             var service_id = $('#service_id').val();
-            var url = "/moments/add/"+service_id;
+            var url = "/moments/add/" + service_id;
             var action = $('#moment_form').attr('action');
-            alert(url);
-            alert(action);
             $.ajax({
                 type: "POST",
                 url: $('#moment_form').attr('action'),
                 data: $('#moment_form').serialize(),
                 success: function (msg) {
-                    alert(msg);
+                    if (msg == 'Si') {
+                        var alerta = '<div class="alert alert-success">' +
+                                '<button type="button" class="close" data-dismiss="alert">' +
+                                '<i class="icon-remove"></i>' +
+                                '</button>' +
+                                '<i class="icon-ok-sign"></i>' +
+                                '<strong>¡El punto de contacto se ha dado de alta!</strong>' +
+                                '</div>';
+                        $('#news_section').html(alerta);
+                        $('#ajaxModal').modal('hide');
+                        /*
+                        setTimeout(function () {
+                            window.location.reload(true);
+                        }, 3000);*/
+                    } else if (msg == 'No') {
+                        alert('¡Completa los campos requeridos!')
+                    }
                 },
                 error: function (msg_failu) {
-                    alert('La peticion no ha podido realizarse!')
+                    var alerta = '<div class="alert alert-danger">' +
+                            '<button type="button" class="close" data-dismiss="alert">' +
+                            '<i class="icon-remove"></i>' +
+                            '</button>' +
+                            '<i class="icon-ban-circle"></i>' +
+                            '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
+                            '</div>';
+                    $('#news_section').html(alerta);
+                    $('#ajaxModal').modal('hide');
                 }
             });
         });
