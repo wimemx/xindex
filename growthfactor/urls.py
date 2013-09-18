@@ -54,4 +54,7 @@ urlpatterns = patterns('',
 
     #Company_types
     url(r'^company_types/', include('company_types.urls')),
+
+     #Surveys
+    url(r'^surveys/', include('surveys.urls')),
 )
