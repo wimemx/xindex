@@ -6,6 +6,9 @@ from subsidiaries.forms import SubsidiaryForm, UpdateForm
 from django.template.context import RequestContext
 from django.core import serializers
 from django.utils import simplejson
+from xindex.models import Company
+from xindex.models import Zone
+from xindex.models import City
 
 
 def index(request, message=''):
@@ -169,5 +172,47 @@ def getSubsidiariesInJson(request):
         )
 
     #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+
+    return HttpResponse(simplejson.dumps(subsidiaries))
+
+
+def getSubsidiariesByCity(request):
+    subsidiaries = {}
+    subsidiaries['subsidiaries'] = []
+
+    user = request.user.id
+
+    companies = Company.objects.all()
+
+    for c in companies:
+        for u in c.staff.all():
+            if user == u.user.id:
+                company_id = c.id
+
+
+
+    subsidiarias = Subsidiary.objects.filter(company_id=company_id)
+
+    for subsidiary in subsidiarias:
+        subsidiaries['subsidiaries'].append(
+            {
+                'id': subsidiary.id,
+                'name': subsidiary.name,
+                'city': subsidiary.city_id.name
+            }
+        )
+
+    """
+    for subsidiary in subsidiarias:
+        for city in subsidiary.zone.cities.all():
+            subsidiaries['subsidiaries'].append(
+                {
+                    'id': subsidiary.id,
+                    'name': subsidiary.name,
+                    'zone': subsidiary.zone.name,
+                    'city': city.name
+                }
+            )
+    """
 
     return HttpResponse(simplejson.dumps(subsidiaries))

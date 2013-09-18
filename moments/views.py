@@ -62,8 +62,21 @@ def edit(request, moment_id):
 
 
 def remove(request, service_id, moment_id):
-    moment = Moment.objects.get(pk=moment_id)
-    service = Service.objects.get(pk=service_id)
-    service.moments.remove(moment)
-    service.save()
-    return HttpResponseRedirect("/services/details/"+service_id)
+
+    try:
+        moment = Moment.objects.get(pk=moment_id)
+    except Moment.DoesNotExist:
+        moment = False
+
+
+    try:
+        service = Service.objects.get(pk=service_id)
+    except Service.DoesNotExist:
+        service = False
+
+    if moment and service:
+        service.moments.remove(moment)
+        service.save()
+        return HttpResponse('Si')
+    else:
+        return HttpResponse('No')

@@ -6,6 +6,10 @@ from subsidiary_types.forms import AddSubsidiaryType
 from django.template.context import RequestContext
 from django.utils import simplejson
 
+from xindex.models import Subsidiary
+from xindex.models import Xindex_User
+from xindex.models import Company
+
 def index(request, message = ''):
     all_subsidiary_types = Subsidiary_Type.objects.all().order_by('-name')
     for s_t in all_subsidiary_types:
@@ -165,3 +169,50 @@ def details(request, subsidiary_type_id):
     template_vars['sub_t'] = sub_t
     request_context = RequestContext(request, template_vars)
     return render_to_response('subsidiary_types/details.html', request_context)
+
+
+def stByCompany(request):
+
+    user = request.user.id
+
+    companies = Company.objects.all()
+
+    for c in companies:
+        for u in c.staff.all():
+            if user == u.user.id:
+                company_id = c.id
+
+
+
+    subsidiaries = Subsidiary.objects.filter(company_id=company_id)
+
+    sub_t = {}
+    sub_t['subsidiary_types'] = []
+
+    for subsidiary in subsidiaries:
+        for st in subsidiary.subsidiary_types.all():
+            sub_t['subsidiary_types'].append(
+                {
+                    'name': st.name,
+                    'id': st.id
+                }
+            )
+
+    sub_types = {}
+    sub_types['subsidiary_types'] = []
+
+    for st in sub_t['subsidiary_types']:
+        counter = 0
+        for sub_t in sub_types['subsidiary_types']:
+            if st['name'] == sub_t['name']:
+                counter = counter + 1
+
+        if counter == 0:
+            sub_types['subsidiary_types'].append(
+                {
+                    'name': st['name'],
+                    'id': st['id']
+                }
+            )
+
+    return HttpResponse(simplejson.dumps(sub_types))

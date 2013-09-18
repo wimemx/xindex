@@ -13,4 +13,5 @@ urlpatterns = patterns('subsidiary_types.views',
     url(r'^json/$', 'getSTInJson'),
     #url(r'^tipos_subsidiarias/$', 'tipos_subsidiarias'),
     url(r'details/(?P<subsidiary_type_id>\d+)', 'details'),
+    url(r'subsidiary_types/', 'stByCompany'),
 )

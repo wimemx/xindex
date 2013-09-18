@@ -134,14 +134,15 @@ def getBUInJson(request):
     b_u['business_u'] = []
 
     subsidiaries = Subsidiary.objects.filter(company__id=1,active=True)
+    print subsidiaries
     for subsidiary in subsidiaries:
-        print "Sucursal: "+subsidiary.name+", Zona: "+subsidiary.zone.name
         for business_unit in subsidiary.business_unit.all():
+
             b_u['business_u'].append(
                 {
                     "name": business_unit.name,
                     "subsidiary": subsidiary.name,
-                    "zone": subsidiary.zone.name,
+                    "zone": subsidiary.zone.name or '',
                     "business_unit_id": business_unit.id
                 }
             )

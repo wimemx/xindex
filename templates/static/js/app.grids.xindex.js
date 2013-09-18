@@ -1,4 +1,6 @@
-$(window).ready(function(){
+
+
+$(document).ready(function(){
 
     alert(".ready");
     var data_url, table_grid;
@@ -19,7 +21,6 @@ $(window).ready(function(){
         alert('companies');
         companiesDatagrid();
     }else if($('#myAttributesGrid')[0]){
-        alert('attributes');
         attributesDatagrid();
     }
 });

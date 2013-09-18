@@ -60,7 +60,7 @@
                                                         class="panel lter no-borders">
                                                     <header class="h4 header wrapper text-left">
                                                             {{ Moment.name }}
-                                                            <a class="pull-right text-danger" href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
+                                                            <a class="pull-right text-danger remove-moment" href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
                                                                 <i class="icon-close icon-remove"></i>
                                                             </a>
                                                         </header>
@@ -163,6 +163,7 @@
     </section>
 {% endblock %}
 {% block externalJs %}
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.data.js"></script>

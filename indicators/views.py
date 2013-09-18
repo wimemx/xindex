@@ -17,25 +17,13 @@ def index(request):
 
 def add(request):
     if request.POST:
-        formulario = AttributesForm(request.POST or None, request.FILES)
+        formulario = AttributesForm(request.POST or None)
         if formulario.is_valid():
+            print 'El formulario es valido'
             formulario.save()
-            template_vars = {
-                "titulo": "Attribute",
-                "message": "Added Attribute",
-                "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/indicators/')
+            return HttpResponse('Si')
         else:
-            template_vars = {
-                "titulo": "Add attribute",
-                "message": "",
-                "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response("indicators/add.html", request_context)
+            return HttpResponse('No')
     else:
         formulario = AttributesForm()
         template_vars = {
@@ -103,7 +91,7 @@ def remove(request, indicator_id):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/indicators/')
+            return HttpResponse('Si')
 
         except:
             message = "Cant delete"
@@ -113,7 +101,7 @@ def remove(request, indicator_id):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/indicators/')
+            return HttpResponse('No')
     else:
         message = "Problem to find this service"
         template_vars = {
