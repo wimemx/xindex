@@ -49,7 +49,7 @@
 <script>
     $(function () {
 
-        $("#add_indicator_form").on('submit', function (e) {
+        $("#edit_indicator_form").on('submit', function (e) {
             e.preventDefault();
             $.ajax({
                 url: $('#edit_indicator_form').attr('action'),
@@ -65,7 +65,7 @@
                                 '<strong>¡El indicador se ha modificado exitosamente!</strong>' +
                                 '</div>';
                         $('#news_section').html(alerta);
-                        $('#ajaxModal').modal('hide');
+                        $('#update-modal').modal('hide');
                         setTimeout(function () {
                             window.location.reload(true);
                         }, 2000);

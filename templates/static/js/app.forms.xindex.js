@@ -121,16 +121,17 @@ $(document).ready(function () {
 
     $('#myAttributesGrid').on('click', 'a.update-attribute', function (e) {
         e.preventDefault();
-        var url = $('a.update-attribute').attr('href');
+        var url = $(this).attr('href');
         if (url.indexOf('#') == 0) {
             $(url).modal('open');
         } else {
             $.get(url,function (data) {
-                $('<div class="modal hide fade">' + data + '</div>').modal();
+                $('<div class="modal" id="update-modal">' + data + '</div>').modal();
             }).success(function () {
                     $('input:text:visible:first').focus();
                 });
         }
+
 
     });
 
