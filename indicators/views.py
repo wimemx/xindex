@@ -36,42 +36,20 @@ def add(request):
 
 
 def update(request, indicator_id):
-    try:
-        attribute = Attributes.objects.get(pk=indicator_id)
-    except Attributes.DoesNotExist:
-        attribute = False
+    attribute = Attributes.objects.get(pk=indicator_id)
+    if request.method=='POST':
+        print("POST")
+        form = AttributesForm(request.POST, instance=attribute)
+        if form.is_valid():
+            print("formulario valido")
+            form.save()
+            #return HttpResponse("el momento de ha editado")
+            return HttpResponse('Si')
+    else:
+        form = AttributesForm(instance=attribute)
 
-    if attribute:
-        if request.POST:
-            formulario = AttributesForm(request.POST or None, request.FILES,
-                                        instance=attribute)
-            if formulario.is_valid():
-                formulario.save()
-                template_vars = {
-                    "titulo": "Attributes",
-                    "message": "Attributes"
-                }
-                request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/indicators/')
-            else:
-                template_vars = {
-                    "titulo": "Edit attribute",
-                    "message": "",
-                    "formulario": formulario
-                }
-                request_context = RequestContext(request, template_vars)
-                return render_to_response("indicators/update.html",
-                                          request_context)
-        else:
-            formulario = AttributesForm(instance=attribute)
-            template_vars = {
-                "titulo": "Edit attribute",
-                "message": "",
-                "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response("indicators/add.html", request_context)
-    return HttpResponseRedirect('/indicators/')
+    return render(request, "indicators/edit.html", {"formulario": form,
+                                                 "attribute_id": indicator_id})
 
 
 def remove(request, indicator_id):
