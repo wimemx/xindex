@@ -167,7 +167,7 @@ class SurveyForm(ModelForm):
         label="Description:", widget=Textarea,
         required=False)
     questions = forms.ModelMultipleChoiceField(
-        queryset=Question.objects.all(),
+        queryset=Question.objects.all().filter(active=True),
         label="Questions",
         widget=forms.Select)
 
