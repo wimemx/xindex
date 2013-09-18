@@ -37,8 +37,7 @@ def add(request):
 
 def update(request, indicator_id):
     attribute = Attributes.objects.get(pk=indicator_id)
-    if request.method=='POST':
-        print("POST")
+    if request.POST:
         form = AttributesForm(request.POST, instance=attribute)
         if form.is_valid():
             print("formulario valido")
@@ -47,9 +46,11 @@ def update(request, indicator_id):
             return HttpResponse('Si')
     else:
         form = AttributesForm(instance=attribute)
-
-    return render(request, "indicators/edit.html", {"formulario": form,
-                                                 "attribute_id": indicator_id})
+        template_vars = {
+            "formulario": form,
+            "attribute_id": indicator_id}
+        request_context = RequestContext(request, template_vars)
+        return render(request, "indicators/edit.html", request_context)
 
 
 def remove(request, indicator_id):
