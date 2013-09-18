@@ -6,12 +6,6 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function addBusinessUnit() {
-    $.ajax({
-
-    })
-}
-
 $(document).ready(function () {
 
     $('.remove-moment').on('click', function (e) {
@@ -45,9 +39,9 @@ $(document).ready(function () {
                                         '<strong>¡El punto de contacto se elimino con exito!</strong>' +
                                         '</div>';
                                     $('#news_section').html(alerta);
-                                     setTimeout(function () {
-                                     window.location.reload(true);
-                                     }, 2000);
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 2000);
                                     return true;
                                 }
                             },
@@ -69,9 +63,7 @@ $(document).ready(function () {
         });
     });
 
-alert('Click');
-
-    $('.delete-attribute').on('click', function (e) {
+    $('#myAttributesGrid').on('click', 'a.delete-attribute', function (e) {
         e.preventDefault();
         var href = $(this).attr('href');
         bootbox.dialog({
@@ -102,9 +94,9 @@ alert('Click');
                                         '<strong>¡El indicador se elimino con exito!</strong>' +
                                         '</div>';
                                     $('#news_section').html(alerta);
-                                     setTimeout(function () {
-                                     window.location.reload(true);
-                                     }, 2000);
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 2000);
                                     return true;
                                 }
                             },

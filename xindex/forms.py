@@ -58,16 +58,11 @@ class AttributesForm(ModelForm):
 
         self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
         self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['type'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['min_value'].widget.attrs.update({'class': 'input-sm form-control spinner-input', 'required': 'required', 'value': '0', 'maxlength': '3'})
-        self.fields['max_value'].widget.attrs.update({'class': 'input-sm form-control spinner-input', 'required': 'required', 'value': '0', 'maxlength': '3'})
         self.fields['threshold'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['weight'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['questions'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Attributes
-        fields = ('name', 'description', 'type', 'min_value','max_value','threshold','weight','questions')
+        fields = ('name', 'description', 'threshold')
         exclude = ('active', 'date', 'meta')
 
 

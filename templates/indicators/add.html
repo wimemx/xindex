@@ -25,56 +25,6 @@
                     </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Tipo:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.type }}
-                        {{ formulario.type.errors }}
-                    </div>
-                </div>
-                <div class="clearfix">
-                    <div class="inline pull-left m-r">
-                        <label class="col-sm-3 control-label">Valor
-                            Minimo</label>
-
-                        <div id="min-value"
-                             class="spinner input-group m-b input-s-sm">
-                            {{ formulario.min_value }}
-
-                            <div class="btn-group btn-group-vertical input-group-btn">
-                                <button type="button"
-                                        class="btn btn-white spinner-up">
-                                    <i class="icon-chevron-up"></i>
-                                </button>
-                                <button type="button"
-                                        class="btn btn-white spinner-down">
-                                    <i class="icon-chevron-down"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="inline pull-left">
-                        <label class="col-sm-3 control-label">Valor
-                            Maximo</label>
-
-                        <div id="max-value"
-                             class="spinner input-group m-b input-s-sm">
-                            {{ formulario.max_value }}
-
-                            <div class="btn-group btn-group-vertical input-group-btn">
-                                <button type="button"
-                                        class="btn btn-white spinner-up">
-                                    <i class="icon-chevron-up"></i>
-                                </button>
-                                <button type="button"
-                                        class="btn btn-white spinner-down">
-                                    <i class="icon-chevron-down"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
                     <label class="col-sm-3 control-label">Limite:</label>
 
                     <div class=" col-md-7">
@@ -83,77 +33,63 @@
                     </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Importancia:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.weight }}
-                        {{ formulario.weight.errors }}
+                    <!--
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-8 control-label">¿En que sucursales
+                            deseas aplicar este indicador?:</label>
                     </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Preguntas:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.questions }}
-                        {{ formulario.questions.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-8 control-label">¿En que sucursales
-                        deseas aplicar este indicador?:</label>
-                </div>
-                <div class="form-group m-t-lg">
-                    <div class="col-md-7 padder">
-                        <!-- radio -->
-                        <div class="radio">
-                            <label class="radio-custom">
-                                <input type="radio" name="radio"
-                                       checked="checked">
-                                <i class="icon-circle-blank"></i>
-                                Todas mis sucursales
-                            </label>
+                    <div class="form-group m-t-lg">
+                        <div class="col-md-7 padder">
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           checked="checked">
+                                    <i class="icon-circle-blank"></i>
+                                    Todas mis sucursales
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           id="by_type">
+                                    <i class="icon-circle-blank"></i>
+                                    Por tipo
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           id="choose_manual">
+                                    <i class="icon-circle-blank"></i>
+                                    Seleccionar Manualmente
+                                </label>
+                            </div>
                         </div>
-                        <div class="radio">
-                            <label class="radio-custom">
-                                <input type="radio" name="radio" id="by_type">
-                                <i class="icon-circle-blank"></i>
-                                Por tipo
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label class="radio-custom">
-                                <input type="radio" name="radio"
-                                       id="choose_manual">
-                                <i class="icon-circle-blank"></i>
-                                Seleccionar Manualmente
-                            </label>
-                        </div>
+                        <div class="line line-dashed m-t-xs"></div>
                     </div>
-                    <div class="line line-dashed m-t-xs"></div>
-                </div>
-                <div class="form-group" id="optionalField">
-                    <label class="col-sm-3 control-label"
-                           id="optionalFieldLabel"></label>
+                    <div class="form-group" id="optionalField">
+                        <label class="col-sm-3 control-label"
+                               id="optionalFieldLabel"></label>
 
-                    <div class=" col-md-7" id="optionalFieldGroup">
+                        <div class=" col-md-7" id="optionalFieldGroup">
 
+                        </div>
+                    </div>-->
+                    <div class="modal-footer">
+                        <a href="/services/details/{{ service_id }}"
+                           class="btn btn-white"
+                           data-dismiss="modal">Cancelar</a>
+                        <button type="submit"
+                                class="btn btn-twitter">Agregar
+                        </button>
+                        <input type="hidden" value="{{ service_id }}"
+                               id="service_id"/>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <a href="/services/details/{{ service_id }}"
-                       class="btn btn-white"
-                       data-dismiss="modal">Cancelar</a>
-                    <button type="submit"
-                            class="btn btn-twitter">Agregar
-                    </button>
-                    <input type="hidden" value="{{ service_id }}"
-                           id="service_id"/>
                 </div>
             </form>
         </div>
     </div>
-    <!-- /.modal-content -->
-</div><!-- /.modal-dialog -->
+</div>
 <script>
     $(function () {
 //twitter bootstrap script

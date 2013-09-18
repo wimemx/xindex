@@ -259,12 +259,7 @@ class Survey(models.Model):
 class Attributes(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
-    type = models.CharField(max_length=20, null=False)
-    min_value = models.DecimalField(max_digits=5, decimal_places=2)
-    max_value = models.DecimalField(max_digits=5, decimal_places=2)
     threshold = models.DecimalField(max_digits=5, decimal_places=2)
-    weight = models.DecimalField(max_digits=5, decimal_places=2)
-    questions = models.ManyToManyField(Question, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -275,6 +270,21 @@ class Attributes(models.Model):
     class Meta:
         verbose_name_plural = "Attributes"
         verbose_name = "Attribute"
+
+class Question_Attributes(models.Model):
+    question_id = models.ForeignKey(Question)
+    attribute_id = models.ForeignKey(Attributes)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
+    active = models.BooleanField(default=True)
+    date = models.DateTimeField(blank=True, null=True)
+    meta = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Preguntas-Atributos"
+        verbose_name = "Pregunta-Atributo"
 
 
 class Service(models.Model):

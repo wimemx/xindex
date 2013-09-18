@@ -134,20 +134,20 @@ def getSInJson(request):
 
     for each_attribute in attribute_query:
 
-        counter_question = 0
-        for each_question in each_attribute.questions.all():
-            counter_question += 1
+        #counter_question = 0
+        #for each_question in each_attribute.questions.all():
+         #   counter_question += 1
 
         attribute['attributes'].append(
             {
                 "name": each_attribute.name,
                 "description": each_attribute.description,
                 #"type": each_attribute.type,
-                "min_value": each_attribute.min_value,
-                "max_value": each_attribute.max_value,
+                #"min_value": each_attribute.min_value,
+                #"max_value": each_attribute.max_value,
                 "threshold": each_attribute.threshold,
-                "weight": each_attribute.weight,
-                "questions": counter_question,
+                #"weight": each_attribute.weight,
+                #"questions": counter_question,
                 "attribute_id": each_attribute.id
             }
         )
