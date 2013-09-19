@@ -1,174 +1,59 @@
-<div class="modal-dialog" id="addMomentModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <button type="button" class="close"
-                    data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Agregar Indicador</h4>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal" id="add_indicator_form" method="POST"
-                  action="/indicators/add/">{% csrf_token %}
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Nombre:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.name }}
-                        {{ formulario.name.errors }}
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Agregar Encuesta</title>
+    <meta name="description"
+          content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/font.css" cache="false">
+    <link rel="stylesheet" href="/static/css/plugin.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <!--[if lt IE 9]>
+    <script src="js/ie/respond.min.js" cache="false"></script>
+    <script src="js/ie/html5.js" cache="false"></script>
+    <script src="js/ie/fix.js" cache="false"></script>
+  <![endif]-->
+</head>
+<body>
+<section class="vbox stretch bg-white">
+    <header class="yellow-xindex-nohover text-center wrapper">
+        <p class="h4">Generador de Encuestas</p>
+    </header>
+    <div class="wrapper-xl text-center v-middle">
+        <header class="wrapper-xl text-center">
+            <p class="h2">1.- Escribe el nombre de tu encuesta</p>
+        </header>
+        <section class="">
+            <form class="">
+                <div class="b-b" style="width: 50%; margin: auto">
+                    <input class="form-control no-border input-lg m-xl text-center"
+                           type="text"
+                           placeholder="Un nombre genial para mi encuesta"/>
                 </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.description }}
-                        {{ formulario.description.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Limite:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.threshold }}
-                        {{ formulario.threshold.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <!--
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-8 control-label">¿En que sucursales
-                            deseas aplicar este indicador?:</label>
-                    </div>
-                    <div class="form-group m-t-lg">
-                        <div class="col-md-7 padder">
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           checked="checked">
-                                    <i class="icon-circle-blank"></i>
-                                    Todas mis sucursales
-                                </label>
-                            </div>
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           id="by_type">
-                                    <i class="icon-circle-blank"></i>
-                                    Por tipo
-                                </label>
-                            </div>
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           id="choose_manual">
-                                    <i class="icon-circle-blank"></i>
-                                    Seleccionar Manualmente
-                                </label>
-                            </div>
-                        </div>
-                        <div class="line line-dashed m-t-xs"></div>
-                    </div>
-                    <div class="form-group" id="optionalField">
-                        <label class="col-sm-3 control-label"
-                               id="optionalFieldLabel"></label>
-
-                        <div class=" col-md-7" id="optionalFieldGroup">
-
-                        </div>
-                    </div>-->
-                    <div class="modal-footer">
-                        <a href="/services/details/{{ service_id }}"
-                           class="btn btn-white"
-                           data-dismiss="modal">Cancelar</a>
-                        <button type="submit"
-                                class="btn btn-twitter">Agregar
-                        </button>
-                        <input type="hidden" value="{{ service_id }}"
-                               id="service_id"/>
-                    </div>
+                <div class="wrapper-xl">
+                    <a href="" class="btn-info text-center h3 padder padder-v">
+                        <i class="icon-circle-arrow-right"></i>
+                        Siguiente
+                    </a>
                 </div>
             </form>
-        </div>
+
+        </section>
     </div>
-</div>
-<script>
-    $(function () {
-//twitter bootstrap script
-
-        $('#by_type').click(function () {
-            $.ajax({
-                type: 'GET',
-                url: '/subsidiary_types/subsidiary_types',
-                dataType: 'JSON',
-                success: function (msg) {
-                    $('#optionalFieldLabel').text('Seleccionar tipo de sucursal')
-                    $('#optionalFieldGroup').html('');
-                    $.each(msg.subsidiary_types, function (index, elem) {
-                        $('#optionalFieldGroup').append('<input type="checkbox" name="st_group[]" value="' + elem.id + '"/>' + elem.name + '<br/>');
-                    })
-                },
-                error: function (error) {
-                    alert('Ha ocurrido un error');
-                }
-            });
-        });
-
-        $('#choose_manual').click(function () {
-            $.ajax({
-                type: 'GET',
-                url: '/subsidiaries/sub_by_city',
-                dataType: 'JSON',
-                success: function (json) {
-                    $('#optionalFieldLabel').text('Selecciona las sucursales');
-                    $('#optionalFieldGroup').html('<div id="contentSelect"></div>');
-                    $.each(json.subsidiaries, function (index, elem) {
-                        $('#contentSelect').append(
-                                '<p>' + elem.city + '</p><input type="checkbox" name="st_group[]" value="' + elem.id + '"/>' + elem.name + '<br><br>'
-                        )
-                    });
-                },
-                error: function (error) {
-                    alert(error);
-                }
-            })
-        });
-
-
-        $("#add_indicator_form").on('submit', function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: $('#add_indicator_form').attr('action'),
-                type: "POST",
-                data: $('#add_indicator_form').serialize(),
-                success: function (msg) {
-                    if (msg == 'Si') {
-                        var alerta = '<div class="alert alert-success">' +
-                                '<button type="button" class="close" data-dismiss="alert">' +
-                                '<i class="icon-remove"></i>' +
-                                '</button>' +
-                                '<i class="icon-ok-sign"></i>' +
-                                '<strong>¡El indicador se ha dado de alta!</strong>' +
-                                '</div>';
-                        $('#news_section').html(alerta);
-                        $('#ajaxModal').modal('hide');
-                        setTimeout(function () {
-                            window.location.reload(true);
-                        }, 2000);
-                    } else if (msg == 'No') {
-                        alert('¡Completa los campos requeridos!')
-                    }
-                },
-                error: function (msg_failu) {
-                    var alerta = '<div class="alert alert-danger">' +
-                            '<button type="button" class="close" data-dismiss="alert">' +
-                            '<i class="icon-remove"></i>' +
-                            '</button>' +
-                            '<i class="icon-ban-circle"></i>' +
-                            '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
-                            '</div>';
-                    $('#news_section').html(alerta);
-                    $('#ajaxModal').modal('hide');
-                }
-            });
-        });
-    });
-</script>
+</section>
+<script src="/static/js/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/static/js/bootstrap.js"></script>
+<!-- Sparkline Chart -->
+<script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+<!-- App -->
+<script src="/static/js/app.js"></script>
+<script src="/static/js/app.plugin.js"></script>
+<script src="/static/js/app.data.js"></script>
+</body>
+</html>
