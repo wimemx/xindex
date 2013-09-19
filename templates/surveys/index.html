@@ -10,11 +10,102 @@
         <header class="header b-b">
             <p class="h4 animated bounceInDown">Surveys</p>
         </header>
-        <section class="panel padder padder-v animated fadeInRight">
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="col-lg-6">
+                        <h1 class="header">
+                            <div class="header">
+                                Mis encuestas
+                            </div>
+                        </h1>
+                        <h5 class="footer">
+                            <div class="footer">
+                                <div class="pull-left padder-v">
+                                    Ordenar por
+                                </div>
+                            </div>
+                        </h5>
+                    </div>
+                    <div class="col-lg-6">
+                        <h4 class="header">
+                            <div class="header">
+                                <a href="#" class="pull-right btn-success padder padder-v">
+                                    <i class="icon-plus-sign"></i>
+                                    Agregar encuesta
+                                </a>
+                            </div>
+                        </h4>
+                        <h5 class="footer">
+                            <div class="footer">
+                                <div class="input-group text-sm pull-right padder-v">
+                                    <!--
+                                    <input type="text" class="input-sm form-control" placeholder="Search">
+                                    <i class="icon-search"></i>
+                                    -->
+                                    <div class="form-search form-inline">
+                                        <input type="text" class="search-query input-sm form-control" placeholder="Search..." />
+                                    </div>
+                                </div>
+                            </div>
+                        </h5>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <section class="panel">
+                        <ul class="list-group">
+                            {% for each_survey in surveys %}
+                                <li class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-left text-success m-t-sm">
+                                            <i class="icon-circle"></i>
+                                        </div>
+                                        <div class="pull-right text-danger m-t-sm">
+                                            <div class="h4">
+                                                <i class="icon-remove"></i>
+                                            </div>
+                                            <small class="text-muted">
+                                                Estado
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm">
+                                            <div class="h4">
+                                                12
+                                            </div>
+                                            <small class="text-muted">
+                                                Indicadores
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm">
+                                            <div class="h4">
+                                                23
+                                            </div>
+                                            <small class="text-muted">
+                                                Preguntas
+                                            </small>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="h4">
+                                                <a href="#">
+                                                    {{ each_survey.name }}
+                                                </a>
+                                            </div>
+                                            <small class="text-muted">
+                                                Creada el {{ each_survey.date }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+            </div>
+            <!--
             <div id="datagrid">
                 <section class="panel">
                     <div class="table-responsive">
-                        <table id="mySurveysGrid"
+                        <table id="mmySurveysGrid"
                                class="table table-striped datagrid m-b-sm">
                             <thead>
                             <tr>
@@ -134,6 +225,8 @@
                     </div>
                 </section>
             </div>
+            -->
+
         </section>
     </section>
 {% endblock %}

@@ -2610,3 +2610,33 @@ fieldset[disabled] .btn-gplus.active {
 .mtop{
     margin-top: 15px;
 }
+.headerXINDEX,
+.footerXINDEX {
+  min-height: 150px;
+    clear: both;
+  padding: 0 15px;
+}
+/*
+    Icono de buscar "dentro" del input
+*/
+input.search-query {
+    padding-left:26px;
+}
+
+div.form-search {
+    position: relative;
+}
+
+div.form-search:before {
+    content:'';
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url(http://getbootstrap.com/2.3.2/assets/img/glyphicons-halflings.png);
+    background-position: -48px 0;
+    position: absolute;
+    top:8px;
+    left:8px;
+    opacity: .5;
+    z-index: 1000;
+}
