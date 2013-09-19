@@ -1,0 +1,174 @@
+<div class="modal-dialog" id="addMomentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Agregar Indicador</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" id="add_indicator_form" method="POST"
+                  action="/indicators/add/">{% csrf_token %}
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Nombre:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Limite:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.threshold }}
+                        {{ formulario.threshold.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
+                    <!--
+                    <div class="form-group m-t-lg">
+                        <label class="col-sm-8 control-label">¿En que sucursales
+                            deseas aplicar este indicador?:</label>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <div class="col-md-7 padder">
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           checked="checked">
+                                    <i class="icon-circle-blank"></i>
+                                    Todas mis sucursales
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           id="by_type">
+                                    <i class="icon-circle-blank"></i>
+                                    Por tipo
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label class="radio-custom">
+                                    <input type="radio" name="radio"
+                                           id="choose_manual">
+                                    <i class="icon-circle-blank"></i>
+                                    Seleccionar Manualmente
+                                </label>
+                            </div>
+                        </div>
+                        <div class="line line-dashed m-t-xs"></div>
+                    </div>
+                    <div class="form-group" id="optionalField">
+                        <label class="col-sm-3 control-label"
+                               id="optionalFieldLabel"></label>
+
+                        <div class=" col-md-7" id="optionalFieldGroup">
+
+                        </div>
+                    </div>-->
+                    <div class="modal-footer">
+                        <a href="/services/details/{{ service_id }}"
+                           class="btn btn-white"
+                           data-dismiss="modal">Cancelar</a>
+                        <button type="submit"
+                                class="btn btn-twitter">Agregar
+                        </button>
+                        <input type="hidden" value="{{ service_id }}"
+                               id="service_id"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+//twitter bootstrap script
+
+        $('#by_type').click(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/subsidiary_types/subsidiary_types',
+                dataType: 'JSON',
+                success: function (msg) {
+                    $('#optionalFieldLabel').text('Seleccionar tipo de sucursal')
+                    $('#optionalFieldGroup').html('');
+                    $.each(msg.subsidiary_types, function (index, elem) {
+                        $('#optionalFieldGroup').append('<input type="checkbox" name="st_group[]" value="' + elem.id + '"/>' + elem.name + '<br/>');
+                    })
+                },
+                error: function (error) {
+                    alert('Ha ocurrido un error');
+                }
+            });
+        });
+
+        $('#choose_manual').click(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/subsidiaries/sub_by_city',
+                dataType: 'JSON',
+                success: function (json) {
+                    $('#optionalFieldLabel').text('Selecciona las sucursales');
+                    $('#optionalFieldGroup').html('<div id="contentSelect"></div>');
+                    $.each(json.subsidiaries, function (index, elem) {
+                        $('#contentSelect').append(
+                                '<p>' + elem.city + '</p><input type="checkbox" name="st_group[]" value="' + elem.id + '"/>' + elem.name + '<br><br>'
+                        )
+                    });
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            })
+        });
+
+
+        $("#add_indicator_form").on('submit', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $('#add_indicator_form').attr('action'),
+                type: "POST",
+                data: $('#add_indicator_form').serialize(),
+                success: function (msg) {
+                    if (msg == 'Si') {
+                        var alerta = '<div class="alert alert-success">' +
+                                '<button type="button" class="close" data-dismiss="alert">' +
+                                '<i class="icon-remove"></i>' +
+                                '</button>' +
+                                '<i class="icon-ok-sign"></i>' +
+                                '<strong>¡El indicador se ha dado de alta!</strong>' +
+                                '</div>';
+                        $('#news_section').html(alerta);
+                        $('#ajaxModal').modal('hide');
+                        setTimeout(function () {
+                            window.location.reload(true);
+                        }, 2000);
+                    } else if (msg == 'No') {
+                        alert('¡Completa los campos requeridos!')
+                    }
+                },
+                error: function (msg_failu) {
+                    var alerta = '<div class="alert alert-danger">' +
+                            '<button type="button" class="close" data-dismiss="alert">' +
+                            '<i class="icon-remove"></i>' +
+                            '</button>' +
+                            '<i class="icon-ban-circle"></i>' +
+                            '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
+                            '</div>';
+                    $('#news_section').html(alerta);
+                    $('#ajaxModal').modal('hide');
+                }
+            });
+        });
+    });
+</script>

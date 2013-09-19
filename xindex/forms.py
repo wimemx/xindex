@@ -1,7 +1,8 @@
 from django.forms import ModelForm, Form
 from django.forms.widgets import CheckboxSelectMultiple, Textarea
 from django import forms
-from xindex.models import Company, Company_Type, Zone,Country, State, City, Moment, Attributes, Owner
+from xindex.models import Company, Company_Type, Zone, Country, State, City, \
+    Moment, Attributes, Owner, Survey, Xindex_User, Question
 import datetime
 
 
@@ -160,32 +161,21 @@ class CompanyTypeForm(ModelForm):
         exclude = ('date', 'meta', 'active')
 
 
-'''
+class SurveyForm(ModelForm):
 
-class CompanyForm(Form):
-
-    STATUS = (('Active', 'Active'),
-              ('Inactive', 'Inactive'))
-
+    user_id = forms.ModelChoiceField(
+        queryset=Xindex_User.objects.all(),
+        label="User",
+        widget=forms.Select,
+        empty_label="Select")
     name = forms.CharField(label="Name:")
-
-    types = forms.ModelMultipleChoiceField(queryset=Company_Type.objects.all(),
-                                   label="Types:",
-                                   widget=forms.Select)
-
-    parent_company = forms.ModelChoiceField(queryset=Company.objects.all(),
-                                                widget=forms.Select,
-                                                empty_label="Select",
-                                                label="Parent company")
-
-    about = forms.CharField(label="About", widget=forms.Textarea)
-    address = forms.CharField(label="Address:")
-    rfc = forms.CharField(label="RFC:")
-    phone = forms.CharField(label="Phone:")
-    status = forms.ChoiceField(label="Status:", choices=STATUS)
-    zone = forms.ModelMultipleChoiceField(queryset=Zone.objects.all(), label="Zone",
-                                      widget=forms.Select)
+    description = forms.CharField(
+        label="Description:", widget=Textarea,
+        required=False)
+    questions = forms.ModelMultipleChoiceField(
+        queryset=Question.objects.all().filter(active=True),
+        label="Questions",
+        widget=forms.Select)
 
     class Meta:
-        model = Company
-'''
+        model = Survey

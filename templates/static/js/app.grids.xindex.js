@@ -13,6 +13,10 @@ $(document).ready(function () {
     } else if ($('#myComGrid')[0]) {
         companiesDatagrid();
     } else if ($('#myAttributesGrid')[0]) {
+        alert("atributos");
         attributesDatagrid();
+    } else if ($('#mySurveysGrid')[0]) {
+        alert("surveys");
+        surveysDatagrid();
     }
 });
