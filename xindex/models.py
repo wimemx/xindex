@@ -282,7 +282,7 @@ class Question_Attributes(models.Model):
     meta = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.weight)
 
     class Meta:
         verbose_name_plural = "Preguntas-Atributos"

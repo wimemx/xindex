@@ -22,6 +22,7 @@ admin.site.register(xindex.models.Question)
 admin.site.register(xindex.models.Subsidiary_Type)
 admin.site.register(xindex.models.BusinessUnit)
 admin.site.register(xindex.models.Owner)
+admin.site.register(xindex.models.Question_Attributes)
 
 
 class SubsidiaryMe(admin.ModelAdmin):
