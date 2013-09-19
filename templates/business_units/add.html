@@ -7,7 +7,7 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal" id="business_unit_form" method="POST"
-                  action="">{% csrf_token %}
+                  action="/business_units/add/">{% csrf_token %}
                 <div class="form-group m-t-lg">
                     <label class="col-sm-3 control-label">Nombre:</label>
 
@@ -44,10 +44,9 @@
                 <div class="modal-footer">
                     <a href="#" class="btn btn-white"
                        data-dismiss="modal">Cancelar</a>
-                    <a href="#" class="btn btn-twitter" id="">Agregar</a>
                     <button type="submit"
-                                        class="btn btn-twitter">Add
-                                </button>
+                            class="btn btn-twitter">Agregar
+                    </button>
                 </div>
             </form>
         </div>
@@ -55,12 +54,41 @@
     <!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <script type="text/javascript">
-    $('#business_unit_form').on('submit', function(e){
-      e.preventDefault();
-      $.post('/business_unit/add',
-         $('#business_unit_form').serialize(),
-         function(data, status, xhr){
-           alert('Yeh!')
-         });
+    $('#business_unit_form').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function (msg) {
+                if (msg == 'Si') {
+                    var alerta = '<div class="alert alert-success">' +
+                            '<button type="button" class="close" data-dismiss="alert">' +
+                            '<i class="icon-remove"></i>' +
+                            '</button>' +
+                            '<i class="icon-ok-sign"></i>' +
+                            '<strong>¡La sucursal se ha dado de alta!</strong>' +
+                            '</div>';
+                    $('#news_section').html(alerta);
+                    $('#ajaxModal').modal('hide');
+                    setTimeout(function () {
+                        window.location.reload(true);
+                    }, 2000);
+                } else if (msg == 'No') {
+                    alert('¡Ha ocurrido un problema, intente mas tarde!')
+                }
+            },
+            error: function (msg_failu) {
+                var alerta = '<div class="alert alert-danger">' +
+                        '<button type="button" class="close" data-dismiss="alert">' +
+                        '<i class="icon-remove"></i>' +
+                        '</button>' +
+                        '<i class="icon-ban-circle"></i>' +
+                        '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
+                        '</div>';
+                $('#news_section').html(alerta);
+                $('#ajaxModal').modal('hide');
+            }
+        });
     });
 </script>

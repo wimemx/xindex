@@ -67,8 +67,8 @@ $(document).ready(function () {
         e.preventDefault();
         var href = $(this).attr('href');
         bootbox.dialog({
-            message: "¿Esta seguro que desea eliminar el indicador? Se eliminaran la relacion con las preguntas asociadas en las encuestas",
-            title: "Eliminar un punto de contacto",
+            message: "¿Esta seguro que desea eliminar el atributo? Se eliminaran la relacion con las preguntas asociadas en las encuestas",
+            title: "Eliminar Atributo",
             buttons: {
                 success: {
                     label: "Cancelar",

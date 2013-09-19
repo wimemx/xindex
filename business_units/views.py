@@ -28,7 +28,7 @@ def add(request):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("business_units/index.html", request_context)
-            return HttpResponseRedirect('/business_units')
+            return HttpResponse('si')
         else:
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
@@ -36,7 +36,8 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("business_units/add.html", request_context)
+            #return render_to_response("business_units/add.html", request_context)
+            return HttpResponse('No')
     else:
         formulario = AddBusinessUnit()
         template_vars = {
