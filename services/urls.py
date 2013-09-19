@@ -4,6 +4,7 @@ urlpatterns = patterns('services.views',
 
     #Services
     url(r'^$', 'index'),
+    url(r'^(?P<business_unit_id>\d+)', 'index'),
     url(r'^add/$', 'add'),
     #url(r'^(?P<question_id>\d+)/$', 'detail'),
     url(r'update/(?P<service_id>\d+)', 'update'),
@@ -11,5 +12,6 @@ urlpatterns = patterns('services.views',
 
     #test
     url(r'^json/$', 'getSInJson'),
+    url(r'^json/(?P<business_unit_id>\d+)$', 'getSByBUInJson'),
     url(r'details/(?P<service_id>\d+)', 'details'),
 )
