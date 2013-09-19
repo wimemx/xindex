@@ -271,9 +271,11 @@ class Attributes(models.Model):
         verbose_name_plural = "Attributes"
         verbose_name = "Attribute"
 
+
 class Question_Attributes(models.Model):
     question_id = models.ForeignKey(Question)
     attribute_id = models.ForeignKey(Attributes)
+    moment_id = models.ForeignKey('Moment')
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -352,6 +354,7 @@ class Subsidiary(models.Model):
     class Meta:
         verbose_name_plural = "Subsidiaries"
         verbose_name = "Subsidiary"
+
 
 class Owner(models.Model):
     name = models.CharField(max_length=50, null=False)
