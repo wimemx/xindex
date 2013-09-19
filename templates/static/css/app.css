@@ -2612,7 +2612,7 @@ fieldset[disabled] .btn-gplus.active {
 }
 .headerXINDEX,
 .footerXINDEX {
-  min-height: 150px;
+  min-height: 110px;
     clear: both;
   padding: 0 15px;
 }
