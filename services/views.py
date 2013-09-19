@@ -8,12 +8,32 @@ from services.forms import AddService
 from django.utils import simplejson
 
 
-def index(request, message=''):
+def index(request, business_unit_id=False):
+    print business_unit_id
+    if business_unit_id:
+        try:
+            business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+        except BusinessUnit.DoesNotExist:
+            business_unit = False
+    else:
+        business_unit = False
+
+    if business_unit:
+        subsidiaries = Subsidiary.objects.filter(
+            business_unit__id=business_unit.id)
+        for subsidiary in subsidiaries:
+            company = subsidiary.company.name
+    else:
+        subsidiaries = False
+        company = False
+
     all_services = Service.objects.all().order_by('-name')
     print all_services
     template_vars = {
         "titulo": "Servicios",
-        "all_services": all_services
+        "all_services": all_services,
+        "business_unit": business_unit,
+        "company": company
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("services/index.html", request_context)
@@ -133,7 +153,6 @@ def remove(request, service_id):
 
 
 def getSInJson(request):
-
     service = {}
     service['services'] = []
     service_query = Service.objects.filter(active=True).order_by('-date')
@@ -152,9 +171,37 @@ def getSInJson(request):
             }
         )
 
-#subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(service))
+
+
+def getSByBUInJson(request, business_unit_id):
+    business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+
+    services = {}
+    services['services'] = []
+    service_query = Service.objects.filter(active=True).order_by('-date')
+    business_unit_query = BusinessUnit.objects.filter(active=True)
+
+    for service in business_unit.service.all():
+        if service.active == True:
+            services['services'].append(
+                {
+                    "name": service.name,
+                    "business_unit": business_unit.name,
+                    "subsidiary": "Sucursal",
+                    "zone": "Ubicacion",
+                    "delete": service.id,
+                    "edit": service.id,
+                    "details": service.id
+                }
+            )
+
+        #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
+
+    return HttpResponse(simplejson.dumps(services))
+
 
 '''
 def details(request, service_id):
@@ -185,7 +232,7 @@ def details(request, service_id):
     for a in moments.moments.all():
         counter_moments += 1
 
-    counter_attributes_= 0
+    counter_attributes_ = 0
     for each_moment in moments.moments.all():
         each_moment_to_compare = Moment.objects.get(pk=each_moment.id)
         for attribute in each_moment_to_compare.attributes.all():

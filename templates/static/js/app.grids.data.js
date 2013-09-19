@@ -308,6 +308,7 @@ function businessUnitsDatagrid() {
         },
 
         data: function (options, callback) {
+
             var url = '/business_units/json'
             var self = this;
 
@@ -456,7 +457,7 @@ function businessUnitsDatagrid() {
                 formatter: function (items) {
                     $.each(items, function (index, item) {
                         var buid = item.business_unit_id;
-                        item.name = '<a href="/business_units/details/' + buid + '">' + item.name + '</a>';
+                        item.name = '<a href="/services/' + buid + '">' + item.name + '</a>';
                         item.business_unit_id = '<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>' + ' | ' +
                             '<a href="/business_units/update/' + item.business_unit_id + '"><i class="icon-edit-sign"></i></a>' + ' | ' +
                             '<a href="/business_units/remove/' + item.business_unit_id + '"><i class="icon-remove-sign"></i></a>';
@@ -533,7 +534,13 @@ function servicesDatagrid() {
         },
 
         data: function (options, callback) {
-            var url = '/services/json'
+
+            if($('#business_unit_id')[0]){
+                var business_unit_id = $('#business_unit_id').val();
+                var url = '/services/json/'+business_unit_id
+            } else {
+                var url = '/services/json/'
+            }
             var self = this;
 
 
@@ -671,6 +678,7 @@ function companiesDatagrid() {
         },
 
         data: function (options, callback) {
+
             var url = '/companies/json'
             var self = this;
 
