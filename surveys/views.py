@@ -38,3 +38,10 @@ def getJson(request):
             }
         )
     return HttpResponse(simplejson.dumps(survey))
+
+def addSurvey(request):
+    template_vars = {
+        'title': 'Agregar Encuesta'
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response('surveys/add.html', request_context)
