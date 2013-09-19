@@ -44,7 +44,6 @@ def add(request, service_id):
     #return render(request, "moments/add.html", {"formulario": form})
 
 def edit(request, moment_id):
-    print("Entrando edit")
     moment = Moment.objects.get(pk=moment_id)
     if request.method=='POST':
         print("POST")
@@ -53,7 +52,7 @@ def edit(request, moment_id):
             print("formulario valido")
             form.save()
             #return HttpResponse("el momento de ha editado")
-            return HttpResponseRedirect('/services/')
+            return HttpResponse('Si')
     else:
         form = MomentForm(instance=moment)
 

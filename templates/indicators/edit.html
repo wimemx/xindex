@@ -3,7 +3,7 @@
         <div class="modal-header">
             <button type="button" class="close"
                     data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Agregar Indicador</h4>
+            <h4 class="modal-title">Modificar Indicador</h4>
         </div>
         <div class="modal-body">
             <form class="form-horizontal" id="edit_indicator_form" method="POST"
@@ -33,12 +33,20 @@
                     </div>
                 </div>
                 <div class="form-group m-t-lg">
+                    <label class="col-sm-3 control-label">Momentos:</label>
+
+                    <div class=" col-md-7">
+                        {{ formulario.moments }}
+                        {{ formulario.moments.errors }}
+                    </div>
+                </div>
+                <div class="form-group m-t-lg">
                     <div class="modal-footer">
                         <a href="/indicators/"
                            class="btn btn-white"
                            data-dismiss="modal">Cancelar</a>
                         <button type="submit"
-                                class="btn btn-twitter">Agregar
+                                class="btn btn-twitter">Modificar
                         </button>
                     </div>
                 </div>

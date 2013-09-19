@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from xindex.models import Attributes
 from xindex.forms import AttributesForm
 from django.utils import simplejson
-
+from xindex.models import Moment
 
 def index(request):
     indicators = Attributes.objects.all().order_by('-date')
@@ -19,8 +19,18 @@ def add(request):
     if request.POST:
         formulario = AttributesForm(request.POST or None)
         if formulario.is_valid():
-            print 'El formulario es valido'
-            formulario.save()
+
+            attribute_saved = formulario.save()
+
+            moments = request.POST.getlist('moments')
+
+            for moment in moments:
+                try:
+                    m = Moment.objects.get(id=moment)
+                    m.attributes.add(attribute_saved)
+                except Moment.DoesNotExist:
+                    m = False
+
             return HttpResponse('Si')
         else:
             return HttpResponse('No')
@@ -37,15 +47,46 @@ def add(request):
 
 def update(request, indicator_id):
     attribute = Attributes.objects.get(pk=indicator_id)
+    print 'entro'
     if request.POST:
         form = AttributesForm(request.POST, instance=attribute)
         if form.is_valid():
             print("formulario valido")
-            form.save()
+            attribute_modified = form.save()
+
+            moments_asociated = request.POST.getlist('moments')
+
+            ma_a = []
+
+            for ma in moments_asociated:
+                momen = Moment.objects.get(id=ma)
+                momen.attributes.add(attribute_modified)
+                ma_a.append(ma)
+
+            moments_no_asociated = Moment.objects.exclude(id__in=ma_a)
+
+            for mna in moments_no_asociated:
+                m = Moment.objects.get(id=mna.id)
+                m.attributes.remove(attribute_modified)
+
+            #moments_no_asociated = Moment.objects.exclude(id=moments_asociated)
+            """
+            for moment in moments:
+                try:
+                    m = Moment.objects.get(id=moment)
+                    m.attributes.add(attribute_saved)
+                except Moment.DoesNotExist:
+                    m = False
+            """
+
+
             #return HttpResponse("el momento de ha editado")
             return HttpResponse('Si')
     else:
-        form = AttributesForm(instance=attribute)
+        print 'entro'
+        momentos = Moment.objects.filter(attributes__id=attribute.id)
+        print momentos
+        form = AttributesForm(instance=attribute, initial={'moments': momentos})
         template_vars = {
             "formulario": form,
             "attribute_id": indicator_id}
