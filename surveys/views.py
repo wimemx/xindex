@@ -7,7 +7,41 @@ from django.utils import simplejson
 
 def index(request):
     surveys = {'surveys': []}
-    survey_query = Survey.objects.all().order_by('-date')
+    survey_query = Survey.objects.all().order_by('-active')
+    question_attribute_query = Question_Attributes.objects.all()
+
+    for each_survey in survey_query:
+        counter_question = 0
+        counter_attributes = 0
+
+        for each_question in each_survey.questions.all():
+            counter_question += 1
+
+            for each_question_attribute in question_attribute_query:
+                if each_question == each_question_attribute.question_id:
+                    counter_attributes += 1
+
+        surveys['surveys'].append(
+            {
+                "name": each_survey.name,
+                "date": each_survey.date,
+                "status": each_survey.active,
+                "counter_question": counter_question,
+                "counter_attribute": counter_attributes
+            }
+        )
+    template_vars = {"title": "Surveys",
+                     "surveys": surveys,
+                     "order_name": "name",
+                     "order_status": "status",
+                     "order_date": "date"}
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'surveys/index.html', request_context)
+
+
+def indexOrder(request, order_type):
+    surveys = {'surveys': []}
+    survey_query = Survey.objects.all().order_by(order_type)
     question_attribute_query = Question_Attributes.objects.all()
 
     for each_survey in survey_query:

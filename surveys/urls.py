@@ -4,6 +4,7 @@ from surveys import views
 urlpatterns = patterns('surveys.views',
 
     url(r'^$', views.index, name='index'),
+    url(r'order/(?P<order_type>\w+)/$', 'indexOrder'),
     url(r'^add/$', views.addSurvey, name='addSurvey'),
     #url(r'edit/(?P<survey_id>\d+)', 'edit'),
     #url(r'remove/(?P<survey_id>\d+)', 'remove'),
