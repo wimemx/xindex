@@ -919,11 +919,6 @@ function attributesDatagrid() {
                         sortable: false
                     },
                     {
-                        property: 'subsidiary',
-                        label: 'Sucursales asociadas',
-                        sortable: false
-                    },
-                    {
                         property: 'attribute_id',
                         label: 'Acciones',
                         sortable: false
