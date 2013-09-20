@@ -57,7 +57,7 @@ class AttributesForm(ModelForm):
         queryset=Moment.objects.all().filter(active=True),
         label="Momentos",
         widget=forms.SelectMultiple,
-        required=True)
+        required=False)
 
     def __init__(self, *args, **kwargs):
         super(AttributesForm, self).__init__(*args, **kwargs)
@@ -65,7 +65,7 @@ class AttributesForm(ModelForm):
         self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
         self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
         self.fields['threshold'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['moments'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['moments'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Attributes
