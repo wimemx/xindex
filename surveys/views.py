@@ -25,6 +25,7 @@ def index(request):
             {
                 "name": each_survey.name,
                 "date": each_survey.date,
+                "status": each_survey.active,
                 "counter_question": counter_question,
                 "counter_attribute": counter_attributes
             }
