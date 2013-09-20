@@ -62,10 +62,10 @@ class AttributesForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributesForm, self).__init__(*args, **kwargs)
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required', 'data-errormessage': 'Please tell us your Name'})
         self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
         self.fields['threshold'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['moments'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['moments'].widget.attrs.update({'class': 'form-control', 'required': 'required', 'data-errormessage': 'Please tell us your Name'})
 
     class Meta:
         model = Attributes
@@ -163,19 +163,30 @@ class CompanyTypeForm(ModelForm):
 
 class SurveyForm(ModelForm):
 
+
+    def __init__(self, *args, **kwargs):
+        super(SurveyForm, self).__init__(*args, **kwargs)
+
+        self.fields['name'].widget.attrs.update({'class': 'form-control no-border input-lg m-xl text-center', 'placeholder': 'Un nombre genial para mi encuesta'})
+
+    """
     user_id = forms.ModelChoiceField(
         queryset=Xindex_User.objects.all(),
         label="User",
         widget=forms.Select,
         empty_label="Select")
-    name = forms.CharField(label="Name:")
+    """
+    """
     description = forms.CharField(
         label="Description:", widget=Textarea,
         required=False)
+
     questions = forms.ModelMultipleChoiceField(
         queryset=Question.objects.all().filter(active=True),
         label="Questions",
         widget=forms.Select)
-
+    """
     class Meta:
         model = Survey
+        fields = ('name',)
+        exclude = ('description', 'user', 'questions', 'step', 'active', 'date', 'meta')

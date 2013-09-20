@@ -34,14 +34,12 @@
             <p class="h2">1.- Escribe el nombre de tu encuesta</p>
         </header>
         <section class="">
-            <form class="" id="new-survey-form">
+            <form class="" id="new-survey-form" method="POST">{% csrf_token %}
                 <div class="b-b" style="width: 50%; margin: auto">
-                    <input class="form-control no-border input-lg m-xl text-center"
-                           type="text"
-                           placeholder="Un nombre genial para mi encuesta" id="survey_name"/>
+                    {{ form.name }}
                 </div>
                 <div class="wrapper-xl">
-                    <a href="#" class="btn-info text-center h3 padder padder-v step-one-next">
+                    <a href="#" class="btn-info text-center h3 padder padder-v" id="step-one-next">
                         <i class="icon-circle-arrow-right"></i>
                         Siguiente
                     </a>

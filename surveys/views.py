@@ -3,6 +3,7 @@ from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.models import Survey, Question_Attributes
 from django.utils import simplejson
+from xindex.forms import SurveyForm
 
 
 def index(request):
@@ -83,11 +84,16 @@ def getJson(request):
     return HttpResponse(simplejson.dumps(survey))
 
 def addSurvey(request):
-    template_vars = {
-        'title': 'Agregar Encuesta'
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response('surveys/add.html', request_context)
+    if request.POST:
+        a= "paso"
+    else:
+        form = SurveyForm()
+        template_vars = {
+            'title': 'Agregar Encuesta',
+            "form": form
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('surveys/add.html', request_context)
 
 def add_step(request, step=1, survey_id=False):
     if survey_id:
@@ -110,4 +116,22 @@ def add_step(request, step=1, survey_id=False):
 
     else:
         return HttpResponseRedirect('/surveys/add')
+
+def save(request, action, next_step, survey_id=False):
+
+    if survey_id == 'empty':
+        if request.POST:
+            form = SurveyForm(request.POST)
+            if form.is_valid():
+                survey = form.save()
+            else:
+                print 'El formulario no es valido'
+
+    #name = request.GET['survey-name']
+    print request.POST
+    return HttpResponse('response')
+
+    template_vars = {
+        'survey_title': ''
+    }
 

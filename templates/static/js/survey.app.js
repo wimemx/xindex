@@ -7,7 +7,7 @@
  */
 $(document).ready(function () {
 
-    $("#survey_name").keyup(function () {
+    $("#id_name").keyup(function () {
         if ($(this).val().length >= 1) {
             $('#save-link').removeClass('hidden');
         } else {
@@ -15,18 +15,24 @@ $(document).ready(function () {
         }
     });
 
-    $('a.step-one-next').on('click', function(){
-        $.ajax({
-            type: 'POST',
-            url: '/survey/save/2/',
-            data: $('#new-survey-form').serialize(),
-            success: function(msg){
+    $('#step-one-next').on('click', function (e) {
+        e.preventDefault();
+        if ($('#id_name').val().length > 1) {
+            $.ajax({
+                url: '/surveys/save/next/2/empty',
+                type: 'POST',
+                data: $('#new-survey-form').serialize(),
+                success: function (msg) {
+                    alert(msg);
+                },
+                error: function (msg_error) {
+                    alert('Error al realizar la peticion');
+                }
+            });
+        } else {
+            return false;
+        }
 
-            },
-            error: function(msg_error){
-
-            }
-        });
     });
 
 
