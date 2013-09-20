@@ -17,14 +17,16 @@ def index(request):
         for each_question in each_survey.questions.all():
             counter_question += 1
 
-        for each_question_attribute in question_attribute_query:
-            counter_attributes += 1
+            for each_question_attribute in question_attribute_query:
+                if each_question == each_question_attribute.question_id:
+                    counter_attributes += 1
 
         surveys['surveys'].append(
             {
                 "name": each_survey.name,
                 "date": each_survey.date,
-                "counter_question": counter_question
+                "counter_question": counter_question,
+                "counter_attribute": counter_attributes
             }
         )
     template_vars = {"title": "Surveys",
