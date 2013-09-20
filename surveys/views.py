@@ -45,3 +45,26 @@ def addSurvey(request):
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('surveys/add.html', request_context)
+
+def add_step(request, step=1, survey_id=False):
+    if survey_id:
+        try:
+            survey = Survey.objects.get(pk=survey_id)
+        except Survey.DoesNotExist:
+            survey = False
+    else:
+        survey = False
+
+    if survey:
+        if step == 1:
+            template_vars = {
+                'survey_title': survey.name,
+                'step': survey.id,
+                'survey_id': survey_id
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response('surveys/add-step-1.html');
+
+    else:
+        return HttpResponseRedirect('/surveys/add')
+
