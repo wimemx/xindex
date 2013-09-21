@@ -19,7 +19,6 @@ $(document).ready(function () {
                     label: "Cancelar",
                     className: "btn-white",
                     callback: function () {
-                        alert('')
                     }
                 },
                 main: {
