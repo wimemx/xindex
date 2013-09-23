@@ -240,7 +240,7 @@ class Survey(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField(null=True, blank=True)
     questions = models.ManyToManyField(Question, blank=True, null=True)
-    step = models.IntegerField(max_length=2, null=True, blank=True)
+    #step = models.IntegerField(max_length=2, null=True, blank=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)

@@ -4,6 +4,9 @@ body {
   background-color: #e7eef1;
   -webkit-font-smoothing: antialiased;
 }
+.bg-body{
+    background-color: transparent;
+}
 h1,
 h2,
 h3,
@@ -2609,6 +2612,17 @@ fieldset[disabled] .btn-gplus.active {
 }
 .mtop{
     margin-top: 15px;
+}
+.h-defined{
+    height: 210px;
+}
+.h-defined-description{
+    height: 111px;
+    overflow: auto;
+}
+.row-moments{
+    margin-left: -30px;
+    margin-right: -30px;
 }
 .headerXINDEX,
 .footerXINDEX {

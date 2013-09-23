@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -9,7 +10,7 @@ from xindex.models import Xindex_User
 
 def index(request):
     surveys = {'surveys': []}
-    survey_query = Survey.objects.all().order_by('-active')
+    survey_query = Survey.objects.all().order_by('name')
     question_attribute_query = Question_Attributes.objects.all()
 
     for each_survey in survey_query:
@@ -34,9 +35,7 @@ def index(request):
         )
     template_vars = {"title": "Surveys",
                      "surveys": surveys,
-                     "order_name": "name",
-                     "order_status": "status",
-                     "order_date": "date"}
+                     "order_query": "Nombre"}
     request_context = RequestContext(request, template_vars)
     return render(request, 'surveys/index.html', request_context)
 
@@ -66,8 +65,17 @@ def indexOrder(request, order_type):
                 "counter_attribute": counter_attributes
             }
         )
+
+    if order_type == 'name':
+        order_query = 'Nombre'
+    elif order_type == 'active':
+        order_query = 'Status'
+    elif order_type == 'date':
+        order_query = 'Fecha de creación'
+
     template_vars = {"title": "Surveys",
-                     "surveys": surveys}
+                     "surveys": surveys,
+                     "order_query": order_query}
     request_context = RequestContext(request, template_vars)
     return render(request, 'surveys/index.html', request_context)
 
