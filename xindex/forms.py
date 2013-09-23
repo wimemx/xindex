@@ -170,13 +170,6 @@ class SurveyForm(ModelForm):
         self.fields['name'].widget.attrs.update({'class': 'form-control no-border input-lg m-xl text-center', 'placeholder': 'Un nombre genial para mi encuesta'})
 
     """
-    user_id = forms.ModelChoiceField(
-        queryset=Xindex_User.objects.all(),
-        label="User",
-        widget=forms.Select,
-        empty_label="Select")
-    """
-    """
     description = forms.CharField(
         label="Description:", widget=Textarea,
         required=False)
@@ -189,4 +182,4 @@ class SurveyForm(ModelForm):
     class Meta:
         model = Survey
         fields = ('name',)
-        exclude = ('description', 'user', 'questions', 'step', 'active', 'date', 'meta')
+        exclude = ('description', 'questions', 'user', 'step', 'active', 'date', 'meta')

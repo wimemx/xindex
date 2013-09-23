@@ -22,17 +22,44 @@ $(document).ready(function () {
                 url: '/surveys/save/next/2/empty',
                 type: 'POST',
                 data: $('#new-survey-form').serialize(),
+                dataType: 'Json',
                 success: function (msg) {
-                    alert(msg);
+                    if (msg.save) {
+                        alert('Se ha guardado la encuesta');
+                        window.location.href = msg.url;
+                    }
                 },
                 error: function (msg_error) {
-                    alert('Error al realizar la peticion');
+                    alert(msg_error.error);
                 }
             });
         } else {
             return false;
         }
 
+    });
+
+
+    /*Funciones para insertar bloques de preguntas*/
+    $('#add-block-questions').on('click', function () {
+        $('div.default-buttons').fadeOut();
+        $('#survey-main-content').append(
+            '<div class="animated rollIn">' +
+                '<div class="col-lg-12">' +
+                '<section class="panel">' +
+                '<div class="panel-body">' +
+                    '<header class="h4 text-center">'+
+                        'Este es el nombre del bloque de preguntas'+
+                    '</header>'+
+                    '<small class="wrapper">'+
+                        '<p>'+
+                            'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'+
+                        '</p>'+
+                    '</small>'+
+                '</div>' +
+                '</section>' +
+                '</div>' +
+                '</div>');
     });
 
 

@@ -4,6 +4,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.models import Survey, Question_Attributes
 from django.utils import simplejson
 from xindex.forms import SurveyForm
+from xindex.models import Xindex_User
 
 
 def index(request):
@@ -112,7 +113,7 @@ def add_step(request, step=1, survey_id=False):
                 'survey_id': survey_id
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response('surveys/add-step-1.html');
+            return render_to_response('surveys/add-step-1.html')
 
     else:
         return HttpResponseRedirect('/surveys/add')
@@ -123,15 +124,44 @@ def save(request, action, next_step, survey_id=False):
         if request.POST:
             form = SurveyForm(request.POST)
             if form.is_valid():
-                survey = form.save()
+                step = int(next_step) - 1
+                xindex_user = Xindex_User.objects.get(user__id=request.user.id)
+                survey = Survey(user=xindex_user, name=form.cleaned_data['name'], step=step)
+                survey.save()
+
+                print 'Se ha guardado'
+
+                new_url = '/surveys/save/next/2/'+ str(survey.id)
+
+                answer = {'save': True, 'url': new_url}
+
+                print answer
+
+                return HttpResponse(simplejson.dumps(answer))
             else:
-                print 'El formulario no es valido'
+                answer = {'save': False, 'error': 'El nombre de la encuesta no es valido'}
 
-    #name = request.GET['survey-name']
-    print request.POST
-    return HttpResponse('response')
+                return HttpResponse(simplejson.dumps(answer))
+    else:
+        print 'Next step: ' + next_step
+        print 'Id survey: ' + survey_id
+        survey_id = int(survey_id)
+        survey = Survey.objects.get(pk=survey_id)
+        if int(next_step) == 2 and action == 'next':
+            template_vars = {
+                'survey_title': survey.name,
+                'survey_id': survey.id,
+                'next_step': str(int(next_step)+1)
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response('surveys/add-step-2.html', request_context)
+        if int(next_step) == 3 and action == 'next':
+            template_vars = {
+                'survey_title': survey.name,
+                'survey_id': survey.id,
+                'next_step': str(int(next_step)+1)
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response('surveys/add-step-3.html', request_context)
 
-    template_vars = {
-        'survey_title': ''
-    }
 
