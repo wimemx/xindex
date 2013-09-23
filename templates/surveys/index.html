@@ -83,14 +83,17 @@
                                 Ordenar por
                                 <div class="btn-group">
                                     <button class="btn btn-white btn-sm dropdown-toggle" data-toggle="dropdown">
-                                        Nombre
+                                        {{ order_query }}
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a href="/surveys/order/name/">Nombre</a></li>
                                         <li><a href="/surveys/order/active/">Status</a></li>
-                                        <li><a href="/surveys/order/date/">Fecha de creacion</a></li>
+                                        <li><a href="/surveys/order/date/">Fecha de creación</a></li>
                                     </ul>
+                                    <a href="#" class="btn btn-sm btn-danger" id="actions" style="display: none;">
+                                        Deshabilitar
+                                    </a>
                                 </div>
                             </div>
                             </div>
@@ -124,7 +127,7 @@
                                 <li class="list-group-item">
                                     <div class="media">
                                         <div class="pull-left text-success m-t-sm">
-                                            <input type="checkbox">
+                                            <input type="checkbox" id="check"/>
                                         </div>
                                         <div class="pull-right m-t-sm text-center">
                                             {% if each_survey.status %}
@@ -177,7 +180,7 @@
                                 <li class="list-group-item">
                                     <div class="media">
                                         <div class="pull-left text-success m-t-sm">
-                                            <input type="checkbox">
+                                            <input type="checkbox" id="check"/>
                                         </div>
                                         <div class="pull-right m-t-sm text-center">
                                             {% if each_survey.status %}

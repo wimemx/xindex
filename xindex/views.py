@@ -49,7 +49,7 @@ def search(request):
     query_string = request.GET['q']
 
     if query_string == '':
-            found_entries = Survey.objects.all().order_by('name')
+        found_entries = Survey.objects.all().order_by('name')
 
     else:
         if ('q' in request.GET) and request.GET['q'].strip():
@@ -84,9 +84,3 @@ def search(request):
                      "query_string": query_string}
     request_context = RequestContext(request, template_vars)
     return render_to_response('surveys/index.html', request_context)
-    '''
-    return render_to_response('surveys/index.html',
-                              {'query_string': query_string,
-                               'found_entries': found_entries},
-                              context_instance=RequestContext(request))
-                                  '''

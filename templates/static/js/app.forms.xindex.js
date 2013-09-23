@@ -8,6 +8,15 @@
 
 $(document).ready(function () {
 
+    $('#check').on('click', function (e){
+
+            if(check.checked==true){
+            document.getElementById("actions").style.display = "block";
+            }else{
+            document.getElementById("actions").style.display = "none";
+            }
+            });
+
     $('.remove-moment').on('click', function (e) {
         e.preventDefault();
         var href = $(this).attr('href');

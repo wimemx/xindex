@@ -943,9 +943,9 @@ function attributesDatagrid() {
 }
 
 
-/*
+/* 373 x 210 div momentos
 * Tabla de encuestas
-* */
+*
 function surveysDatagrid() {
     // fuelux subsidiaries datagrid
     var DataGridDataSource = function (options) {
@@ -1077,4 +1077,4 @@ $('#addBusinessUnit').click(function () {
     });
 
 
-});
+});*/
