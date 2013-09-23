@@ -2626,9 +2626,14 @@ fieldset[disabled] .btn-gplus.active {
 }
 .headerXINDEX,
 .footerXINDEX {
-  min-height: 110px;
+    min-height: 110px;
     clear: both;
-  padding: 0 15px;
+    padding: 0 15px;
+}
+.border-dashed{
+    border-style: dashed;
+    border-color:lightgray;
+    border-width: 2px;
 }
 /*
     Icono de buscar "dentro" del input
