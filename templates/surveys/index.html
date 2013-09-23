@@ -106,9 +106,11 @@
                         <div class="footer h5">
                             <div class="input-group text-sm pull-right padder-v">
                                 <div class="form-search form-inline">
-                                    <input type="text"
+                                    <form action="/search/" method="GET">
+                                    <input type="text" id="id_q" name="q"
                                            class="search-query input-sm form-control"
-                                           placeholder="Search..."/>
+                                           placeholder="Search..." value="{{ query_string }}"/>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -117,6 +119,60 @@
                 <div class="col-lg-12">
                     <section class="panel">
                         <ul class="list-group">
+                            {% if found_entries %}
+                                {% for each_survey in found_entries.surveys %}
+                                <li class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-left text-success m-t-sm">
+                                            <input type="checkbox">
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            {% if each_survey.status %}
+                                                <div class="h4">
+                                                    <i class="icon-ok text-success"></i>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Habilitada
+                                                </small>
+                                            {% else %}
+                                                <div class="h4">
+                                                    <i class="icon-remove text-danger"></i>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Deshabilitada
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            <div class="h4">
+                                                {{ each_survey.counter_attribute }}
+                                            </div>
+                                            <small class="text-muted">
+                                                Indicadores
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            <div class="h4">
+                                                {{ each_survey.counter_question }}
+                                            </div>
+                                            <small class="text-muted">
+                                                Preguntas
+                                            </small>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="h4">
+                                                <a href="#">
+                                                    {{ each_survey.name }}
+                                                </a>
+                                            </div>
+                                            <small class="text-muted">
+                                                Creada el {{ each_survey.date }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            {% endif %}
                             {% for each_survey in surveys.surveys %}
                                 <li class="list-group-item">
                                     <div class="media">

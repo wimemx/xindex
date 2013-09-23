@@ -55,6 +55,9 @@ urlpatterns = patterns('',
     #Company_types
     url(r'^company_types/', include('company_types.urls')),
 
-     #Surveys
+    #Surveys
     url(r'^surveys/', include('surveys.urls')),
+
+    #Surveys
+    url(r'^search/$', 'xindex.views.search'),
 )

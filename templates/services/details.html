@@ -38,9 +38,10 @@
                         <section class="scrollable wrapper">
                             <div class="row">
                                 <div class="col-lg-9">
-                                    <a href="/moments/add/{{ service_id }}"
-                                       data-toggle="ajaxModal">
-                                        <div class="col-lg-6 col-sm-6">
+                                <div class="row">
+                                    <div class="col-lg-6 col-sm-6">
+                                        <a href="/moments/add/{{ service_id }}"
+                                           data-toggle="ajaxModal">
                                             <section
                                                     class="panel lter no-borders">
                                                 <div class="panel-body text-center padder v-middle">
@@ -51,13 +52,12 @@
                                                         Momento</em></p>
                                                 </div>
                                             </section>
-                                        </div>
-                                    </a>
+                                        </a>
+                                    </div>
                                     {% if service %}
                                         {% for Moment in service.moments.all %}
                                             <div class="col-lg-6 col-sm-6">
-                                                <section
-                                                        class="panel lter no-borders">
+                                                <section class="panel lter no-borders">
                                                     <header class="h4 header wrapper text-left">
                                                             {{ Moment.name }}
                                                             <a class="pull-right text-danger remove-moment" href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
@@ -78,7 +78,7 @@
                                             </div>
                                         {% endfor %}
                                         {% if counter_moments == 0 %}
-                                            <div class="col-lg-6 col-sm-6">
+                                            <div class="col-sm-6">
                                                 <section
                                                         class="panel lter no-borders">
                                                     <div class="panel-body text-center padder v-middle">
@@ -94,8 +94,9 @@
                                         {% endif %}
                                     {% endif %}
                                 </div>
-
+                                </div>
                                 <div class="col-lg-3">
+                                    <div class="row">
                                     <section class="panel lter no-borders">
                                         <div class="panel-body">
                                             <div class="h4 header bg-info wrapper text-center">
@@ -132,6 +133,7 @@
                                             </div>
                                         </div>
                                     </section>
+                                </div>
                                 </div>
                             </div>
                         </section>
