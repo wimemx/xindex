@@ -25,7 +25,6 @@ $(document).ready(function () {
                 dataType: 'Json',
                 success: function (msg) {
                     if (msg.save) {
-                        alert('Se ha guardado la encuesta');
                         window.location.href = msg.url;
                     }
                 },
