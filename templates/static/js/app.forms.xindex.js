@@ -8,14 +8,14 @@
 
 $(document).ready(function () {
 
-    $('#check').on('click', function (e){
+    $('#check').on('click', function (e) {
 
-            if(check.checked==true){
+        if (check.checked == true) {
             document.getElementById("actions").style.display = "block";
-            }else{
+        } else {
             document.getElementById("actions").style.display = "none";
-            }
-            });
+        }
+    });
 
     $('.remove-moment').on('click', function (e) {
         e.preventDefault();
@@ -141,6 +141,51 @@ $(document).ready(function () {
         }
 
 
+    });
+
+    $(document).on('click', 'a.close-update-modal', function(){
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    })
+
+
+    $(document).on('submit', '#update-moment-form', function (e) {
+        e.preventDefault();
+        var action = $(this).attr('action');
+        $.ajax({
+            type: "POST",
+            url: action,
+            data: $(this).serialize(),
+            success: function (msg) {
+                if (msg == 'Si') {
+                    var alerta = '<div class="alert alert-success">' +
+                        '<button type="button" class="close" data-dismiss="alert">' +
+                        '<i class="icon-remove"></i>' +
+                        '</button>' +
+                        '<i class="icon-ok-sign"></i>' +
+                        '<strong>¡El punto de contacto ha sido actualizado!</strong>' +
+                        '</div>';
+                    $('#news_section').html(alerta);
+                    $('div.modal').modal('hide');
+                    setTimeout(function () {
+                        window.location.reload(true);
+                    }, 2000);
+                } else if (msg == 'No') {
+                    alert('Verifique los errores en el formulario e intente de nuevo')
+                }
+            },
+            error: function (msg_failu) {
+                var alerta = '<div class="alert alert-danger">' +
+                    '<button type="button" class="close" data-dismiss="alert">' +
+                    '<i class="icon-remove"></i>' +
+                    '</button>' +
+                    '<i class="icon-ban-circle"></i>' +
+                    '<strong>¡No fue posible realizar la operacion, intente mas tarde!< /strong>' +
+                    '</div>';
+                $('#news_section').html(alerta);
+                $('div.modal').modal('hide');
+            }
+        });
     });
 
 
