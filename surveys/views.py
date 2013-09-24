@@ -126,8 +126,8 @@ def add_step(request, step=1, survey_id=False):
     else:
         return HttpResponseRedirect('/surveys/add')
 
-def save(request, action, next_step, survey_id=False):
 
+def save(request, action, next_step, survey_id=False):
     if survey_id == 'empty':
         if request.POST:
             form = SurveyForm(request.POST)
