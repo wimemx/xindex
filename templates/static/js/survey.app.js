@@ -43,7 +43,7 @@ $(document).ready(function () {
     $('#add-block-questions').on('click', function () {
         $('div.default-buttons').fadeOut();
         $('#survey-main-content').append(
-            '<div class="animated rollIn">' +
+            '<div class="animated fadeIn">' +
                 '<div class="col-lg-12">' +
                 '<section class="panel">' +
                 '<div class="panel-body">' +
