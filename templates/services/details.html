@@ -6,186 +6,189 @@
 </head>
 <body>
 {% block mainContent %}
-    <section id="content">
+    <section id="content" class="bg-white-xindex">
         <section class="vbox">
-            <header class="header b-b bg-white">
+            <header class="header b-b">
                 <p class="h4 animated bounceInDown">Detalles</p>
             </header>
-            <section class="wrapper animated fadeInRightBig" id="basic">
-                {% if service %}
-                    <section class="bg-gradient nav hidden-xs">
-                        <section class="wrapper text-left stretch b-b">
-                            <div class="h3 m-t-xs m-b-xs">
-                                <i class="icon-briefcase icon-xlarge"></i> {{ service.name }}
-                                <small>Unidad de servicio, Subsidiaria,
-                                    Direccion
-                                </small>
+            <section class="scrollable wrapper animated fadeInRightBig" id="basic">
+                <div class="row">
+                    {% if service %}
+                        <section class="bg-gradient nav hidden-xs">
+                            <section class="wrapper text-left stretch b-b">
+                                <div class="h3 m-t-xs m-b-xs">
+                                    <i class="icon-briefcase icon-xlarge"></i> {{ service.name }}
+                                    <small>Unidad de servicio, Subsidiaria,
+                                        Direccion
+                                    </small>
 
-                                <a class="pull-right "
-                                   href="/services">
-                                    <i class="icon-reply"></i>
-                                </a>
-                            </div>
-                            <div class="h3 m-t-xs m-b-xs">
-                                <h4>Puntos de contacto para
-                                    <a href="#">{{ service.name }}</a>
-                                </h4>
-                            </div>
-                        </section>
-                        <section id="news_section">
+                                    <a class="pull-right "
+                                       href="/services">
+                                        <i class="icon-reply"></i>
+                                    </a>
+                                </div>
+                                <div class="h3 m-t-xs m-b-xs">
+                                    <h4>Puntos de contacto para
+                                        <a href="#">{{ service.name }}</a>
+                                    </h4>
+                                </div>
+                            </section>
+                            <section id="news_section">
 
-                        </section>
-                        <section class="scrollable wrapper">
-                            <div class="row">
-                                <div class="col-lg-9 col-sm-9">
-                                    <div class="row-moments">
-
-
-                                        <section
-                                                class="panel lter no-borders bg-body">
-                                            <div class="panel-body">
-
-
-                                                <div class="col-lg-6 col-sm-6">
-                                                    <a href="/moments/add/{{ service_id }}"
-                                                       data-toggle="ajaxModal">
-                                                        <section
-                                                                class="panel lter h-defined border-dashed bg-body">
-                                                            <div class="panel-body text-center padder v-middle">
-                                                                <div class="text-center media-lg thumb-lg padder-v">
-                                                                    <i class="icon-plus inline icon-light text-success icon-5x m-t-lg m-b-lg"></i>
-                                                                </div>
-                                                                <p class="text-muted">
-                                                                    <em>Nuevo
-                                                                        punto de
-                                                                        contacto</em>
-                                                                </p>
-                                                            </div>
-                                                        </section>
-                                                    </a>
-                                                </div>
-                                                {% if service %}
-                                                    {% for Moment in service.moments.all %}
-                                                        <div class="col-lg-6 col-sm-6">
+                            </section>
+                            <section class="scrollable wrapper">
+                                <div class="row">
+                                    <div class="col-lg-9 col-sm-9">
+                                        <div class="row-moments">
+                                            <section class="panel lter no-borders bg-body">
+                                                <div class="panel-body">
+                                                    <div class="col-lg-6 col-sm-6">
+                                                        <a href="/moments/add/{{ service_id }}"
+                                                           data-toggle="ajaxModal">
                                                             <section
-                                                                    class="panel lter no-borders h-defined">
-                                                                <header class="h4 header wrapper text-left">
-                                                                    {{ Moment.name }}
-                                                                    <a class="pull-right text-danger remove-moment"
-                                                                       href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
-                                                                        <i class="icon-close icon-remove"></i>
-                                                                    </a>
-                                                                </header>
-                                                                <div class="panel-body">
-                                                                    <div class="h-defined-description">
-                                                                        {{ Moment.description }}
-                                                                    </div>
-                                                                    <div>
-                                                                        <a class="pull-right text-warning"
-                                                                           href="/moments/{{ Moment.id }}/edit/"
-                                                                           data-toggle="ajaxModal">
-                                                                            <i class="icon-edit"></i>
-                                                                        </a>
-                                                                    </div>
-                                                                </div>
-                                                            </section>
-                                                        </div>
-                                                    {% endfor %}
-                                                    {% if counter_moments == 0 %}
-                                                        <div class="col-lg-6 col-sm-6">
-                                                            <section
-                                                                    class="panel lter no-borders h-defined">
+                                                                    class="panel lter h-defined border-dashed bg-body">
                                                                 <div class="panel-body text-center padder v-middle">
                                                                     <div class="text-center media-lg thumb-lg padder-v">
-                                                                        <i class="icon-exclamation-sign inline icon-light text-warning icon-3x m-t-lg m-b-lg"></i>
+                                                                        <i class="icon-plus inline icon-light text-success icon-5x m-t-lg m-b-lg"></i>
                                                                     </div>
-                                                                    <p class="text-muted">
-                                                                        <em>No
-                                                                            existen
-                                                                            puntos
-                                                                            de
-                                                                            contacto
-                                                                            para
-                                                                            este
-                                                                            servicio</em>
+                                                                    <p class="text-muted h4">
+                                                                        <em>Nuevo
+                                                                            punto de
+                                                                            contacto</em>
                                                                     </p>
                                                                 </div>
                                                             </section>
-                                                        </div>
+                                                        </a>
+                                                    </div>
+                                                    {% if service %}
+                                                        {% for Moment in service.moments.all %}
+                                                            <div class="col-lg-6 col-sm-6">
+                                                                <section class="panel lter h-defined border-solid">
+                                                                    <div class="panel-body" style="height: 160px">
+                                                                        <span class="h5">{{ Moment.name }}</span>
+                                                                        <div class="h-defined-description m-t text-muted">
+                                                                            {{ Moment.description }}
+                                                                        </div>
+                                                                    </div>
+                                                                    <footer class="panel-footer lt">
+                                                                        <div class="row">
+                                                                            <div class=" col-xs-8">
+                                                                                X Preguntas
+                                                                            </div>
+                                                                            <div class=" col-xs-4">
+                                                                                <a class="pull-right text-danger remove-moment"
+                                                                                   href="/moments/{{ service_id }}/{{ Moment.id }}/remove">
+                                                                                    <i class="icon-close icon-remove"></i>
+                                                                                </a>
+                                                                                <a class="pull-right text-warning"
+                                                                                   href="/moments/{{ Moment.id }}/edit/"
+                                                                                   data-toggle="ajaxModal">
+                                                                                    <i class="icon-edit"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </footer>
+                                                                </section>
+                                                            </div>
+                                                        {% endfor %}
+                                                        {% if counter_moments == 0 %}
+                                                            <div class="col-lg-6 col-sm-6">
+                                                                <section
+                                                                        class="panel lter border-solid h-defined">
+                                                                    <a>
+                                                                    <div class="panel-body text-center padder v-middle">
+                                                                        <div class="text-center media-lg thumb-lg padder-v">
+                                                                            <i class="icon-exclamation inline icon-light text-warning icon-5x m-t-lg m-b-lg"></i>
+                                                                        </div>
+                                                                        <p class="text-muted h4">
+                                                                            <em>No
+                                                                                existen
+                                                                                puntos
+                                                                                de
+                                                                                contacto
+                                                                                para
+                                                                                este
+                                                                                servicio</em>
+                                                                        </p>
+                                                                    </div>
+                                                                    </a>
+                                                                </section>
+                                                            </div>
+                                                        {% endif %}
                                                     {% endif %}
-                                                {% endif %}
 
 
-                                            </div>
-                                        </section>
+                                                </div>
+                                            </section>
 
 
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-3">
+                                        <div class="row">
+                                            <section
+                                                    class="panel lter no-borders bg-body">
+                                                <div class="panel-body">
+                                                    <div class="h4 header bg-info wrapper text-center radius-counters">
+                                                        <div>
+                                                            Puntos de contacto
+                                                        </div>
+                                                        <div>
+                                                            <h1>{{ counter_moments }}</h1>
+                                                        </div>
+                                                    </div>
+                                                    <div class="h4 bg-success wrapper text-center mtop radius-counters">
+                                                        <div>
+                                                            Encuestas
+                                                        </div>
+                                                        <div>
+                                                            <h1>1</h1>
+                                                        </div>
+                                                    </div>
+                                                    <div class="h4 bg-danger wrapper text-center mtop radius-counters">
+                                                        <div>
+                                                            Preguntas
+                                                        </div>
+                                                        <div>
+                                                            <h1>19</h1>
+                                                        </div>
+                                                    </div>
+                                                    <div class="h4 bg-warning wrapper text-center mtop radius-counters">
+                                                        <div>
+                                                            Atributos
+                                                        </div>
+                                                        <div>
+                                                            <h1>{{ counter_attributes }}</h1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-sm-3">
-                                    <div class="row">
-                                        <section
-                                                class="panel lter no-borders bg-body">
-                                            <div class="panel-body">
-                                                <div class="h4 header bg-info wrapper text-center">
-                                                    <div>
-                                                        Puntos de contacto
-                                                    </div>
-                                                    <div>
-                                                        <h1>{{ counter_moments }}</h1>
-                                                    </div>
-                                                </div>
-                                                <div class="h4 bg-warning wrapper text-center mtop">
-                                                    <div>
-                                                        Encuestas
-                                                    </div>
-                                                    <div>
-                                                        <h1>1</h1>
-                                                    </div>
-                                                </div>
-                                                <div class="h4 bg-danger wrapper text-center mtop">
-                                                    <div>
-                                                        Preguntas
-                                                    </div>
-                                                    <div>
-                                                        <h1>19</h1>
-                                                    </div>
-                                                </div>
-                                                <div class="h4 bg-light wrapper text-center mtop">
-                                                    <div>
-                                                        Atributos
-                                                    </div>
-                                                    <div>
-                                                        <h1>{{ counter_attributes }}</h1>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    </div>
-                                </div>
-                            </div>
+                            </section>
                         </section>
-                    </section>
-                {% else %}
-                    <section class="bg-white wrapper-lg text-center">
-                        <div class="">
-                            <span class="icon-stack">
-                                <i class="icon-circle text-white icon-stack-base"></i>
-                                <i class="icon-warning-sign icon-light icon-xlarge text-warning"></i>
+                    {% else %}
+                        <section class="bg-white wrapper-lg text-center">
+                            <div class="">
+                                <span class="icon-stack">
+                                    <i class="icon-circle text-white icon-stack-base"></i>
+                                    <i class="icon-warning-sign icon-light icon-xlarge text-warning"></i>
+                                </span>
+                            </div>
+                            <span class="h4">
+                                No se encontro el servicio
                             </span>
+                        </section>
+                        <div class="row wrapper">
+                            <a class="pull-right btn btn-white btn-sm"
+                               href="/services">
+                                <i class="icon-backward"></i>
+                                Regresar
+                            </a>
                         </div>
-                        <span class="h4">
-                            No se encontro el servicio
-                        </span>
-                    </section>
-                    <div class="row wrapper">
-                        <a class="pull-right btn btn-white btn-sm"
-                           href="/services">
-                            <i class="icon-backward"></i>
-                            Regresar
-                        </a>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
             </section>
         </section>
     </section>

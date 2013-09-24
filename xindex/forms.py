@@ -10,7 +10,8 @@ class MomentForm(ModelForm):
 
     name = forms.CharField(label="Name:")
     """
-    attributes = forms.ModelMultipleChoiceField(queryset=Attributes.objects.all(),
+    attributes = forms.ModelMultipleChoiceField(
+        queryset=Attributes.objects.all(),
         label="Attribute:",
         widget=forms.CheckboxSelectMultiple,
         required=False)
@@ -30,8 +31,10 @@ class MomentForm(ModelForm):
             'invalid': 'Seleccione un propietario valido'
         }
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['name'].widget.attrs.update({'class': 'form-control',
+                                                 'required': 'required'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control',
+                                                        'required': 'required'})
         self.fields['attributes'].widget.attrs.update({'class': 'form-control'})
         self.fields['owners'].widget.attrs.update({'class': 'form-control'})
 
@@ -62,10 +65,14 @@ class AttributesForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(AttributesForm, self).__init__(*args, **kwargs)
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['description'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['threshold'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
-        self.fields['moments'].widget.attrs.update({'class': 'form-control', 'required': 'required'})
+        self.fields['name'].widget.attrs.update({'class': 'form-control',
+                                                 'required': 'required'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control',
+                                                        'required': 'required'})
+        self.fields['threshold'].widget.attrs.update({'class': 'form-control',
+                                                      'required': 'required'})
+        self.fields['moments'].widget.attrs.update({'class': 'form-control',
+                                                    'required': 'required'})
 
     class Meta:
         model = Attributes
@@ -108,7 +115,8 @@ class CompanyForm(ModelForm):
 
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
         self.fields['types'].widget.attrs.update({'class': 'form-control'})
-        self.fields['parent_company'].widget.attrs.update({'class': 'form-control'})
+        self.fields['parent_company'].widget.attrs.update(
+            {'class': 'form-control'})
         self.fields['about'].widget.attrs.update({'class': 'form-control'})
         self.fields['address'].widget.attrs.update({'class': 'form-control'})
         self.fields['rfc'].widget.attrs.update({'class': 'form-control'})
@@ -167,7 +175,9 @@ class SurveyForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SurveyForm, self).__init__(*args, **kwargs)
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control no-border input-lg m-xl text-center', 'placeholder': 'Un nombre genial para mi encuesta'})
+        self.fields['name'].widget.attrs.update(
+            {'class': 'form-control no-border input-lg m-xl text-center',
+             'placeholder': 'Un nombre genial para mi encuesta'})
 
     """
     description = forms.CharField(
@@ -182,4 +192,5 @@ class SurveyForm(ModelForm):
     class Meta:
         model = Survey
         fields = ('name',)
-        exclude = ('description', 'questions', 'user', 'step', 'active', 'date', 'meta')
+        exclude = ('description', 'questions', 'user', 'step', 'active', 'date',
+                   'meta')

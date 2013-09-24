@@ -20,8 +20,10 @@ class AddService(forms.ModelForm):
             'invalid': 'Seleccione un archivo de imagen valido'
         }
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['description'].widget.attrs.update({'class': 'form-control'})
-        self.fields['picture'].widget.attrs.update({'class': 'btn btn-sm btn-info m-b-sm form-control'})
+        self.fields['description'].widget.attrs.update(
+            {'class': 'form-control'})
+        self.fields['picture'].widget.attrs.update(
+            {'class': 'btn btn-sm btn-info m-b-sm form-control'})
         self.fields['moments'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:

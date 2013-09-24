@@ -42,10 +42,11 @@ def edit(request, zone_id):
         formulario = ZoneForm(instance=zona)
 
     request_context = RequestContext(request)
-    return render_to_response("zones/new_zone.html", {"formulario": formulario,
-                                                      "Add": "Save",
-                                                      "reset": "button",
-                                                      "onclick": "javascript:history.go(-1)"},
+    return render_to_response("zones/new_zone.html",
+                              {"formulario": formulario,
+                               "Add": "Save",
+                               "reset": "button",
+                               "onclick": "javascript:history.go(-1)"},
                               request_context)
 
 

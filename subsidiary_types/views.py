@@ -33,7 +33,6 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiary_types/index.html", request_context)
             return HttpResponseRedirect('/subsidiary_types')
         else:
             template_vars = {
@@ -42,7 +41,8 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("subsidiary_types/add.html", request_context)
+            return render_to_response("subsidiary_types/add.html",
+                                      request_context)
 
     else:
         formulario = AddSubsidiaryType()
@@ -63,7 +63,8 @@ def update(request, subsidiary_type_id):
 
     if sub_type:
         if request.POST:
-            formulario = AddSubsidiaryType(request.POST or None, instance=sub_type)
+            formulario = AddSubsidiaryType(request.POST or None,
+                                           instance=sub_type)
             if formulario.is_valid():
                 formulario.save()
                 template_vars = {
@@ -79,16 +80,19 @@ def update(request, subsidiary_type_id):
                     "formulario": formulario
                 }
                 request_context = RequestContext(request, template_vars)
-                return render_to_response("subsidiary_types/update.html", request_context)
+                return render_to_response("subsidiary_types/update.html",
+                                          request_context)
         else:
-            formulario = AddSubsidiaryType(request.POST or None, instance=sub_type)
+            formulario = AddSubsidiaryType(request.POST or None,
+                                           instance=sub_type)
             template_vars = {
                 "titulo": "Editar tipo de subsidiaria",
                 "message": "",
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("subsidiary_types/update.html", request_context)
+            return render_to_response("subsidiary_types/update.html",
+                                      request_context)
     else:
         message = "No se ha podido encontrar la subsidiaria"
         return HttpResponseRedirect('/subsidiary_types/')
@@ -111,7 +115,6 @@ def remove(request, subsidiary_type_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiary_types/index.html", request_context)
             return HttpResponseRedirect('/subsidiary_types')
 
         except:
@@ -121,7 +124,6 @@ def remove(request, subsidiary_type_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiary_types/index.html", request_context)
             return HttpResponse('No se pudo eliminar el tipo de subsidiaria')
     else:
         message = "No se ha encontrado el tipo de subsidiaria"
@@ -130,8 +132,6 @@ def remove(request, subsidiary_type_id):
             "message": message
         }
         request_context = RequestContext(request, template_vars)
-        #return render_to_response("subsidiary_types/index.html", request_context)
-        #return HttpResponse('No se encontro el tipo de subsidiaria')
         return HttpResponseRedirect('/subsidiary_types')
 
 
@@ -149,8 +149,6 @@ def getSTInJson(request):
                 "st_del": st.id
             }
         )
-
-    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(s_types))
 

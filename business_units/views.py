@@ -16,6 +16,7 @@ def index(request, message = ''):
     request_context = RequestContext(request, template_vars)
     return render_to_response("business_units/index.html", request_context)
 
+
 def add(request):
     if request.POST:
         formulario = AddBusinessUnit(request.POST or None)
@@ -27,7 +28,6 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("business_units/index.html", request_context)
             return HttpResponse('si')
         else:
             template_vars = {
@@ -36,7 +36,6 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("business_units/add.html", request_context)
             return HttpResponse('No')
     else:
         formulario = AddBusinessUnit()
@@ -57,7 +56,8 @@ def update(request, business_unit_id):
 
     if bus_unit:
         if request.POST:
-            formulario = AddBusinessUnit(request.POST or None, instance=bus_unit)
+            formulario = AddBusinessUnit(request.POST or None,
+                                         instance=bus_unit)
             if formulario.is_valid():
                 formulario.save()
                 template_vars = {
@@ -73,16 +73,19 @@ def update(request, business_unit_id):
                     "formulario": formulario
                 }
                 request_context = RequestContext(request, template_vars)
-                return render_to_response("business_units/update.html", request_context)
+                return render_to_response("business_units/update.html",
+                                          request_context)
         else:
-            formulario = AddBusinessUnit(request.POST or None, instance=bus_unit)
+            formulario = AddBusinessUnit(request.POST or None,
+                                         instance=bus_unit)
             template_vars = {
                 "titulo": "Modificar unidad de negocio",
                 "message": "",
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("business_units/update.html", request_context)
+            return render_to_response("business_units/update.html",
+                                      request_context)
     else:
         message = "No se ha podido encontrar la unidad de negocio"
         return HttpResponseRedirect('/business_units/')
@@ -105,7 +108,6 @@ def remove(request, business_unit_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("business_units/index.html", request_context)
             return HttpResponseRedirect('/business_units')
 
         except:
@@ -115,7 +117,6 @@ def remove(request, business_unit_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("business_units/index.html", request_context)
             return HttpResponse('No se pudo eliminar la unidad de negocio')
     else:
         message = "No se ha encontrado la unidad de negocio"
@@ -129,12 +130,10 @@ def remove(request, business_unit_id):
         return HttpResponseRedirect('/business_units')
 
 
-
 def getBUInJson(request):
-    b_u = {}
-    b_u['business_u'] = []
+    b_u = {'business_u': []}
 
-    subsidiaries = Subsidiary.objects.filter(company__id=1,active=True)
+    subsidiaries = Subsidiary.objects.filter(company__id=1, active=True)
     print subsidiaries
     for subsidiary in subsidiaries:
         for business_unit in subsidiary.business_unit.all():
@@ -160,15 +159,12 @@ def getBUInJson(request):
             }
         )
     """
-    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(b_u))
 
 
 def details(request, business_unit_id):
-    template_vars = {
-        'titulo': 'Detalles'
-    }
+    template_vars = {'titulo': 'Detalles'}
     try:
         bus_u = BusinessUnit.objects.get(id=business_unit_id)
 

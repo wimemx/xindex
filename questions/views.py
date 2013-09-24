@@ -15,18 +15,23 @@ import json
 
 from django.http import HttpResponseRedirect, HttpResponse
 
+
 def index(request):
     all_questions = Question.objects.filter(active=True).order_by('type')
     return render_to_response('questions/index.html',
                               {'all_questions': all_questions})
 
+
 def add(request):
     question_types = Question_Type.objects.all().order_by('name');
     c = {}
     c.update(csrf(request))
-    return render_to_response('questions/add.html', {'question_types': question_types})
+    return render_to_response('questions/add.html',
+                              {'question_types': question_types})
 
 #TODO: Create the factory for the questions
+
+
 def create_matrix(data):
     type = int(data.type)
     title = data.title
@@ -41,8 +46,10 @@ def create_matrix(data):
     question.save()
 
     for subquestion in rows:
-        q = Question(user=Xindex_User.objects.get(pk=1), title=subquestion.label,
-                     type=Question_Type.objects.get(pk=type), parent_question=question)
+        q = Question(user=Xindex_User.objects.get(pk=1),
+                     title=subquestion.label,
+                     type=Question_Type.objects.get(pk=type),
+                     parent_question=question)
         q.save()
         i = 1
         for option in cols:
@@ -52,9 +59,11 @@ def create_matrix(data):
             i += 1
 
     json_response = json.dumps(
-        {'messagesent' : "Question added successfully!"}
+        {'messagesent': "Question added successfully!"}
     )
+
     return HttpResponse(json_response, content_type="application/json")
+
 
 def create_multiple_choice(data):
     type = int(data.type)
@@ -84,6 +93,7 @@ def create_multiple_choice(data):
     )
     return HttpResponse(json_response, content_type="application/json")
 
+
 def create_open_question(data):
     type = int(data.type)
     title = data.title
@@ -99,6 +109,7 @@ def create_open_question(data):
         {'messagesent' : "Question added successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
 
 def create_range_question(data):
     type = int(data.type)
@@ -140,6 +151,7 @@ def create_range_question(data):
     )
     return HttpResponse(json_response, content_type="application/json")
 
+
 def create_true_and_false(data):
     type = int(data.type)
     title = data.title
@@ -154,11 +166,11 @@ def create_true_and_false(data):
 
     for i in range(len(options)):
         new_option = Option(question=question, label=options[i],
-                    value = i + 1, order = i + 1)
+                            value=i + 1, order=i + 1)
         new_option.save()
 
     json_response = json.dumps(
-        {'messagesent' : "Question added successfully!"}
+        {'messagesent': "Question added successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -167,11 +179,10 @@ def create_true_and_false(data):
 def add_ajax(request):
     if request.is_ajax():
         try:
-            data = json.loads( request.body,
-                               object_hook =
-                               lambda d: namedtuple( 'X', d.keys() )
-                                                   ( *d.values() )
-                            )
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
             #TODO: Search for types in the table question_type to avoid hardcoding
             if data.type_name == "matrix":
                 return create_matrix(data)
@@ -188,16 +199,19 @@ def add_ajax(request):
             json_response = json.dumps(
                     {'messagesent' : "Error - Not a valid type of question"}
             )
-            return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
         except ValueError:
             json_response = json.dumps(
-                    {'messagesent' : "Error - Invalid json"}
+                    {'messagesent': "Error - Invalid json"}
             )
-            return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
     else:
         raise Http404
+
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -211,11 +225,10 @@ def detail(request, question_id):
 def remove(request, question_id):
     if request.is_ajax():
         try:
-            data = json.loads( request.body,
-                               object_hook =
-                               lambda d: namedtuple( 'X', d.keys() )
-                                                   ( *d.values() )
-                            )
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
 
             #question_id = data.question_id
             try:
@@ -228,22 +241,25 @@ def remove(request, question_id):
                 json_response = json.dumps(
                     {'messagesent' : "Question deleted successfully!"}
                 )
-                return HttpResponse(json_response, content_type="application/json")
+                return HttpResponse(json_response,
+                                    content_type="application/json")
 
             except Question.DoesNotExist:
                 #If the type of question is not found, throw an error
                 json_response = json.dumps(
-                        {'messagesent' : "Error - Question not found"}
+                        {'messagesent': "Error - Question not found"}
                 )
-                return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+                return HttpResponse(json_response,
+                                    content_type="application/json",
+                                    status=400)
 
         except ValueError:
             json_response = json.dumps(
-                    {'messagesent' : "Error - Invalid json"}
+                    {'messagesent': "Error - Invalid json"}
             )
-            return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
     else:
         raise Http404
 
@@ -257,35 +273,40 @@ def edit(request, question_id):
         #We get the pattern of the options based on the first child
         rows = Question.objects.filter(parent_question=question).order_by('id')
         options = rows[0].option_set.all().order_by('id')
-        return render_to_response('questions/edit.html', {'question': question,
-                                                      'question_types': question_types,
-                                                      'rows': rows,
-                                                      'options': options
-                                    })
+        return render_to_response('questions/edit.html',
+                                  {'question': question,
+                                   'question_types': question_types,
+                                   'rows': rows,
+                                   'options': options})
     elif question.type.name == "Multiple Choice":
         options = question.option_set.all().order_by('id')
-        return render_to_response('questions/edit.html', {'question': question,
-                                                      'question_types': question_types,
-                                                      'options': options
-                                    })
+        return render_to_response('questions/edit.html',
+                                  {'question': question,
+                                   'question_types': question_types,
+                                   'options': options})
     elif question.type.name == "Open question" or question.type.name == "True and False":
-        return render_to_response('questions/edit.html', {'question': question,
-                                                          'question_types': question_types})
+        return render_to_response('questions/edit.html',
+                                  {'question': question,
+                                   'question_types': question_types})
     elif question.type.name == "Range":
         options = question.option_set.filter(active=True).order_by('id')
         first, last = options[0], options.reverse()[0]
-        return render_to_response('questions/edit.html', {'question': question,
-                                                      'question_types': question_types,
-                                                      'options': options,
-                                                      'first': first,
-                                                      'last': last})
+        return render_to_response('questions/edit.html',
+                                  {'question': question,
+                                   'question_types': question_types,
+                                   'options': options,
+                                   'first': first,
+                                   'last': last})
 
     #If question has an undefined type (weird) return nothing
-    return render_to_response('questions/edit.html', {'question': question,
-                                                      'question_types': question_types})
+    return render_to_response('questions/edit.html',
+                              {'question': question,
+                               'question_types': question_types})
 
 #TODO: Move this to the Question Factory
 #TODO: Refactor this, maybe is easier and convenient to actually delete them
+
+
 def update_matrix(question, data):
     cols = data.cols
     rows = data.rows
@@ -335,18 +356,19 @@ def update_matrix(question, data):
             cols = questions[0].option_set.all().order_by('id')
             for option in cols:
                 new_option = Option(question=q, label=option.label,
-                                value = option.value, order = option.order)
+                                    value=option.value, order=option.order)
                 new_option.save()
 
         #At the end, for each question that has been 'removed' (active = False)
         #We should also delete its options
-        deleted_questions = Question.objects.filter(parent_question=question, active=False)
+        deleted_questions = Question.objects.filter(parent_question=question,
+                                                    active=False)
         for d_question in deleted_questions:
             d_question.option_set.all().update(active=False)
 
 
     json_response = json.dumps(
-        {'messagesent' : "Question edited successfully!"}
+        {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -374,7 +396,7 @@ def update_multiple_choice(question, data):
             new_option.save()
 
     json_response = json.dumps(
-        {'messagesent' : "Question edited successfully!"}
+        {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -382,7 +404,7 @@ def update_open_question(question, data):
     question.title = data.title
     question.save()
     json_response = json.dumps(
-        {'messagesent' : "Question edited successfully!"}
+        {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -392,14 +414,14 @@ def update_range_question(question, data):
 
     if start_number < 0 or end_number > 20:
         json_response = json.dumps(
-                    {'messagesent' : "Error - Limits are not valid for range"}
+                    {'messagesent': "Error - Limits are not valid for range"}
             )
         return HttpResponse(json_response, content_type="application/json",
                             status=400)
 
     #Set all options to innactive
     Option.objects.filter(question=question).update(active=False)
-    current_options = question.option_set.all().order_by('id');
+    current_options = question.option_set.all().order_by('id')
 
     #Setting the first value
     first_option = current_options[start_number]
@@ -422,7 +444,7 @@ def update_range_question(question, data):
         except IndexError:
             #It is a new Option
             new_option = Option(question=question, label="",
-                    value = i, order = i)
+                                value=i, order=i)
             new_option.save()
 
     #Setting the last value
@@ -437,20 +459,21 @@ def update_range_question(question, data):
     except IndexError:
         #Needs to be created
         lastOption = Option(question=question, label=data.options.end_label,
-                    value = end_number, order = end_number)
+                            value=end_number, order=end_number)
         lastOption.save()
 
 
     json_response = json.dumps(
-        {'messagesent' : "Question edited successfully!"}
+        {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
 
 def update_true_and_false(question, data):
     question.title = data.title
     question.save()
     json_response = json.dumps(
-        {'messagesent' : "Question edited successfully!"}
+        {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -459,11 +482,10 @@ def update_true_and_false(question, data):
 def edit_ajax(request, question_id):
     if request.is_ajax():
         try:
-            data = json.loads( request.body,
-                               object_hook =
-                               lambda d: namedtuple( 'X', d.keys() )
-                                                   ( *d.values() )
-                            )
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
             q_id = int(question_id)
             question = Question.objects.get(pk=q_id)
             question.title = data.title
@@ -483,15 +505,15 @@ def edit_ajax(request, question_id):
 
             #If the type of question is not defined, throw an error
             json_response = json.dumps(
-                    {'messagesent' : "Error - Not a valid type of question"}
+                    {'messagesent': "Error - Not a valid type of question"}
             )
             return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+                                status=400)
         except ValueError:
             json_response = json.dumps(
-                    {'messagesent' : "Error - Invalid json"}
+                    {'messagesent': "Error - Invalid json"}
             )
             return HttpResponse(json_response, content_type="application/json",
-                            status=400)
+                                status=400)
     else:
         raise Http404

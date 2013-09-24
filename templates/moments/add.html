@@ -3,43 +3,54 @@
         <div class="modal-header">
             <button type="button" class="close"
                     data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Agregar Momento de Contacto</h4>
+            <h4 class="modal-title">Crear un nuevo punto de contacto</h4>
         </div>
         <div class="modal-body">
+            <div class="padder-xl">
             <form class="form-horizontal" id="moment_form" method="POST"
                   action="/moments/add/{{ service_id }}">{% csrf_token %}
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Nombre:</label>
 
-                    <div class=" col-md-7">
+                <div class="form-group m-t-lg">
+                        Nombre:
                         {{ formulario.name }}
                         {{ formulario.name.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
-
-                    <div class=" col-md-7">
+                        Descripci&oacute;n:
                         {{ formulario.description }}
                         {{ formulario.description.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Atributos:</label>
-
-                    <div class=" col-md-5">
+                        Atributos:
                         {{ formulario.attributes }}
                         {{ formulario.attributes.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Propietarios:</label>
-
-                    <div class="col-sm-5">
+                        Propietarios:
                         {{ formulario.owners }}
                         {{ formulario.owners.errors }}
-                    </div>
                 </div>
+                <div class="form-group m-t-lg">
+                        Tipo de punto de contacto:
+                        <table>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="padder text-muted">Telefono</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="padder text-muted">Presencial</td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="padder text-muted">Pagina Web</td>
+                            </tr>
+                        </table>
+                </div>
+                <div class="form-group m-t-lg">
+                    <button type="submit"class="btn blue-xindex pull-right">Guardar</button>
+                </div>
+                <!---
                 <div class="modal-footer">
                     <a href="/services/details/{{ service_id }}"
                        class="btn btn-white"
@@ -48,7 +59,9 @@
                             class="btn btn-twitter">Agregar
                     </button>
                 </div>
+                --->
             </form>
+            </div>
         </div>
     </div>
     <!-- /.modal-content -->
