@@ -6,6 +6,7 @@ from xindex.models import Moment
 from xindex.forms import MomentForm
 from xindex.models import Service
 
+
 def index(request):
     moments = Moment.objects.all().order_by('-date')
     template_vars = {"title": "Moments",
@@ -13,12 +14,14 @@ def index(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'moments/index.html', request_context)
 
+
 def detail(request, moment_id):
     try:
         moment = Moment.objects.get(pk=moment_id)
     except Moment.DoesNotExist:
         raise Http404
     return render(request, 'moments/detail.html', {'moment': moment})
+
 
 def add(request, service_id):
     print("Entrando al metodo")
@@ -39,9 +42,6 @@ def add(request, service_id):
         return render(request, "moments/add.html", {"formulario": form,
                                                     "service_id": service_id})
 
-    #request_context = RequestContext(request)
-
-    #return render(request, "moments/add.html", {"formulario": form})
 
 def edit(request, moment_id):
     moment = Moment.objects.get(pk=moment_id)
@@ -66,7 +66,6 @@ def remove(request, service_id, moment_id):
         moment = Moment.objects.get(pk=moment_id)
     except Moment.DoesNotExist:
         moment = False
-
 
     try:
         service = Service.objects.get(pk=service_id)

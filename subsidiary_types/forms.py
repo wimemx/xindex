@@ -15,7 +15,8 @@ class AddSubsidiaryType(forms.ModelForm):
         }
 
         self.fields['name'].widget.attrs.update({'class' : 'form-control'})
-        self.fields['description'].widget.attrs.update({'class' : 'form-control'})
+        self.fields['description'].widget.attrs.update(
+            {'class' : 'form-control'})
 
     class Meta:
         model = Subsidiary_Type

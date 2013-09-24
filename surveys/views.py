@@ -134,7 +134,8 @@ def save(request, action, next_step, survey_id=False):
             if form.is_valid():
                 step = int(next_step) - 1
                 xindex_user = Xindex_User.objects.get(user__id=request.user.id)
-                survey = Survey(user=xindex_user, name=form.cleaned_data['name'], step=step)
+                survey = Survey(user=xindex_user,
+                                name=form.cleaned_data['name'], step=step)
                 survey.save()
 
                 print 'Se ha guardado'
@@ -147,7 +148,8 @@ def save(request, action, next_step, survey_id=False):
 
                 return HttpResponse(simplejson.dumps(answer))
             else:
-                answer = {'save': False, 'error': 'El nombre de la encuesta no es valido'}
+                answer = {'save': False,
+                          'error': 'El nombre de la encuesta no es valido'}
 
                 return HttpResponse(simplejson.dumps(answer))
     else:
@@ -162,7 +164,8 @@ def save(request, action, next_step, survey_id=False):
                 'next_step': str(int(next_step)+1)
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response('surveys/add-step-2.html', request_context)
+            return render_to_response('surveys/add-step-2.html',
+                                      request_context)
         if int(next_step) == 3 and action == 'next':
             template_vars = {
                 'survey_title': survey.name,
@@ -170,6 +173,7 @@ def save(request, action, next_step, survey_id=False):
                 'next_step': str(int(next_step)+1)
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response('surveys/add-step-3.html', request_context)
+            return render_to_response('surveys/add-step-3.html',
+                                      request_context)
 
 

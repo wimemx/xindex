@@ -2,6 +2,7 @@ from django import forms
 from xindex.models import BusinessUnit
 from xindex.models import Subsidiary
 
+
 class AddBusinessUnit(forms.ModelForm):
 
     subsidiaries = forms.ModelMultipleChoiceField(
@@ -25,12 +26,11 @@ class AddBusinessUnit(forms.ModelForm):
             'invalid': 'Seleccione una sucursal valida'
         }
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['description'].widget.attrs.update({'class': 'form-control'})
+        self.fields['description'].widget.attrs.update(
+            {'class': 'form-control'})
         self.fields['service'].widget.attrs.update({'class': 'form-control'})
-        self.fields['subsidiaries'].widget.attrs.update({'class': 'form-control'})
-
-
-
+        self.fields['subsidiaries'].widget.attrs.update(
+            {'class': 'form-control'})
 
     class Meta:
         model = BusinessUnit

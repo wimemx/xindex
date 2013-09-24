@@ -53,7 +53,6 @@ def add(request):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiaries/index.html", request_context)
             return HttpResponseRedirect('/subsidiaries')
         else:
 
@@ -82,7 +81,8 @@ def edit(request, subsidiary_id):
         sub = False
 
     if sub:
-        #formulario = UpdateForm(initial={'id': sub.id,'name': sub.name, 'business_unit': [1,2]})
+        #formulario = UpdateForm(initial=
+        # {'id': sub.id,'name': sub.name, 'business_unit': [1,2]})
 
         if request.POST:
             formulario = SubsidiaryForm(request.POST or None, instance=sub)
@@ -101,7 +101,8 @@ def edit(request, subsidiary_id):
                     "formulario": formulario
                 }
                 request_context = RequestContext(request, template_vars)
-                return render_to_response("subsidiaries/update.html", request_context)
+                return render_to_response("subsidiaries/update.html",
+                                          request_context)
         else:
             formulario = SubsidiaryForm(request.POST or None, instance=sub)
             template_vars = {
@@ -110,7 +111,8 @@ def edit(request, subsidiary_id):
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("subsidiaries/update.html", request_context)
+            return render_to_response("subsidiaries/update.html",
+                                      request_context)
     else:
         message = "No se ha podido encontrar la subsidiaria"
         return HttpResponseRedirect('/subsidiaries/')
@@ -132,7 +134,6 @@ def remove(request, subsidiary_id):
                 "message": "Se ha eliminado la subsidiaria"
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiaries/index.html", request_context)
             return HttpResponseRedirect('/subsidiaries')
 
         except:
@@ -142,7 +143,6 @@ def remove(request, subsidiary_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("subsidiaries/index.html", request_context)
             return HttpResponse('No se ha podido eliminar la subsidiaria')
     else:
         message = "No se ha encontrado la subsidiaria "
@@ -170,8 +170,6 @@ def getSubsidiariesInJson(request):
                 "detalles": s.id
             }
         )
-
-    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(subsidiaries))
 

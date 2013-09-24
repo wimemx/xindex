@@ -5,12 +5,14 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyForm
 from django.utils import simplejson
 
+
 def index(request):
     all_companies = Company.objects.all().filter(active=True).order_by('-date')
     template_vars = {"titulo": "Companies",
                      "companies": all_companies}
     request_context = RequestContext(request, template_vars)
     return render_to_response("companies/companies.html", request_context)
+
 
 def add(request):
     if request.method=='POST':
@@ -22,9 +24,10 @@ def add(request):
         formulario = CompanyForm()
 
     request_context = RequestContext(request)
-    return render_to_response("companies/new_company.html", {"formulario": formulario,
-                                                             "Add": "Add",
-                                                             "reset": "reset"},
+    return render_to_response("companies/new_company.html",
+                              {"formulario": formulario,
+                               "Add": "Add",
+                               "reset": "reset"},
                               request_context)
 '''
 def add(request):
@@ -67,10 +70,11 @@ def edit(request, company_id):
         formulario = CompanyForm(instance=company)
 
     request_context = RequestContext(request)
-    return render_to_response("companies/new_company.html", {"formulario": formulario,
-                                                             "Add":"Save",
-                                                             "reset": "button",
-                                                             "onclick": "javascript:history.go(-1)"},
+    return render_to_response("companies/new_company.html",
+                              {"formulario": formulario,
+                               "Add":"Save",
+                               "reset": "button",
+                               "onclick": "javascript:history.go(-1)"},
                               request_context)
 
 
@@ -92,9 +96,9 @@ def detail(request, company_id):
     return render_to_response('companies/detail.html', {'company': company,
                                                         'status': status})
 
+
 def getCInJson(request):
-    companies = {}
-    companies['companies'] = []
+    companies = {'companies': []}
 
     for c in Company.objects.filter(active=True).order_by('-date'):
         companies['companies'].append(

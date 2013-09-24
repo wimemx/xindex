@@ -171,8 +171,6 @@ def getSInJson(request):
             }
         )
 
-    #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
-
     return HttpResponse(simplejson.dumps(service))
 
 

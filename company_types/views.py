@@ -6,12 +6,15 @@ from xindex.forms import CompanyTypeForm
 
 
 def index(request):
-    all_company_type = Company_Type.objects.all().filter(active=True).order_by('-date')
+    all_company_type = Company_Type.objects.all().filter(active=True).\
+        order_by('-date')
+
     template_vars = {"titulo": "Company Types",
                      "company_types": all_company_type}
     request_context = RequestContext(request, template_vars)
     return render_to_response("company_types/company_types.html",
                               request_context)
+
 
 def add(request):
     if request.method=='POST':
