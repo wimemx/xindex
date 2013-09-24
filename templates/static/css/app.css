@@ -1,7 +1,7 @@
 body {
   font-family: 'Lato', sans-serif;
   font-size: 13px;
-  background-color: #e7eef1;
+  background-color: #ffffff;
   -webkit-font-smoothing: antialiased;
 }
 .bg-body{
@@ -216,7 +216,7 @@ a:hover .caret-white {
   padding: 6px 8px;
 }
 .panel {
-  border-radius: 2px;
+  border-radius: 3px;
   border-color: #ebeff6;
 }
 .panel.no-borders {
@@ -224,7 +224,7 @@ a:hover .caret-white {
 }
 .panel.no-borders .panel-heading,
 .panel.no-borders .panel-footer {
-  border-width: 0;
+  border-width: 1;
 }
 .panel .table-responsive {
   border-color: #e0e4e8;
@@ -302,7 +302,7 @@ a:hover .caret-white {
   background: transparent;
 }
 .panel-footer {
-  border-color: #ebeff6;
+  border-color: lightgray;
   background-color: #fff;
   border-radius: 0 0 2px 2px;
 }
@@ -466,7 +466,7 @@ a:hover .caret-white {
   padding: 0;
 }
 .modal-backdrop {
-  background-color: #4c5566;
+  background-color: #e7eef1;
 }
 .modal-backdrop.in {
   opacity: 0.8;
@@ -2277,6 +2277,10 @@ fieldset[disabled] .btn-gplus.active {
   padding-left: 15px;
   padding-right: 15px;
 }
+.padder-xl {
+  padding-left: 30px;
+  padding-right: 30px;
+}
 .padder-v {
   padding-top: 15px;
   padding-bottom: 15px;
@@ -2565,6 +2569,10 @@ fieldset[disabled] .btn-gplus.active {
     display: inherit !important;
   }
 }
+.bg-white-xindex{
+    background-color: #ffffff;
+}
+
 .yellow-xindex-nohover{
     background-color: #ffe700;
 }
@@ -2613,11 +2621,14 @@ fieldset[disabled] .btn-gplus.active {
 .mtop{
     margin-top: 15px;
 }
+.radius-counters{
+    border-radius: 2px;
+}
 .h-defined{
     height: 210px;
 }
 .h-defined-description{
-    height: 111px;
+    height: 105px;
     overflow: auto;
 }
 .row-moments{
@@ -2633,7 +2644,12 @@ fieldset[disabled] .btn-gplus.active {
 .border-dashed{
     border-style: dashed;
     border-color:lightgray;
-    border-width: 2px;
+    border-width: 1px;
+}
+.border-solid{
+    border-style: solid;
+    border-color:lightgray;
+    border-width: 1px;
 }
 /*
     Icono de buscar "dentro" del input
