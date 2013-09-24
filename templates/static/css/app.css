@@ -2591,7 +2591,7 @@ fieldset[disabled] .btn-gplus.active {
     color: #ffffff;
 }
 .background-xindex{
-    background-color: #e7eef1;
+    background-color: #ffffff;
 }
 .block-xindex{
     color: #ffffff;
@@ -2626,6 +2626,9 @@ fieldset[disabled] .btn-gplus.active {
 }
 .h-defined{
     height: 210px;
+}
+.scrollable-xindex{
+    overflow: hidden;
 }
 .h-defined-description{
     height: 105px;

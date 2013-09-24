@@ -21,25 +21,31 @@ $(document).ready(function () {
         e.preventDefault();
         var href = $(this).attr('href');
         bootbox.dialog({
-            message: "¿Esta seguro que desea eliminar este punto de contacto?(Esta accion no se puede deshacer)<br><br><small><input type='checkbox' class='form-control' id='removeQuestions'/>Eliminar preguntas asociadas</small>",
+            message: "¿Esta seguro que desea eliminar este punto de contacto?" +
+                " Esta accion no se puede deshacer<br><br>" +
+                "<small>" +
+                "<input type='checkbox' " +
+                "class='form-control' " +
+                "id='removeQuestions'/>Eliminar preguntas asociadas" +
+                "</small>",
             title: "Eliminar un punto de contacto",
             buttons: {
                 success: {
                     label: "Cancelar",
-                    className: "btn-white",
+                    className: "btn-danger",
                     callback: function () {
                     }
                 },
                 main: {
                     label: "Eliminar",
-                    className: "btn-twitter",
+                    className: "btn-success",
                     callback: function () {
                         $.ajax({
                             type: 'GET',
                             url: href,
                             success: function (msg) {
                                 if (msg == 'Si') {
-                                    var alerta = '<div class="alert alert-success">' +
+                                    var alerta = '<div class="alert alert-warning">' +
                                         '<button type="button" class="close" data-dismiss="alert">' +
                                         '<i class="icon-remove"></i>' +
                                         '</button>' +
@@ -49,7 +55,7 @@ $(document).ready(function () {
                                     $('#news_section').html(alerta);
                                     setTimeout(function () {
                                         window.location.reload(true);
-                                    }, 2000);
+                                    }, 1000);
                                     return true;
                                 }
                             },

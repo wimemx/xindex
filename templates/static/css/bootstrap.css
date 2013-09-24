@@ -1583,11 +1583,11 @@ fieldset[disabled] .form-control {
   background-color: #eeeeee;
 }
 textarea.form-control {
-  height: auto;
+  height: 100px;
   resize: none;
 }
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 .radio,
 .checkbox {
@@ -4546,7 +4546,7 @@ body.modal-open,
   .modal-dialog {
     left: 50%;
     right: auto;
-    width: 500px;
+    width: 400px;
     padding-top: 30px;
     padding-bottom: 30px;
   }

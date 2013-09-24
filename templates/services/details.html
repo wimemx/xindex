@@ -40,13 +40,8 @@
                                 <div class="row">
                                     <div class="col-lg-9 col-sm-9">
                                         <div class="row-moments">
-
-
-                                            <section
-                                                    class="panel lter no-borders bg-body">
+                                            <section class="panel lter no-borders bg-body">
                                                 <div class="panel-body">
-
-
                                                     <div class="col-lg-6 col-sm-6">
                                                         <a href="/moments/add/{{ service_id }}"
                                                            data-toggle="ajaxModal">
@@ -69,7 +64,7 @@
                                                         {% for Moment in service.moments.all %}
                                                             <div class="col-lg-6 col-sm-6">
                                                                 <section class="panel lter h-defined border-solid">
-                                                                    <div class="panel-body">
+                                                                    <div class="panel-body" style="height: 160px">
                                                                         <span class="h5">{{ Moment.name }}</span>
                                                                         <div class="h-defined-description m-t text-muted">
                                                                             {{ Moment.description }}
