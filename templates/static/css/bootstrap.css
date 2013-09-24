@@ -1584,6 +1584,7 @@ fieldset[disabled] .form-control {
 }
 textarea.form-control {
   height: auto;
+  resize: none;
 }
 .form-group {
   margin-bottom: 15px;
