@@ -130,8 +130,8 @@ class Zone(models.Model):
 class Company(models.Model):
     #id = models.AutoField(primary_key=True, null=False, unique=True, \
     #                      blank=True)
-    name = models.CharField(max_length=50, null=False) #------------------------------------max_length?
-    types = models.ManyToManyField(Company_Type, blank=True, null=True) #---------------------------------------Type?
+    name = models.CharField(max_length=50, null=False)
+    types = models.ManyToManyField(Company_Type, blank=True, null=True)
     parent_company = models.ForeignKey('Company', blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=50, null=False)
@@ -241,6 +241,7 @@ class Survey(models.Model):
     description = models.TextField(null=True, blank=True)
     questions = models.ManyToManyField(Question, blank=True, null=True)
     step = models.IntegerField(max_length=2, null=True, blank=True)
+    available = models.BooleanField(default=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -253,7 +254,7 @@ class Survey(models.Model):
     survey_questions.short_description = "Question"
 
     class Meta:
-        verbose_name_plural = "Survey"
+        verbose_name_plural = "Surveys"
         verbose_name = "Survey"
 
 

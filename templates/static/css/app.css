@@ -2654,6 +2654,13 @@ fieldset[disabled] .btn-gplus.active {
     border-color:lightgray;
     border-width: 1px;
 }
+.btn-modal-xindex{
+    height: auto;
+    width: 100px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 1px;
+}
 /*
     Icono de buscar "dentro" del input
 */
