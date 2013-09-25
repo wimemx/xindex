@@ -13,6 +13,14 @@
     <link rel="stylesheet" href="/static/css/font.css" cache="false">
     <link rel="stylesheet" href="/static/css/plugin.css">
     <link rel="stylesheet" href="/static/css/app.css">
+    <style>
+        section.selected-block {
+            border: 2px solid #00c7f7 !important;
+        }
+        section.question-block:hover {
+            cursor: pointer;
+        }
+    </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
     <script src="js/ie/html5.js" cache="false"></script>
@@ -89,7 +97,7 @@
                 </section>
             </div>
             <div class="col-lg-6">
-                <section class="panel">
+                <section class="panel hidden" id="main-configuration-panel">
                     <header class="panel-heading bg-light">
                         <ul class="nav nav-tabs nav-justified">
                             <li class="active"><a data-toggle="tab"
@@ -159,6 +167,42 @@
                         </div>
                     </div>
                 </section>
+                <section class="panel" id="questions-block-configuration-panel ">
+                    <div class="wrapper text-center">
+                        <p class="h3">Bloque de Preguntas</p>
+                    </div>
+                    <header class="panel-heading bg-light">
+                        <ul class="nav nav-tabs nav-justified">
+                            <li class="active h4"><a data-toggle="tab"
+                                                  href="#content-by-block">
+                                Contenido
+                            </a></li>
+                            <li class="h4"><a data-toggle="tab" href="#design">
+                                Diseño
+                            </a></li>
+                            <li class="h4"><a data-toggle="tab" href="#design">
+                                Configuraci&oacute;n
+                            </a></li>
+                        </ul>
+                    </header>
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <div id="content-by-block" class="tab-pane active">
+                                <input type="hidden" id="current-question-block" value=""/>
+                                <div class="col-lg-12 wrapper">
+                                    <section class="panel">
+                                        <textarea id="tinymce-editor">
+
+                                        </textarea>
+                                    </section>
+                                </div>
+                            </div>
+                            <div id="design" class="tab-pane">
+                                profile
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </section>
@@ -171,6 +215,9 @@
 <!-- App -->
 <script src="/static/js/app.js"></script>
 <script src="/static/js/app.plugin.js"></script>
+
+<!-- TinyMCE -->
+<script type="text/javascript" src="/static/js/tinymce/tinymce.min.js"></script>
 
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
