@@ -51,6 +51,7 @@ $(document).ready(function () {
                 '<div class="col-lg-12">' +
                     '<section class="question-block selected-block">' +
                         '<div class="panel-body">' +
+                            '<div>'+
                             '<header class="">' +
                                 'Este es el nombre del bloque de preguntas' +
                             '</header>' +
@@ -59,13 +60,14 @@ $(document).ready(function () {
                                     'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
                                 '</p>' +
                             '</small>' +
+                            '</div>'+
                         '</div>' +
+                        '<footer class="wrapper text-center">'+
+                            '<a class="btn btn-info wrapper add-question-to-block">' +
+                                'Da click aquí para añadir una pregunta' +
+                            '</a>'+
+                        '</footer>'+
                     '</section>' +
-                    '<footer class="wrapper text-center">'+
-                        '<a class="btn btn-success wrapper add-question-to-block">' +
-                            'Agregar Pregunta' +
-                        '</a>'+
-                    '</footer>'+
                 '</div>' +
             '</div>';
 
@@ -74,7 +76,7 @@ $(document).ready(function () {
         $('#current-question-block').val('block-1');
 
         tinymce.get('tinymce-editor').setContent(
-            '<div class="panel-body">' +
+            '<div>'+
             '<header class="">' +
             'Este es el nombre del bloque de preguntas' +
             '</header>' +
@@ -82,7 +84,7 @@ $(document).ready(function () {
             '<p>' +
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
             '</p>' +
-            '</small>' +
+            '</small>'+
             '</div>'
         );
     });
@@ -119,15 +121,15 @@ $(document).ready(function () {
             ed.on('keyup', function (e) {
                 var content = tinymce.get('tinymce-editor').getContent();
                 var current_question_block = $('#current-question-block').val();
-                $('#'+current_question_block+' section.question-block').html('');
-                $('#'+current_question_block+' section.question-block').html(content);
+                $('#'+current_question_block+' div.panel-body').html('');
+                $('#'+current_question_block+' div.panel-body').html(content);
             })
             ed.on('change', function (e) {
                 var content = tinymce.get('tinymce-editor').getContent();
                 var current_question_block = $('#current-question-block').val();
-                $('#'+current_question_block+' section.question-block').html('');
-                $('#'+current_question_block+' section.question-block').html(content);
-                alert(content);
+                $('#'+current_question_block+' div.panel-body').html('');
+                $('#'+current_question_block+' div.panel-body').html(content);
+
             })
         }
 
