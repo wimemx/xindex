@@ -120,6 +120,7 @@ def search(request):
 
         surveys['surveys'].append(
             {
+                "id": each_survey.id,
                 "name": each_survey.name,
                 "date": each_survey.date,
                 "status": each_survey.active,
