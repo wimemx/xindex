@@ -10,7 +10,7 @@ from xindex.models import Xindex_User
 
 def index(request):
     surveys = {'surveys': []}
-    survey_query = Survey.objects.all().order_by('name')
+    survey_query = Survey.objects.filter(active=True).order_by('name')
     question_attribute_query = Question_Attributes.objects.all()
 
     for each_survey in survey_query:
@@ -28,7 +28,7 @@ def index(request):
             {
                 "name": each_survey.name,
                 "date": each_survey.date,
-                "status": each_survey.active,
+                "status": each_survey.available,
                 "counter_question": counter_question,
                 "counter_attribute": counter_attributes
             }
@@ -42,7 +42,7 @@ def index(request):
 
 def indexOrder(request, order_type):
     surveys = {'surveys': []}
-    survey_query = Survey.objects.all().order_by(order_type)
+    survey_query = Survey.objects.filter(active=True).order_by(order_type)
     question_attribute_query = Question_Attributes.objects.all()
 
     for each_survey in survey_query:
@@ -60,7 +60,7 @@ def indexOrder(request, order_type):
             {
                 "name": each_survey.name,
                 "date": each_survey.date,
-                "status": each_survey.active,
+                "status": each_survey.available,
                 "counter_question": counter_question,
                 "counter_attribute": counter_attributes
             }
@@ -68,7 +68,7 @@ def indexOrder(request, order_type):
 
     if order_type == 'name':
         order_query = 'Nombre'
-    elif order_type == 'active':
+    elif order_type == 'available':
         order_query = 'Status'
     elif order_type == 'date':
         order_query = 'Fecha de creación'

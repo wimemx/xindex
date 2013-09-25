@@ -32,13 +32,13 @@ $(document).ready(function () {
             buttons: {
                 success: {
                     label: "Cancelar",
-                    className: "btn-danger",
+                    className: "bg-danger btn-modal-xindex",
                     callback: function () {
                     }
                 },
                 main: {
-                    label: "Eliminar",
-                    className: "btn-success",
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
                     callback: function () {
                         $.ajax({
                             type: 'GET',
