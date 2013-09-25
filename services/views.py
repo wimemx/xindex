@@ -1,4 +1,5 @@
 # Create your views here.
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 import services
 from xindex.models import Service, BusinessUnit, Subsidiary, Moment
@@ -8,6 +9,7 @@ from services.forms import AddService
 from django.utils import simplejson
 
 
+@login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
     print business_unit_id
     if business_unit_id:
@@ -39,6 +41,7 @@ def index(request, business_unit_id=False):
     return render_to_response("services/index.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.POST:
         formulario = AddService(request.POST or None, request.FILES)
@@ -71,6 +74,7 @@ def add(request):
         return render_to_response("services/add.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def update(request, service_id):
     try:
         ser = Service.objects.get(id=service_id)
@@ -113,6 +117,7 @@ def update(request, service_id):
         return HttpResponseRedirect('/services/')
 
 
+@login_required(login_url='/signin/')
 def remove(request, service_id):
     try:
         ser = Service.objects.get(id=service_id)
@@ -152,6 +157,7 @@ def remove(request, service_id):
         return HttpResponseRedirect('/services/')
 
 
+@login_required(login_url='/signin/')
 def getSInJson(request):
     service = {}
     service['services'] = []
@@ -174,6 +180,7 @@ def getSInJson(request):
     return HttpResponse(simplejson.dumps(service))
 
 
+@login_required(login_url='/signin/')
 def getSByBUInJson(request, business_unit_id):
     business_unit = BusinessUnit.objects.get(pk=business_unit_id)
 
@@ -219,6 +226,7 @@ def details(request, service_id):
 '''
 
 
+@login_required(login_url='/signin/')
 def details(request, service_id):
     try:
         moments = Service.objects.get(pk=service_id)

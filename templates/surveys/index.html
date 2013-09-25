@@ -89,7 +89,7 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a href="/surveys/order/name/">Nombre</a></li>
-                                        <li><a href="/surveys/order/active/">Status</a></li>
+                                        <li><a href="/surveys/order/available/">Status</a></li>
                                         <li><a href="/surveys/order/date/">Fecha de creación</a></li>
                                     </ul>
                                     <a href="#" class="btn btn-sm btn-danger" id="actions" style="display: none;">
@@ -186,14 +186,18 @@
                                         <div class="pull-right m-t-sm text-center">
                                             {% if each_survey.status %}
                                                 <div class="h4">
+                                                    <a href="/surveys/available/{{ each_survey.id }}/">
                                                     <i class="icon-ok text-success"></i>
+                                                    </a>
                                                 </div>
                                                 <small class="text-muted">
                                                     Habilitada
                                                 </small>
                                             {% else %}
                                                 <div class="h4">
+                                                    <a href="/surveys/available/{{ each_survey.id }}/">
                                                     <i class="icon-remove text-danger"></i>
+                                                    </a>
                                                 </div>
                                                 <small class="text-muted">
                                                     Deshabilitada

@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -8,6 +9,7 @@ from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 
 
+@login_required(login_url='/signin/')
 def index(request):
     surveys = {'surveys': []}
     survey_query = Survey.objects.filter(active=True).order_by('name')
@@ -26,6 +28,7 @@ def index(request):
 
         surveys['surveys'].append(
             {
+                "id": each_survey.id,
                 "name": each_survey.name,
                 "date": each_survey.date,
                 "status": each_survey.available,
@@ -40,6 +43,7 @@ def index(request):
     return render(request, 'surveys/index.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def indexOrder(request, order_type):
     surveys = {'surveys': []}
     survey_query = Survey.objects.filter(active=True).order_by(order_type)
@@ -58,6 +62,7 @@ def indexOrder(request, order_type):
 
         surveys['surveys'].append(
             {
+                "id": each_survey.id,
                 "name": each_survey.name,
                 "date": each_survey.date,
                 "status": each_survey.available,
@@ -80,6 +85,7 @@ def indexOrder(request, order_type):
     return render(request, 'surveys/index.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def getJson(request):
     survey = {'surveys': []}
     survey_query = Survey.objects.filter(active=True).order_by('-date')
@@ -92,6 +98,7 @@ def getJson(request):
         )
     return HttpResponse(simplejson.dumps(survey))
 
+
 def addSurvey(request):
     if request.POST:
         a= "paso"
@@ -103,6 +110,7 @@ def addSurvey(request):
         }
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/add.html', request_context)
+
 
 def add_step(request, step=1, survey_id=False):
     if survey_id:
@@ -177,3 +185,19 @@ def save(request, action, next_step, survey_id=False):
                                       request_context)
 
 
+@login_required(login_url='/signin/')
+def available(request, survey_id):
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey.available:
+        survey.available = False
+        survey.save()
+    else:
+        survey.available = True
+        survey.save()
+
+    return HttpResponseRedirect('/surveys/')

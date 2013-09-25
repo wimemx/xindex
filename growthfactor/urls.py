@@ -58,6 +58,18 @@ urlpatterns = patterns('',
     #Surveys
     url(r'^surveys/', include('surveys.urls')),
 
-    #Surveys
+    #Surveys_search
     url(r'^search/$', 'xindex.views.search'),
+
+    #Signin
+    url(r'^signin/$', 'xindex.views.signin'),
+
+    #Signup
+    url(r'^signup/$', 'xindex.views.signup'),
+
+    #Login
+    url(r'^login/$', 'xindex.views.login'),
+
+    #Logout
+    url(r'^logout/$', 'xindex.views.log_out'),
 )

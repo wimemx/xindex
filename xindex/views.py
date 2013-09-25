@@ -1,4 +1,6 @@
 # Create your views here.
+from django.contrib.auth import authenticate, login as login_auth, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
@@ -6,13 +8,61 @@ import re
 from django.db.models import Q
 from models import Survey, Question_Attributes
 
-
+@login_required(login_url='/signin/')
 def index(request):
     template_vars = {
         #vars
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("xindex/index.html", request_context)
+
+
+def signin(request):
+    template_vars = {
+        #vars
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("access/signin.html", request_context)
+
+
+def signup(request):
+    template_vars = {
+        #vars
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("access/signup.html", request_context)
+
+
+def login(request):
+    error = username = password = ''
+    #Si ya esta logeado el usuario, lo redirigimos a nuestra pagina de inicio
+    if request.user.is_authenticated():
+        return HttpResponseRedirect("/xindex/")
+    #recibimos el post del formulario
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                #loggeamos al usuario y lo redirigimos a la pagina de inicio
+                login_auth(request, user)
+                return HttpResponseRedirect("/xindex/")
+            else:
+                error = "Tu cuenta ha sido desactivada, por favor ponte en " \
+                        "contacto con tu administrador"
+                return HttpResponseRedirect("/signin/")
+        else:
+            error = "Tu nombre de usuario o contrase&ntilde;a son incorrectos."
+    variables = dict(username=username, password=password, error=error)
+    variables_template = RequestContext(request, variables)
+    return render_to_response("access/signin.html", variables_template)
+
+
+@login_required(login_url='/signin/')
+def log_out(request):
+    logout(request)
+    return HttpResponseRedirect('/signin/')
 
 
 def normalize_query(query_string,
