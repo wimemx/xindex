@@ -17,7 +17,6 @@
         section.selected-block {
             border: 2px solid #00c7f7 !important;
         }
-
         section.question-block:hover {
             cursor: pointer;
         }
@@ -25,6 +24,14 @@
         div.active-question {
             border: 2px solid #4cae4c;
         }
+        #holder { border: 1px dashed #ccc; width: 100%; min-height: 100%; margin: 10px auto;}
+        #holder.hover { border: 1px dashed #0c0; }
+        #holder img { display: block; margin: 10px auto; }
+        #holder p { margin: 20px; font-size: 14px; }
+        progress { width: 100%; }
+        progress:after { content: '%'; }
+        .fail { background: #c00; padding: 2px; color: #fff; }
+        .hidden { display: none !important;}
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -39,36 +46,56 @@
         Generador de Encuestas
     </p>
 
-    <p class="pull-right pull-in">
-        <a class="h6 padder padder-v hidden" id="save-link"
-           href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
-    </p>
-</header>
-<section class="scrollable wrapper">
-<div class="row">
-<div class="col-lg-6">
-    <section class="panel">
-        <div class="panel-body">
-            <section class="header text-center panel">
-                <p class="h2 text-center">Header</p>
-            </section>
-            <section class="panel wrapper" id="survey-main-content">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <section class="panel">
-                            <div class="panel-body">
-                                <header class="h3 text-center">
-                                    {{ survey_title }}
-                                </header>
-                                <small class="wrapper">
-                                    <p>
-                                        Este es un texto de
-                                        introducci&oacute;n o
-                                        instrucciones para llenar tu
-                                        encuesta, da click aqu&iacute;
-                                        para editar este texto
-                                    </p>
-                                </small>
+        <p class="pull-right pull-in">
+            <a class="h6 padder padder-v hidden" id="save-link"
+               href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
+        </p>
+    </header>
+    <section class="scrollable wrapper">
+        <div class="row">
+            <div class="col-lg-6">
+                <section class="panel">
+                    <div class="panel-body">
+                        <section class="header text-center panel" id="holder">
+                            <div class="row text-center" id="div-row">
+                                <i class="icon-github-alt icon-5x"></i><br>
+                                Arrastra una imagen<br>o
+                                <p id="upload">
+                                    <input type="file" style="margin: auto">
+                                </p>
+                            </div>
+                            <article>
+                                <p id="upload" class="hidden">
+                                    Drag &amp; drop no soportado:<br>
+                                </p>
+                                <p id="filereader">File API &amp; FileReader API not supported</p>
+                                <p id="formdata">XHR2's FormData is not supported</p>
+                                <p id="progress">XHR2's upload progress isn't supported</p>
+                                <!--
+                                <p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>
+                                -->
+                            </article>
+                        </section>
+                        <section class="panel wrapper" id="survey-main-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <section class="panel">
+                                        <div class="panel-body">
+                                            <header class="h3 text-center">
+                                                {{ survey_title }}
+                                            </header>
+                                            <small class="wrapper">
+                                                <p>
+                                                    Este es un texto de
+                                                    introducci&oacute;n o
+                                                    instrucciones para llenar tu
+                                                    encuesta, da click aqu&iacute;
+                                                    para editar este texto
+                                                </p>
+                                            </small>
+                                        </div>
+                                    </section>
+                                </div>
                             </div>
                         </section>
                     </div>

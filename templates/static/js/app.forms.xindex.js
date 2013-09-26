@@ -9,7 +9,6 @@
 $(document).ready(function () {
 
     $('#check').on('click', function (e) {
-
         if (check.checked == true) {
             document.getElementById("actions").style.display = "block";
         } else {

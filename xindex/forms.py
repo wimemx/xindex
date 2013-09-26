@@ -41,7 +41,7 @@ class MomentForm(ModelForm):
     class Meta:
         model = Moment
         fields = ('name', 'description', 'attributes', 'owners')
-        exclude = ('date','meta',)
+        exclude = ('date', 'meta',)
 
 
 class OwnerForm(ModelForm):
