@@ -19,17 +19,53 @@
         section.selected-block {
             border: 2px solid #00c7f7 !important;
         }
+
         section.question-block:hover {
             cursor: pointer;
         }
-        #holder { border: 1px dashed #ccc; width: 100%; min-height: 100%; margin: 10px auto;}
-        #holder.hover { border: 1px dashed #0c0; }
-        #holder img { display: block; margin: 10px auto; }
-        #holder p { margin: 20px; font-size: 14px; }
-        progress { width: 100%; }
-        progress:after { content: '%'; }
-        .fail { background: #c00; padding: 2px; color: #fff; }
-        .hidden { display: none !important;}
+
+        div.active-question {
+            border: 2px solid #4cae4c;
+        }
+
+        #holder {
+            border: 1px dashed #ccc;
+            width: 100%;
+            min-height: 100%;
+            margin: 10px auto;
+        }
+
+        #holder.hover {
+            border: 1px dashed #0c0;
+        }
+
+        #holder img {
+            display: block;
+            margin: 10px auto;
+        }
+
+        #holder p {
+            margin: 20px;
+            font-size: 14px;
+        }
+
+        progress {
+            width: 100%;
+        }
+
+        progress:after {
+            content: '%';
+        }
+
+        .fail {
+            background: #c00;
+            padding: 2px;
+            color: #fff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -54,211 +90,362 @@
 </head>
 <body>
 <section class="vbox stretch bg-white">
-    <header class="yellow-xindex-nohover text-center wrapper">
-        <p class="h4" id="header-title ">
-            Generador de Encuestas
-        </p>
+<header class="yellow-xindex-nohover text-center wrapper">
+    <p class="h4" id="header-title ">
+        Generador de Encuestas
+    </p>
 
-        <p class="pull-right pull-in">
-            <a class="h6 padder padder-v hidden" id="save-link"
-               href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
-        </p>
+    <p class="pull-right pull-in">
+        <a class="h6 padder padder-v hidden" id="save-link"
+           href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
+    </p>
+</header>
+<section class="scrollable wrapper">
+<div class="row">
+<div class="col-lg-6">
+    <section class="panel">
+        <div class="panel-body">
+            <section class="header text-center panel" id="holder">
+                <div class="row text-center" id="div-row">
+                    <i class="icon-github-alt icon-5x"></i><br>
+                    Arrastra una imagen<br>o
+                    <p id="upload">
+                        <input type="file" style="margin: auto">
+                    </p>
+                </div>
+                <article>
+                    <p id="upload" class="hidden">
+                        Drag &amp; drop no soportado:<br>
+                    </p>
+
+                    <p id="filereader">File API &amp; FileReader API not supported</p>
+
+                    <p id="formdata">XHR2's FormData is not supported</p>
+
+                    <p id="progress">XHR2's upload progress isn't supported</p>
+                    <!--
+                    <p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>
+                    -->
+                </article>
+            </section>
+            <section class="panel wrapper" id="survey-main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <section class="panel">
+                            <div class="panel-body">
+                                <header class="h3 text-center">
+                                    {{ survey_title }}
+                                </header>
+                                <small class="wrapper">
+                                    <p>
+                                        Este es un texto de
+                                        introducci&oacute;n o
+                                        instrucciones para llenar tu
+                                        encuesta, da click aqu&iacute;
+                                        para editar este texto
+                                    </p>
+                                </small>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="row default-buttons">
+            <section class="default-buttons">
+                <div class="wrapper text-center">
+                    <a href="#"
+                       class="btn btn-success dker text-center padder padder-v"
+                       id="add-block-questions">
+                        <i class="icon-plus-sign-alt icon-xlarge"></i>
+                        Da click aqu&iacute; para añadir
+                        un<br>
+                        bloque de preguntas
+                    </a>
+                    <a href="#"
+                       class="btn btn-info dker text-center padder padder-v"
+                       onclick="history.back()">
+                        <i class="icon-plus-sign-alt icon-xlarge"></i>
+                        Da click aqu&iacute; para añadir una<br>
+                        pregunta
+                    </a>
+                </div>
+            </section>
+        </div>
+        <section class="footer text-center panel">
+            <p class="h2 text-center">Footer</p>
+        </section>
+    </section>
+</div>
+<div class="col-lg-6">
+<section class="panel" id="main-configuration-panel">
+    <header class="panel-heading bg-light">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active"><a data-toggle="tab"
+                                  href="#content">
+                Contenido
+            </a></li>
+            <li class=""><a data-toggle="tab" href="#design">
+                Diseño
+            </a></li>
+        </ul>
     </header>
-    <section class="scrollable wrapper">
-        <div class="row">
-            <div class="col-lg-6">
-                <section class="panel">
-                    <div class="panel-body">
-                        <section class="header text-center panel dropfile visible-lg m-t">
-                            <small>
-                                <i class="icon-github-alt icon-5x"></i><br>
-                                Arrastra una imagen aquí<br> o <br>
-                                <div class="media-boody">
-                                <a class="file-input-wrapper btn btn btn-sm btn-info m-b-sm">
-                                    Sube una imagen
-                                    <form action="/surveys/{{ survey_id }}/saveimage" method="post">
-                                        {% csrf_token %}
-                                    <input class="btn btn-sm btn-info m-b-sm" type="file" title="Agregar" name="file" id="file"
-                                            style="left: -233.25px; top: -4.5px; display: block" onchange="this.form.submit()"/>
-                                    </form>
-                                </a>
-                                </div>
-                            </small>
-                        </section>
-                        <section class="panel wrapper" id="survey-main-content">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <section class="panel">
-                                        <div class="panel-body">
-                                            <header class="h3 text-center">
-                                                {{ survey_title }}
-                                            </header>
-                                            <small class="wrapper">
-                                                <p>
-                                                    Este es un texto de
-                                                    introducci&oacute;n o
-                                                    instrucciones para llenar tu
-                                                    encuesta, da click aqu&iacute;
-                                                    para editar este texto
-                                                </p>
-                                            </small>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <div class="row default-buttons">
-                                <section class="default-buttons">
-                                    <div class="wrapper text-center">
-                                        <a href="#"
-                                           class="btn btn-success dker text-center padder padder-v"
-                                                id="add-block-questions">
-                                            <i class="icon-plus-sign-alt icon-xlarge"></i>
-                                            Da click aqu&iacute; para añadir
-                                            un<br>
-                                            bloque de preguntas
-                                        </a>
-                                        <a href="#"
-                                           class="btn btn-info dker text-center padder padder-v"
-                                           onclick="history.back()">
-                                            <i class="icon-plus-sign-alt icon-xlarge"></i>
-                                            Da click aqu&iacute; para añadir una<br>
-                                            pregunta
-                                        </a>
-                                    </div>
-                                </section>
-                            </div>
-                        </section>
-                        <section class="footer text-center panel" style="min-height: 300px">
-                            <p class="h2 text-center">Footer</p>
-                            <form id="picture" class="fright dropzone no-margin grid-6" action="/surveys/"
-                                    enctype="multipart/form-data" style="border: 1px dashed #000">{% csrf_token %}
-                               <input type="hidden" name="picture" value="1"/>
-                               <div class="preview grid-5 fright no-margin dropzone-previews"></div>
-                           </form>
-                        </section>
-                    </div>
-                </section>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div id="content" class="tab-pane active">
+                <div class="col-lg-4">
+                    <section class="panel">
+                        <div class="panel-body text-center">
+                            <i class="icon-list-alt icon-5x"></i>
+                        </div>
+                        <div class="footer text-center bg-gradient b-t">
+                            <p class="h4">
+                                Bloque de preguntas
+                            </p>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-lg-4">
+                    <section class="panel">
+                        <div class="panel-body text-center">
+                            <i class="icon-list-ul icon-5x"></i>
+                        </div>
+                        <div class="footer text-center bg-gradient b-t">
+                            <p class="h4">
+                                Pregunta
+                            </p>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-lg-4">
+                    <section class="panel">
+                        <div class="panel-body text-center">
+                            <i class="icon-picture icon-5x"></i>
+                        </div>
+                        <div class="footer text-center bg-gradient b-t">
+                            <p class="h4">
+                                Imagen
+                            </p>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-lg-4">
+                    <section class="panel">
+                        <div class="panel-body text-center">
+                            <i class="icon-align-justify icon-5x"></i>
+                        </div>
+                        <div class="footer text-center bg-gradient b-t">
+                            <p class="h4">
+                                Bloque de texto
+                            </p>
+                        </div>
+                    </section>
+                </div>
             </div>
-            <div class="col-lg-6">
-                <section class="panel hidden" id="main-configuration-panel">
-                    <header class="panel-heading bg-light">
-                        <ul class="nav nav-tabs nav-justified">
-                            <li class="active"><a data-toggle="tab"
-                                                  href="#content">
-                                Contenido
-                            </a></li>
-                            <li class=""><a data-toggle="tab" href="#design">
-                                Diseño
-                            </a></li>
-                        </ul>
-                    </header>
-                    <div class="panel-body">
-                        <div class="tab-content">
-                            <div id="content" class="tab-pane active">
-                                <div class="col-lg-4">
-                                    <section class="panel">
-                                        <div class="panel-body text-center">
-                                            <i class="icon-list-alt icon-5x"></i>
-                                        </div>
-                                        <div class="footer text-center bg-gradient b-t">
-                                            <p class="h4">
-                                                Bloque de preguntas
-                                            </p>
-                                        </div>
-                                    </section>
-                                </div>
-                                <div class="col-lg-4">
-                                    <section class="panel">
-                                        <div class="panel-body text-center">
-                                            <i class="icon-list-ul icon-5x"></i>
-                                        </div>
-                                        <div class="footer text-center bg-gradient b-t">
-                                            <p class="h4">
-                                                Pregunta
-                                            </p>
-                                        </div>
-                                    </section>
-                                </div>
-                                <div class="col-lg-4">
-                                    <section class="panel">
-                                        <div class="panel-body text-center">
-                                            <i class="icon-picture icon-5x"></i>
-                                        </div>
-                                        <div class="footer text-center bg-gradient b-t">
-                                            <p class="h4">
-                                                Imagen
-                                            </p>
-                                        </div>
-                                    </section>
-                                </div>
-                                <div class="col-lg-4">
-                                    <section class="panel">
-                                        <div class="panel-body text-center">
-                                            <i class="icon-align-justify icon-5x"></i>
-                                        </div>
-                                        <div class="footer text-center bg-gradient b-t">
-                                            <p class="h4">
-                                                Bloque de texto
-                                            </p>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <div id="design" class="tab-pane">
-                                profile
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section class="panel" id="questions-block-configuration-panel ">
-                    <div class="wrapper text-center">
-                        <p class="h3">Bloque de Preguntas</p>
-                    </div>
-                    <header class="panel-heading bg-light">
-                        <ul class="nav nav-tabs nav-justified">
-                            <li class="active h4"><a data-toggle="tab"
-                                                  href="#content-by-block">
-                                Contenido
-                            </a></li>
-                            <li class="h4"><a data-toggle="tab" href="#design">
-                                Diseño
-                            </a></li>
-                            <li class="h4"><a data-toggle="tab" href="#design">
-                                Configuraci&oacute;n
-                            </a></li>
-                        </ul>
-                    </header>
-                    <div class="panel-body">
-                        <div class="tab-content">
-                            <div id="content-by-block" class="tab-pane active">
-                                <input type="hidden" id="current-question-block" value=""/>
-                                <div class="col-lg-12 wrapper">
-                                    <section class="panel">
-                                        <textarea id="tinymce-editor">
-
-                                        </textarea>
-                                    </section>
-                                </div>
-                            </div>
-                            <div id="design" class="tab-pane">
-                                profile
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section class="panel" id="add-question-configuration-panel ">
-                    <div class="wrapper text-center">
-                        <p class="h3">Añadir una pregunta</p>
-                    </div>
-                    <div class="panel-body">
-                        <div class="wrapper text-center">
-                            <a class="h3"></a>
-                        </div>
-                    </div>
-                </section>
+            <div id="design" class="tab-pane">
+                profile
             </div>
         </div>
-    </section>
+    </div>
+</section>
+<section class="panel hidden" id="questions-block-configuration-panel">
+    <div class="wrapper text-center">
+        <p class="h3">Bloque de Preguntas</p>
+    </div>
+    <header class="panel-heading bg-light">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active h4"><a data-toggle="tab"
+                                     href="#content-by-block">
+                Contenido
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#design">
+                Diseño
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#design">
+                Configuraci&oacute;n
+            </a></li>
+        </ul>
+    </header>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div id="content-by-block" class="tab-pane active">
+                <input type="hidden" id="current-question-block" value=""/>
+
+                <div class="col-lg-12 wrapper">
+                    <section class="panel">
+                        <textarea id="tinymce-editor" name="tinymce-editor">
+
+                        </textarea>
+                    </section>
+                </div>
+            </div>
+            <div id="design" class="tab-pane">
+                profile
+            </div>
+        </div>
+    </div>
+</section>
+<section class="panel hidden" id="add-question-option-panel">
+    <div class="wrapper text-center">
+        <p class="h3">Añadir una pregunta</p>
+    </div>
+    <div class="panel-body">
+        <div class="wrapper text-center">
+            <a href="#"
+               class="btn wrapper h4 btn-success btn-create-new-question">Crear
+                una nueva pregunta</a>
+        </div>
+        <div class="wrapper text-center">
+            <p>o</p>
+        </div>
+        <div class="wrapper text-center">
+            <a href="#" class="btn wrapper h4 btn-info">Seleccionar de un
+                banco de preguntas</a>
+        </div>
+    </div>
+</section>
+<section class="panel hidden" id="add-new-question-configuration-panel">
+    <div class="wrapper text-center">
+        <p class="h3">Añadir una pregunta</p>
+    </div>
+    <header class="panel-heading bg-light">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active h4"><a data-toggle="tab"
+                                     href="#content-by-block">
+                Contenido
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#design">
+                Diseño
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#design">
+                Configuraci&oacute;n
+            </a></li>
+        </ul>
+    </header>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div id="content-by-block" class="tab-pane active">
+                <input type="hidden" id="current-question" value=""/>
+
+                <div class="col-lg-12 wrapper">
+                    <section class="panel wrapper">
+                        <div class="">
+                            <p class="h4">Texto de la pregunta</p>
+                        </div>
+                        <textarea id="tinymce-editor-new-question"
+                                  name="tinymce-editor-new-question">
+
+                        </textarea>
+
+                        <div class="padder-v">
+                            <header>
+                                <p class="h4">Tipo de pregunta</p>
+                            </header>
+                            <section>
+                                <select name="question_type_select"
+                                        id="question_type_select">
+                                    {% for type in question_types %}
+                                        <option value="{{ type.id }}">{{ type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </section>
+                            <div>
+                                <div id="question_type_1"
+                                     style="display: inline"
+                                     class='question matrix'>
+                                    <form id='question_type_1_form'>{% csrf_token %}
+                                        <p>Set the name of the columns</p>
+
+                                        <div class="matrix_cols">
+                                            <input type="text" maxlength="100"
+                                                   class="dummy_option"
+                                                   value='Click to add another column'/>
+                                        </div>
+                                        <p>Set each one of the rows</p>
+
+                                        <div class="matrix_rows">
+                                            <input type="text" maxlength="100"
+                                                   class="dummy_option"
+                                                   value='Click to add another row'/>
+                                        </div>
+                                        <input id="add_matrix" type="submit"
+                                               value="Add Question"/>
+                                    </form>
+                                </div>
+
+                                <div id="question_type_2" style="display: none"
+                                     class='question multiple_choice'>
+                                    <form id='question_type_2_form'>{% csrf_token %}
+                                        <p>Options</p>
+
+                                        <div class="multiple_choice_options_set">
+                                            <input type="text" maxlength="100"
+                                                   class="dummy_option"
+                                                   value='Click to add another option'/>
+                                        </div>
+                                        <input id="add_multiple_choice"
+                                               type="submit"
+                                               value="Add Question"/>
+                                    </form>
+                                </div>
+
+                                <div id="question_type_3" style="display: none"
+                                     class='question open_question'>
+                                    <form id='question_type_3_form'>{% csrf_token %}
+                                        <input id="add_open_question"
+                                               type="submit"
+                                               value="Add Question"/>
+                                    </form>
+                                </div>
+
+                                <div id="question_type_4" style="display: none"
+                                     class='question range'>
+                                    <form id='question_type_4_form'>{% csrf_token %}
+                                        <p>Set each one of the information</p>
+
+                                        <div class="range_field_set">
+                                            <label>Start value:</label><input
+                                                type="text" maxlength="100"
+                                                class="start_number"/>
+                                            <label>Start label:</label><input
+                                                type="text" maxlength="100"
+                                                class="start_label"/>
+
+                                            <label>End value:</label><input
+                                                type="text" maxlength="100"
+                                                class="end_number"/>
+                                            <label>End Label:</label><input
+                                                type="text" maxlength="100"
+                                                class="end_label"/>
+                                        </div>
+                                        <input id="add_range_question"
+                                               type="submit"
+                                               value="Add Question"/>
+                                    </form>
+                                </div>
+
+                                <div id="question_type_5" style="display: none"
+                                     class='question true_and_false'>
+                                    <form id='question_type_5_form'>{% csrf_token %}
+                                        <input id="add_true_and_false_question"
+                                               type="submit"
+                                               value="Add Question"/>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div id="design" class="tab-pane">
+                profile
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+</div>
+</section>
 </section>
 <script src="/static/js/jquery.min.js"></script>
 <!-- Bootstrap -->
@@ -278,5 +465,8 @@
 
 <script src="/static/js/dropzone.js"></script>
 
+
+<!-- question selector -->
+<script src="/static/js/questions_selector.js"></script>
 </body>
 </html>
