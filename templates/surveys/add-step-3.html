@@ -20,6 +20,14 @@
         section.question-block:hover {
             cursor: pointer;
         }
+        #holder { border: 1px dashed #ccc; width: 100%; min-height: 100%; margin: 10px auto;}
+        #holder.hover { border: 1px dashed #0c0; }
+        #holder img { display: block; margin: 10px auto; }
+        #holder p { margin: 20px; font-size: 14px; }
+        progress { width: 100%; }
+        progress:after { content: '%'; }
+        .fail { background: #c00; padding: 2px; color: #fff; }
+        .hidden { display: none !important;}
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -44,8 +52,25 @@
             <div class="col-lg-6">
                 <section class="panel">
                     <div class="panel-body">
-                        <section class="header text-center panel">
-                            <p class="h2 text-center">Header</p>
+                        <section class="header text-center panel" id="holder">
+                            <div class="row text-center" id="div-row">
+                                <i class="icon-github-alt icon-5x"></i><br>
+                                Arrastra una imagen<br>o
+                                <p id="upload">
+                                    <input type="file" style="margin: auto">
+                                </p>
+                            </div>
+                            <article>
+                                <p id="upload" class="hidden">
+                                    Drag &amp; drop no soportado:<br>
+                                </p>
+                                <p id="filereader">File API &amp; FileReader API not supported</p>
+                                <p id="formdata">XHR2's FormData is not supported</p>
+                                <p id="progress">XHR2's upload progress isn't supported</p>
+                                <!--
+                                <p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>
+                                -->
+                            </article>
                         </section>
                         <section class="panel wrapper" id="survey-main-content">
                             <div class="row">

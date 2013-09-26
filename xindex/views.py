@@ -35,19 +35,27 @@ def signup(request):
 
 def login(request):
     error = username = password = ''
-    #Si ya esta logeado el usuario, lo redirigimos a nuestra pagina de inicio
+
     if request.user.is_authenticated():
         return HttpResponseRedirect("/xindex/")
-    #recibimos el post del formulario
+
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
+
         if user is not None:
             if user.is_active:
-                #loggeamos al usuario y lo redirigimos a la pagina de inicio
                 login_auth(request, user)
-                return HttpResponseRedirect("/xindex/")
+                return HttpResponseRedirect('/xindex/')
+                '''
+                try:
+                    referer = request.META.get('HTTP_REFERER') or "/xindex/"
+                    url = referer.split("?next=")[1]
+                    return HttpResponseRedirect(url)
+                except KeyError:
+                    return HttpResponseRedirect('/')
+                '''
             else:
                 error = "Tu cuenta ha sido desactivada, por favor ponte en " \
                         "contacto con tu administrador"

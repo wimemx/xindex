@@ -2685,3 +2685,13 @@ div.form-search:before {
     opacity: .5;
     z-index: 1000;
 }
+
+/*
+Validacion formularios
+*/
+
+.input-text:invalid {
+
+border: 2px solid #ff0000;
+
+}
