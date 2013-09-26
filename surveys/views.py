@@ -6,7 +6,7 @@ from xindex.models import Survey, Question_Attributes
 from django.utils import simplejson
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
-
+from xindex.models import Question_Type
 
 def index(request):
     surveys = {'surveys': []}
@@ -166,11 +166,15 @@ def save(request, action, next_step, survey_id=False):
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-2.html',
                                       request_context)
+
+        question_types = Question_Type.objects.all().order_by('name');
+
         if int(next_step) == 3 and action == 'next':
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
-                'next_step': str(int(next_step)+1)
+                'next_step': str(int(next_step)+1),
+                'question_types': question_types
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-3.html',

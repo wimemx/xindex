@@ -391,3 +391,8 @@ class Moment(models.Model):
         #order_with_respect_to = "previous_moment"
         verbose_name_plural = "Moments"
         verbose_name = "Moment"
+
+
+class Catalog(models.Model):
+    user = models.ForeignKey(Xindex_User);
+    question = models.ForeignKey(Question);
