@@ -105,29 +105,22 @@
 <div class="col-lg-6">
     <section class="panel">
         <div class="panel-body">
-            <section class="header text-center panel" id="holder">
-                <div class="row text-center" id="div-row">
-                    <i class="icon-github-alt icon-5x"></i><br>
-                    Arrastra una imagen<br>o
-                    <p id="upload">
-                        <input type="file" style="margin: auto">
-                    </p>
-                </div>
-                <article>
-                    <p id="upload" class="hidden">
-                        Drag &amp; drop no soportado:<br>
-                    </p>
-
-                    <p id="filereader">File API &amp; FileReader API not supported</p>
-
-                    <p id="formdata">XHR2's FormData is not supported</p>
-
-                    <p id="progress">XHR2's upload progress isn't supported</p>
-                    <!--
-                    <p>Upload progress: <progress id="uploadprogress" min="0" max="100" value="0">0</progress></p>
-                    -->
-                </article>
-            </section>
+            <section class="header text-center panel dropfile visible-lg m-t">
+                            <small>
+                                <i class="icon-github-alt icon-5x"></i><br>
+                                Arrastra una imagen aquí<br> o <br>
+                                <div class="media-boody">
+                                <a class="file-input-wrapper btn btn btn-sm btn-info m-b-sm">
+                                    Sube una imagen
+                                    <form action="/surveys/{{ survey_id }}/saveimage" method="post">
+                                        {% csrf_token %}
+                                    <input class="btn btn-sm btn-info m-b-sm" type="file" title="Agregar" name="file" id="file"
+                                            style="left: -233.25px; top: -4.5px; display: none" onchange="this.form.submit()"/>
+                                    </form>
+                                </a>
+                                </div>
+                            </small>
+                        </section>
             <section class="panel wrapper" id="survey-main-content">
                 <div class="row">
                     <div class="col-lg-12">
@@ -174,6 +167,11 @@
         </div>
         <section class="footer text-center panel">
             <p class="h2 text-center">Footer</p>
+            <form id="picture" class="fright dropzone no-margin grid-6" action="/surveys/"
+                                    enctype="multipart/form-data" style="border: 1px dashed #000">{% csrf_token %}
+                               <input type="hidden" name="picture" value="1"/>
+                               <div class="preview grid-5 fright no-margin dropzone-previews"></div>
+                           </form>
         </section>
     </section>
 </div>
