@@ -5,7 +5,10 @@
 .dropfile {
   border: 2px dashed #e0e4e8;
   text-align: center;
-  min-height: 20px;
+  min-height: 215px !important;
+}
+.dropfile:hover{
+    border: 1px solid lightgray;
 }
 .dropfile.hover {
   border-color: #aac3cc;
@@ -13,6 +16,9 @@
 .dropfile small {
   margin: 50px 0;
   display: block;
+}
+.dropfile img{
+    max-height: 215px !important;
 }
 .jqstooltip {
   -webkit-box-sizing: content-box;

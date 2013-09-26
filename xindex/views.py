@@ -47,15 +47,16 @@ def login(request):
         if user is not None:
             if user.is_active:
                 login_auth(request, user)
-                return HttpResponseRedirect('/xindex/')
-                '''
+                url = "/xindex/"
                 try:
-                    referer = request.META.get('HTTP_REFERER') or "/xindex/"
-                    url = referer.split("?next=")[1]
-                    return HttpResponseRedirect(url)
+                    ur_get = request.META['HTTP_REFERER']
                 except KeyError:
-                    return HttpResponseRedirect('/')
-                '''
+                    pass
+                else:
+                    ur_get = ur_get.split("next=")
+                    if len(ur_get) > 1:
+                        url = ur_get[1]
+                return HttpResponseRedirect(url)
             else:
                 error = "Tu cuenta ha sido desactivada, por favor ponte en " \
                         "contacto con tu administrador"

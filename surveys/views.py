@@ -201,3 +201,23 @@ def available(request, survey_id):
         survey.save()
 
     return HttpResponseRedirect('/surveys/')
+
+
+@login_required(login_url='/signin/')
+def saveimage(request, survey_id):
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if request.POST:
+        picture = request.POST['file']
+        if picture:
+            survey.picture = picture
+            survey.save()
+            return HttpResponse("Image Saved")
+        else:
+            return HttpResponse("Image not found")
+
+    return HttpResponseRedirect('/surveys/')
