@@ -2695,3 +2695,23 @@ Validacion formularios
 border: 2px solid #ff0000;
 
 }
+
+/*
+Border dropzone
+*/
+.border-dropzone {
+  border: 1px solid #e0e4e8;
+  text-align: center;
+  min-height: 200px !important;
+}
+.border-dropzone:hover {
+  border: 1px dashed #e0e4e8;
+  text-align: center;
+  min-height: 200px !important;
+}
+.border-edit-survey{
+    border:1px solid #e0e4e8;
+}
+.border-edit-survey:hover{
+    border:1px dashed #e0e4e8;
+}

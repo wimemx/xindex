@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from xindex.models import Survey, Question_Attributes
 from django.utils import simplejson
+from xindex.models import Survey, Question_Attributes, Company
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
+import os
 
 
 @login_required(login_url='/signin/')
@@ -166,6 +167,10 @@ def save(request, action, next_step, survey_id=False):
         print 'Id survey: ' + survey_id
         survey_id = int(survey_id)
         survey = Survey.objects.get(pk=survey_id)
+        xindex_user = Xindex_User.objects.get(user__id=request.user.id)
+        company = Company.objects.get(staff=xindex_user)
+
+        print company.name
         if int(next_step) == 2 and action == 'next':
             template_vars = {
                 'survey_title': survey.name,
@@ -179,11 +184,16 @@ def save(request, action, next_step, survey_id=False):
         question_types = Question_Type.objects.all().order_by('name');
 
         if int(next_step) == 3 and action == 'next':
+
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
                 'next_step': str(int(next_step)+1),
-                'question_types': question_types
+                'question_types': question_types,
+                'company_name': company.name,
+                'company_address': company.address,
+                'company_email': 'atencion@hollidayinn.com',
+                'company_phone': company.phone
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-3.html',
@@ -209,20 +219,58 @@ def available(request, survey_id):
 
 
 @login_required(login_url='/signin/')
-def saveimage(request, survey_id):
+def media_upload(request):
+    path = os.path.join(
+        os.path.dirname(__file__), '..',
+        'templates/media/pictures/').replace('\\', '/')
 
-    try:
-        survey = Survey.objects.get(pk=survey_id)
-    except Survey.DoesNotExist:
-        survey = False
+    path += str(request.FILES['file'])
+    file = request.FILES['file']
+    handle_uploaded_file(path, file)
+    context = {}
+    context = simplejson.dumps(context)
+    return HttpResponse(context, mimetype='application/json')
 
-    if request.POST:
-        picture = request.POST['file']
-        if picture:
-            survey.picture = picture
-            survey.save()
-            return HttpResponse("Image Saved")
-        else:
-            return HttpResponse("Image not found")
 
-    return HttpResponseRedirect('/surveys/')
+def handle_uploaded_file(destination, f):
+    with open(destination, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
+'''
+def media_upload(request):
+
+   folder = '/entity/'
+   if 'event_picture' in request.POST:
+       folder = '/event/'
+   if 'event_cover_picture' in request.POST:
+       folder = '/event/'
+   if 'edit_profile' in request.POST:
+       folder = '/profile/'
+       id_user = request.user.id
+       user = models.Profile.objects.get(user=id_user)
+       user.picture = str(request.FILES['file'])
+       user.save()
+
+   if 'list_picture' in  request.POST:
+       folder = '/list/'
+
+   path_extension = str(request.user.id)+folder
+   path = os.path.join(
+       os.path.dirname(__file__), '..',
+       'static/media/users/'+path_extension).replace('\\', '/')
+
+   path += str(request.FILES['file'])
+   file = request.FILES['file']
+   handle_uploaded_file(path, file)
+   context = {}
+   context = simplejson.dumps(context)
+   return HttpResponse(context, mimetype='application/json')
+
+def handle_uploaded_file(destination, f):
+   with open(destination, 'wb+') as destination:
+       for chunk in f.chunks():
+           destination.write(chunk)
+
+           '''

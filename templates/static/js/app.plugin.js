@@ -127,13 +127,10 @@
 		this.ondrop = function (e) {
 		  e.preventDefault();
 		  $dropbox.removeClass('hover').html('');
+            alert(e.dataTransfer.files[0]);
 		  var file = e.dataTransfer.files[0],
 		      reader = new FileReader();
 		  reader.onload = function (event) {
-            form = "<form id='myForm' action='/surveys/saveimage/' method='post' enctype='multipart/form-data'>" +
-                "<input type='file' id='imageToUpload'/>" +
-                "<input type='submit' value='Subir'7>" +
-                "</form>"
 		  	$dropbox.append($('<img>').attr('src', event.target.result).attr('id', 'image-header'));
             //$dropbox.append(form);
 		  };
@@ -141,12 +138,7 @@
 		  return false;
 		};
 	});
-    $(document).ready(function() {
-            // bind 'myForm' and provide a simple callback function
-            $('#myForm').ajaxForm(function() {
-                alert("file upload");
-            });
-        });
+
 	// fuelux pillbox
 	var addPill = function($input){
 		var $text = $input.val(), $pills = $input.closest('.pillbox'), $repeat = false, $repeatPill;
