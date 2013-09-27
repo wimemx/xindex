@@ -375,15 +375,21 @@
                                      class='question multiple_choice'>
                                     <form id='question_type_2_form'>{% csrf_token %}
                                         <p>Options</p>
-
+                                        <input class="question-title multiple_choice_title" type="hidden" name="mo_title" maxlength="100" />
                                         <div class="multiple_choice_options_set">
                                             <input type="text" maxlength="100"
                                                    class="dummy_option"
                                                    value='Click to add another option'/>
                                         </div>
-                                        <input id="add_multiple_choice"
+                                        <div>
+                                            <input type="checkbox" id="add-mc-to-catalog"/> Agregar al catalogo de preguntas
+                                        </div>
+                                        <div>
+                                            <input id="add_multiple_choice"
                                                type="submit"
                                                value="Add Question"/>
+                                        </div>
+
                                     </form>
                                 </div>
 

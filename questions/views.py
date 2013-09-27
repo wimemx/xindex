@@ -9,6 +9,7 @@ from xindex.models import Question
 from xindex.models import Question_Type
 from xindex.models import Option
 from xindex.models import Xindex_User
+from xindex.models import Catalog
 
 from collections import namedtuple
 import json
@@ -65,21 +66,42 @@ def create_matrix(data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-def create_multiple_choice(data):
+def create_multiple_choice(request, data):
     type = int(data.type)
     title = data.title
     options = data.options
 
-    '''type = int(request.POST["type"])
-    title = request.POST["title"]
-    options = request.POST.getlist('options')'''
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        i = 1
+        for option in options:
+            new_option = Option(question=catalog_question, label=option.label,
+                            value = i, order = i)
+            new_option.save()
+            i += 1
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+
 
     question = Question()
-    #TODO: Get the user id from session
-    question.user = Xindex_User.objects.get(pk=1)
+    question.user = Xindex_User.objects.get(pk=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
+
+    '''type = int(request.POST["type"])
+    title = request.POST["title"]
+    options = request.POST.getlist('options')'''
 
     i = 1
     for option in options:
@@ -89,7 +111,10 @@ def create_multiple_choice(data):
         i += 1
 
     json_response = json.dumps(
-        {'messagesent' : "Question added successfully!"}
+        {
+            'messagesent' : "Question added successfully!",
+            'question_id': question.id
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -187,7 +212,8 @@ def add_ajax(request):
             if data.type_name == "matrix":
                 return create_matrix(data)
             elif data.type_name == "multiple_choice":
-                return create_multiple_choice(data)
+                print(data)
+                return create_multiple_choice(request, data)
             elif data.type_name == "open_question":
                 return create_open_question(data)
             elif data.type_name == "range":

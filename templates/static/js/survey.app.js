@@ -146,22 +146,29 @@ $(document).ready(function () {
         height: 50,
         autoresize_min_height: 50,
         autoresize_max_height: 100,
+        entities: "160,nbsp,38,amp,34,quot,162,cent,8364,euro,163,pound,165,yen,169,copy,174,reg,8482,trade,8240,permil,60,lt,62,gt,8804,le,8805,ge,176,deg,8722,minus",
+        entity_encoding: "raw",
         plugins: [
             "autoresize paste textcolor"
         ],
         setup: function (ed) {
             ed.on('keyup', function (e) {
-                var content = tinymce.get('tinymce-editor-new-question').getContent();
-                var current_question = $('#current-question').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-            })
-            ed.on('change', function (e) {
-                var content = tinymce.get('tinymce-editor-new-question').getContent();
+                var con = ed.getContent();
+                var content = con.replace(/(<([^>]+)>)/ig, "");
                 var current_question = $('#current-question').val();
                 $('#' + current_question + ' div.question-text').html('');
                 $('#' + current_question + ' div.question-text').html(content);
 
+                $('.question-title').val(content);
+
+            })
+            ed.on('change', function (e) {
+                var con = ed.getContent();
+                var content = con.replace(/(<([^>]+)>)/ig, "");
+                var current_question = $('#current-question').val();
+                $('#' + current_question + ' div.question-text').html('');
+                $('#' + current_question + ' div.question-text').html(content);
+                $('.question-title').val(content);
             })
         }
     });
@@ -185,7 +192,7 @@ $(document).ready(function () {
         /*Find question id*/
         $('#survey-main-content div.question-content').each(function (index) {
             $(this).attr('id', 'question-' + (index + 1));
-            $(this).children('div.question_id').text(index + 1+'.- ');
+            $(this).children('div.question_id').text(index + 1 + '.- ');
         })
         /*end*/
 
@@ -194,7 +201,7 @@ $(document).ready(function () {
     $('a.btn-create-new-question').on('click', function () {
         $('#survey-main-content div.question-content').each(function (index) {
             $(this).attr('id', 'question-' + (index + 1));
-            $(this).children('div.question_id').text(index + 1+'.- ');
+            $(this).children('div.question_id').text(index + 1 + '.- ');
             if ($(this).hasClass('active-question')) {
 
                 var question_id = $(this).attr('id');
@@ -241,91 +248,97 @@ $(document).ready(function () {
 //DRAG AND DROP start>>
 var holder = document.getElementById('holder'),
     tests = {
-      filereader: typeof FileReader != 'undefined',
-      dnd: 'draggable' in document.createElement('span'),
-      formdata: !!window.FormData,
-      progress: "upload" in new XMLHttpRequest
+        filereader: typeof FileReader != 'undefined',
+        dnd: 'draggable' in document.createElement('span'),
+        formdata: !!window.FormData,
+        progress: "upload" in new XMLHttpRequest
     },
     support = {
-      filereader: document.getElementById('filereader'),
-      formdata: document.getElementById('formdata'),
-      progress: document.getElementById('progress')
+        filereader: document.getElementById('filereader'),
+        formdata: document.getElementById('formdata'),
+        progress: document.getElementById('progress')
     },
     acceptedTypes = {
-      'image/png': true,
-      'image/jpeg': true,
-      'image/gif': true
+        'image/png': true,
+        'image/jpeg': true,
+        'image/gif': true
     },
     progress = document.getElementById('uploadprogress'),
     fileupload = document.getElementById('upload');
 
 "filereader formdata progress".split(' ').forEach(function (api) {
-  if (tests[api] === false) {
-    support[api].className = 'fail';
-  } else {
-    support[api].className = 'hidden';
-  }
+    if (tests[api] === false) {
+        support[api].className = 'fail';
+    } else {
+        support[api].className = 'hidden';
+    }
 });
 
 function previewfile(file) {
-  if (tests.filereader === true && acceptedTypes[file.type] === true) {
-    var reader = new FileReader();
-    reader.onload = function (event) {
-      var image = new Image();
-      image.src = event.target.result;
-      image.width = 250; // a fake resize
-      holder.appendChild(image);
-    };
+    if (tests.filereader === true && acceptedTypes[file.type] === true) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var image = new Image();
+            image.src = event.target.result;
+            image.width = 250; // a fake resize
+            holder.appendChild(image);
+        };
 
-    reader.readAsDataURL(file);
-  } else {
-    holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '');
-    console.log(file);
-  }
+        reader.readAsDataURL(file);
+    } else {
+        holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size / 1024 | 0) + 'K' : '');
+        console.log(file);
+    }
 }
 
 function readfiles(files) {
     debugger;
     var formData = tests.formdata ? new FormData() : null;
     for (var i = 0; i < files.length; i++) {
-      if (tests.formdata) formData.append('file', files[i]);
-      previewfile(files[i]);
+        if (tests.formdata) formData.append('file', files[i]);
+        previewfile(files[i]);
     }
 
     // now post a new XHR request
     if (tests.formdata) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/devnull.php');
-      xhr.onload = function() {
-        progress.value = progress.innerHTML = 100;
-      };
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/devnull.php');
+        xhr.onload = function () {
+            progress.value = progress.innerHTML = 100;
+        };
 
-      if (tests.progress) {
-        xhr.upload.onprogress = function (event) {
-          if (event.lengthComputable) {
-            var complete = (event.loaded / event.total * 100 | 0);
-            progress.value = progress.innerHTML = complete;
-          }
+        if (tests.progress) {
+            xhr.upload.onprogress = function (event) {
+                if (event.lengthComputable) {
+                    var complete = (event.loaded / event.total * 100 | 0);
+                    progress.value = progress.innerHTML = complete;
+                }
+            }
         }
-      }
 
-      xhr.send(formData);
+        xhr.send(formData);
     }
 }
 
 if (tests.dnd) {
-  holder.ondragover = function () { this.className = 'hover'; return false; };
-  holder.ondragend = function () { this.className = ''; return false; };
-  holder.ondrop = function (e) {
-    this.className = '';
-    e.preventDefault();
-    readfiles(e.dataTransfer.files);
-  }
+    holder.ondragover = function () {
+        this.className = 'hover';
+        return false;
+    };
+    holder.ondragend = function () {
+        this.className = '';
+        return false;
+    };
+    holder.ondrop = function (e) {
+        this.className = '';
+        e.preventDefault();
+        readfiles(e.dataTransfer.files);
+    }
 } else {
-  fileupload.className = 'hidden';
-  fileupload.querySelector('input').onchange = function () {
-    readfiles(this.files);
-  };
+    fileupload.className = 'hidden';
+    fileupload.querySelector('input').onchange = function () {
+        readfiles(this.files);
+    };
 }
 
 //DRAG AND DROP <<<end
