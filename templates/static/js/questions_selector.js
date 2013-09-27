@@ -29,7 +29,6 @@ $(document).ready(function () {
     //for now I'm using the funcion deleteOption
     $('.delete_option').on('click', function (event) {
         event.preventDefault();
-        console.log("Sup");
         //$(this).parent().remove();
     });
 
