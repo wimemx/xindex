@@ -739,7 +739,13 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         this.element.setAttribute("enctype", "multipart/form-data");
       }
       if (this.element.classList.contains("dropzone") && !this.element.querySelector(".dz-message")) {
-        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>" + this.options.dictDefaultMessage + "</span></div>"));
+        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>"+
+            "<i class='icon-picture icon-3x'></i><br>" +
+            this.options.dictDefaultMessage +
+            "<br><br>" +
+            "<div class='media-boody'><a class='file-input-wrapper btn btn btn-sm btn-success m-b-sm'>Sube una imagen</a>" +
+            "</div>" +
+            "</span></div>"));
       }
       if (this.clickableElements.length) {
         setupHiddenFileInput = function() {

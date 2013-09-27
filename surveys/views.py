@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
-from xindex.models import Survey, Question_Attributes
+from xindex.models import Survey, Question_Attributes, Company
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
@@ -167,6 +167,10 @@ def save(request, action, next_step, survey_id=False):
         print 'Id survey: ' + survey_id
         survey_id = int(survey_id)
         survey = Survey.objects.get(pk=survey_id)
+        xindex_user = Xindex_User.objects.get(user__id=request.user.id)
+        company = Company.objects.get(staff=xindex_user)
+
+        print company.name
         if int(next_step) == 2 and action == 'next':
             template_vars = {
                 'survey_title': survey.name,
@@ -180,11 +184,16 @@ def save(request, action, next_step, survey_id=False):
         question_types = Question_Type.objects.all().order_by('name');
 
         if int(next_step) == 3 and action == 'next':
+
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
                 'next_step': str(int(next_step)+1),
-                'question_types': question_types
+                'question_types': question_types,
+                'company_name': company.name,
+                'company_address': company.address,
+                'company_email': 'atencion@hollidayinn.com',
+                'company_phone': company.phone
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-3.html',
@@ -214,7 +223,7 @@ def media_upload(request):
     path = os.path.join(
         os.path.dirname(__file__), '..',
         'templates/media/pictures/').replace('\\', '/')
-    print(path)
+
     path += str(request.FILES['file'])
     file = request.FILES['file']
     handle_uploaded_file(path, file)
