@@ -72,21 +72,7 @@
     <script src="js/ie/html5.js" cache="false"></script>
     <script src="js/ie/fix.js" cache="false"></script>
   <![endif]-->
-    <script>
-        Dropzone.options.picture = {
-       maxFiles: 1,
-       dictDefaultMessage: 'Arrastre aquí el logotipo',
-       init: function() {
-           this.on("addedfile", function(file) {
-               $('#picture .dz-message').fadeOut(300);
-           });
-       },
-       success: function(file) {
-           console.log(file);
-           $('.profile-pic').val(file.name);
-       }
-   }
-    </script>
+
 </head>
 <body>
 <section class="vbox stretch bg-white">
@@ -167,8 +153,8 @@
         </div>
         <section class="footer text-center panel">
             <p class="h2 text-center">Footer</p>
-            <form id="picture" class="fright dropzone no-margin grid-6" action="/surveys/"
-                                    enctype="multipart/form-data" style="border: 1px dashed #000">{% csrf_token %}
+            <form id="picture" class="fright dropzone no-margin grid-6" action="/surveys/media_upload/"
+                  style="border: 1px dashed #000">{% csrf_token %}
                                <input type="hidden" name="picture" value="1"/>
                                <div class="preview grid-5 fright no-margin dropzone-previews"></div>
                            </form>
@@ -463,8 +449,24 @@
 
 <script src="/static/js/dropzone.js"></script>
 
-
 <!-- question selector -->
 <script src="/static/js/questions_selector.js"></script>
+
+<script>
+       Dropzone.options.picture = {
+       maxFiles: 1,
+       dictDefaultMessage: 'Arrastre aquí el logotipo',
+       init: function() {
+           alert('sd');
+           this.on("addedfile", function(file) {
+               $('#picture .dz-message').fadeOut(300);
+           });
+       },
+       success: function(file) {
+           console.log(file);
+           $('.profile-pic').val(file.name);
+       }
+   }
+</script>
 </body>
 </html>

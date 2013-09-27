@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from xindex.models import Survey, Question_Attributes
 from django.utils import simplejson
+from xindex.models import Survey, Question_Attributes
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
+import os
 
 
 @login_required(login_url='/signin/')
@@ -209,20 +210,58 @@ def available(request, survey_id):
 
 
 @login_required(login_url='/signin/')
-def saveimage(request, survey_id):
+def media_upload(request):
+    path = os.path.join(
+        os.path.dirname(__file__), '..',
+        'templates/media/pictures/').replace('\\', '/')
+    print(path)
+    path += str(request.FILES['file'])
+    file = request.FILES['file']
+    handle_uploaded_file(path, file)
+    context = {}
+    context = simplejson.dumps(context)
+    return HttpResponse(context, mimetype='application/json')
 
-    try:
-        survey = Survey.objects.get(pk=survey_id)
-    except Survey.DoesNotExist:
-        survey = False
 
-    if request.POST:
-        picture = request.POST['file']
-        if picture:
-            survey.picture = picture
-            survey.save()
-            return HttpResponse("Image Saved")
-        else:
-            return HttpResponse("Image not found")
+def handle_uploaded_file(destination, f):
+    with open(destination, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 
-    return HttpResponseRedirect('/surveys/')
+
+'''
+def media_upload(request):
+
+   folder = '/entity/'
+   if 'event_picture' in request.POST:
+       folder = '/event/'
+   if 'event_cover_picture' in request.POST:
+       folder = '/event/'
+   if 'edit_profile' in request.POST:
+       folder = '/profile/'
+       id_user = request.user.id
+       user = models.Profile.objects.get(user=id_user)
+       user.picture = str(request.FILES['file'])
+       user.save()
+
+   if 'list_picture' in  request.POST:
+       folder = '/list/'
+
+   path_extension = str(request.user.id)+folder
+   path = os.path.join(
+       os.path.dirname(__file__), '..',
+       'static/media/users/'+path_extension).replace('\\', '/')
+
+   path += str(request.FILES['file'])
+   file = request.FILES['file']
+   handle_uploaded_file(path, file)
+   context = {}
+   context = simplejson.dumps(context)
+   return HttpResponse(context, mimetype='application/json')
+
+def handle_uploaded_file(destination, f):
+   with open(destination, 'wb+') as destination:
+       for chunk in f.chunks():
+           destination.write(chunk)
+
+           '''
