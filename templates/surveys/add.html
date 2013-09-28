@@ -21,14 +21,31 @@
 </head>
 <body>
 <section class="vbox stretch bg-white">
-    <header class="yellow-xindex-nohover text-center wrapper">
-        <p class="h4" id="header-title ">
-            Generador de Encuestas
-        </p>
-        <p class="pull-right pull-in">
-            <a class="h6 padder padder-v hidden" id="save-link" href="#">Guardar y Salir</a>
-        </p>
-    </header>
+    <header class="yellow-xindex-nohover text-center wrapper header">
+    <div class="row">
+        <div class="pull-left padder">
+            <a href="/xindex/">
+            {% load staticfiles %}
+            <img src="{% static "images/xindex-logo.png" %}" alt="XINDEX Home"/>
+            </a>
+        </div>
+        <div class="h4 pull-left padder" style=" border-left: 2px solid #d3d3d3">
+            Generador de encuestas
+        </div>
+        <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
+            <a class="h5" id="save-link"
+               href="/surveys/save/exit/{{ survey_id }}">X</a>
+        </div>
+        <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
+            <a class="h5"
+               href="#" id="step-one-next-header">Guardar y Continuar</a>
+        </div>
+        <div class="pull-right padder">
+            <a class="h5" id="save-link"
+               href="/surveys/save/exit/{{ survey_id }}">Preview</a>
+        </div>
+    </div>
+</header>
     <div class="wrapper-xl text-center v-middle">
         <header class="wrapper-xl text-center">
             <p class="h2">1.- Escribe el nombre de tu encuesta</p>

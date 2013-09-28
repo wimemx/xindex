@@ -8,11 +8,14 @@
 
 $(document).ready(function () {
 
-    $('#check').on('click', function (e) {
-        if (check.checked == true) {
-            document.getElementById("actions").style.display = "block";
+    $('.check').on('click', function (e) {
+        if($(".check").is(':checked')) {
+            $("#options-survey").attr('disabled', false);
+            $("#remove-survey").attr('disabled', false);
+            //$(".check").attr('checked', true);
         } else {
-            document.getElementById("actions").style.display = "none";
+            $("#options-survey").attr('disabled', true);
+            $("#remove-survey").attr('disabled', true);
         }
     });
 
