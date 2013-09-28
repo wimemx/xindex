@@ -223,6 +223,10 @@ function manage_question_ajax(question) {
         data: JSON.stringify(question),
         //data: question,
         success: function (data) {
+            if(data.question_added){
+                var current_question = $('#current-question').val();
+                saveSurvey(current_question);
+            }
 
             alert("Operation complete! The question id is: "+data.question_id);
             //TODO: Delete and make a proper AJAX request

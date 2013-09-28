@@ -192,5 +192,5 @@ class SurveyForm(ModelForm):
     class Meta:
         model = Survey
         fields = ('name', 'picture')
-        exclude = ('description', 'questions', 'user', 'step', 'active', 'date',
+        exclude = ('description', 'questions', 'user', 'step', 'configuration', 'active', 'date',
                    'meta')

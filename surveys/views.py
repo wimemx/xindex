@@ -144,8 +144,14 @@ def save(request, action, next_step, survey_id=False):
             if form.is_valid():
                 step = int(next_step) - 1
                 xindex_user = Xindex_User.objects.get(user__id=request.user.id)
+
+                configuration = {'header_logo': '', 'body': '', 'footer': ''}
+                configuration = simplejson.dumps(configuration)
+
+                print configuration
+
                 survey = Survey(user=xindex_user,
-                                name=form.cleaned_data['name'], step=step)
+                                name=form.cleaned_data['name'], step=step, configuration=configuration)
                 survey.save()
 
                 print 'Se ha guardado'

@@ -87,9 +87,15 @@ def create_multiple_choice(request, data):
             new_option.save()
             i += 1
 
+            print new_option
+
         catalog = Catalog()
         catalog.user = Xindex_User.objects.get(pk=request.user.id)
         catalog.question = catalog_question
+
+        catalog.save()
+
+        print catalog
 
 
 
@@ -112,7 +118,7 @@ def create_multiple_choice(request, data):
 
     json_response = json.dumps(
         {
-            'messagesent' : "Question added successfully!",
+            'question_added' : True,
             'question_id': question.id
         }
     )

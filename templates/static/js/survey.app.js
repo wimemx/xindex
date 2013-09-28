@@ -48,7 +48,7 @@ $(document).ready(function () {
 
         $('div.default-buttons').fadeOut(300);
 
-        var new_questions_block_content = '<div class="row animated rollIn" id="block-1">' +
+        var new_questions_block_content = '<div class="row row-block animated rollIn" id="block-1">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
             '<div class="panel-body">' +
