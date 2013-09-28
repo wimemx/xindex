@@ -75,15 +75,16 @@
         <section class="panel animated fadeInRight scrollable wrapper">
             <div class="row">
                 <div class="headerXINDEX">
-                    <div class="col-lg-6">
-                        <div class="header h1">
+                    <div class="col-lg-9">
+                        <div class="header h2">
                             Mis encuestas
                         </div>
-                        <div class="footer h5">
-                            <div class="pull-left padder-v">
+                        <div class="footer h4">
+                            <div class="pull-left ">
+                                <div class="m-b-sm">
                                 Ordenar por
                                 <div class="btn-group">
-                                    <button class="btn btn-white btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    <button class="btn btn-white btn-s-md dropdown-toggle" data-toggle="dropdown">
                                         {{ order_query }}
                                         <span class="caret"></span>
                                     </button>
@@ -92,20 +93,35 @@
                                         <li><a href="/surveys/order/available/">Status</a></li>
                                         <li><a href="/surveys/order/date/">Fecha de creación</a></li>
                                     </ul>
-                                    <a href="#" class="btn btn-sm btn-danger" id="actions" style="display: none;">
-                                        Deshabilitar
+                                    <a href="/surveys/add" class="btn btn-success btn-s-md padder btn-group-m-l">
+                                        <i class="icon-plus"></i>
+                                        Agregar encuesta
                                     </a>
                                 </div>
+                                <div class="btn-group" id="actions">
+                                    <button class="btn btn-white btn-s-md-a dropdown-toggle btn-g-ml"
+                                            id="options-survey"
+                                            data-toggle="dropdown"
+                                            disabled>
+                                        <i class="icon-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">Habilitar</a></li>
+                                        <li><a href="#">Deshabilitar</a></li>
+                                    </ul>
+                                    <button class="btn btn-white btn-s-md-a"
+                                            id="remove-survey"
+                                            disabled>
+                                        <i class="icon-remove"></i>
+                                    </button>
+                                </div>
+                                </div>
                             </div>
-                            </div>
+                        </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-3">
                         <div class="header h4">
-                            <a href="/surveys/add"
-                               class="pull-right btn-success padder padder-v">
-                                <i class="icon-plus"></i>
-                                Agregar encuesta
-                            </a>
+
                         </div>
                         <div class="footer h5">
                             <div class="input-group text-sm pull-right padder-v">
@@ -128,7 +144,7 @@
                                 <li class="list-group-item">
                                     <div class="media">
                                         <div class="pull-left text-success m-t-sm">
-                                            <input type="checkbox" id="check"/>
+                                            <input type="checkbox" class="check"/>
                                         </div>
                                         <div class="pull-right m-t-sm text-center">
                                             {% if each_survey.status %}
@@ -185,7 +201,7 @@
                                 <li class="list-group-item">
                                     <div class="media">
                                         <div class="pull-left text-success m-t-sm">
-                                            <input type="checkbox" id="check"/>
+                                            <input type="checkbox" class="check"/>
                                         </div>
                                         <div class="pull-right m-t-sm text-center">
                                             {% if each_survey.status %}

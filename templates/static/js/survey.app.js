@@ -39,6 +39,29 @@ $(document).ready(function () {
 
     });
 
+    $('#step-one-next-header').on('click', function (e) {
+        e.preventDefault();
+        if ($('#id_name').val().length > 1) {
+            $.ajax({
+                url: '/surveys/save/next/2/empty',
+                type: 'POST',
+                data: $('#new-survey-form').serialize(),
+                dataType: 'Json',
+                success: function (msg) {
+                    if (msg.save) {
+                        window.location.href = msg.url;
+                    }
+                },
+                error: function (msg_error) {
+                    alert(msg_error.error);
+                }
+            });
+        } else {
+            return false;
+        }
+
+    });
+
 
     /*Funciones para insertar bloques de preguntas*/
     $('#add-block-questions').on('click', function () {

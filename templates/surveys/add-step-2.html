@@ -24,8 +24,10 @@
     <header class="yellow-xindex-nohover text-center wrapper header">
     <div class="row">
         <div class="pull-left padder">
+            <a href="/xindex/">
             {% load staticfiles %}
             <img src="{% static "images/xindex-logo.png" %}" alt="XINDEX Home"/>
+            </a>
         </div>
         <div class="h4 pull-left padder" style=" border-left: 2px solid #d3d3d3">
             Generador de encuestas
@@ -36,7 +38,7 @@
         </div>
         <div class="pull-right padder">
             <a class="h5" id="save-link"
-               href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
+               href="/surveys/save/exit/{{ survey_id }}">Preview</a>
         </div>
     </div>
     </header>
