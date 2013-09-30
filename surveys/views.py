@@ -174,9 +174,22 @@ def save(request, action, next_step, survey_id=False):
         survey_id = int(survey_id)
         survey = Survey.objects.get(pk=survey_id)
         xindex_user = Xindex_User.objects.get(user__id=request.user.id)
-        company = Company.objects.get(staff=xindex_user)
+        try:
+            company = Company.objects.get(staff=xindex_user)
+        except:
+            company = False
 
-        print company.name
+        if company:
+            company_name = company.name
+            company_address = company.address
+            company_email = 'atencion@hollidayinn.com'
+            company_phone = company.phone
+        else:
+            company_name = 'Default company NAME'
+            company_address = 'Default company ADDRESS'
+            company_email = 'Default company EMAIL'
+            company_phone = 'Default company PHONE'
+
         if int(next_step) == 2 and action == 'next':
             template_vars = {
                 'survey_title': survey.name,
@@ -187,8 +200,7 @@ def save(request, action, next_step, survey_id=False):
             return render_to_response('surveys/add-step-2.html',
                                       request_context)
 
-        question_types = Question_Type.objects.all().order_by('name');
-
+        question_types = Question_Type.objects.all().order_by('name')
         if int(next_step) == 3 and action == 'next':
 
             template_vars = {
@@ -196,10 +208,10 @@ def save(request, action, next_step, survey_id=False):
                 'survey_id': survey.id,
                 'next_step': str(int(next_step)+1),
                 'question_types': question_types,
-                'company_name': company.name,
-                'company_address': company.address,
-                'company_email': 'atencion@hollidayinn.com',
-                'company_phone': company.phone
+                'company_name': company_name,
+                'company_address': company_address,
+                'company_email': company_email,
+                'company_phone': company_phone
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-3.html',
@@ -225,12 +237,16 @@ def available(request, survey_id):
 
 
 @login_required(login_url='/signin/')
-def media_upload(request):
+def media_upload(request, survey_id):
+    survey = Survey.objects.get(pk=survey_id)
+    survey.picture = str(survey.id) + str(request.FILES['file'])
+    survey.save()
+
     path = os.path.join(
         os.path.dirname(__file__), '..',
         'templates/media/pictures/').replace('\\', '/')
 
-    path += str(request.FILES['file'])
+    path += str(survey.id) + str(request.FILES['file'])
     file = request.FILES['file']
     handle_uploaded_file(path, file)
     context = {}

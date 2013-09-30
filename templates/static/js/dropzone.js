@@ -414,7 +414,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       url: null,
       method: "post",
       withCredentials: false,
-      parallelUploads: 2,
+      parallelUploads: 1,
       uploadMultiple: false,
       maxFilesize: 256,
       paramName: "file",
