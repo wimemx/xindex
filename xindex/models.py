@@ -241,7 +241,8 @@ class Survey(models.Model):
     description = models.TextField(null=True, blank=True)
     questions = models.ManyToManyField(Question, blank=True, null=True)
     step = models.IntegerField(max_length=2, null=True, blank=True)
-    picture = models.ImageField(upload_to="pictures/", blank=True, null=True)
+    picture = models.CharField(max_length=50, null=True, blank=True,
+                               default="No image")
     available = models.BooleanField(default=True)
     configuration = models.TextField()
     active = models.BooleanField(default=True)

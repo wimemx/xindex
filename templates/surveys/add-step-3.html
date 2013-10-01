@@ -116,7 +116,7 @@
         <div class="panel-body">
             <section class="header text-center panel visible-lg border-dropzone">
 
-                <form id="picture" class="dropzone" action="/surveys/media_upload/">
+                <form id="picture" class="dropzone" action="/surveys/media_upload/{{ survey_id }}">
                     {% csrf_token %}
                     <input type="hidden" name="picture" value="1"/>
                         <div class="preview grid-5 fright no-margin dropzone-previews">
@@ -526,12 +526,13 @@
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
 
-
+<!-- Dropzone -->
 <script src="/static/js/dropzone.js"></script>
 
 <!-- question selector -->
 <script src="/static/js/questions_selector.js"></script>
 
+<!-- Dropzone conf -->
 <script>
        Dropzone.options.picture = {
        maxFiles: 1,
