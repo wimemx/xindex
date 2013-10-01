@@ -77,6 +77,12 @@ $(document).ready(function () {
             question.add_catalog = false;
         }
 
+        var survey_id = $('#survey_id').val()
+
+        question.survey_id = survey_id
+
+        console.log(question)
+
         manage_question_ajax(question);
     });
 
@@ -225,12 +231,8 @@ function manage_question_ajax(question) {
         success: function (data) {
             if(data.question_added){
                 var current_question = $('#current-question').val();
-                saveSurvey(current_question);
+                saveSurvey(current_question, data.question_id);
             }
-
-            alert("Operation complete! The question id is: "+data.question_id);
-            //TODO: Delete and make a proper AJAX request
-            window.location.href = '';
         },
         error: function (xhr, textStatus, errorThrown) {
             alert("Please report this error: " + errorThrown +
@@ -277,4 +279,64 @@ function addQuestionOptions() {
             '<li>' + list_value + '</li>'
         );
     })
+}
+
+
+function saveSurvey(current_question, question_id){
+    $('#'+current_question+' div.db_question_id').attr('id', question_id);
+
+    console.log(current_question);
+
+
+    var survey_configuration = {}
+    var blocks = new Array();
+    $('#survey-main-content div.row-block').each(function(index){
+        var questions = new Array();
+        var selector = $(this).attr('id');
+        console.log(selector);
+        $('#'+selector+' div.question-content').each(function(ind){
+            questions.push(
+                {
+                    'question_content_id': $(this).attr('id'),
+                    'db_id': $(this).find('div.db_question_id').attr('id'),
+                    'question_survey_id': $(this).find('div.question_id').text()
+                }
+            );
+        });
+
+        blocks.push(
+            {
+                'block_id': selector,
+                'block_title': $(this).find('header.block-title').text(),
+                'block_description': $(this).find('div.panel-body').html(),
+                'questions': questions
+            }
+        );
+
+    });
+
+    survey_configuration.blocks = blocks;
+
+    var survey_id = $('#survey_id').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/surveys/save_conf/"+survey_id,
+        'contentType': "application/json",
+        dataType: "json",
+        data: JSON.stringify(survey_configuration),
+        //data: question,
+        success: function (data) {
+            if(data.answer){
+                window.location.href = '';
+            }
+            window.location.href = '';
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            alert("Please report this error: " + errorThrown +
+                " - Status :" + xhr.status +
+                " - Message : " + xhr.responseText);
+        }
+    });
+
 }

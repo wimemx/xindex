@@ -10,6 +10,7 @@ from xindex.models import Question_Type
 from xindex.models import Option
 from xindex.models import Xindex_User
 from xindex.models import Catalog
+from xindex.models import Survey
 
 from collections import namedtuple
 import json
@@ -67,10 +68,11 @@ def create_matrix(data):
 
 
 def create_multiple_choice(request, data):
+    print data
     type = int(data.type)
     title = data.title
     options = data.options
-
+    survey_id = int(data.survey_id)
     add_catalog = data.add_catalog
 
     if add_catalog:
@@ -104,6 +106,14 @@ def create_multiple_choice(request, data):
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
 
     '''type = int(request.POST["type"])
     title = request.POST["title"]
