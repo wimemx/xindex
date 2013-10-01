@@ -71,15 +71,25 @@ $(document).ready(function () {
 
         $('div.default-buttons').fadeOut(300);
 
-        var new_questions_block_content = '<div class="row row-block animated rollIn" id="block-1">' +
+        //Determine next block id
+
+        var n = $('#survey-main-content div.row-block').length;
+
+        $('#survey-main-content div.row-block').each(function(index){
+            $(this).find('section.question-block').removeClass('selected-block');
+        });
+
+        var new_block_id = 'block-'+(n+1);
+
+        var new_questions_block_content = '<div class="row row-block animated rollIn" id="'+new_block_id+'">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
             '<div class="panel-body">' +
             '<div>' +
-            '<header class="">' +
+            '<header class="block-title">' +
             'Este es el nombre del bloque de preguntas' +
             '</header>' +
-            '<small class="">' +
+            '<small class="block-description">' +
             '<p>' +
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
             '</p>' +
@@ -101,7 +111,9 @@ $(document).ready(function () {
 
         $('#survey-main-content').append(new_questions_block_content);
 
-        $('#current-question-block').val('block-1');
+        var block_selected_id = $('#survey-main-content').find('section.selected-block').closest('div.row').attr('id')
+
+        $('#current-question-block').val(block_selected_id);
 
         tinymce.get('tinymce-editor').setContent(
             '<div>' +
@@ -210,7 +222,7 @@ $(document).ready(function () {
 
         var parent_block = '';
 
-        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div></div>').insertBefore($(this).parent());
+        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
 
         /*Find question id*/
         $('#survey-main-content div.question-content').each(function (index) {
@@ -264,6 +276,30 @@ $(document).ready(function () {
                 break;
         }
     });
+
+    $('div.row-block').hover(function(){
+        $(this).find('div.block_actions').fadeIn(100);
+    }, function(){
+        $(this).find('div.block_actions').fadeOut(100);
+    })
+
+    $('a.actions_block').on('click', function(e){
+        e.preventDefault();
+        var action = $(this).attr('id')
+        if(action=="remove_block"){
+            //TODO: Make a function to delete the association between Survey and Questions
+            var block_id = $(this).closest('div.row-block').attr('id');
+            var question_ids = new Array();
+            $('#'+block_id+' div.db_question_id').each(function(index){
+                question_ids.push($(this).attr('id'));
+            });
+            console.log(question_ids);
+            $(this).closest('div.row-block').slideUp('slow', function(){
+                $(this).remove();
+            })
+        }
+    })
+
 
 
 })

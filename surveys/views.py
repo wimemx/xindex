@@ -9,6 +9,10 @@ from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
 import os
+import json
+from collections import namedtuple
+from django.views.decorators.csrf import csrf_exempt
+from xindex.models import Question
 
 
 @login_required(login_url='/signin/')
@@ -169,8 +173,6 @@ def save(request, action, next_step, survey_id=False):
 
                 return HttpResponse(simplejson.dumps(answer))
     else:
-        print 'Next step: ' + next_step
-        print 'Id survey: ' + survey_id
         survey_id = int(survey_id)
         survey = Survey.objects.get(pk=survey_id)
         xindex_user = Xindex_User.objects.get(user__id=request.user.id)
@@ -190,6 +192,48 @@ def save(request, action, next_step, survey_id=False):
         question_types = Question_Type.objects.all().order_by('name');
 
         if int(next_step) == 3 and action == 'next':
+            configuration = json.loads(survey.configuration)
+
+            setup = {}
+            setup['blocks'] = []
+            #print simplejson.dumps(configuration)
+            for key, values in configuration.items():
+                for block in values:
+                    questions = []
+                    for q in block['questions']:
+                        question = Question.objects.get(pk=q['db_id'])
+                        options = question.option_set.all().order_by('id')
+                        options_o = []
+                        for option in options:
+                            options_o.append(
+                                {
+                                    'id_option': option.id,
+                                    'text': option.label
+                                }
+                            )
+                        questions.append(
+                            {
+                                'survey_question_id': q['question_survey_id'],
+                                'db_question_id': q['db_id'],
+                                'question_title': question.title,
+                                'question_type': question.type.id,
+                                'question_options': options_o
+                            }
+                        )
+                    setup['blocks'].append(
+                        {
+                            'block_id': block['block_id'],
+                            'block_description': block['block_description'],
+                            'questions': questions
+                        }
+                    )
+
+
+            print setup
+
+            for block in setup['blocks']:
+                print block
+
 
             template_vars = {
                 'survey_title': survey.name,
@@ -199,7 +243,8 @@ def save(request, action, next_step, survey_id=False):
                 'company_name': company.name,
                 'company_address': company.address,
                 'company_email': 'atencion@hollidayinn.com',
-                'company_phone': company.phone
+                'company_phone': company.phone,
+                'setup': setup
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response('surveys/add-step-3.html',
@@ -280,3 +325,44 @@ def handle_uploaded_file(destination, f):
            destination.write(chunk)
 
            '''
+
+
+@csrf_exempt
+def save_ajax(request, survey_id):
+    if request.is_ajax():
+        try:
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
+            #TODO: Search for types in the table question_type to avoid hardcoding
+            try:
+                survey = Survey.objects.get(pk=survey_id)
+            except Survey.DoesNotExist:
+                survey = False
+
+            if survey:
+                survey.configuration = request.body
+                survey.save()
+                json_response = json.dumps(
+                    {'answer' : True}
+                )
+            else:
+                json_response = json.dumps(
+                    {
+                        'answer': False
+                    }
+                )
+
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
+        except ValueError:
+            json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
+    else:
+        raise Http404
