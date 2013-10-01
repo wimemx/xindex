@@ -75,7 +75,8 @@
         <section class="panel animated fadeInRight scrollable wrapper">
             <div class="row">
                 <div class="headerXINDEX">
-                    <div class="col-lg-9">
+                    <div class="row">
+                    <div class="col-lg-8">
                         <div class="header h2">
                             Mis encuestas
                         </div>
@@ -119,21 +120,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3">
-                        <div class="header h4">
-
-                        </div>
-                        <div class="footer h5">
-                            <div class="input-group text-sm pull-right padder-v">
-                                <div class="form-search form-inline">
+                    <div class="col-lg-4">
+                        <div class="header" style="padding-top:38px">
+                            <div class="input-group text-sm pull-left padder-v">
+                                <div class="form-search form-inline" style="width: 250px">
                                     <form action="/search/" method="GET">
                                     <input type="text" id="id_q" name="q"
                                            class="search-query input-sm form-control"
-                                           placeholder="Search..." value="{{ query_string }}"/>
+                                           placeholder="Buscar..." value="{{ query_string }}"/>
                                     </form>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class="col-lg-12">

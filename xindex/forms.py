@@ -31,8 +31,8 @@ class MomentForm(ModelForm):
             'invalid': 'Seleccione un propietario valido'
         }
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control',
-                                                 'required': 'required'})
+        self.fields['name'].widget.attrs.update(
+            {'class': 'form-control', 'name': 'name', 'required': 'required'})
         self.fields['description'].widget.attrs.update({'class': 'form-control',
                                                         'required': 'required'})
         self.fields['attributes'].widget.attrs.update({'class': 'form-control'})

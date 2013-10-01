@@ -34,7 +34,15 @@
                                 </div>
                             </section>
                             <section id="news_section">
-
+                                {% if success %}
+                                    <div class="alert alert-success">
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <i class="icon-remove"></i>
+                                        </button>
+                                        <i class="icon-ok-sign"></i>
+                                        <strong>¡El punto de contacto se ha dado de alta!</strong>
+                                    </div>
+                                {% endif %}
                             </section>
                             <section class="scrollable wrapper">
                                 <div class="row">

@@ -7,30 +7,30 @@
         </div>
         <div class="modal-body">
             <div class="padder-xl">
-            <form class="form-horizontal" id="moment_form" method="POST"
-                  action="/moments/add/{{ service_id }}">{% csrf_token %}
+                <form class="form-horizontal" id="moment_form" method="POST"
+                      action="/moments/add/{{ service_id }}">{% csrf_token %}
 
-                <div class="form-group m-t-lg">
+                    <div class="form-group m-t-lg">
                         Nombre:
                         {{ formulario.name }}
                         {{ formulario.name.errors }}
-                </div>
-                <div class="form-group m-t-lg">
+                    </div>
+                    <div class="form-group m-t-lg">
                         Descripci&oacute;n:
                         {{ formulario.description }}
                         {{ formulario.description.errors }}
-                </div>
-                <div class="form-group m-t-lg">
+                    </div>
+                    <div class="form-group m-t-lg">
                         Atributos:
                         {{ formulario.attributes }}
                         {{ formulario.attributes.errors }}
-                </div>
-                <div class="form-group m-t-lg">
+                    </div>
+                    <div class="form-group m-t-lg">
                         Propietarios:
                         {{ formulario.owners }}
                         {{ formulario.owners.errors }}
-                </div>
-                <div class="form-group m-t-lg">
+                    </div>
+                    <div class="form-group m-t-lg">
                         Tipo de punto de contacto:
                         <table>
                             <tr>
@@ -46,11 +46,14 @@
                                 <td class="padder text-muted">Pagina Web</td>
                             </tr>
                         </table>
-                </div>
-                <div class="form-group m-t-lg">
-                    <button type="submit"class="btn btn-modal-xindex blue-xindex pull-right">Guardar</button>
-                </div>
-                <!---
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <button type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
+                        </button>
+                    </div>
+                    <!---
                 <div class="modal-footer">
                     <a href="/services/details/{{ service_id }}"
                        class="btn btn-white"
@@ -60,18 +63,82 @@
                     </button>
                 </div>
                 --->
-            </form>
+                </form>
             </div>
         </div>
     </div>
     <!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+<script src="/static/js/jquery.validate.min.js"></script>
 <script>
+    /*
+    jQuery.validator.setDefaults({
+    debug: true,
+    success: "valid",
+    submitHandler: function(form) {
+        form.submit();
+    }
+});*/
     $(function () {
-//twitter bootstrap script
-        $("#moment_form").on('submit', function (e) {
-            e.preventDefault();
+        alert('Validate')
+        $("#moment_form").validate({
+            rules: {
+                name: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 20
 
+                },
+                description: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 100
+
+                }
+            },
+            messages: {
+                name: {
+                    required: "Ingresa un nombre",
+                    minlength: "Logitud minina {0} caracteres",
+                    maxlength: "Longitud maxima {0} caracteres"
+                },
+                description: {
+                    required: "Ingresa una descripcion",
+                    minlength: "Logitud minina {0} caracteres",
+                    maxlength: "Longitud maxima {0} caracteres"
+                }
+            },
+            errorPlacement: function (error, element) {
+                //element.css('background', '#ffdddd');
+                //element.css('border-color', 'red');
+                error.insertAfter(element);
+                error.css('color', 'red');
+                error.css('font-size', '10px');
+            },
+            success: function (element) {
+
+            }
+        });
+
+
+        //// <------ Remove modal with close class ->
+
+        $('.close').on('click', function (e) {
+            e.preventDefault();
+            $('div.modal').modal('hide');
+            $('#ajaxModal').remove();
+        });
+    });
+    /*
+    $(function () {
+        // <------ On Submit Form ->
+        //var form = $("#moment_form");
+        //if(form.valid()){
+
+
+        //$("#moment_form").on('submit', function (e) {
+            //e.preventDefault();
+/*
             var service_id = $('#service_id').val();
             var url = "/moments/add/" + service_id;
             var action = $('#moment_form').attr('action');
@@ -94,7 +161,6 @@
                             window.location.reload(true);
                         }, 2000);
                     } else if (msg == 'No') {
-                        alert('¡Completa los campos requeridos!')
                     }
                 },
                 error: function (msg_failu) {
@@ -109,6 +175,7 @@
                     $('#ajaxModal').modal('hide');
                 }
             });
-        });
-    });
+        //});
+
+    });*/
 </script>
