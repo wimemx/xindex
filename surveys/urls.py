@@ -16,7 +16,6 @@ urlpatterns = patterns('surveys.views',
     url(r'^json/$', 'getJson'),
     #url(r'details/(?P<survey_id>\d+)', 'details'),
     url(r'^media_upload/(?P<survey_id>\d+)', 'media_upload'),
-    url(r'^media_upload/$', 'media_upload'),
 
     url(r'^(?P<survey_id>\d+)/edit/ajax/$', 'edit_ajax'),
 
