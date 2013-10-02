@@ -401,3 +401,74 @@ if (tests.dnd) {
 }
 
 //DRAG AND DROP <<<end
+
+
+
+
+//<--------------  DRAG AND DROP QUESTION  --------->//
+
+function drop(e) {
+    e.preventDefault();
+}
+function dragQuestionBlock(e) {
+    e.dataTransfer.setData("Text", e.target.id);
+}
+
+function dropQuestionBlock(e) {
+    $('#main-configuration-panel').addClass('hidden');
+    $('#questions-block-configuration-panel').removeClass('hidden');
+
+    $('div.default-buttons').fadeOut(300);
+
+    var n = $('#survey-main-content div.row-block').length;
+
+    $('#survey-main-content div.row-block').each(function (index) {
+        $(this).find('section.question-block').removeClass('selected-block');
+    });
+
+    var new_block_id = 'block-' + (n + 1);
+
+    var new_questions_block_content = '<div class="row row-block animated rollIn" id="' + new_block_id + '">' +
+        '<div class="col-lg-12">' +
+        '<section class="padder padder-v question-block selected-block">' +
+        '<div class="panel-body">' +
+        '<div>' +
+        '<header class="block-title">' +
+        'Este es el nombre del bloque de preguntas' +
+        '</header>' +
+        '<small class="block-description">' +
+        '<p>' +
+        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
+        '</p>' +
+        '</small>' +
+        '</div>' +
+        '</div>' +
+        '<footer class="wrapper text-center">' +
+        '<a class="btn btn-info wrapper add-question-to-block">' +
+        '<i class="icon-plus-sign-alt"></i>' +
+        'Da click aquí para añadir una pregunta' +
+        '</a>' +
+        '</footer>' +
+        '</section>' +
+        '</div>' +
+        '</div>';
+
+    $('#survey-main-content').append(new_questions_block_content);
+
+    var block_selected_id = $('#survey-main-content').find('section.selected-block').closest('div.row').attr('id')
+
+    $('#current-question-block').val(block_selected_id);
+
+    tinymce.get('tinymce-editor').setContent(
+        '<div>' +
+            '<header class="">' +
+            'Este es el nombre del bloque de preguntas' +
+            '</header>' +
+            '<small class="">' +
+            '<p>' +
+            'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
+            '</p>' +
+            '</small>' +
+            '</div>'
+    );
+}
