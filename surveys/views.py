@@ -281,6 +281,28 @@ def save(request, action, next_step, survey_id=False):
                                       request_context)
 
 
+def edit(request, survey_id):
+    survey = Survey.objects.get(pk=survey_id)
+    if request.method == 'POST':
+        form = SurveyForm(request.POST, instance=survey)
+        if form.is_valid():
+            form.save()
+            template_vars = {
+                'survey_title': survey.name,
+                'survey_id': survey.id,
+                'next_step': 3
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response('surveys/add-step-2.html',
+                                      request_context)
+    else:
+        form = SurveyForm(instance=survey)
+
+    return render(request, 'surveys/add-step-1.html',
+                  {"formulario": form,
+                   "survey_id": survey_id})
+
+
 @login_required(login_url='/signin/')
 def available(request, survey_id):
 
