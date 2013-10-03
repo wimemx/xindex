@@ -24,19 +24,19 @@
     <header class="yellow-xindex-nohover text-center wrapper header">
         <div class="row">
             <div class="pull-left padder">
+                <a href="/xindex/">
                 {% load staticfiles %}
                 <img src="{% static "images/xindex-logo.png" %}" alt="XINDEX Home"/>
+                </a>
             </div>
             <div class="h4 pull-left padder" style=" border-left: 2px solid #d3d3d3">
                 Generador de encuestas
             </div>
             <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
-                <a class="h5" id="save-link"
-                   href="/surveys/save/exit/{{ survey_id }}">X</a>
+                <a class="h5" href="/surveys/">X</a>
             </div>
             <div class="pull-right padder">
-                <a class="h5" id="save-link"
-                   href="/surveys/save/exit/{{ survey_id }}">Guardar y Salir</a>
+                <a class="h5" id="save-link" href="#">Guardar</a>
             </div>
         </div>
     </header>
@@ -46,7 +46,7 @@
         </header>
         <section class="">
                 <div class="" style="width: 50%; margin: auto">
-                    <form id="formulario" method="post" enctype="multipart/form-data" action="">
+                    <form id="form-edit-survey" method="post" enctype="multipart/form-data" action="">
                         {% csrf_token %}
                         {{ formulario.name }}
                         <br>

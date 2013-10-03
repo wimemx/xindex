@@ -348,7 +348,6 @@ function addQuestionOptions() {
 
 
 function saveSurvey() {
-
     var survey_configuration = {}
     var blocks = new Array();
     $('#survey-main-content div.row-block').each(function (index) {
