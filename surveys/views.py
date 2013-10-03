@@ -41,7 +41,8 @@ def index(request):
                 "date": each_survey.date,
                 "status": each_survey.available,
                 "counter_question": counter_question,
-                "counter_attribute": counter_attributes
+                "counter_attribute": counter_attributes,
+                "next_step": each_survey.step
             }
         )
     template_vars = {"title": "Surveys",
@@ -75,7 +76,8 @@ def indexOrder(request, order_type):
                 "date": each_survey.date,
                 "status": each_survey.available,
                 "counter_question": counter_question,
-                "counter_attribute": counter_attributes
+                "counter_attribute": counter_attributes,
+                "next_step": each_survey.step
             }
         )
 
@@ -148,7 +150,7 @@ def save(request, action, next_step, survey_id=False):
         if request.POST:
             form = SurveyForm(request.POST)
             if form.is_valid():
-                step = int(next_step) - 1
+                step = int(next_step)
                 xindex_user = Xindex_User.objects.get(user__id=request.user.id)
 
                 configuration = {'header_logo': '', 'body': '', 'footer': ''}
@@ -157,12 +159,14 @@ def save(request, action, next_step, survey_id=False):
                 print configuration
 
                 survey = Survey(user=xindex_user,
-                                name=form.cleaned_data['name'], step=step, configuration=configuration)
+                                name=form.cleaned_data['name'],
+                                step=step,
+                                configuration=configuration)
                 survey.save()
 
-                print 'Se ha guardado'
+                print 'Se ha guardado PASO___' + str(step)
 
-                new_url = '/surveys/save/next/2/'+ str(survey.id)
+                new_url = '/surveys/save/next/2/'+str(survey.id)
 
                 answer = {'save': True, 'url': new_url}
 
@@ -195,6 +199,9 @@ def save(request, action, next_step, survey_id=False):
             company_phone = 'Default company PHONE'
 
         if int(next_step) == 2 and action == 'next':
+            survey.step = 2
+            survey.save()
+
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -206,6 +213,9 @@ def save(request, action, next_step, survey_id=False):
 
         question_types = Question_Type.objects.all().order_by('name')
         if int(next_step) == 3 and action == 'next':
+            survey.step = 3
+            survey.save()
+
             configuration = json.loads(survey.configuration)
 
             setup = {}

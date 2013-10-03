@@ -43,29 +43,35 @@
     </div>
     </header>
     <div class="wrapper-xl text-center v-middle">
-        <header class="wrapper-xl text-center">
-            <p class="h2">1.- Selecciona como deseas empezar</p>
+        <header class="wrapper text-center">
+            <!--
+            <a href="/add/step/1/{{ survey_id }}" class="text-muted b-b"
+                    data-toggle="ajaxModal">1. {{ survey_title }}</a><br><br>
+            -->
+            <p class="h3">2.- Selecciona c&oacute;mo deseas iniciar</p>
         </header>
-        <section class="" style="width: 60%; margin: auto">
+        <section class="" style="width: 50%; margin: auto">
             <div class="row">
                 <div class="col-lg-6 col-sm-6 animated fadeIn">
-                    <section class="panel">
+                    <section class="panel no-borders" style="box-shadow: none !important;">
                         <div class="panel-body">
                             <div class="clearfix m-b text-center">
-                                <i class="icon-5x icon-file"></i>
+                                <i class="icon-4x icon-file"></i>
                             </div>
                             <p class="h3">
                                 Encuesta b&aacute;sica
                             </p>
-                            <small class="">
-                                Crea una encuesta desde cero y configura
-                                el look n feel
+                            <small class="text-muted">
+                                Crea una encuesta desde el inicio y <br>
+                                configura su apariencia
                             </small>
                         </div>
-                        <footer class="panel-footer pos-rlt">
+                        <footer class="panel-footer pos-rlt" style="border: none !important;">
                             <div class="wrapper">
                                 <a href="/surveys/save/next/{{ next_step }}/{{ survey_id }}"
-                                   class="btn-info text-center h4 padder padder-v">
+                                   class="btn-info text-center padder h4"
+                                   style="padding-bottom: 6px; padding-top: 6px;
+                                          padding-left: 20px; padding-right: 20px;">
                                     Seleccionar
                                 </a>
                             </div>
@@ -73,23 +79,25 @@
                     </section>
                 </div>
                 <div class="col-lg-6 col-sm-6 animated fadeIn">
-                    <section class="panel">
+                    <section class="panel no-borders" style="box-shadow: none !important;">
                         <div class="panel-body">
                             <div class="clearfix m-b text-center">
-                                <i class="icon-5x icon-file-text"></i>
+                                <i class="icon-4x icon-file-text"></i>
                             </div>
                             <p class="h3">
                                 Utilizar una plantilla
                             </p>
-                            <small class="">
-                                Selecciona una de nuestras plantillas
-                                prediseñadas
+                            <small class="text-muted">
+                                Selecciona una de nuestras <br>
+                                plantillas prediseñadas
                             </small>
                         </div>
-                        <footer class="panel-footer pos-rlt">
+                        <footer class="panel-footer pos-rlt" style="border: none !important;">
                             <div class="wrapper">
                                 <a href="/surveys/save/next/{{ next_step }}/{{ survey_id }}"
-                                   class="btn-info text-center h4 padder padder-v">
+                                   class="btn-info text-center h4 padder"
+                                   style="padding-bottom: 6px; padding-top: 6px;
+                                          padding-left: 20px; padding-right: 20px;">
                                     Seleccionar
                                 </a>
                             </div>
@@ -100,9 +108,11 @@
         </section>
         <section>
             <div class="wrapper-xl">
-                <a href="" class="btn-warning dker text-center h3 padder padder-v" onclick="history.back()">
-                    <i class="icon-circle-arrow-left"></i>
-                    Volver
+                <a href="" class="btn-default text-center h4 padder"
+                   style="padding-bottom: 6px; padding-top: 6px;
+                                          padding-left: 20px; padding-right: 20px;"
+                   onclick="history.back()">
+                    Regresar
                 </a>
             </div>
         </section>

@@ -24,6 +24,12 @@ def detail(request, moment_id):
 
 
 def add(request, service_id):
+    """
+
+    :param request:
+    :param service_id:
+    :return:
+    """
     print("Entrando al metodo")
     if request.method=='POST':
         print "Si se envio por post"
@@ -33,8 +39,8 @@ def add(request, service_id):
             print id_return.id
             service = Service.objects.get(id=service_id)
             service.moments.add(id_return)
-            return HttpResponse("Si")
-            #return HttpResponseRedirect('/moments')
+            #return HttpResponse("Si")
+            return HttpResponseRedirect('/services/details/'+service_id)
         else:
             return HttpResponse("No")
     else:

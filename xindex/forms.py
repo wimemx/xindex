@@ -31,8 +31,8 @@ class MomentForm(ModelForm):
             'invalid': 'Seleccione un propietario valido'
         }
 
-        self.fields['name'].widget.attrs.update({'class': 'form-control',
-                                                 'required': 'required'})
+        self.fields['name'].widget.attrs.update(
+            {'class': 'form-control', 'name': 'name', 'required': 'required'})
         self.fields['description'].widget.attrs.update({'class': 'form-control',
                                                         'required': 'required'})
         self.fields['attributes'].widget.attrs.update({'class': 'form-control'})
@@ -176,7 +176,7 @@ class SurveyForm(ModelForm):
         super(SurveyForm, self).__init__(*args, **kwargs)
 
         self.fields['name'].widget.attrs.update(
-            {'class': 'form-control no-border input-lg m-xl text-center',
+            {'class': 'form-control text-center',
              'placeholder': 'Un nombre genial para mi encuesta'})
 
     """

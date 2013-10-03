@@ -15,7 +15,10 @@
     <link rel="stylesheet" href="/static/css/app.css">
     <link rel="stylesheet" href="/static/dzcss/basic.css">
     <link rel="stylesheet" href="/static/dzcss/dropzone.css">
-    <style>
+    <style type="text/css">
+        #drag-question-block:hover {
+            cursor: pointer;;
+        }
         section.selected-block {
             border: 2px solid #00c7f7 !important;
         }
@@ -139,7 +142,9 @@
                 </small>
                 -->
             </section>
-            <section class="panel wrapper" id="survey-main-content">
+            <section class="panel wrapper" id="survey-main-content"
+                     ondrop="dropQuestionBlock(event)"
+                     ondragover="drop(event)">
                 <div class="row">
                     <div class="col-lg-12">
                         <section class="panel">
@@ -245,6 +250,24 @@
             </section>
         </div>
         <div class="row default-buttons">
+            <div class="col-lg-12">
+                <div class="m-b-sm">
+                    <div class="btn-group btn-group-justified padder-v">
+                        <a href="#"
+                       class="btn btn-success dker text-center"
+                       id="add-block-questions">
+                        <i class="icon-plus icon-xlarge"></i>
+                        Nuevo bloque de preguntas
+                    </a>
+                    <a href="#"
+                       class="btn btn-info dker text-center padder-v">
+                        <i class="icon-plus icon-xlarge"></i>
+                        Nueva pregunta
+                    </a>
+                    </div>
+                </div>
+            </div>
+            <!--
             <section class="default-buttons">
                 <div class="wrapper text-center">
                     <a href="#"
@@ -263,7 +286,7 @@
                         pregunta
                     </a>
                 </div>
-            </section>
+            </section>-->
         </div>
         <section class="text-left panel-footer" style="border: none !important;">
             <section class="text-left">
@@ -293,51 +316,44 @@
     <div class="panel-body">
         <div class="tab-content">
             <div id="content" class="tab-pane active">
-                <div class="col-lg-4">
+                <div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>
+                <div id="drag-question-block" class="col-lg-4" draggable="true" ondragstart="dragQuestionBlock(event)">
                     <section class="panel">
-                        <div class="panel-body text-center">
-                            <i class="icon-list-alt icon-5x"></i>
+                        <div class="panel-body text-center m-t">
+                            <i class="icon-list-alt icon-3x"></i>
                         </div>
-                        <div class="footer text-center bg-gradient b-t">
-                            <p class="h4">
-                                Bloque de preguntas
-                            </p>
+                        <div class="footer text-center bg-gradient b-t padder-v">
+                            <small>Bloque de preguntas</small>
                         </div>
                     </section>
                 </div>
                 <div class="col-lg-4">
                     <section class="panel">
-                        <div class="panel-body text-center">
-                            <i class="icon-list-ul icon-5x"></i>
+                        <div class="panel-body text-center m-t">
+                            <i class="icon-question-sign icon-3x"></i>
                         </div>
-                        <div class="footer text-center bg-gradient b-t">
-                            <p class="h4">
-                                Pregunta
-                            </p>
+                        <div class="footer text-center bg-gradient b-t padder-v">
+                            <small>Pregunta</small>
                         </div>
                     </section>
                 </div>
                 <div class="col-lg-4">
                     <section class="panel">
-                        <div class="panel-body text-center">
-                            <i class="icon-picture icon-5x"></i>
+                        <div class="panel-body text-center m-t">
+                            <i class="icon-picture icon-3x"></i>
                         </div>
-                        <div class="footer text-center bg-gradient b-t">
-                            <p class="h4">
-                                Imagen
-                            </p>
+                        <div class="footer text-center bg-gradient b-t padder-v">
+                            <small>Imagen</small>
                         </div>
                     </section>
                 </div>
                 <div class="col-lg-4">
                     <section class="panel">
-                        <div class="panel-body text-center">
-                            <i class="icon-align-justify icon-5x"></i>
+                        <div class="panel-body text-center m-t">
+                            <i class="icon-align-justify icon-3x"></i>
                         </div>
-                        <div class="footer text-center bg-gradient b-t">
-                            <p class="h4">
-                                Bloque de texto
-                            </p>
+                        <div class="footer text-center bg-gradient b-t padder-v">
+                            <small>Bloque de texto</small>
                         </div>
                     </section>
                 </div>

@@ -36,7 +36,7 @@
     <section class="vbox">
     <!--header deleted-->
     <!--Footer-->
-    <footer class="footer bg-gradient hidden-xs">
+    <footer class="footer yellow-xindex-nohover bg-gradient hidden-xs">
         <a href="#nav" data-toggle="class:nav-vertical"
            class="btn btn-sm btn-link m-l-n-sm">
             <i class="icon-reorder"></i>
@@ -44,14 +44,14 @@
     </footer>
     <!--End Footer-->
     <section>
-    <div class="blue-xindex nav-bar">
+    <div class="nav-bar blue-xindex">
         <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen"
            data-target="body">
             <i class="icon-reorder"></i>
         </a>
         <a href="#" class="nav-brand" data-toggle="fullscreen">
+        <i class="icon-renren icon-2x"></i>
             {% block title-menu %}
-                Company name
             {% endblock %}
         </a>
         <a class="btn btn-link visible-xs" data-toggle="class:show"
@@ -64,12 +64,14 @@
         <div class="nav-avatar pos-rlt">
             <a href="#" class="thumb-sm avatar animated rollIn"
                data-toggle="dropdown">
-                <i><img src="{{ STATIC_URL }}images/avatar2.jpg" alt class/></i>
+                <i class="icon-user icon-2x"></i>
                 <i class="hidden-vertical" style="margin-left: 20px;">
-                    {% block username %}
-                        Username
-                    {% endblock %}
-                    <span class="caret caret-white"></span>
+                    <label class="h4">
+                        {% block username %}
+                            Username
+                        {% endblock %}
+                    </label>
+                    <span class="caret-white icon-chevron-down"></span>
                 </i>
             </a>
             <ul class="dropdown-menu m-t-sm animated fadeInLeft">
@@ -102,7 +104,7 @@
         </div>
         <div class="nav-msg">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <b class="badge badge-white count-n">2</b>
+                <b class="badge badge-white count-n"></b>
             </a>
             <section
                     class="dropdown-menu m-l-sm pull-left animated fadeInRight">

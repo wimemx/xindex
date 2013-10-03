@@ -872,6 +872,9 @@ textarea::-webkit-scrollbar {
   #nav.nav-vertical .hidden-vertical {
     display: none;
   }
+  #nav.nav-vertical .company-logo{
+      font-size: 3em !important;
+  }
 }
 @media (max-width: 767px) {
   .nav-user {
@@ -2490,7 +2493,7 @@ fieldset[disabled] .btn-gplus.active {
   vertical-align: middle;
 }
 .avatar {
-  border: 1px solid rgba(255,255,255,0.2);
+  border: none;
   display: block;
   border-radius: 500px;
   white-space: nowrap;
