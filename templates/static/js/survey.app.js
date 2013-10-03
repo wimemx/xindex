@@ -7,6 +7,12 @@
  */
 $(document).ready(function () {
 
+    $('#save-survey-from-step3').on('click', function (e) {
+        e.preventDefault();
+        alert('before saveSurvey');
+        saveSurvey();
+
+    });
 
     $("#id_name").keyup(function () {
         if ($(this).val().length >= 1) {
@@ -59,6 +65,13 @@ $(document).ready(function () {
         } else {
             return false;
         }
+
+    });
+
+
+    $('#save-link').on('click', function (e) {
+        e.preventDefault();
+        $('#form-edit-survey').submit();
 
     });
 

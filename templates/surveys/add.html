@@ -33,16 +33,16 @@
             Generador de encuestas
         </div>
         <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
-            <a class="h5" id="save-link"
-               href="/surveys/save/exit/{{ survey_id }}">X</a>
+            <a class="h5"
+               href="/surveys/">X</a>
         </div>
         <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
             <a class="h5"
                href="#" id="step-one-next-header">Guardar y Continuar</a>
         </div>
         <div class="pull-right padder">
-            <a class="h5" id="save-link"
-               href="/surveys/save/exit/{{ survey_id }}">Preview</a>
+            <a class="h5"
+               href="/surveys/">Preview</a>
         </div>
     </div>
 </header>
@@ -51,7 +51,7 @@
             <p class="h3">1.- Escribe el nombre de tu encuesta</p>
         </header>
         <section class="">
-            <form class="" id="new-survey-form" method="POST">{% csrf_token %}
+            <form action="/surveys/save/next/2/empty" class="" id="new-survey-form" method="POST">{% csrf_token %}
                 <div class="" style="width: 50%; margin: auto">
                     {{ form.name }}
                 </div>
@@ -79,6 +79,38 @@
 
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
+
+<script language="javascript">
+
+document.onkeypress=function(e){
+    var esIE=(document.all);
+    var esNS=(document.layers);
+    var tecla;
+    tecla=(esIE) ? event.keyCode : e.which;
+    if(tecla==13){
+        e.preventDefault();
+        if ($('#id_name').val().length > 1) {
+            $.ajax({
+                url: '/surveys/save/next/2/empty',
+                type: 'POST',
+                data: $('#new-survey-form').serialize(),
+                dataType: 'Json',
+                success: function (msg) {
+                    if (msg.save) {
+                        window.location.href = msg.url;
+                    }
+                },
+                error: function (msg_error) {
+                    alert(msg_error.error);
+                }
+            });
+        } else {
+            return false;
+        }
+        return false;
+      }
+}
+</script>
 
 </body>
 </html>
