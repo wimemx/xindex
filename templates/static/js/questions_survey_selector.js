@@ -417,19 +417,15 @@ function saveSurvey() {
         if($(this).hasClass('row-no-block')){
             class_default = false;
         }
-
-        console.log(class_default)
-        console.log(selector);
         $('#' + selector + ' div.question-content').each(function (ind) {
             questions.push(
                 {
                     'question_content_id': $(this).attr('id'),
-                    'db_id': $(this).find('div.db_question_id').attr('id'),
+                    'db_id': $(this).find('div.db_question_id').attr('id') | '',
                     'question_survey_id': $(this).find('div.question_id').text()
                 }
             );
         });
-
         blocks.push(
             {
                 'block_id': selector,

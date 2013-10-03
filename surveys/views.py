@@ -222,44 +222,68 @@ def save(request, action, next_step, survey_id=False):
 
             setup = {}
             setup['blocks'] = []
+
+            setup['moments'] = []
+
+            user = Xindex_User.objects.get(pk=request.user.id)
+
+            for company in user.company_set.all():
+                for subsidiary in company.subsidiary_set.all():
+                    for business_unit in subsidiary.business_unit.all():
+                        for service in business_unit.service.all():
+                            for moment in service.moments.all():
+                                setup['moments'].append(
+                                    {
+                                        'moment': moment
+                                    }
+                                )
+
             #print simplejson.dumps(configuration)
             for key, values in configuration.items():
                 for block in values:
                     questions = []
                     for q in block['questions']:
-                        question = Question.objects.get(pk=q['db_id'])
-                        options = question.option_set.all().order_by('id')
-                        options_o = []
-                        for option in options:
-                            options_o.append(
-                                {
-                                    'id_option': option.id,
-                                    'text': option.label,
-                                    'option': option
-                                }
-                            )
-                        questions.append(
-                            {
-                                'question': question,
-                                'survey_question_id': q['question_survey_id'],
-                                'db_question_id': q['db_id'],
-                                'question_title': question.title,
-                                'question_type': question.type.id,
-                                'question_type_name': question.type.name,
-                                'question_options': options_o
-                            }
-                        )
+                        print 'verificando q exista el campo'
+                        if 'db_id' in q:
+
+                            try:
+                                question = Question.objects.get(pk=q['db_id'])
+                                options = question.option_set.all().order_by('id')
+                                options_o = []
+                                for option in options:
+                                    options_o.append(
+                                        {
+                                            'id_option': option.id,
+                                            'text': option.label,
+                                            'option': option
+                                        }
+                                    )
+                                questions.append(
+                                    {
+                                        'question': question,
+                                        'survey_question_id': q['question_survey_id'],
+                                        'db_question_id': q['db_id'],
+                                        'question_title': question.title,
+                                        'question_type': question.type.id,
+                                        'question_type_name': question.type.name,
+                                        'question_options': options_o
+                                    }
+                                )
+                            except Question.DoesNotExist:
+                                question = None
+
+                    if 'block_description' in block:
+                        block_description = block['block_description']
+                    else:
+                        block_description = ''
                     setup['blocks'].append(
                         {
                             'block_id': block['block_id'],
                             'block_default_class': block['class_default'],
-                            'block_description': block['block_description'],
+                            'block_description': block_description,
                             'questions': questions
                         }
                     )
-
-
-            
 
             for block in setup['blocks']:
                 print block

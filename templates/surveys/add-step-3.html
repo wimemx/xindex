@@ -170,18 +170,22 @@
                         <div class="row row-block animated rollIn {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                             <div class="col-lg-12">
                                 <section class="padder padder-v question-block">
-                                    <div class="block_actions" style="clear: both;">
-                                        {% csrf_token %}
-                                        <a class="actions_block" id="remove_block">
-                                            <i class="icon-trash icon-large pull-right"></i>
-                                        </a>
-                                        <a class="actions_block" id="update_block">
-                                            <i class="icon-edit icon-large pull-right"></i>
-                                        </a>
+                                    <div class="block_actions_content" style="height: 25px; min-height: 25px;">
+                                        <div class="block_actions">
+                                            {% csrf_token %}
+                                            <a class="actions_block remove_block" id="remove_block">
+                                                <i class="icon-trash icon-large pull-right"></i>
+                                            </a>
+                                            <a class="actions_block update_block" id="update_block">
+                                                <i class="icon-edit icon-large pull-right"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div class="panel-body">
-                                        {{ block.block_description|safe }}
-                                    </div>
+                                    {% if block.block_default_class %}
+                                        <div class="panel-body">
+                                            {{ block.block_description|safe }}
+                                        </div>
+                                    {% endif %}
                                     {% for question in block.questions %}
                                         <div class="wrapper question-content" style="display: table; min-width: 100%; min-heigth: 50px;" id="{{ question_content_id }}">
                                             <div class="question_id" style="float:left;">{{ question.survey_question_id }}</div>
@@ -260,7 +264,8 @@
                         Nuevo bloque de preguntas
                     </a>
                     <a href="#"
-                       class="btn btn-info dker text-center padder-v">
+                       class="btn btn-info dker text-center padder-v"
+                            id="add-question">
                         <i class="icon-plus icon-xlarge"></i>
                         Nueva pregunta
                     </a>
@@ -393,6 +398,9 @@
 
                         </textarea>
                     </section>
+                    <div class="wrapper">
+                        <a class="btn btn-success pull-right" href="#" id="save-survey-question-block">Guardar</a>
+                    </div>
                 </div>
             </div>
             <div id="block-design" class="tab-pane">
@@ -420,9 +428,15 @@
                                 </label>
                                 <div class="col-lg-4">
                                     <select name="account" class="form-control">
-                                        <option value="1">Editor</option>
-                                        <option value="0">Admin</option>
+                                        {% for moment in setup.moments %}
+                                            <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
+                                        {% endfor %}
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn btn-info">Guardar y Continuar</button>
                                 </div>
                             </div>
                         </form>

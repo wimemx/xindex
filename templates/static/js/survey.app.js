@@ -133,6 +133,8 @@ $(document).ready(function () {
     /*Funcion para insertar preguntas sin bloque*/
     $('#add-question').on('click', function () {
 
+        alert('haciendo click')
+
         $('#main-configuration-panel').addClass('hidden');
         $('#questions-block-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').removeClass('hidden');
@@ -152,19 +154,10 @@ $(document).ready(function () {
         var new_questions_block_content = '<div class="row row-block row-no-block animated rollIn" id="' + new_block_id + '">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
-            '<div class="panel-body">' +
-            '<div>' +
-            '<header class="block-title"></header>' +
-            '<small class="block-description">' +
-            '<p></p>' +
-            '</small>' +
-            '</div>' +
-            '</div>' +
             /*
              '<div class="wrapper question-blocks-content">' +
              '</div>' +*/
             '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>'+
-            '<footer class="wrapper text-center"></footer>' +
             '</section>' +
             '</div>' +
             '</div>';
@@ -272,7 +265,7 @@ $(document).ready(function () {
 
         var parent_block = '';
 
-        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
+        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta (Esta pregunta no se guardara en la configuraci&oacute;n hasta que sea guardad)</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
 
         /*Find question id*/
         $('#survey-main-content div.question-content').each(function (index) {
@@ -327,16 +320,51 @@ $(document).ready(function () {
         }
     });
 
+    //funciones para editar bloques
+
     $('div.row-block').hover(function(){
         $(this).find('div.block_actions').fadeIn(100);
     }, function(){
         $(this).find('div.block_actions').fadeOut(100);
-    })
+    });
+
+
+    $(document).on('click', 'a.update_block', function(){
+
+        var parent = $(this).closest('div.row-block');
+
+        $('#main-configuration-panel').addClass('hidden');
+        $('#add-question-option-panel').addClass('hidden');
+        $('#add-new-question-configuration-panel').addClass('hidden');
+        $('#questions-block-configuration-panel').removeClass('hidden');
+
+        $('#survey-main-content div.row-block').each(function(){
+            $(this).find('section.question-block').removeClass('selected-block');
+            $(this).find('div.question-content').removeClass('active-question');
+        });
+
+        parent.find('section.question-block').addClass('selected-block');
+
+        var block_title = parent.find('header.block-title').text();
+        var block_description = parent.find('div.panel-body').html();
+        $('#current-question-block').val(parent.attr('id'));
+        tinymce.get('tinymce-editor').setContent(block_title+block_description);
+
+
+
+        if(parent.hasClass('row-no-block')){
+            parent.find('section.question-block').removeClass('selected-block');
+            parent.find('div.question-content').addClass('active-question');
+            $('#questions-block-configuration-panel').removeClass('hidden');
+        }
+
+    });
+
 
     $('a.actions_block').on('click', function(e){
         e.preventDefault();
         var action = $(this).attr('id')
-        if (action == "remove_block") {
+        if ($(this).hasClass("remove_block")) {
             var self = $(this);
 
             bootbox.dialog({
@@ -393,7 +421,15 @@ $(document).ready(function () {
                 }
             });
         }
-    })
+    });
+
+
+    $('#save-survey-question-block').on('click', function(e){
+        e.preventDefault();
+        enumerateQuestionBlocks();
+        enumerateQuestions();
+        saveSurvey();
+    });
 
 
 })
