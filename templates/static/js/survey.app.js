@@ -130,6 +130,56 @@ $(document).ready(function () {
     });
 
 
+    /*Funcion para insertar preguntas sin bloque*/
+    $('#add-question').on('click', function () {
+
+        $('#main-configuration-panel').addClass('hidden');
+        $('#questions-block-configuration-panel').addClass('hidden');
+        $('#add-question-option-panel').removeClass('hidden');
+
+        $('div.default-buttons').fadeOut(300);
+
+        //Determine next block id
+
+        var n = $('#survey-main-content div.row-block').length;
+
+        $('#survey-main-content div.row-block').each(function (index) {
+            $(this).find('section.question-block').removeClass('selected-block');
+        });
+
+        var new_block_id = 'block-' + (n + 1);
+
+        var new_questions_block_content = '<div class="row row-block row-no-block animated rollIn" id="' + new_block_id + '">' +
+            '<div class="col-lg-12">' +
+            '<section class="padder padder-v question-block selected-block">' +
+            '<div class="panel-body">' +
+            '<div>' +
+            '<header class="block-title"></header>' +
+            '<small class="block-description">' +
+            '<p></p>' +
+            '</small>' +
+            '</div>' +
+            '</div>' +
+            /*
+             '<div class="wrapper question-blocks-content">' +
+             '</div>' +*/
+            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>'+
+            '<footer class="wrapper text-center"></footer>' +
+            '</section>' +
+            '</div>' +
+            '</div>';
+
+        $('#survey-main-content').append(new_questions_block_content);
+        enumerateQuestionBlocks();
+        enumerateQuestions();
+
+        var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question_id').attr('id')
+
+        $('#current-question-block').val(block_selected_id);
+    });
+
+
+
     /*TinyMCE*/
     tinymce.init({
         selector: "textarea#tinymce-editor",
@@ -286,20 +336,64 @@ $(document).ready(function () {
     $('a.actions_block').on('click', function(e){
         e.preventDefault();
         var action = $(this).attr('id')
-        if(action=="remove_block"){
-            //TODO: Make a function to delete the association between Survey and Questions
-            var block_id = $(this).closest('div.row-block').attr('id');
-            var question_ids = new Array();
-            $('#'+block_id+' div.db_question_id').each(function(index){
-                question_ids.push($(this).attr('id'));
+        if (action == "remove_block") {
+            var self = $(this);
+
+            bootbox.dialog({
+                message: "¿Esta seguro de eliminar el bloque y todas sus preguntas?",
+                title: "Eliminar bloque de preguntas",
+                buttons: {
+                    success: {
+                        label: "Cancelar",
+                        className: "btn-white",
+                        callback: function () {
+                            return true;
+                        }
+                    },
+                    main: {
+                        label: "Eliminar",
+                        className: "btn-twitter",
+                        callback: function () {
+                            //TODO: Make a function to delete the association between Survey and Questions
+                            var block_id = self.closest('div.row-block').attr('id');
+                            var question_ids = new Array();
+                            $('#' + block_id + ' div.db_question_id').each(function (index) {
+                                question_ids.push(
+                                    {
+                                        'question_id': $(this).attr('id')
+                                    }
+                                );
+                            });
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '/surveys/delete_questions/',
+                                data: {
+                                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                                    ids: JSON.stringify(question_ids),
+                                    survey_id: $('#survey_id').val()
+                                },
+                                dataType: 'JSON',
+                                success: function (msg) {
+                                    alert(msg);
+                                    if (msg.success) {
+                                        $(self).closest('div.row-block').slideUp('slow', function () {
+                                            $(this).remove();
+                                            saveSurvey();
+                                        })
+                                    }
+                                },
+                                error: function (msg) {
+                                    console.log('msg no enviado')
+                                }
+
+                            });
+                        }
+                    }
+                }
             });
-            console.log(question_ids);
-            $(this).closest('div.row-block').slideUp('slow', function(){
-                $(this).remove();
-            })
         }
     })
-
 
 
 })
@@ -471,4 +565,17 @@ function dropQuestionBlock(e) {
             '</small>' +
             '</div>'
     );
+}
+
+function enumerateQuestions(){
+    $('#survey-main-content div.question-content').each(function (index) {
+        $(this).attr('id', 'question-' + (index + 1));
+        $(this).children('div.question_id').text(index + 1 + '.- ');
+    });
+}
+
+function enumerateQuestionBlocks(){
+    $('#survey-main-content div.row-block').each(function (index) {
+        $(this).attr('id', 'block-' + (index + 1));
+    });
 }

@@ -167,10 +167,11 @@
                 </div>
                 {% if setup %}
                     {% for block in setup.blocks %}
-                        <div class="row row-block animated rollIn" id="{{ block.block_id }}">
+                        <div class="row row-block animated rollIn {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                             <div class="col-lg-12">
                                 <section class="padder padder-v question-block">
                                     <div class="block_actions" style="clear: both;">
+                                        {% csrf_token %}
                                         <a class="actions_block" id="remove_block">
                                             <i class="icon-trash icon-large pull-right"></i>
                                         </a>
@@ -186,20 +187,61 @@
                                             <div class="question_id" style="float:left;">{{ question.survey_question_id }}</div>
                                             <div class="question-text" style="float: left; margin-left: 5px; display: table;">{{ question.question_title }}</div>
                                             <div class="optional-content" style="margin-top: 15px; clear: both;">
-                                            {% if question.question_type == 1 %}
-                                                    {% for option in question.question_options %}
-                                                        <input type="checkbox"/>{{ option.text }}<br>
+                                            {% if question.question.type.name == "Multiple Choice" %}
+                                                {% for option in question.question_options %}
+                                                    {% if option.option.active %}
+                                                        {% if option.option.label != "" %}
+                                                            <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}"> {{ option.option.label }}
+                                                        {% else %}
+                                                            <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}"> {{ option.option.label }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% elif question.question.type.name == "False and True" %}
+                                                {% for option in question.question.option_set.all %}
+                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.value }}"> {{ option.label }}<br>
+                                                {% endfor %}
+                                            {% elif question.question_type == 3 %}
+                                                {% for option in question.question_options %}
+                                                    <input type="checkbox"/>{{ option.text }}<br>
+                                                {% endfor %}
+                                            {% elif question.question.type.name == 'Matrix'%}
+                                                {% for row in question.question.question_set.all %}
+                                                    {% if row.active %}
+                                                        <label><b>{{ row.title }}</b></label>
+                                                    {% endif %}
+
+                                                    {% for option in row.option_set.all %}
+                                                        {% if option.active %}
+                                                            <input type="radio" name="{{ row.id }}" value="{{ option.value }}"> {{ option.label }}
+                                                        {% endif %}
                                                     {% endfor %}
+                                                <br>
+                                                {% endfor %}
+                                            {% elif question.question.type.name == "Open Question" %}
+                                                <textarea name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                            {% elif question.question.type.name == "Range" %}
+                                                {% for option in question.question_options %}
+                                                    {% if option.option.active %}
+                                                        {% if option.option.label != "" %}
+                                                            <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}"> {{ option.option.label }}
+                                                        {% else %}
+                                                            <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}"> {{ option.option.label }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
                                             {% endif %}
                                             </div>
                                             <div class="db_question_id" id="{{ question.db_question_id }}"></div>
                                         </div>
                                     {% endfor %}
-                                    <footer class="wrapper text-center">
-                                        <a class="btn btn-info wrapper add-question-to-block">
-                                            <i class="icon-plus-sign-alt"></i>
-                                            Da click aquí para añadir una pregunta</a>
-                                    </footer>
+                                    {% if block.block_default_class %}
+                                        <footer class="wrapper text-center">
+                                            <a class="btn btn-info wrapper add-question-to-block">
+                                                <i class="icon-plus-sign-alt"></i>
+                                                Da click aquí para añadir una pregunta</a>
+                                        </footer>
+                                    {% endif %}
                                 </section>
                             </div>
                             </div>
@@ -238,7 +280,7 @@
                     </a>
                     <a href="#"
                        class="btn btn-info dker text-center padder padder-v"
-                       onclick="history.back()">
+                       id="add-question">
                         <i class="icon-plus-sign-alt icon-xlarge"></i>
                         Da click aqu&iacute; para añadir una
                         pregunta
@@ -332,10 +374,10 @@
                                      href="#content-by-block">
                 Contenido
             </a></li>
-            <li class="h4"><a data-toggle="tab" href="#design">
+            <li class="h4"><a data-toggle="tab" href="#block-design">
                 Diseño
             </a></li>
-            <li class="h4"><a data-toggle="tab" href="#design">
+            <li class="h4"><a data-toggle="tab" href="#block-configuration">
                 Configuraci&oacute;n
             </a></li>
         </ul>
@@ -353,8 +395,11 @@
                     </section>
                 </div>
             </div>
-            <div id="design" class="tab-pane">
-                profile
+            <div id="block-design" class="tab-pane">
+                <h1>Diseño del bloque</h1>
+            </div>
+            <div id="block-configuration" class="tab-pane">
+                
             </div>
         </div>
     </div>
@@ -419,15 +464,16 @@
                                 <select name="question_type_select"
                                         id="question_type_select">
                                     {% for type in question_types %}
-                                        <option value="{{ type.id }}">{{ type.name }}</option>
+                                        <option value="{{ type.id }}">{{ type.help_text }}</option>
                                     {% endfor %}
                                 </select>
                             </section>
                             <div>
-                                <div id="question_type_1"
+                                <div id="question_type_1" style="display: none"
                                      style="display: inline"
                                      class='question matrix'>
                                     <form id='question_type_1_form'>{% csrf_token %}
+                                        <input class="question-title matrix_title" type="hidden" name="m_title" maxlength="100" />
                                         <p>Set the name of the columns</p>
 
                                         <div class="matrix_cols">
@@ -441,6 +487,9 @@
                                             <input type="text" maxlength="100"
                                                    class="dummy_option"
                                                    value='Click to add another row'/>
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" id="add-m-to-catalog"/> Agregar al catalogo de preguntas
                                         </div>
                                         <input id="add_matrix" type="submit"
                                                value="Add Question"/>
@@ -472,6 +521,10 @@
                                 <div id="question_type_3" style="display: none"
                                      class='question open_question'>
                                     <form id='question_type_3_form'>{% csrf_token %}
+                                        <input class="question-title open_question_title" type="hidden" name="oq_title" maxlength="100" />
+                                        <div>
+                                            <input type="checkbox" id="add-o-to-catalog"/> Agregar al catalogo de preguntas
+                                        </div>
                                         <input id="add_open_question"
                                                type="submit"
                                                value="Add Question"/>
@@ -481,6 +534,7 @@
                                 <div id="question_type_4" style="display: none"
                                      class='question range'>
                                     <form id='question_type_4_form'>{% csrf_token %}
+                                        <input class="question-title range_title" type="hidden" name="r_title" maxlength="100" />
                                         <p>Set each one of the information</p>
 
                                         <div class="range_field_set">
@@ -498,15 +552,22 @@
                                                 type="text" maxlength="100"
                                                 class="end_label"/>
                                         </div>
+                                        <div>
+                                            <input type="checkbox" id="add-r-to-catalog"/> Agregar al catalogo de preguntas
+                                        </div>
                                         <input id="add_range_question"
                                                type="submit"
                                                value="Add Question"/>
                                     </form>
                                 </div>
 
-                                <div id="question_type_5" style="display: none"
+                                <div id="question_type_5"
                                      class='question true_and_false'>
                                     <form id='question_type_5_form'>{% csrf_token %}
+                                        <input class="question-title true_and_false_title" type="hidden" name="taf_title" maxlength="100" />
+                                        <div>
+                                            <input type="checkbox" id="add-tf-to-catalog"/> Agregar al catalogo de preguntas
+                                        </div>
                                         <input id="add_true_and_false_question"
                                                type="submit"
                                                value="Add Question"/>
@@ -546,9 +607,12 @@
 <script src="/static/js/dropzone.js"></script>
 
 <!-- question selector -->
-<script src="/static/js/questions_selector.js"></script>
+<script src="/static/js/questions_survey_selector.js"></script>
 
 <!-- Dropzone conf -->
+
+<!-- BootBox -->
+<script src="/static/js/bootbox/bootbox.min.js"></script>
 <script>
        Dropzone.options.picture = {
        maxFiles: 1,

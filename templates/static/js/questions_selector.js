@@ -3,6 +3,29 @@ $(document).ready(function () {
         $('.question').hide();
         var selected_value = this.options[this.selectedIndex].text
         selected_value = selected_value.replace(/ /g, '_').toLowerCase();
+
+        console.log(selected_value);
+
+        switch (selected_value) {
+            case 'matriz':
+                selected_value = 'matrix'
+                break;
+            case 'opcion_multiple':
+                selected_value = 'multiple_choice'
+                break;
+            case 'falso_y_verdadero':
+                selected_value = 'true_and_false'
+                break;
+            case 'pregunta_abierta':
+                selected_value = 'open_question'
+                break;
+            case 'rango':
+                selected_value = 'range'
+                break;
+            default:
+                caption = "default";
+        }
+
         $("." + selected_value).show();
         //console.log( this.value ); //for the index
         //console.log( this.options[this.selectedIndex].text ); //for text
@@ -59,7 +82,7 @@ $(document).ready(function () {
         var content = con.replace(/(<([^>]+)>)/ig, "");
         $('.question-title').val(content);
 
-        var check = $( "input[id=add-mc-to-catalog]:checked" ).length;
+        var check = $("input[id=add-mc-to-catalog]:checked").length;
 
         var question = get_question_object();
         question.title = $('.multiple_choice_title').val();
@@ -71,7 +94,7 @@ $(document).ready(function () {
         });
         question.options = data;
 
-        if(check == 1){
+        if (check == 1) {
             question.add_catalog = true;
         } else {
             question.add_catalog = false;
@@ -111,8 +134,27 @@ $(document).ready(function () {
     $('#add_true_and_false_question').click(function (event) {
         event.preventDefault();
 
+        var con = tinymce.get('tinymce-editor-new-question').getContent();
+        var content = con.replace(/(<([^>]+)>)/ig, "");
+        $('.question-title').val(content);
+
+        var check = $("input[id=add-tf-to-catalog]:checked").length;
+
         var question = get_question_object();
         question.title = $('.true_and_false_title').val();
+
+        if (check == 1) {
+            question.add_catalog = true;
+        } else {
+            question.add_catalog = false;
+        }
+
+        var survey_id = $('#survey_id').val()
+
+        question.survey_id = survey_id
+
+        console.log(question);
+
         manage_question_ajax(question);
     });
 
@@ -216,7 +258,29 @@ function get_question_object() {
     var question = {};
     question.type = $('#question_type_select').val();
     //question.type_name = $("#question_type_select option").children("option").is("selected").text;
-    question.type_name = $("#question_type_select option:selected").text().replace(/ /g, '_').toLowerCase();
+    var type_name = $("#question_type_select option:selected").text().replace(/ /g, '_').toLowerCase();
+
+    switch (type_name) {
+            case 'matriz':
+                type_name = 'matrix'
+                break;
+            case 'opcion_multiple':
+                type_name = 'multiple_choice'
+                break;
+            case 'falso_y_verdadero':
+                type_name = 'true_and_false'
+                break;
+            case 'pregunta_abierta':
+                type_name = 'open_question'
+                break;
+            case 'rango':
+                type_name = 'range'
+                break;
+            default:
+                type_name = "default";
+        }
+
+    question.type_name = type_name
     return question;
 };
 
@@ -229,9 +293,10 @@ function manage_question_ajax(question) {
         data: JSON.stringify(question),
         //data: question,
         success: function (data) {
-            if(data.question_added){
+            if (data.question_added) {
                 var current_question = $('#current-question').val();
-                saveSurvey(current_question, data.question_id);
+                $('#' + current_question + ' div.db_question_id').attr('id', data.question_id);
+                saveSurvey();
             }
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -282,19 +347,15 @@ function addQuestionOptions() {
 }
 
 
-function saveSurvey(current_question, question_id){
-    $('#'+current_question+' div.db_question_id').attr('id', question_id);
-
-    console.log(current_question);
-
+function saveSurvey() {
 
     var survey_configuration = {}
     var blocks = new Array();
-    $('#survey-main-content div.row-block').each(function(index){
+    $('#survey-main-content div.row-block').each(function (index) {
         var questions = new Array();
         var selector = $(this).attr('id');
         console.log(selector);
-        $('#'+selector+' div.question-content').each(function(ind){
+        $('#' + selector + ' div.question-content').each(function (ind) {
             questions.push(
                 {
                     'question_content_id': $(this).attr('id'),
@@ -321,13 +382,13 @@ function saveSurvey(current_question, question_id){
 
     $.ajax({
         type: "POST",
-        url: "/surveys/save_conf/"+survey_id,
+        url: "/surveys/save_conf/" + survey_id,
         'contentType': "application/json",
         dataType: "json",
         data: JSON.stringify(survey_configuration),
         //data: question,
         success: function (data) {
-            if(data.answer){
+            if (data.answer) {
                 window.location.href = '';
             }
             window.location.href = '';

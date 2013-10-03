@@ -20,4 +20,10 @@ urlpatterns = patterns('surveys.views',
     #url(r'^(?P<survey_id>\d+)/edit/ajax/$', 'edit_ajax'),
 
     url(r'^save_conf/(?P<survey_id>\d+)', views.save_ajax, name='save_ajax'),
+
+    #url to remove questions
+    url(r'^delete_questions/', views.delete_questions, name='Delete Questions'),
+
+    url(r'^add/ajax/$', 'add_ajax'),
+
 )

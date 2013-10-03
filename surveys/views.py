@@ -13,6 +13,8 @@ import json
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
 from xindex.models import Question
+from xindex.models import Option
+from xindex.models import Catalog
 
 
 @login_required(login_url='/signin/')
@@ -230,21 +232,25 @@ def save(request, action, next_step, survey_id=False):
                             options_o.append(
                                 {
                                     'id_option': option.id,
-                                    'text': option.label
+                                    'text': option.label,
+                                    'option': option
                                 }
                             )
                         questions.append(
                             {
+                                'question': question,
                                 'survey_question_id': q['question_survey_id'],
                                 'db_question_id': q['db_id'],
                                 'question_title': question.title,
                                 'question_type': question.type.id,
+                                'question_type_name': question.type.name,
                                 'question_options': options_o
                             }
                         )
                     setup['blocks'].append(
                         {
                             'block_id': block['block_id'],
+                            'block_default_class': block['class_default'],
                             'block_description': block['block_description'],
                             'questions': questions
                         }
@@ -402,6 +408,405 @@ def save_ajax(request, survey_id):
                     }
                 )
 
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
+        except ValueError:
+            json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+            return HttpResponse(json_response,
+                                content_type="application/json",
+                                status=400)
+    else:
+        raise Http404
+
+
+
+def delete_questions(request):
+    if request.is_ajax():
+
+        question_ids =  json.loads(request.POST.get('ids'))
+
+        print request.POST['survey_id']
+
+        survey = Survey.objects.get(pk=int(request.POST['survey_id']))
+
+        for question in question_ids:
+            q = Question.objects.get(pk=int(question['question_id']))
+            survey.questions.remove(q)
+
+        json_response = json.dumps(
+            {
+                'success': True
+            }
+        )
+        return HttpResponse(json_response, content_type="application/json")
+
+
+
+
+
+
+#Questions Section
+
+
+def create_matrix(request, data):
+    type = int(data.type)
+    title = data.title
+    cols = data.cols
+    rows = data.rows
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+        for subquestion in rows:
+            q = Question(user=Xindex_User.objects.get(pk=1),
+                         title=subquestion.label,
+                         type=Question_Type.objects.get(pk=type),
+                         parent_question=catalog_question)
+            q.save()
+
+            catalog_child = Catalog()
+            catalog_child.user = Xindex_User.objects.get(pk=request.user.id)
+            catalog_child.question = q
+            catalog_child.save()
+
+            i = 1
+            for option in cols:
+                new_option = Option(question=q, label=option.label,
+                                value = i, order = i)
+                new_option.save()
+                i += 1
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+    question = Question()
+    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.type = Question_Type.objects.get(pk=type)
+    question.title = title
+    question.save()
+
+    for subquestion in rows:
+        q = Question(user=Xindex_User.objects.get(pk=1),
+                     title=subquestion.label,
+                     type=Question_Type.objects.get(pk=type),
+                     parent_question=question)
+        q.save()
+        i = 1
+        for option in cols:
+            new_option = Option(question=q, label=option.label,
+                            value = i, order = i)
+            new_option.save()
+            i += 1
+
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
+    json_response = json.dumps(
+        {
+            'question_added': True,
+            'question_id': question.id
+        }
+    )
+
+    return HttpResponse(json_response, content_type="application/json")
+
+
+def create_multiple_choice(request, data):
+    print data
+    type = int(data.type)
+    title = data.title
+    options = data.options
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        i = 1
+        for option in options:
+            new_option = Option(question=catalog_question, label=option.label,
+                            value = i, order = i)
+            new_option.save()
+            i += 1
+
+            print new_option
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+        print catalog
+
+
+
+    question = Question()
+    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.type = Question_Type.objects.get(pk=type)
+    question.title = title
+    question.save()
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
+    '''type = int(request.POST["type"])
+    title = request.POST["title"]
+    options = request.POST.getlist('options')'''
+
+    i = 1
+    for option in options:
+        new_option = Option(question=question, label=option.label,
+                        value = i, order = i)
+        new_option.save()
+        i += 1
+
+    json_response = json.dumps(
+        {
+            'question_added': True,
+            'question_id': question.id
+        }
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+
+def create_open_question(request, data):
+    type = int(data.type)
+    title = data.title
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+    question = Question()
+    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.type = Question_Type.objects.get(pk=type)
+    question.title = title
+    question.save()
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
+    json_response = json.dumps(
+        {
+            'question_added': True,
+            'question_id': question.id
+        }
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+
+def create_range_question(request, data):
+    type = int(data.type)
+    title = data.title
+    start_number = int(float(data.options.start_number))
+    end_number = int(float(data.options.end_number))
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if start_number < 0 or end_number > 20:
+        json_response = json.dumps(
+                    {'messagesent' : "Error - Limits are not valid for range"}
+            )
+        return HttpResponse(json_response, content_type="application/json",
+                            status=400)
+
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        new_option = Option(question=catalog_question, label=data.options.start_label,
+                        value = start_number, order = start_number)
+        new_option.save()
+
+        start_number += 1
+
+        for i in range(start_number, end_number):
+            new_option = Option(question=catalog_question, label="",
+                        value = i, order = i)
+            new_option.save()
+
+        new_option = Option(question=catalog_question, label=data.options.end_label,
+                            value = end_number, order = end_number)
+        new_option.save()
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+    question = Question()
+    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.type = Question_Type.objects.get(pk=type)
+    question.title = title
+    question.save()
+
+    new_option = Option(question=question, label=data.options.start_label,
+                        value = start_number, order = start_number)
+    new_option.save()
+
+    start_number += 1
+
+    for i in range(start_number, end_number):
+        new_option = Option(question=question, label="",
+                    value = i, order = i)
+        new_option.save()
+
+    new_option = Option(question=question, label=data.options.end_label,
+                        value = end_number, order = end_number)
+    new_option.save()
+
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
+    json_response = json.dumps(
+        {
+            'question_added' : True,
+            'question_id': question.id
+        }
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+
+def create_true_and_false(request, data):
+    type = int(data.type)
+    title = data.title
+    options = ['False', 'True']
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        for i in range(len(options)):
+            new_option = Option(question=catalog_question, label=options[i],
+                                value=i + 1, order=i + 1)
+            new_option.save()
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
+
+    question = Question()
+    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.type = Question_Type.objects.get(pk=type)
+    question.title = title
+    question.save()
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
+
+    for i in range(len(options)):
+        new_option = Option(question=question, label=options[i],
+                            value=i + 1, order=i + 1)
+        new_option.save()
+
+    json_response = json.dumps(
+        {
+            'question_added' : True,
+            'question_id': question.id
+        }
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+#TODO: Fix this; DO NOT use in production
+@csrf_exempt
+def add_ajax(request):
+    if request.is_ajax():
+        try:
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
+            #TODO: Search for types in the table question_type to avoid hardcoding
+            if data.type_name == "matrix":
+                return create_matrix(request, data)
+            elif data.type_name == "multiple_choice":
+                print(data)
+                return create_multiple_choice(request, data)
+            elif data.type_name == "open_question":
+                return create_open_question(request, data)
+            elif data.type_name == "range":
+                return create_range_question(request, data)
+            elif data.type_name == "true_and_false":
+                return create_true_and_false(request, data)
+
+            #If the type of question is not defined, throw an error
+            json_response = json.dumps(
+                    {'messagesent' : "Error - Not a valid type of question"}
+            )
             return HttpResponse(json_response,
                                 content_type="application/json",
                                 status=400)
