@@ -15,6 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 from xindex.models import Question
 from xindex.models import Option
 from xindex.models import Catalog
+from xindex.models import Moment
+from xindex.models import Service
 
 
 @login_required(login_url='/signin/')
@@ -257,7 +259,7 @@ def save(request, action, next_step, survey_id=False):
                     )
 
 
-            print setup
+            
 
             for block in setup['blocks']:
                 print block
