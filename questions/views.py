@@ -34,7 +34,7 @@ def add(request):
 #TODO: Create the factory for the questions
 
 
-def create_matrix(data):
+def create_matrix(request, data):
     type = int(data.type)
     title = data.title
     cols = data.cols
@@ -193,17 +193,45 @@ def create_range_question(data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-def create_true_and_false(data):
+def create_true_and_false(request, data):
     type = int(data.type)
     title = data.title
     options = ['False', 'True']
+    survey_id = int(data.survey_id)
+    add_catalog = data.add_catalog
+
+    if add_catalog:
+        catalog_question = Question()
+        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.type = Question_Type.objects.get(pk=type)
+        catalog_question.title = title
+        catalog_question.save()
+
+        for i in range(len(options)):
+            new_option = Option(question=catalog_question, label=options[i],
+                                value=i + 1, order=i + 1)
+            new_option.save()
+
+        catalog = Catalog()
+        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.question = catalog_question
+
+        catalog.save()
 
     question = Question()
-    #TODO: Get the user id from session
-    question.user = Xindex_User.objects.get(pk=1)
+    question.user = Xindex_User.objects.get(pk=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
+
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+    except Survey.DoesNotExist:
+        survey = False
+
+    if survey:
+        survey.questions.add(question)
+
 
     for i in range(len(options)):
         new_option = Option(question=question, label=options[i],
@@ -211,7 +239,10 @@ def create_true_and_false(data):
         new_option.save()
 
     json_response = json.dumps(
-        {'messagesent': "Question added successfully!"}
+        {
+            'question_added' : True,
+            'question_id': question.id
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -226,7 +257,7 @@ def add_ajax(request):
             )
             #TODO: Search for types in the table question_type to avoid hardcoding
             if data.type_name == "matrix":
-                return create_matrix(data)
+                return create_matrix(request, data)
             elif data.type_name == "multiple_choice":
                 print(data)
                 return create_multiple_choice(request, data)
@@ -235,7 +266,7 @@ def add_ajax(request):
             elif data.type_name == "range":
                 return create_range_question(data)
             elif data.type_name == "true_and_false":
-                return create_true_and_false(data)
+                return create_true_and_false(request, data)
 
             #If the type of question is not defined, throw an error
             json_response = json.dumps(
