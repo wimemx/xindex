@@ -42,14 +42,19 @@
     </header>
     <div class="wrapper-xl text-center v-middle">
         <header class="wrapper-xl text-center">
-            <p class="h2">1.- Escribe el nombre de tu encuesta</p>
+            <p class="h2">Edita el nombre de tu encuesta</p>
         </header>
         <section class="">
             <form class="">
-                <div class="b-b" style="width: 50%; margin: auto">
-                    <input class="form-control no-border input-lg m-xl text-center"
-                           type="text"
-                           placeholder="{% if survey_title %}{{ survey_title }}{% else %}Un nombre genial para mi encuesta{% endif %}" id="survey_name"/>
+                <div class="" style="width: 50%; margin: auto">
+                <form action="/surveys/save/next/"
+                      class="" id="new-survey-form" method="POST">{% csrf_token %}
+                <div class="" style="width: 50%; margin: auto">
+                    {{ form.name }}
+                </div>
+                    <input  class="btn-info text-center" type="submit" value="Guardar">
+                      </form>
+
                 </div>
                 <div class="wrapper-xl">
                     <a href="" class="btn-info text-center h3 padder padder-v">

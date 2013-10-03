@@ -27,8 +27,7 @@ $(document).ready(function () {
                 " Esta accion no se puede deshacer<br><br>" +
                 "<small>" +
                 "<input type='checkbox' " +
-                "class='form-control' " +
-                "id='removeQuestions'/>Eliminar preguntas asociadas" +
+                "id='removeQuestions'/>  Eliminar preguntas asociadas" +
                 "</small>",
             title: "Eliminar un punto de contacto",
             buttons: {

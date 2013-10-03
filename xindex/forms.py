@@ -176,7 +176,7 @@ class SurveyForm(ModelForm):
         super(SurveyForm, self).__init__(*args, **kwargs)
 
         self.fields['name'].widget.attrs.update(
-            {'class': 'form-control no-border input-lg m-xl text-center',
+            {'class': 'form-control text-center',
              'placeholder': 'Un nombre genial para mi encuesta'})
 
     """
