@@ -2713,7 +2713,7 @@ Border dropzone
   min-height: 200px !important;
 }
 .border-dropzone:hover {
-  border: 1px dashed #e0e4e8;
+  border: 1px dashed #285e8e;
   text-align: center;
   min-height: 200px !important;
 }
@@ -2721,7 +2721,7 @@ Border dropzone
     border:1px solid #e0e4e8;
 }
 .border-edit-survey:hover{
-    border:1px dashed #e0e4e8;
+    border:1px dashed #285e8e;
 }
 /*
 Grupos de Botones

@@ -40,6 +40,7 @@ class Subsidiary_Type(models.Model):
     #id = models.AutoField(primary_key=True, null=False, unique=True, \
     #                      blank=True)
     name = models.CharField(max_length=50, null=False)
+    email = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField()
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -137,6 +138,7 @@ class Company(models.Model):
     address = models.CharField(max_length=50, null=False)
     rfc = models.CharField(max_length=20, null=False)
     phone = models.CharField(max_length=50, null=False)
+    email = models.CharField(max_length=50, null=True, blank=True)
     zone = models.ManyToManyField(Zone, blank=True, null=True)
     staff = models.ManyToManyField(Xindex_User, blank=True, null=True)
     active = models.BooleanField(default=True)
@@ -208,6 +210,11 @@ class Option(models.Model):
 
     def __unicode__(self):
         return self.label
+
+    def get_value(self):
+        if self.value == int(self.value):
+            self.value = int(self.value)
+        return self.value
 
     class Meta:
         verbose_name_plural = "Options"
