@@ -144,7 +144,7 @@ $(document).ready(function () {
     /*Funcion para insertar preguntas sin bloque*/
     $('#add-question').on('click', function () {
 
-        alert('haciendo click')
+        //alert('haciendo click')
 
         $('#main-configuration-panel').addClass('hidden');
         $('#questions-block-configuration-panel').addClass('hidden');

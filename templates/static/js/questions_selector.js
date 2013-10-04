@@ -300,9 +300,17 @@ function manage_question_ajax(question) {
             }
         },
         error: function (xhr, textStatus, errorThrown) {
-            alert("Please report this error: " + errorThrown +
-                " - Status :" + xhr.status +
-                " - Message : " + xhr.responseText);
+
+
+            setTimeout(function () {
+                            window.location.reload(true);
+                        }, 0);
+
+
+
+            //alert("Please report this error: " + errorThrown +
+            //    " - Status :" + xhr.status +
+            //    " - Message : " + xhr.responseText);
         }
     });
 };
@@ -323,9 +331,15 @@ function delete_question(url) {
             window.location.href = '';
         },
         error: function (xhr, textStatus, errorThrown) {
-            alert("Please report this error: " + errorThrown +
-                " - Status :" + xhr.status +
-                " - Message : " + xhr.responseText);
+
+            setTimeout(function () {
+                            window.location.reload(true);
+                        }, 0);
+
+
+            //alert("Please report this error: " + errorThrown +
+            //    " - Status :" + xhr.status +
+            //    " - Message : " + xhr.responseText);
         }
     });
 };
@@ -393,9 +407,14 @@ function saveSurvey() {
             window.location.href = '';
         },
         error: function (xhr, textStatus, errorThrown) {
-            alert("Please report this error: " + errorThrown +
-                " - Status :" + xhr.status +
-                " - Message : " + xhr.responseText);
+
+
+            setTimeout(function () {
+                            window.location.reload(true);
+                        }, 0);
+            //alert("Please report this error: " + errorThrown +
+            //    " - Status :" + xhr.status +
+            //    " - Message : " + xhr.responseText);
         }
     });
 
