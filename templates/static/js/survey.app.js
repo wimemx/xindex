@@ -411,7 +411,7 @@ $(document).ready(function () {
                                 },
                                 dataType: 'JSON',
                                 success: function (msg) {
-                                    alert(msg);
+                                    //alert(msg);
                                     if (msg.success) {
                                         $(self).closest('div.row-block').slideUp('slow', function () {
                                             $(this).remove();
