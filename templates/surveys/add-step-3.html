@@ -78,6 +78,13 @@
         .hidden {
             display: none !important;
         }
+        .question-content {
+            border: 1px dashed transparent;
+            border-radius: 5px;
+        }
+        .question-content:hover {
+            border: 1px dashed #243a69;
+        }
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -191,6 +198,17 @@
                                     {% endif %}
                                     {% for question in block.questions %}
                                         <div class="wrapper question-content" style="display: table; min-width: 100%; min-heigth: 50px;" id="{{ question_content_id }}">
+                                            <div class="question_actions_content wrapper" style="height: 25px; min-height: 25px;">
+                                                <div class="question_actions">
+                                                    {% csrf_token %}
+                                                    <a class="actions_question remove_question" id="remove_block">
+                                                        <i class="icon-trash icon-sm pull-left"></i>
+                                                    </a>
+                                                    <a class="actions_question update_question" id="update_block">
+                                                        <i class="icon-edit icon-sm pull-left"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
                                             <div class="question_id" style="float:left; margin-left: 15px;">
                                                 {{ question.survey_question_id }}
                                             </div>
@@ -560,7 +578,8 @@
                         </p>
                     </header>
                     <section class="panel-body">
-                        <form>
+                        <form id="associate_questions_to_moment">
+                            {% csrf_token %}
                             <div class="checkbox">
                                 <label>
                                     <input type="checkbox">
@@ -573,16 +592,16 @@
                                     Punto de contacto
                                 </label>
                                 <div class="col-lg-4">
-                                    <select name="account" class="form-control">
+                                    <select id="moment_object" class="form-control">
                                         {% for moment in setup.moments %}
                                             <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-lg-12">
-                                    <button type="submit" class="btn btn-info">Guardar y Continuar</button>
+                            <div class="footer wrapper">
+                                <div class="">
+                                    <button type="submit" class="btn btn-info pull-right" id="">Guardar y Continuar</button>
                                 </div>
                             </div>
                         </form>
@@ -624,7 +643,7 @@
             <li class="h4"><a data-toggle="tab" href="#design">
                 Diseño
             </a></li>
-            <li class="h4"><a data-toggle="tab" href="#design">
+            <li class="h4"><a data-toggle="tab" href="#question_configuration_panel">
                 Configuraci&oacute;n
             </a></li>
         </ul>
@@ -766,8 +785,42 @@
                     </section>
                 </div>
             </div>
-            <div id="design" class="tab-pane">
-                profile
+            <div id="question_configuration_panel" class="tab-pane">
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Indicadores
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            {% csrf_token %}
+                            <div class="checkbox">
+                                <label>
+                                    Escoja los indicadores que seran medidos por esta pregunta
+                                    <i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Indicador
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="attribute_object" class="form-control">
+                                        {% for attribute in setup.attributes %}
+                                            <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="footer wrapper">
+                                <div class="">
+                                    <button type="submit" class="btn btn-info pull-right" id="">Guardar y Continuar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
             </div>
         </div>
     </div>

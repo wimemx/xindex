@@ -17,6 +17,7 @@ from xindex.models import Option
 from xindex.models import Catalog
 from xindex.models import Moment
 from xindex.models import Service
+from xindex.models import Attributes
 
 
 @login_required(login_url='/signin/')
@@ -225,6 +226,8 @@ def save(request, action, next_step, survey_id=False):
 
             setup['moments'] = []
 
+            setup['attributes'] = []
+
             user = Xindex_User.objects.get(pk=request.user.id)
 
             for company in user.company_set.all():
@@ -237,6 +240,17 @@ def save(request, action, next_step, survey_id=False):
                                         'moment': moment
                                     }
                                 )
+
+            attributes = Attributes.objects.all()
+
+            for attribute in attributes:
+                setup['attributes'].append(
+                    {
+                        'attribute': attribute
+                    }
+                )
+
+
 
             #print simplejson.dumps(configuration)
             for key, values in configuration.items():
@@ -452,7 +466,7 @@ def save_ajax(request, survey_id):
 def delete_questions(request):
     if request.is_ajax():
 
-        question_ids =  json.loads(request.POST.get('ids'))
+        question_ids = json.loads(request.POST.get('ids'))
 
         print request.POST['survey_id']
 
@@ -470,9 +484,64 @@ def delete_questions(request):
         return HttpResponse(json_response, content_type="application/json")
 
 
+def associate_questions_to_moments(request):
+    if request.is_ajax():
+        question_ids = json.loads(request.POST.get('ids'))
 
+        moment = Moment.objects.get(pk=int(request.POST['moment_id']))
+        print moment
 
+        for question in question_ids:
+            q = Question.objects.get(pk=int(question['question_id']))
+            attribute = Attributes.objects.get(pk=1)
 
+            print question
+
+            new_relation = Question_Attributes()
+            new_relation.moment_id = moment
+            new_relation.question_id = q
+            new_relation.attribute_id = attribute
+            new_relation.weight = 10
+            new_relation.save()
+
+            print new_relation
+
+        json_response = json.dumps(
+            {
+                'success': True
+            }
+        )
+        return HttpResponse(json_response, content_type="application/json")
+
+def associate_questions_to_attributes(request):
+
+    if request.is_ajax():
+        question = Question.objects.get(pk=int(request.POST['question_id']))
+
+        attribute = Attributes.objects.get(pk=int(request.POST['attribute_id']))
+
+        print 'si llega'
+        try:
+            question_attribute = Question_Attributes.objects.get(question_id=question)
+            question_attribute.attribute_id = attribute
+        except Question_Attributes.DoesNotExist:
+            question_attribute = Question_Attributes()
+            question_attribute.attribute_id = attribute
+            question_attribute.question_id = question
+            question_attribute.moment_id = Moment.objects.get(pk=1)
+            question_attribute.weight = 10
+
+        question_attribute.save()
+
+        print question_attribute
+
+        json_response = json.dumps(
+            {
+                'success': True
+            }
+        )
+
+        return HttpResponse(json_response, content_type="application/json")
 
 #Questions Section
 
