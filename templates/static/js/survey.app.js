@@ -86,13 +86,13 @@ $(document).ready(function () {
 
         var n = $('#survey-main-content div.row-block').length;
 
-        $('#survey-main-content div.row-block').each(function(index){
+        $('#survey-main-content div.row-block').each(function (index) {
             $(this).find('section.question-block').removeClass('selected-block');
         });
 
-        var new_block_id = 'block-'+(n+1);
+        var new_block_id = 'block-' + (n + 1);
 
-        var new_questions_block_content = '<div class="row row-block animated rollIn" id="'+new_block_id+'">' +
+        var new_questions_block_content = '<div class="row row-block animated rollIn" id="' + new_block_id + '">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
             '<div class="panel-body">' +
@@ -168,7 +168,7 @@ $(document).ready(function () {
             /*
              '<div class="wrapper question-blocks-content">' +
              '</div>' +*/
-            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>'+
+            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>' +
             '</section>' +
             '</div>' +
             '</div>';
@@ -181,7 +181,6 @@ $(document).ready(function () {
 
         $('#current-question-block').val(block_selected_id);
     });
-
 
 
     /*TinyMCE*/
@@ -333,14 +332,14 @@ $(document).ready(function () {
 
     //funciones para editar bloques
 
-    $('div.row-block').hover(function(){
+    $('div.row-block').hover(function () {
         $(this).find('div.block_actions').fadeIn(100);
-    }, function(){
+    }, function () {
         $(this).find('div.block_actions').fadeOut(100);
     });
 
 
-    $(document).on('click', 'a.update_block', function(){
+    $(document).on('click', 'a.update_block', function () {
 
         var parent = $(this).closest('div.row-block');
 
@@ -349,7 +348,7 @@ $(document).ready(function () {
         $('#add-new-question-configuration-panel').addClass('hidden');
         $('#questions-block-configuration-panel').removeClass('hidden');
 
-        $('#survey-main-content div.row-block').each(function(){
+        $('#survey-main-content div.row-block').each(function () {
             $(this).find('section.question-block').removeClass('selected-block');
             $(this).find('div.question-content').removeClass('active-question');
         });
@@ -359,11 +358,10 @@ $(document).ready(function () {
         var block_title = parent.find('header.block-title').text();
         var block_description = parent.find('div.panel-body').html();
         $('#current-question-block').val(parent.attr('id'));
-        tinymce.get('tinymce-editor').setContent(block_title+block_description);
+        tinymce.get('tinymce-editor').setContent(block_title + block_description);
 
 
-
-        if(parent.hasClass('row-no-block')){
+        if (parent.hasClass('row-no-block')) {
             parent.find('section.question-block').removeClass('selected-block');
             parent.find('div.question-content').addClass('active-question');
             $('#questions-block-configuration-panel').removeClass('hidden');
@@ -372,7 +370,7 @@ $(document).ready(function () {
     });
 
 
-    $('a.actions_block').on('click', function(e){
+    $('a.actions_block').on('click', function (e) {
         e.preventDefault();
         var action = $(this).attr('id')
         if ($(this).hasClass("remove_block")) {
@@ -393,7 +391,6 @@ $(document).ready(function () {
                         label: "Eliminar",
                         className: "btn-twitter",
                         callback: function () {
-                            //TODO: Make a function to delete the association between Survey and Questions
                             var block_id = self.closest('div.row-block').attr('id');
                             var question_ids = new Array();
                             $('#' + block_id + ' div.db_question_id').each(function (index) {
@@ -435,12 +432,104 @@ $(document).ready(function () {
     });
 
 
-    $('#save-survey-question-block').on('click', function(e){
+    $('#save-survey-question-block').on('click', function (e) {
         e.preventDefault();
         enumerateQuestionBlocks();
         enumerateQuestions();
         saveSurvey();
     });
+
+
+    //Funciones para relacionar momentos con bloques de preguntas
+    $('#associate_questions_to_moment').submit(function (e) {
+        e.preventDefault();
+        var block_id = $('#current-question-block').val();
+        var question_ids = new Array();
+        var moment_id = $("#moment_object").val();
+
+        $('#' + block_id + ' div.db_question_id').each(function (index) {
+            question_ids.push(
+                {
+                    'question_id': $(this).attr('id')
+                }
+            );
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: '/surveys/questions_moments/',
+            data: {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                ids: JSON.stringify(question_ids),
+                'moment_id': moment_id
+            },
+            dataType: 'JSON',
+            success: function (msg) {
+                if (msg.success) {
+                    alert('Se han asociado los momentos a las preguntas');
+                }
+            },
+            error: function (msg) {
+                console.log('msg no enviad')
+            }
+
+        });
+    });
+
+
+    $('a.actions_question').on('click', function () {
+        if ($(this).hasClass('update_question')) {
+
+            $('#main-configuration-panel').addClass('hidden');
+            $('#add-question-option-panel').addClass('hidden');
+            $('#add-new-question-configuration-panel').removeClass('hidden');
+            $('#questions-block-configuration-panel').addClass('hidden');
+
+            $('#survey-main-content div.question-content').each(function () {
+                $(this).removeClass('active-question');
+            });
+
+            $(this).closest('div.question-content').addClass('active-question');
+
+            var question_id = $(this).closest('div.question-content').find('div.db_question_id').attr('id');
+
+            console.log(question_id)
+
+            $('#current-question').val(question_id);
+        }
+    })
+
+    //Funciones para relacionar momentos con bloques de preguntas
+    $('#associate_questions_to_attribute').submit(function (e) {
+        e.preventDefault();
+        var question_id = $('#current-question').val();
+        var attribute_id = $("#attribute_object").val();
+
+        console.log(question_id)
+        console.log(attribute_id)
+
+        $.ajax({
+            type: 'POST',
+            url: '/surveys/questions_attributes/',
+            data: {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                'attribute_id': attribute_id,
+                'question_id': question_id
+            },
+            dataType: 'JSON',
+            success: function (msg) {
+                if (msg.success) {
+                    alert('Se han asociado el attributo a las preguntas');
+                }
+            },
+            error: function (msg) {
+                console.log('msg no enviad')
+            }
+
+        });
+    });
+
+
 
 
 })
@@ -544,8 +633,6 @@ if (tests.dnd) {
 //DRAG AND DROP <<<end
 
 
-
-
 //<--------------  DRAG AND DROP QUESTION  --------->//
 
 function drop(e) {
@@ -614,14 +701,14 @@ function dropQuestionBlock(e) {
     );
 }
 
-function enumerateQuestions(){
+function enumerateQuestions() {
     $('#survey-main-content div.question-content').each(function (index) {
         $(this).attr('id', 'question-' + (index + 1));
         $(this).children('div.question_id').text(index + 1 + '.- ');
     });
 }
 
-function enumerateQuestionBlocks(){
+function enumerateQuestionBlocks() {
     $('#survey-main-content div.row-block').each(function (index) {
         $(this).attr('id', 'block-' + (index + 1));
     });
