@@ -29,5 +29,6 @@ urlpatterns = patterns('surveys.views',
     url(r'^questions_attributes/', views.associate_questions_to_attributes, name='Associate Questions to Attributes'),
 
     url(r'^add/ajax/$', 'add_ajax'),
-
+    url(r'^preview/(?P<action>\w+)/(?P<next_step>\d+)/(?P<survey_id>\w+)',
+        views.deployment, name='deployment'),
 )

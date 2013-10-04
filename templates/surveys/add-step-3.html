@@ -95,7 +95,7 @@
 </head>
 <body>
 <section class="vbox stretch bg-white">
-<header class="yellow-xindex-nohover text-center wrapper header">
+<header class="yellow-xindex-nohover text-center wrapper header" style="height: 50px !important;">
     <div class="row">
         <div class="pull-left padder">
             <a href="/xindex/">
@@ -113,18 +113,16 @@
         <div class="pull-right padder" style=" border-left: 2px solid #d3d3d3">
             <a class="h5" href="#" id="save-survey-from-step3">Guardar</a>
         </div>
-        <!--
         <div class="pull-right padder">
             <a class="h5"
-               href="/surveys/save/exit/{{ survey_id }}">Preview</a>
+               href="/surveys/preview/next/4/{{ survey_id }}">Viste Previa</a>
         </div>
-        -->
     </div>
 </header>
 <section class="scrollable wrapper">
 <div class="row">
 <input type="hidden" value="{{ survey_id }}" id="survey_id"/>
-<div class="col-lg-6">
+<div class="col-lg-6" style="float: right; margin-right: 50%;">
     <section class="panel">
         <div class="panel-body">
             <section class="header text-center panel visible-lg border-dropzone">
@@ -469,7 +467,7 @@
         </section>
     </section>
 </div>
-<div class="col-lg-6">
+<div class="col-lg-6" style="position: fixed; float: left; margin-left: 50%">
 <section class="panel" id="main-configuration-panel">
     <header class="panel-heading bg-light">
         <ul class="nav nav-tabs nav-justified">
@@ -637,10 +635,10 @@
     <header class="panel-heading bg-light">
         <ul class="nav nav-tabs nav-justified">
             <li class="active h4"><a data-toggle="tab"
-                                     href="#content-by-block">
+                                     href="#content-by-block-question">
                 Contenido
             </a></li>
-            <li class="h4"><a data-toggle="tab" href="#design">
+            <li class="h4"><a data-toggle="tab" href="#design-question">
                 Diseño
             </a></li>
             <li class="h4"><a data-toggle="tab" href="#question_configuration_panel">
@@ -650,7 +648,7 @@
     </header>
     <div class="panel-body">
         <div class="tab-content">
-            <div id="content-by-block" class="tab-pane active">
+            <div id="content-by-block-question" class="tab-pane active">
                 <input type="hidden" id="current-question" value=""/>
 
                 <div class="col-lg-12 wrapper">
@@ -785,25 +783,27 @@
                     </section>
                 </div>
             </div>
+            <div id="design-question" class="tab-pane">
+                Diseño de la pregunta
+            </div>
             <div id="question_configuration_panel" class="tab-pane">
                 <section class="panel-heading">
                     <header class="panel-heading">
                         <p class="h3">
-                            Indicadores
+                            Atributos
                         </p>
                     </header>
                     <section class="panel-body">
                         <form id="associate_questions_to_attribute">
-                            {% csrf_token %}
                             <div class="checkbox">
                                 <label>
-                                    Escoja los indicadores que seran medidos por esta pregunta
-                                    <i class="icon-question-sign"></i>
+                                    <input type="checkbox">
+                                    Escoja los indicadores que seran medidos por la pregunta<i class="icon-question-sign"></i>
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label v-middle">
-                                    Indicador
+                                    Atributos
                                 </label>
                                 <div class="col-lg-4">
                                     <select id="attribute_object" class="form-control">
@@ -813,9 +813,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="footer wrapper">
-                                <div class="">
-                                    <button type="submit" class="btn btn-info pull-right" id="">Guardar y Continuar</button>
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn btn-info">Guardar y Continuar</button>
                                 </div>
                             </div>
                         </form>
