@@ -660,14 +660,14 @@
                                      class='question matrix'>
                                     <form id='question_type_1_form'>{% csrf_token %}
                                         <input class="question-title matrix_title" type="hidden" name="m_title" maxlength="100" />
-                                        <p>Set the name of the columns</p>
+                                        <p>Establece el número de columnas</p>
 
                                         <div class="matrix_cols">
                                             <input type="text" maxlength="100"
                                                    class="dummy_option"
                                                    value='Click to add another column'/>
                                         </div>
-                                        <p>Set each one of the rows</p>
+                                        <p>Establece clada uno de los renglones</p>
 
                                         <div class="matrix_rows">
                                             <input type="text" maxlength="100"
@@ -678,19 +678,19 @@
                                             <input type="checkbox" id="add-m-to-catalog"/> Agregar al catalogo de preguntas
                                         </div>
                                         <input id="add_matrix" type="submit"
-                                               value="Add Question"/>
+                                               value="Agregar pregunta"/>
                                     </form>
                                 </div>
 
                                 <div id="question_type_2" style="display: none"
                                      class='question multiple_choice'>
                                     <form id='question_type_2_form'>{% csrf_token %}
-                                        <p>Options</p>
+                                        <p>Opciones</p>
                                         <input class="question-title multiple_choice_title" type="hidden" name="mo_title" maxlength="100" />
                                         <div class="multiple_choice_options_set">
                                             <input type="text" maxlength="100"
                                                    class="dummy_option"
-                                                   value='Click to add another option'/>
+                                                   value='Añadir otra opción'/>
                                         </div>
                                         <div>
                                             <input type="checkbox" id="add-mc-to-catalog"/> Agregar al catalogo de preguntas
@@ -698,7 +698,7 @@
                                         <div>
                                             <input id="add_multiple_choice"
                                                type="submit"
-                                               value="Add Question"/>
+                                               value="Agregar pregunta"/>
                                         </div>
 
                                     </form>
@@ -713,7 +713,7 @@
                                         </div>
                                         <input id="add_open_question"
                                                type="submit"
-                                               value="Add Question"/>
+                                               value="Agregar pregunta"/>
                                     </form>
                                 </div>
 
@@ -721,20 +721,20 @@
                                      class='question range'>
                                     <form id='question_type_4_form'>{% csrf_token %}
                                         <input class="question-title range_title" type="hidden" name="r_title" maxlength="100" />
-                                        <p>Set each one of the information</p>
+                                        <p>Establece la informacion necesaria</p>
 
                                         <div class="range_field_set">
-                                            <label>Start value:</label><input
+                                            <label>Valor inicial:</label><input
                                                 type="text" maxlength="100"
                                                 class="start_number"/>
-                                            <label>Start label:</label><input
+                                            <label>Etiqueta inicial:</label><input
                                                 type="text" maxlength="100"
                                                 class="start_label"/>
 
-                                            <label>End value:</label><input
+                                            <label>Valor final:</label><input
                                                 type="text" maxlength="100"
                                                 class="end_number"/>
-                                            <label>End Label:</label><input
+                                            <label>Etiqueta final:</label><input
                                                 type="text" maxlength="100"
                                                 class="end_label"/>
                                         </div>
@@ -743,7 +743,7 @@
                                         </div>
                                         <input id="add_range_question"
                                                type="submit"
-                                               value="Add Question"/>
+                                               value="Agregar pregunta"/>
                                     </form>
                                 </div>
 
@@ -756,7 +756,7 @@
                                         </div>
                                         <input id="add_true_and_false_question"
                                                type="submit"
-                                               value="Add Question"/>
+                                               value="Agregar ppregunta"/>
                                     </form>
                                 </div>
                             </div>
