@@ -195,8 +195,8 @@
                                         </div>
                                     {% endif %}
                                     {% for question in block.questions %}
-                                        <div class="wrapper question-content" style="display: table; min-width: 100%; min-heigth: 50px;" id="{{ question_content_id }}">
-                                            <div class="question_actions_content wrapper" style="height: 25px; min-height: 25px;">
+                                        <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.survey_question_id }}">
+                                            <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
                                                 <div class="question_actions">
                                                     {% csrf_token %}
                                                     <a class="actions_question remove_question" id="remove_block">
@@ -205,6 +205,13 @@
                                                     <a class="actions_question update_question" id="update_block">
                                                         <i class="icon-edit icon-sm pull-left"></i>
                                                     </a>
+                                                    {% if question.moment_title %}
+                                                        <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
+                                                    {% endif %}
+                                                    {% if question.moment_title %}
+                                                        <small class="pull-right text-dark"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                    {% endif %}
+
                                                 </div>
                                             </div>
                                             <div class="question_id" style="float:left; margin-left: 15px;">

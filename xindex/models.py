@@ -286,8 +286,8 @@ class Attributes(models.Model):
 
 class Question_Attributes(models.Model):
     question_id = models.ForeignKey(Question)
-    attribute_id = models.ForeignKey(Attributes)
-    moment_id = models.ForeignKey('Moment')
+    attribute_id = models.ForeignKey(Attributes, null=True)
+    moment_id = models.ForeignKey('Moment', null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
