@@ -257,12 +257,28 @@ def save(request, action, next_step, survey_id=False):
                 for block in values:
                     questions = []
                     for q in block['questions']:
-                        print 'verificando q exista el campo'
                         if 'db_id' in q:
 
                             try:
                                 question = Question.objects.get(pk=q['db_id'])
                                 options = question.option_set.all().order_by('id')
+
+                                #Check if question is associated to a moment
+                                try:
+                                    association = Question_Attributes.objects.get(question_id=question)
+                                    if association.moment_id == None:
+                                        moment_title = False
+                                    else:
+                                        moment_title = association.moment_id.name
+
+                                    if association.attribute_id:
+                                        attribute_title = association.attribute_id.name
+
+                                except Question_Attributes.DoesNotExist:
+                                    moment_title = False
+                                    attribute_title = False
+                                #end check
+
                                 options_o = []
                                 for option in options:
                                     options_o.append(
@@ -275,6 +291,8 @@ def save(request, action, next_step, survey_id=False):
                                 questions.append(
                                     {
                                         'question': question,
+                                        'moment_title': moment_title,
+                                        'attribute_title': attribute_title,
                                         'survey_question_id': q['question_survey_id'],
                                         'db_question_id': q['db_id'],
                                         'question_title': question.title,
@@ -298,10 +316,6 @@ def save(request, action, next_step, survey_id=False):
                             'questions': questions
                         }
                     )
-
-            for block in setup['blocks']:
-                print block
-
 
             template_vars = {
                 'survey_title': survey.name,
@@ -497,14 +511,15 @@ def associate_questions_to_moments(request):
 
             print question
 
-            new_relation = Question_Attributes()
-            new_relation.moment_id = moment
-            new_relation.question_id = q
-            new_relation.attribute_id = attribute
-            new_relation.weight = 10
-            new_relation.save()
+            try:
+                relation = Question_Attributes.object.get(question_id=q)
+            except Question_Attributes.DoesNotExist:
+                relation = Question_Attributes()
 
-            print new_relation
+            relation.moment_id = moment
+            relation.question_id = q
+            relation.weight = 10
+            relation.save()
 
         json_response = json.dumps(
             {
@@ -523,14 +538,12 @@ def associate_questions_to_attributes(request):
         print 'si llega'
         try:
             question_attribute = Question_Attributes.objects.get(question_id=question)
-            question_attribute.attribute_id = attribute
         except Question_Attributes.DoesNotExist:
             question_attribute = Question_Attributes()
-            question_attribute.attribute_id = attribute
-            question_attribute.question_id = question
-            question_attribute.moment_id = Moment.objects.get(pk=1)
-            question_attribute.weight = 10
 
+        question_attribute.question_id = question
+        question_attribute.attribute_id = attribute
+        question_attribute.weight = 10
         question_attribute.save()
 
         print question_attribute
