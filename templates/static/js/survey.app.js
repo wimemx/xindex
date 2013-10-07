@@ -144,8 +144,6 @@ $(document).ready(function () {
     /*Funcion para insertar preguntas sin bloque*/
     $('#add-question').on('click', function () {
 
-        //alert('haciendo click')
-
         $('#main-configuration-panel').addClass('hidden');
         $('#questions-block-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').removeClass('hidden');
@@ -700,6 +698,54 @@ function dropQuestionBlock(e) {
             '</div>'
     );
 }
+
+
+
+//---- Drag and Drop Question ----//
+
+function dropQuestion(e) {
+    /*Funcion para insertar preguntas sin bloque*/
+    $('#add-question').on('click', function () {
+
+        $('#main-configuration-panel').addClass('hidden');
+        $('#questions-block-configuration-panel').addClass('hidden');
+        $('#add-question-option-panel').removeClass('hidden');
+
+        $('div.default-buttons').fadeOut(300);
+
+        //Determine next block id
+
+        var n = $('#survey-main-content div.row-block').length;
+
+        $('#survey-main-content div.row-block').each(function (index) {
+            $(this).find('section.question-block').removeClass('selected-block');
+        });
+
+        var new_block_id = 'block-' + (n + 1);
+
+        var new_questions_block_content = '<div class="row row-block row-no-block animated fadeIn" id="' + new_block_id + '">' +
+            '<div class="col-lg-12">' +
+            '<section class="padder padder-v question-block selected-block">' +
+            /*
+             '<div class="wrapper question-blocks-content">' +
+             '</div>' +*/
+            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>' +
+            '</section>' +
+            '</div>' +
+            '</div>';
+
+        $('#survey-main-content').append(new_questions_block_content);
+        enumerateQuestionBlocks();
+        enumerateQuestions();
+
+        var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question_id').attr('id')
+
+        $('#current-question-block').val(block_selected_id);
+    });
+}
+
+
+
 
 function enumerateQuestions() {
     $('#survey-main-content div.question-content').each(function (index) {

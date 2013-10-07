@@ -20,16 +20,29 @@ def index(request, message = ''):
 def add(request):
     if request.POST:
         formulario = AddBusinessUnit(request.POST or None)
+
         if formulario.is_valid():
-            formulario.save()
+
+            formToSave = formulario.save()
+            #print 'Unidad de servicio ------------------------->'
+
+            subSelected = formulario.cleaned_data['subsidiaries']
+            for eachSub in subSelected:
+
+                subToAdd = Subsidiary.objects.get(pk=eachSub.id)
+                subToAdd.business_unit.add(formToSave)
+                #print 'Added ------------------------->'
+
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "Se ha dado de alta la unidad de negocio",
                 "formulario": formulario
             }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponse('si')
+            #request_context = RequestContext(request, template_vars)
+            return HttpResponse('Si')
         else:
+
+            #print 'FORMULARIO INVALIDO'
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "",
@@ -70,7 +83,8 @@ def update(request, business_unit_id):
                 template_vars = {
                     "titulo": "Modificar unidad de negocio",
                     "message": "",
-                    "formulario": formulario
+                    "formulario": formulario,
+                    "business_unit_id": business_unit_id
                 }
                 request_context = RequestContext(request, template_vars)
                 return render_to_response("business_units/update.html",
@@ -91,43 +105,24 @@ def update(request, business_unit_id):
         return HttpResponseRedirect('/business_units/')
 
 
-def remove(request, business_unit_id):
+def remove(request, subsidiary_id, business_unit_id):
 
     try:
-        bus_unit = BusinessUnit.objects.get(id=business_unit_id)
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
-        bus_unit = False
+        business_unit = False
 
-    if bus_unit:
-        try:
-            bus_unit.active = False
-            bus_unit.save()
-            message="Se ha eliminado la unidad de negocio"
-            template_vars = {
-                "titulo": "Unidades de negocio",
-                "message": message
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponseRedirect('/business_units')
+    try:
+        subsidiary = Subsidiary.objects.get(pk=subsidiary_id)
+    except Subsidiary.DoesNotExist:
+        subsidiary = False
 
-        except:
-            message = "No se pudo eliminar la unidad de negocio"
-            template_vars = {
-                "titulo": "Unidades de negocio",
-                "message": message
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponse('No se pudo eliminar la unidad de negocio')
+    if business_unit and subsidiary:
+        subsidiary.business_unit.remove(business_unit)
+        subsidiary.save()
+        return HttpResponse('Si')
     else:
-        message = "No se ha encontrado la unidad de negocio"
-        template_vars = {
-            "titulo": "Unidades de negocio",
-            "message": message
-        }
-        request_context = RequestContext(request, template_vars)
-        #return render_to_response("business_units/index.html", request_context)
-        #return HttpResponse('No se pudo encontrar la unidad de negocio')
-        return HttpResponseRedirect('/business_units')
+        return HttpResponse('No')
 
 
 def getBUInJson(request):
@@ -143,7 +138,8 @@ def getBUInJson(request):
                     "name": business_unit.name,
                     "subsidiary": subsidiary.name,
                     "zone": subsidiary.zone.name or '',
-                    "business_unit_id": business_unit.id
+                    "business_unit_id": business_unit.id,
+                    "subsidiary_id": subsidiary.id
                 }
             )
     """

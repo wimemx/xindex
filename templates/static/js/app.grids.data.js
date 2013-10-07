@@ -457,10 +457,18 @@ function businessUnitsDatagrid() {
                 formatter: function (items) {
                     $.each(items, function (index, item) {
                         var buid = item.business_unit_id;
+                        var subid = item.subsidiary_id;
                         item.name = '<a href="/services/' + buid + '">' + item.name + '</a>';
-                        item.business_unit_id = '<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>' + ' | ' +
-                            '<a href="/business_units/update/' + item.business_unit_id + '"><i class="icon-edit-sign"></i></a>' + ' | ' +
-                            '<a href="/business_units/remove/' + item.business_unit_id + '"><i class="icon-remove-sign"></i></a>';
+                        item.business_unit_id =
+                            //'<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>'
+                            //    +
+                            //    '<label>|</label>'
+                            //    +
+                            '<a href="/business_units/update/' + item.business_unit_id + '" class="update_bu" data-toggle="ajaxModal"><i class="icon-edit"></i></a>'
+                                +
+                                '<label>|</label>'
+                                +
+                            '<a href="/business_units/' + item.subsidiary_id + '/' + item.business_unit_id + '/remove" class="remove-business-unit"><i class="icon-remove"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
 

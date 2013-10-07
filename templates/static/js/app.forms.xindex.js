@@ -196,4 +196,84 @@ $(document).ready(function () {
     });
 
 
+
+
+    //<--- REMOVE Business Unit --->//
+    $(document).on('click', '.remove-business-unit', function (e) {
+    //$('.remove-business-unit').on('click', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message: "¿Esta seguro que desea eliminar esta unidad de servicio?" +
+                " Esta accion no se puede deshacer<br><br>" +
+                "<small>" +
+                "<input type='checkbox' " +
+                "id='removeALGO'/>  Eliminar servicios asociados" +
+                "</small>",
+            title: "Eliminar un unidad de servicio",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    var alerta = '<div class="alert alert-warning">' +
+                                        '<button type="button" class="close" data-dismiss="alert">' +
+                                        '<i class="icon-remove"></i>' +
+                                        '</button>' +
+                                        '<i class="icon-ok-sign"></i>' +
+                                        '<strong>¡La unidad de servicio se elimino con exito!</strong>' +
+                                        '</div>';
+                                    $('#news_section').html(alerta);
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 500);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                                var alerta = '<div class="alert alert-danger">' +
+                                    '<button type="button" class="close" data-dismiss="alert">' +
+                                    '<i class="icon-remove"></i>' +
+                                    '</button>' +
+                                    '<i class="icon-ban-circle"></i>' +
+                                    '<strong>¡No fue posible realizar su peticion, intente mas tarde!</strong>' +
+                                    '</div>';
+                                $('#news_section').html(alerta);
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+    //--- Función corregir problema modal ---//
+    $('#myBUGrid').on('click', 'a.update_bu', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        if (url.indexOf('#') == 0) {
+            $(url).modal('open');
+        } else {
+            $.get(url,function (data) {
+                $('<div class="modal" id="update-modal">' + data + '</div>').modal();
+            }).success(function () {
+                    $('input:text:visible:first').focus();
+                });
+        }
+
+
+    });
+
 })

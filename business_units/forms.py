@@ -9,7 +9,7 @@ class AddBusinessUnit(forms.ModelForm):
         queryset=Subsidiary.objects.all().filter(active=True),
         label="Subsidiarias",
         widget=forms.SelectMultiple,
-        required=True)
+        required=False)
 
     def __init__(self, *args, **kwargs):
         super(AddBusinessUnit, self).__init__(*args, **kwargs)
