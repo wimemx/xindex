@@ -2747,3 +2747,28 @@ Grupos de Botones
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
 }
+
+/*
+    Icono de buscar "dentro" del input
+*/
+input.input-query {
+    padding-left:26px;
+}
+
+div.input-close {
+    position: relative;
+}
+
+div.input-close:before {
+    content:'';
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url(http://getbootstrap.com/2.3.2/assets/img/glyphicons-halflings.png);
+    background-position: -312px 0;
+    position: absolute;
+    top:8px;
+    left:8px;
+    opacity: .5;
+    z-index: 1000;
+}

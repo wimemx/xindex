@@ -92,7 +92,7 @@ $(document).ready(function () {
 
         var new_block_id = 'block-' + (n + 1);
 
-        var new_questions_block_content = '<div class="row row-block animated rollIn" id="' + new_block_id + '">' +
+        var new_questions_block_content = '<div class="row row-block animated fadeIn" id="' + new_block_id + '">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
             '<div class="panel-body">' +
@@ -162,7 +162,7 @@ $(document).ready(function () {
 
         var new_block_id = 'block-' + (n + 1);
 
-        var new_questions_block_content = '<div class="row row-block row-no-block animated rollIn" id="' + new_block_id + '">' +
+        var new_questions_block_content = '<div class="row row-block row-no-block animated fadeIn" id="' + new_block_id + '">' +
             '<div class="col-lg-12">' +
             '<section class="padder padder-v question-block selected-block">' +
             /*
@@ -466,7 +466,7 @@ $(document).ready(function () {
             dataType: 'JSON',
             success: function (msg) {
                 if (msg.success) {
-                    alert('Se han asociado los momentos a las preguntas');
+                    //alert('Se han asociado los momentos a las preguntas');
                 }
             },
             error: function (msg) {
@@ -519,11 +519,11 @@ $(document).ready(function () {
             dataType: 'JSON',
             success: function (msg) {
                 if (msg.success) {
-                    alert('Se han asociado el attributo a las preguntas');
+                    //alert('Se han asociado el attributo a las preguntas');
                 }
             },
             error: function (msg) {
-                console.log('msg no enviad')
+                console.log('msg no enviado')
             }
 
         });
@@ -656,7 +656,7 @@ function dropQuestionBlock(e) {
 
     var new_block_id = 'block-' + (n + 1);
 
-    var new_questions_block_content = '<div class="row row-block animated rollIn" id="' + new_block_id + '">' +
+    var new_questions_block_content = '<div class="row row-block animated slideDown" id="' + new_block_id + '">' +
         '<div class="col-lg-12">' +
         '<section class="padder padder-v question-block selected-block">' +
         '<div class="panel-body">' +
