@@ -267,7 +267,7 @@ $(document).ready(function () {
             $(url).modal('open');
         } else {
             $.get(url,function (data) {
-                $('<div class="modal" id="update-modal">' + data + '</div>').modal();
+                $('<div class="modal" id="update-businessUnit">' + data + '</div>').modal();
             }).success(function () {
                     $('input:text:visible:first').focus();
                 });

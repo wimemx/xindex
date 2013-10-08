@@ -23,26 +23,27 @@ def add(request):
 
         if formulario.is_valid():
 
-            formToSave = formulario.save()
-            #print 'Unidad de servicio ------------------------->'
+            formulario.save()
 
+            '''
             subSelected = formulario.cleaned_data['subsidiaries']
-            for eachSub in subSelected:
 
+            for eachSub in subSelected:
+                #formToSave.save()
                 subToAdd = Subsidiary.objects.get(pk=eachSub.id)
-                subToAdd.business_unit.add(formToSave)
-                #print 'Added ------------------------->'
+                subToAdd.business_unit.add(formToSave.save())
+                formToSave.pk = None
 
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "Se ha dado de alta la unidad de negocio",
                 "formulario": formulario
-            }
+            }'''
             #request_context = RequestContext(request, template_vars)
             return HttpResponse('Si')
         else:
 
-            #print 'FORMULARIO INVALIDO'
+            print 'FORMULARIO INVALIDO'
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "",
@@ -62,13 +63,15 @@ def add(request):
 
 
 def update(request, business_unit_id):
+    print str(request.method)
     try:
-        bus_unit = BusinessUnit.objects.get(id=business_unit_id)
+        bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
         bus_unit = False
 
     if bus_unit:
-        if request.POST:
+        if request.method == 'POST':
+            print 'POST ENCONTRADO ____________________'
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             if formulario.is_valid():
@@ -90,12 +93,15 @@ def update(request, business_unit_id):
                 return render_to_response("business_units/update.html",
                                           request_context)
         else:
+            print 'POST NO ENCONTRADO__________:x__________'
+            print str(request.method)
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             template_vars = {
                 "titulo": "Modificar unidad de negocio",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "business_unit_id": business_unit_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("business_units/update.html",
@@ -105,21 +111,16 @@ def update(request, business_unit_id):
         return HttpResponseRedirect('/business_units/')
 
 
-def remove(request, subsidiary_id, business_unit_id):
+def remove(request, business_unit_id):
 
     try:
         business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
         business_unit = False
 
-    try:
-        subsidiary = Subsidiary.objects.get(pk=subsidiary_id)
-    except Subsidiary.DoesNotExist:
-        subsidiary = False
-
-    if business_unit and subsidiary:
-        subsidiary.business_unit.remove(business_unit)
-        subsidiary.save()
+    if business_unit:
+        business_unit.active = False
+        business_unit.save()
         return HttpResponse('Si')
     else:
         return HttpResponse('No')
@@ -128,20 +129,17 @@ def remove(request, subsidiary_id, business_unit_id):
 def getBUInJson(request):
     b_u = {'business_u': []}
 
-    subsidiaries = Subsidiary.objects.filter(company__id=1, active=True)
-    print subsidiaries
-    for subsidiary in subsidiaries:
-        for business_unit in subsidiary.business_unit.all():
-
-            b_u['business_u'].append(
-                {
-                    "name": business_unit.name,
-                    "subsidiary": subsidiary.name,
-                    "zone": subsidiary.zone.name or '',
-                    "business_unit_id": business_unit.id,
-                    "subsidiary_id": subsidiary.id
-                }
-            )
+    business_unit = BusinessUnit.objects.filter(active=True)
+    for eachBusinessUnit in business_unit:
+        b_u['business_u'].append(
+            {
+                "name": eachBusinessUnit.name,
+                "subsidiary": "SUB",
+                "zone": 'subsidiary.zone.name' or '',
+                "business_unit_id": eachBusinessUnit.id,
+                "subsidiary_id": 'eachBusinessUnit.subsidiary'
+            }
+        )
     """
     print(subsidiaries)
     for bu in BusinessUnit.objects.filter(active=True).order_by('-date'):

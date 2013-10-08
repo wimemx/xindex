@@ -11,7 +11,6 @@ from django.utils import simplejson
 
 @login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
-    print business_unit_id
     if business_unit_id:
         try:
             business_unit = BusinessUnit.objects.get(pk=business_unit_id)
@@ -21,10 +20,7 @@ def index(request, business_unit_id=False):
         business_unit = False
 
     if business_unit:
-        subsidiaries = Subsidiary.objects.filter(
-            business_unit__id=business_unit.id)
-        for subsidiary in subsidiaries:
-            company = subsidiary.company.name
+        company = business_unit.subsidiary
     else:
         subsidiaries = False
         company = False
@@ -42,11 +38,14 @@ def index(request, business_unit_id=False):
 
 
 @login_required(login_url='/signin/')
-def add(request):
+def add(request, business_unit_id):
+    business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     if request.POST:
         formulario = AddService(request.POST or None, request.FILES)
         if formulario.is_valid():
-            formulario.save()
+            formToSave = formulario.save()
+            business_unit.service.add(formToSave)
+            business_unit.save()
             template_vars = {
                 "titulo": "Servicios",
                 "message": "Se ha dado de alta el servicio",
@@ -54,7 +53,7 @@ def add(request):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/services/')
+            return HttpResponseRedirect('/services/'+str(business_unit_id))
         else:
             template_vars = {
                 "titulo": "Agregar servicio",
@@ -75,16 +74,16 @@ def add(request):
 
 
 @login_required(login_url='/signin/')
-def update(request, service_id):
+def update(request, service_id, business_unit_id):
     try:
-        ser = Service.objects.get(id=service_id)
+        service = Service.objects.get(id=service_id)
     except Service.DoesNotExist:
-        ser = False
+        service = False
 
-    if ser:
+    if service:
         if request.POST:
             formulario = AddService(request.POST or None, request.FILES,
-                                    instance=ser)
+                                    instance=service)
             if formulario.is_valid():
                 formulario.save()
                 template_vars = {
@@ -92,7 +91,7 @@ def update(request, service_id):
                     "message": "Servicios"
                 }
                 request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/services/')
+                return HttpResponseRedirect('/services/'+business_unit_id)
             else:
                 template_vars = {
                     "titulo": "Editar servicio",
@@ -103,7 +102,7 @@ def update(request, service_id):
                 return render_to_response("services/update.html",
                                           request_context)
         else:
-            formulario = AddService(instance=ser)
+            formulario = AddService(instance=service)
             template_vars = {
                 "titulo": "Editar servicio",
                 "message": "",
@@ -114,20 +113,28 @@ def update(request, service_id):
     else:
         message = "No se ha podido encontrar el servicio"
         #return HttpResponse(message+"%s." % service_id)
-        return HttpResponseRedirect('/services/')
+        return HttpResponseRedirect('/services/'+business_unit_id)
 
 
 @login_required(login_url='/signin/')
-def remove(request, service_id):
+def remove(request, service_id, business_unit_id):
     try:
-        ser = Service.objects.get(id=service_id)
+        service = Service.objects.get(pk=service_id)
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except Service.DoesNotExist:
-        ser = False
+        service = False
 
-    if ser:
+    try:
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+    except BusinessUnit.DoesNotExist:
+        business_unit = False
+
+    if service and business_unit:
         try:
-            ser.active = False
-            ser.save()
+            business_unit.service.remove(service)
+            business_unit.save()
+            service.active = False
+            service.save()
             message = "Se ha eliminado el servicio"
             template_vars = {
                 "titulo": "Servicios",
@@ -135,7 +142,7 @@ def remove(request, service_id):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/services/')
+            return HttpResponseRedirect('/services/'+str(business_unit_id))
 
         except:
             message = "No se pudo eliminar"
@@ -145,7 +152,7 @@ def remove(request, service_id):
             }
             request_context = RequestContext(request, template_vars)
             #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/services/')
+            return HttpResponseRedirect('/services/'+str(business_unit_id))
     else:
         message = "No se ha encontrado el servicio "
         template_vars = {
@@ -154,7 +161,7 @@ def remove(request, service_id):
         }
         request_context = RequestContext(request, template_vars)
         #return render_to_response("services/index.html", request_context)
-        return HttpResponseRedirect('/services/')
+        return HttpResponseRedirect('/services/'+str(business_unit_id))
 
 
 @login_required(login_url='/signin/')
@@ -184,8 +191,7 @@ def getSInJson(request):
 def getSByBUInJson(request, business_unit_id):
     business_unit = BusinessUnit.objects.get(pk=business_unit_id)
 
-    services = {}
-    services['services'] = []
+    services = {'services': []}
     service_query = Service.objects.filter(active=True).order_by('-date')
     business_unit_query = BusinessUnit.objects.filter(active=True)
 
@@ -195,6 +201,7 @@ def getSByBUInJson(request, business_unit_id):
                 {
                     "name": service.name,
                     "business_unit": business_unit.name,
+                    "business_unit_id": business_unit.id,
                     "subsidiary": "Sucursal",
                     "zone": "Ubicacion",
                     "delete": service.id,

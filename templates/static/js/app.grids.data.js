@@ -659,11 +659,11 @@ function servicesDatagrid() {
                         item.name = '<a href="/services/details/' + item.details + ' ">' + item.name + '</a>';
                         //item.detail = '<a href="/services/details/' + item.detail + '"><i class="icon-eye-open"></i></a>';
                         item.delete =
-                            '<a href="/services/update/' + item.edit + '"><i class="icon-edit text-warning"></i></a>'
+                            '<a href="/services/update/' + item.edit + '/' + item.business_unit_id + '"><i class="icon-edit text-warning"></i></a>'
                                 +
                                 '<label>|</label>'
                                 +
-                            '<a href="/services/remove/' + item.delete + '"><i class="icon-remove text-danger"></i></a>';
+                            '<a href="/services/remove/' + item.delete + '/' + item.business_unit_id  + '"><i class="icon-remove text-danger"></i></a>';
                     });
                 }
             })

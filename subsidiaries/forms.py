@@ -20,18 +20,18 @@ class SubsidiaryForm(forms.ModelForm):
         self.fields['company'].widget.attrs.update({'class' : 'form-control'})
         self.fields['name'].widget.attrs.update({'class': 'bg-focus form-control', 'placeholder': 'Sucursal'})
         self.fields['subsidiary_types'].widget.attrs.update({'class': 'form-control'})
-        self.fields['business_unit'].widget.attrs.update({'class': 'form-control'})
+        #self.fields['business_unit'].widget.attrs.update({'class': 'form-control'})
         self.fields['zone'].widget.attrs.update({'class': 'form-control'})
 
 
     class Meta:
         model = Subsidiary
-        fields = ('company', 'name', 'subsidiary_types', 'business_unit', 'zone')
+        fields = ('company', 'name', 'subsidiary_types', 'zone')
 
 class UpdateForm(forms.ModelForm):
     class Meta:
         model = Subsidiary
-        fields = ('company', 'name', 'subsidiary_types', 'business_unit', 'zone')
+        fields = ('company', 'name', 'subsidiary_types', 'zone')
 
 class AddSubsidiaryType(forms.ModelForm):
     class Meta:

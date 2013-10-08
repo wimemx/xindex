@@ -7,9 +7,10 @@
         </div>
         <div class="modal-body">
             <div class="padder-xl">
-                <form class="form-horizontal" id="business_unit_form" method="POST"
-                      action=""
-                      enctype="multipart/form-data">{% csrf_token %}
+                <form class="form-horizontal" method="post"
+                      action="/business_units/update/{{ business_unit_id }}"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
 
                     <div class="form-group m-t-lg">
                         Nombre:
@@ -25,6 +26,11 @@
                         Servicios:
                         {{ formulario.service }}
                         {{ formulario.service.errors }}
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Sucursal:
+                        {{ formulario.subsidiary }}
+                        {{ formulario.subsidiary.errors }}
                     </div>
                     <div class="form-group m-t-lg">
                         <button type="submit"

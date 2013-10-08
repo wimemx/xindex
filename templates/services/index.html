@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>{% block title %}Servicios{% endblock %}</title>
 </head>
@@ -8,16 +8,21 @@
 {% block mainContent %}
     <section id="content">
     <section class="vbox">
-        <header class="header b-b">
+        <header class="header b-b blue-xindex">
             <p class="h5 animated bounceInDown">
-                <a href="/xindex/">Inicio</a><i class="icon-chevron-right"></i><a href="/xindex/">Mi empresa</a><i class="icon-chevron-right"></i><a href="/business_units">Mis Unidades de Servicio</a><i class="icon-chevron-right"></i><a href="#">Servicios</a>
+                <a href="/xindex/">Inicio</a><i class="icon-chevron-right"></i>
+                <a href="/xindex/">Mi empresa</a><i class="icon-chevron-right"></i>
+                <a href="/business_units">Mis Unidades de Servicio</a><i class="icon-chevron-right"></i>
+                <a href="/services/{{ business_unit_id }}">Servicios</a>
             </p>
         </header>
         <section class="panel padder padder-v animated fadeInRight">
             {% if business_unit %}
                 <input type="hidden" id="business_unit_id" value="{{ business_unit.id }}">
             <div class="wrapper">
-                <p class="h3">Servicio de <a class="h3 text-success" href="#">{{ business_unit.name }}</a> <small class="padder" style="font-style: italic">{{ company }}</small></p>
+                <p class="h3">Servicio de <a class="h3 text-success"
+                                             href="#">{{ business_unit.name }}</a>
+                    <small class="padder" style="font-style: italic">{{ company }}</small></p>
             </div>
             {% endif %}
             <div id="datagrid">
@@ -30,7 +35,7 @@
                                     <div class="row">
                                         <div class="col-sm-8 m-t-xs m-b-xs">
                                             <div>
-                                                <a class="btn btn-success btn-sm" href="/services/add">
+                                                <a class="btn btn-success btn-sm" href="/services/add/{{ business_unit.id }}">
                                                     <i class="icon-plus-sign"></i>
                                                     Agregar
                                                 </a>
