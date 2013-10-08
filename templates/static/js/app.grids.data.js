@@ -1086,3 +1086,225 @@ $('#addBusinessUnit').click(function () {
 
 
 });*/
+
+
+function zonesDatagrid() {
+    // fuelux subsidiaries datagrid
+    var DataGridDataSource = function (options) {
+        this._formatter = options.formatter;
+        this._columns = options.columns;
+        this._delay = options.delay;
+    };
+
+
+    DataGridDataSource.prototype = {
+
+        columns: function () {
+            return this._columns;
+        },
+
+        data: function (options, callback) {
+
+            var url = '/zones/json'
+            var self = this;
+
+
+            setTimeout(function () {
+
+                var data = $.extend(true, [], self._data);
+
+                $.ajax(url, {
+                    dataType: 'json',
+                    async: false,
+                    type: 'GET'
+                }).done(function (response) {
+                        data = response.zones;
+                        // SEARCHING
+                        if (options.search) {
+                            data = _.filter(data, function (item) {
+                                var match = false;
+
+                                _.each(item, function (prop) {
+                                    if (_.isString(prop) || _.isFinite(prop)) {
+                                        if (prop.toString().toLowerCase().indexOf(options.search.toLowerCase()) !== -1) match = true;
+                                    }
+                                });
+
+                                return match;
+                            });
+                        }
+                        /*
+                        $(".dropdown-menu.mainM li a").click(function () {
+                            var selText = $(this).text();
+                            switch (selText) {
+                                case 'Sucursal':
+                                    $('#second-filter').children().remove();
+                                    for (i = 0; i < sucursales.length; i++) {
+                                        $('#second-filter').append("<li data-value='" + sucursales[i] + "' data-selected='true'><a href='#'>" + sucursales[i] + "</a></li>")
+                                    }
+                                    break;
+                                case 'Zona':
+                                    $('#second-filter').children().remove();
+                                    for (i = 0; i < zonas.length; i++) {
+                                        $('#second-filter').append("<li data-value='" + zonas[i] + "' data-selected='true'><a href='#'>" + zonas[i] + "</a></li>")
+                                    }
+                                    break;
+                            }
+
+                        });
+
+                        // FILTERING
+                        if (options.filter) {
+                            data = _.filter(data, function (item) {
+                                for (i = 0; i < sucursales.length; i++) {
+                                    switch (options.filter.value){
+                                        case sucursales[i]:
+                                            if (item.subsidiary == sucursales[i]) return true;
+                                            break;
+                                    }
+                                }
+                                for (i = 0; i < zonas.length; i++) {
+                                    switch (options.filter.value){
+                                        case zonas[i]:
+                                            if (item.zone == zonas[i]) return true;
+                                            break;
+                                    }
+                                }
+
+                                switch (options.filter.value) {
+
+                                    case 'Sucursal':
+                                        if (item.subsidiary == 'Sucursal 1') return true;
+                                        break;
+                                    case 'Zona':
+                                        if (item.subsidiary == 'Subsidiaria 2') return true;
+                                        break;
+                                    default:
+                                        return true;
+                                        break;
+                                }
+                            });
+                        }
+                        */
+
+                        var count = data.length;
+
+                        // SORTING
+                        if (options.sortProperty) {
+                            data = _.sortBy(data, options.sortProperty);
+                            if (options.sortDirection === 'desc') data.reverse();
+                        }
+
+                        // PAGING
+                        var startIndex = options.pageIndex * options.pageSize;
+                        var endIndex = startIndex + options.pageSize;
+                        var end = (endIndex > count) ? count : endIndex;
+                        var pages = Math.ceil(count / options.pageSize);
+                        var page = options.pageIndex + 1;
+                        var start = startIndex + 1;
+
+                        data = data.slice(startIndex, endIndex);
+
+                        if (self._formatter) self._formatter(data);
+
+                        callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+                    }).fail(function (e) {
+                        alert('¡No se pueden consultar las zonas!')
+                    });
+            }, self._delay);
+        }
+    };
+
+    $('#myZonesGrid').each(function () {
+        $(this).datagrid({
+            dataSource: new DataGridDataSource({
+                // Column definitions for Datagrid
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Nombre',
+                        sortable: true
+                    },
+                    {
+                        property: 'someAttr',
+                        label: 'someAttr',
+                        sortable: false
+                    },
+                    {
+                        property: 'zone_id',
+                        label: 'Opciones',
+                        sortable: false
+                    }
+                ],
+
+                // Create IMG tag for each returned image
+                formatter: function (items) {
+                    $.each(items, function (index, item) {
+                        var subid = item.subsidiary_id;
+                        item.name = '<a href="/zones/' + item.zone_id + '">' + item.name + '</a>';
+                        item.zone_id =
+                            //'<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>'
+                            //    +
+                            //    '<label>|</label>'
+                            //    +
+                            '<a href="/zones/'+ item.zone_id + '/edit/" class="update_zone" data-toggle="ajaxModal"><i class="icon-edit"></i></a>'
+                                +
+                                '<label>|</label>'
+                                +
+                            '<a href="/zones/'+ item.zone_id + '/remove/" class="remove_zone" data-toggle="ajaxModal"><i class="icon-remove"></i></a>';
+                        //c = (item.active == true) ? "checked" : ""
+                        //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
+
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (sucursales.length == 0) {
+                            var sucursal = item.subsidiary;
+                            sucursales.push(sucursal);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < sucursales.length; i++) {
+                            if (sucursales[i] == item.subsidiary) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var sucursal = item.subsidiary;
+                            sucursales.push(sucursal)
+                        }
+
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (zonas.length == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < zonas.length; i++) {
+                            if (zonas[i] == item.zone) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona)
+                        }
+
+                    });
+
+                }
+
+                //Crear filtros
+
+
+            })
+        });
+    });
+}

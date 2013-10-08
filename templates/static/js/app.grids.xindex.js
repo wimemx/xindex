@@ -16,5 +16,7 @@ $(document).ready(function () {
         attributesDatagrid();
     } else if ($('#mySurveysGrid')[0]) {
         surveysDatagrid();
+    } else if ($('#myZonesGrid')[0]) {
+        zonesDatagrid();
     }
 });

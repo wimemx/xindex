@@ -1,27 +1,263 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ title }}</title>
+    <title>{% block title %}Zonas{% endblock %}</title>
+    {% block externalCss %}
+        <link rel="stylesheet" href="/static/js/fuelux/fuelux.css">
+        <link rel="stylesheet" href="/static/js/datatables/datatables.css">
+    {% endblock %}
 </head>
 <body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body in collapse">
+                    <li>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/" class="blue-xindex">
+                            Zonas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox wrapper-lg">
+        <header class="header b-b blue-xindex">
+            <p class="h5 animated bounceInDown">
+                <a href="/xindex/">Inicio</a><i class="icon-chevron-right">
+                </i><a href="/xindex/">Mi empresa</a><i class="icon-chevron-right">
+                </i><a href="/zones/">Zonas</a>
+            </p>
+        </header>
 
-<p>All zones will be here!</p>
-<a href="add/">Add new Zone</a>
-{% if zones %}
-    <table>
-        <tr>
-            <td style="width: 400px">Name</td><td>Options</td>
-        </tr>
-    {% for zone in zones %}
-        <tr>
-            <td><a href="{{ zone.id }}/">{{ zone.name }}</a></td>
-            <td><a href="{{ zone.id }}/edit/">Edit</a></td>
-            <td><a href="{{ zone.id }}/remove/">Remove</a></td>
-        </tr>
-    {% endfor %}
-    </table>
-{% else %}
-    <p>No zones are available now.</p>
-{% endif %}
+        <section class="panel padder padder-v animated fadeInRight">
+            <div id="datagrid">
+                <section class="panel">
+                    <div class="table-responsive">
+                        <table id="myZonesGrid"
+                               class="table table-striped datagrid m-b-sm">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <div class="row">
+                                        <div id=news_section></div>
+                                        <div class="col-sm-6 col-lg-6">
+                                            <div class=" row">
+                                                <a class="btn btn-white btn-sm"
+                                                   href="/zones/add" data-toggle="ajaxModal" id="addZone">
+                                                    <i class="icon-plus-sign"></i>
+                                                    Agregar zona
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-6">
+                                            <div class="row">
+                                            <div class="input-group search datagrid-search">
+                                                <input type="text"
+                                                       class="input-sm form-control"
+                                                       placeholder="Buscar">
+
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-white btn-sm">
+                                                        <i class="icon-search"></i>
+                                                    </button>
+                                                </div>
+                                                <!--
+                                                <div class="select padder"
+                                                     data-resize="auto" id="filterby">
+                                                    <span>
+                                                        Filtrar:
+                                                    </span>
+                                                    <button data-toggle="dropdown"
+                                                            class="btn btn-sm btn-white dropdown-toggle">
+                                                        <span class="dropdown-label"></span>
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu mainM">
+                                                        <li data-value="Sucursal"
+                                                            data-selected="true">
+                                                            <a href="#">Sucursal</a>
+                                                        </li>
+                                                        <li data-value="Zona">
+                                                            <a href="#">Zona</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="select filter"
+                                                     data-resize="auto">
+                                                    <button data-toggle="dropdown"
+                                                            class="btn btn-sm btn-white dropdown-toggle">
+                                                        <span class="dropdown-label"></span>
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" id="second-filter">
+                                                        <li data-value="default" data-selected="true">
+                                                            <a href="#">Todas</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                -->
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+
+                            <tfoot class="">
+                            <tr>
+                                <th class="row">
+                                    <div class="datagrid-footer-left col-sm-6 text-center-xs m-l-n"
+                                         style="display:none;">
+                                        <div class="grid-controls m-t-sm">
+                                            <span>
+                                                <span class="grid-start"></span> -
+                                                <span class="grid-end"></span> de
+                                                <span class="grid-count"></span>
+                                            </span>
+                                            <div class="select grid-pagesize dropup"
+                                                 data-resize="auto">
+                                                <button data-toggle="dropdown"
+                                                        class="btn btn-sm btn-white dropdown-toggle">
+                                                    <span class="dropdown-label"></span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li data-value="5"><a
+                                                            href="#">5</a></li>
+                                                    <li data-value="10"><a
+                                                            href="#">10</a></li>
+                                                    <li data-value="20"
+                                                        data-selected="true"><a
+                                                            href="#">20</a></li>
+                                                    <li data-value="50"><a
+                                                            href="#">50</a></li>
+                                                    <li data-value="100"><a
+                                                            href="#">100</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <span>Por p&aacute;gina</span>
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-footer-right col-sm-6 text-right text-center-xs"
+                                         style="display:none;">
+                                        <div class="grid-pager m-r-n">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-prevpage">
+                                                <i class="icon-chevron-left"></i>
+                                            </button>
+                                            <span>P&aacute;gina</span>
+
+                                            <div class="inline">
+                                                <div class="input-group dropdown combobox">
+                                                    <input class="input-sm form-control"
+                                                           type="text">
+
+                                                    <div class="input-group-btn dropup">
+                                                        <button class="btn btn-sm btn-white"
+                                                                data-toggle="dropdown">
+                                                            <i class="caret"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu pull-right"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span>de <span
+                                                    class="grid-pages"></span></span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-nextpage">
+                                                <i class="icon-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </section>
+    </section>
+
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <script src="/static/js/libs/underscore-min.js"></script>
+    <!-- datatables -->
+    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+    <!-- Sparkline Chart -->
+    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+    <!-- Easy Pie Chart -->
+    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
+    <!-- Bootbox -->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
+
+    <script src="/static/js/app.grids.xindex.js"></script>
+    <script src="/static/js/app.forms.xindex.js"></script>
+{% endblock %}
+
 </body>
 </html>
