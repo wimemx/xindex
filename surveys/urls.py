@@ -34,7 +34,7 @@ urlpatterns = patterns('surveys.views',
 
     url(r'^(?P<question_id>\d+)/edit/$', 'edit'),
 
-    url(r'^(?P<question_id>\d+)/remove/$', 'remove'),
+    #url(r'^(?P<question_id>\d+)/remove/$', 'remove'),
 
     url(r'^(?P<question_id>\d+)/edit/ajax/$', 'edit_ajax'),
 

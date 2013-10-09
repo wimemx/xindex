@@ -232,7 +232,7 @@ def save(request, action, next_step, survey_id=False):
 
             for company in user.company_set.all():
                 for subsidiary in company.subsidiary_set.all():
-                    for business_unit in subsidiary.business_unit.all():
+                    for business_unit in subsidiary.businessunit_set.all():
                         for service in business_unit.service.all():
                             for moment in service.moments.all():
                                 setup['moments'].append(
@@ -983,7 +983,7 @@ def deployment(request, action, next_step, survey_id=False):
 
         for company in user.company_set.all():
             for subsidiary in company.subsidiary_set.all():
-                for business_unit in subsidiary.business_unit.all():
+                for business_unit in subsidiary.businessunit_set.all():
                     for service in business_unit.service.all():
                         for moment in service.moments.all():
                             setup['moments'].append(
