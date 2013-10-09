@@ -1,56 +1,89 @@
-{% extends "base.html" %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}Modificar Unidad de Servicio{% endblock %}</title>
-</head>
-<body>
-{% block mainContent %}
-    <section id="content">
-        <section class="vbox">
-            <header class="header b-b">
-                <p class="h4 animated bounceInDown">Modificar Unidad de Servicio</p>
-            </header>
-            <section class="wrapper" id="basic">
-                <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
-                      action="">{% csrf_token %}
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Nombre:</label>
+<div class="modal-dialog" id="editBusinessUnit">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Editar unidad de servicio</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl">
+                <form class="form-horizontal" method="post"
+                      action="/business_units/update/{{ business_unit_id }}"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
 
-                        <div class="col-sm-5">
-                            {{ formulario.name }}
-                            {{ formulario.name.errors }}
-                        </div>
+                    <div class="form-group m-t-lg">
+                        Nombre:
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
                     </div>
                     <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Descripci&oacute;n:</label>
-
-                        <div class="col-sm-6">
-                            {{ formulario.description }}
-                            {{ formulario.description.errors }}
-                        </div>
+                        Descripci&oacute;n:
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
                     </div>
                     <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Servicio:</label>
-
-                        <div class="col-sm-5">
-                            {{ formulario.service }}
-                            {{ formulario.service.errors }}
-                        </div>
-                        <div class="line line-dashed m-t-xs"></div>
+                        Servicios:
+                        {{ formulario.service }}
+                        {{ formulario.service.errors }}
                     </div>
-                    <div class="form-group">
-                        <div class="col-sm-6 col-sm-offset-6">
-                            <button type="submit" class="btn btn-twitter">Modificar</button>
-                            <a class="btn btn-white" href="/business_units">
-                                Cancelar
-                            </a>
-                        </div>
+                    <div class="form-group m-t-lg">
+                        Sucursal:
+                        {{ formulario.subsidiary }}
+                        {{ formulario.subsidiary.errors }}
                     </div>
+                    <div class="form-group m-t-lg">
+                        <button type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
+                        </button>
+                    </div>
+                    <!--<a href="#" class="btn btn-white"
+                           data-dismiss="modal">
+                           Cancelar
+                        </a>-->
                 </form>
-            </section>
-        </section>
-    </section>
-{% endblock %}
-</body>
-</html>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script type="text/javascript">
+    /*$('#business_unit_form').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function (msg) {
+                if (msg == 'Si') {
+                    var alerta = '<div class="alert alert-success">' +
+                            '<button type="button" class="close" data-dismiss="alert">' +
+                            '<i class="icon-remove"></i>' +
+                            '</button>' +
+                            '<i class="icon-ok-sign"></i>' +
+                            '<strong>¡La sucursal se ha editado!</strong>' +
+                            '</div>';
+                    $('#news_section').html(alerta);
+                    $('#ajaxModal').modal('hide');
+                    setTimeout(function () {
+                        window.location.reload(true);
+                    }, 1000);
+                } else if (msg == 'No') {
+                    alert('¡Ha ocurrido un problema, intente mas tarde!')
+                }
+            },
+            error: function (msg_failu) {
+                var alerta = '<div class="alert alert-danger">' +
+                        '<button type="button" class="close" data-dismiss="alert">' +
+                        '<i class="icon-remove"></i>' +
+                        '</button>' +
+                        '<i class="icon-ban-circle"></i>' +
+                        '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
+                        '</div>';
+                $('#news_section').html(alerta);
+                $('#ajaxModal').modal('hide');
+            }
+        });
+    });*/
+</script>

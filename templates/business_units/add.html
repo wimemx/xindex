@@ -3,52 +3,45 @@
         <div class="modal-header">
             <button type="button" class="close"
                     data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Agregar Unidad de Servicio</h4>
+            <h4 class="modal-title">Crear una unidad de servicio</h4>
         </div>
         <div class="modal-body">
-            <form class="form-horizontal" id="business_unit_form" method="POST"
-                  action="/business_units/add/">{% csrf_token %}
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Nombre:</label>
+            <div class="padder-xl">
+                <form class="form-horizontal" id="business_unit_form" method="POST"
+                      action="/business_units/add/">{% csrf_token %}
 
-                    <div class=" col-md-7">
+                    <div class="form-group m-t-lg">
+                        Nombre:
                         {{ formulario.name }}
                         {{ formulario.name.errors }}
                     </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
-
-                    <div class=" col-md-7">
+                    <div class="form-group m-t-lg">
+                        Descripci&oacute;n:
                         {{ formulario.description }}
                         {{ formulario.description.errors }}
                     </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Sucursales:</label>
-
-                    <div class=" col-md-5">
-                        {{ formulario.subsidiaries }}
-                        {{ formulario.subsidiaries.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Servicio:</label>
-
-                    <div class="col-sm-5">
+                    <div class="form-group m-t-lg">
+                        Servicios:
                         {{ formulario.service }}
                         {{ formulario.service.errors }}
                     </div>
-                    <div class="line line-dashed m-t-xs"></div>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-white"
-                       data-dismiss="modal">Cancelar</a>
-                    <button type="submit"
-                            class="btn btn-twitter">Agregar
-                    </button>
-                </div>
-            </form>
+                    <div class="form-group m-t-lg">
+                        Sucursal:
+                        {{ formulario.subsidiary }}
+                        {{ formulario.subsidiary.errors }}
+                    </div>
+                    <div class="form-group m-t-lg">
+                        <button type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
+                        </button>
+                    </div>
+                    <!--<a href="#" class="btn btn-white"
+                           data-dismiss="modal">
+                           Cancelar
+                        </a>-->
+                </form>
+            </div>
         </div>
     </div>
     <!-- /.modal-content -->
@@ -73,7 +66,7 @@
                     $('#ajaxModal').modal('hide');
                     setTimeout(function () {
                         window.location.reload(true);
-                    }, 2000);
+                    }, 1000);
                 } else if (msg == 'No') {
                     alert('¡Ha ocurrido un problema, intente mas tarde!')
                 }

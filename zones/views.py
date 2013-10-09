@@ -1,8 +1,9 @@
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from xindex.models import Zone
-from django.http import Http404, HttpResponseRedirect
+from django.utils import simplejson
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from xindex.forms import ZoneForm
+from xindex.models import Zone
 
 
 def index(request):
@@ -64,5 +65,20 @@ def detail(request, zone_id):
         status = str(zone.active)
     except Zone.DoesNotExist:
         raise Http404
-    return render_to_response('zones/detail.html', {'zone': zone,
-                                                    'status': status})
+    return render_to_response('zones/detail.html',
+                              {'zone': zone, 'status': status})
+
+
+def getZonesInJson(request):
+    zonesToJson = {'zones': []}
+
+    zonesObj = Zone.objects.filter(active=True)
+    for eachZone in zonesObj:
+        zonesToJson['zones'].append(
+            {
+                "name": eachZone.name,
+                "someAttr": "someAttr",
+                "zone_id": eachZone.id
+            }
+        )
+    return HttpResponse(simplejson.dumps(zonesToJson))

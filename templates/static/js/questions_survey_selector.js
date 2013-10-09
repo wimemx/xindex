@@ -43,7 +43,7 @@ $(document).ready(function () {
     });
 
     $('.dummy_option').focus(function () {
-        var new_option_proto = '<div class="dynamic_inputs"><input type="text" maxlength="100" class="option_added" />';
+        var new_option_proto = '<div class="dynamic_inputs input-close"><input type="text" maxlength="100" class="option_added input-query form-control" />';
         var remove_button = '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i></div>';
         new_option_proto += remove_button;
 

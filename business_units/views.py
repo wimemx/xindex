@@ -20,16 +20,30 @@ def index(request, message = ''):
 def add(request):
     if request.POST:
         formulario = AddBusinessUnit(request.POST or None)
+
         if formulario.is_valid():
+
             formulario.save()
+
+            '''
+            subSelected = formulario.cleaned_data['subsidiaries']
+
+            for eachSub in subSelected:
+                #formToSave.save()
+                subToAdd = Subsidiary.objects.get(pk=eachSub.id)
+                subToAdd.business_unit.add(formToSave.save())
+                formToSave.pk = None
+
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "Se ha dado de alta la unidad de negocio",
                 "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponse('si')
+            }'''
+            #request_context = RequestContext(request, template_vars)
+            return HttpResponse('Si')
         else:
+
+            print 'FORMULARIO INVALIDO'
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "",
@@ -49,13 +63,15 @@ def add(request):
 
 
 def update(request, business_unit_id):
+    print str(request.method)
     try:
-        bus_unit = BusinessUnit.objects.get(id=business_unit_id)
+        bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
         bus_unit = False
 
     if bus_unit:
-        if request.POST:
+        if request.method == 'POST':
+            print 'POST ENCONTRADO ____________________'
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             if formulario.is_valid():
@@ -70,18 +86,22 @@ def update(request, business_unit_id):
                 template_vars = {
                     "titulo": "Modificar unidad de negocio",
                     "message": "",
-                    "formulario": formulario
+                    "formulario": formulario,
+                    "business_unit_id": business_unit_id
                 }
                 request_context = RequestContext(request, template_vars)
                 return render_to_response("business_units/update.html",
                                           request_context)
         else:
+            print 'POST NO ENCONTRADO__________:x__________'
+            print str(request.method)
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             template_vars = {
                 "titulo": "Modificar unidad de negocio",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "business_unit_id": business_unit_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("business_units/update.html",
@@ -94,71 +114,32 @@ def update(request, business_unit_id):
 def remove(request, business_unit_id):
 
     try:
-        bus_unit = BusinessUnit.objects.get(id=business_unit_id)
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
-        bus_unit = False
+        business_unit = False
 
-    if bus_unit:
-        try:
-            bus_unit.active = False
-            bus_unit.save()
-            message="Se ha eliminado la unidad de negocio"
-            template_vars = {
-                "titulo": "Unidades de negocio",
-                "message": message
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponseRedirect('/business_units')
-
-        except:
-            message = "No se pudo eliminar la unidad de negocio"
-            template_vars = {
-                "titulo": "Unidades de negocio",
-                "message": message
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponse('No se pudo eliminar la unidad de negocio')
+    if business_unit:
+        business_unit.active = False
+        business_unit.save()
+        return HttpResponse('Si')
     else:
-        message = "No se ha encontrado la unidad de negocio"
-        template_vars = {
-            "titulo": "Unidades de negocio",
-            "message": message
-        }
-        request_context = RequestContext(request, template_vars)
-        #return render_to_response("business_units/index.html", request_context)
-        #return HttpResponse('No se pudo encontrar la unidad de negocio')
-        return HttpResponseRedirect('/business_units')
+        return HttpResponse('No')
 
 
 def getBUInJson(request):
     b_u = {'business_u': []}
 
-    subsidiaries = Subsidiary.objects.filter(company__id=1, active=True)
-    print subsidiaries
-    for subsidiary in subsidiaries:
-        for business_unit in subsidiary.business_unit.all():
-
-            b_u['business_u'].append(
-                {
-                    "name": business_unit.name,
-                    "subsidiary": subsidiary.name,
-                    "zone": subsidiary.zone.name or '',
-                    "business_unit_id": business_unit.id
-                }
-            )
-    """
-    print(subsidiaries)
-    for bu in BusinessUnit.objects.filter(active=True).order_by('-date'):
+    business_unit = BusinessUnit.objects.filter(active=True)
+    for eachBusinessUnit in business_unit:
         b_u['business_u'].append(
             {
-                "name": bu.name,
-                "description":bu.description,
-                "bu_det": bu.id,
-                "bu_up": bu.id,
-                "bu_del": bu.id,
+                "name": eachBusinessUnit.name,
+                "subsidiary": eachBusinessUnit.subsidiary.name,
+                "zone": eachBusinessUnit.subsidiary.zone.name or '',
+                "business_unit_id": eachBusinessUnit.id,
+                "subsidiary_id": 'eachBusinessUnit.subsidiary'
             }
         )
-    """
 
     return HttpResponse(simplejson.dumps(b_u))
 

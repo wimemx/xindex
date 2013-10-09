@@ -9,4 +9,5 @@ urlpatterns = patterns('zones.views',
     url(r'^(?P<zone_id>\d+)/$', 'detail'),
     url(r'^(?P<zone_id>\d+)/edit/$', 'edit'),
     url(r'^(?P<zone_id>\d+)/remove/$', 'remove'),
+    url(r'^json/$', 'getZonesInJson'),
 )

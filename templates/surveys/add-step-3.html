@@ -175,7 +175,7 @@
                 </div>
                 {% if setup %}
                     {% for block in setup.blocks %}
-                        <div class="row row-block animated rollIn {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
+                        <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                             <div class="col-lg-12">
                                 <section class="padder padder-v question-block">
                                     <div class="block_actions_content" style="height: 25px; min-height: 25px;">
@@ -413,8 +413,8 @@
                                     {% if block.block_default_class %}
                                         <footer class="wrapper text-center">
                                             <a class="btn btn-info wrapper add-question-to-block">
-                                                <i class="icon-plus-sign-alt"></i>
-                                                Da click aquí para añadir una pregunta</a>
+                                                <i class="icon-plus-sign"></i>
+                                                Añadir una nueva pregunta</a>
                                         </footer>
                                     {% endif %}
                                 </section>
@@ -676,116 +676,147 @@
                                 <p class="h4">Tipo de pregunta</p>
                             </header>
                             <section>
-                                <select name="question_type_select"
-                                        id="question_type_select">
-                                    {% for type in question_types %}
-                                        <option value="{{ type.id }}">{{ type.help_text }}</option>
-                                    {% endfor %}
-                                </select>
+                                <div class="form-group">
+                                    <select name="question_type_select"
+                                            id="question_type_select"
+                                            class="form-control">
+                                        {% for type in question_types %}
+                                            <option value="{{ type.id }}">{{ type.help_text }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </section>
-                            <div>
+                            <div class="padder-v">
                                 <div id="question_type_1" style="display: none"
                                      style="display: inline"
-                                     class='question matrix'>
-                                    <form id='question_type_1_form'>{% csrf_token %}
+                                     class='question matrix col-lg-12'>
+                                    <form id='question_type_1_form' class="form-horizontal">{% csrf_token %}
+                                        <div class="form-group">
                                         <input class="question-title matrix_title" type="hidden" name="m_title" maxlength="100" />
-                                        <p>Establece el número de columnas</p>
+                                            <p>Establece el número de columnas</p>
 
-                                        <div class="matrix_cols">
-                                            <input type="text" maxlength="100"
-                                                   class="dummy_option"
-                                                   value='Añanir otra columna'/>
+                                            <div class="matrix_cols">
+                                                <input type="text" maxlength="100"
+                                                       class="dummy_option form-control"
+                                                       value='Click para añanir otra columna'/>
+                                            </div>
                                         </div>
-                                        <p>Establece clada uno de los renglones</p>
+                                        <div class="form-group">
+                                            <p>Establece clada uno de los renglones</p>
 
-                                        <div class="matrix_rows">
-                                            <input type="text" maxlength="100"
-                                                   class="dummy_option"
-                                                   value='Añadir otro renglon'/>
+                                            <div class="matrix_rows">
+                                                <input type="text" maxlength="100"
+                                                       class="dummy_option form-control"
+                                                       value='Click para añadir otro renglon'/>
+                                            </div>
                                         </div>
-                                        <div>
+                                        <div class="form-group">
                                             <input type="checkbox" id="add-m-to-catalog"/> Agregar al catalogo de preguntas
                                         </div>
+                                        <div class="form-group">
                                         <input id="add_matrix" type="submit"
-                                               value="Agregar pregunta"/>
+                                               value="Agregar pregunta"
+                                               class="btn btn-info"/>
+                                        </div>
                                     </form>
                                 </div>
 
                                 <div id="question_type_2" style="display: none"
-                                     class='question multiple_choice'>
-                                    <form id='question_type_2_form'>{% csrf_token %}
-                                        <p>Opciones</p>
-                                        <input class="question-title multiple_choice_title" type="hidden" name="mo_title" maxlength="100" />
-                                        <div class="multiple_choice_options_set">
-                                            <input type="text" maxlength="100"
-                                                   class="dummy_option"
-                                                   value='Añadir otra opción'/>
+                                     class='question multiple_choice col-lg-12'>
+                                    <form id='question_type_2_form' class="form-horizontal">{% csrf_token %}
+                                        <div class="form-group">
+                                            <p>Opciones</p>
+                                            <input class="question-title multiple_choice_title form-control" type="hidden" name="mo_title" maxlength="100" />
+                                            <div class="multiple_choice_options_set">
+                                                <input type="text" maxlength="100"
+                                                       class="dummy_option form-control"
+                                                       value='Click para añadir otra opción'/>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <input type="checkbox" id="add-mc-to-catalog"/> Agregar al catalogo de preguntas
+                                        <div class="form-group">
+                                            <input type="checkbox" class="" id="add-mc-to-catalog"/> Agregar al catalogo de preguntas
                                         </div>
-                                        <div>
+                                        <div form-group>
                                             <input id="add_multiple_choice"
                                                type="submit"
-                                               value="Agregar pregunta"/>
+                                               value="Agregar pregunta"
+                                               class="btn btn-info"/>
                                         </div>
 
                                     </form>
                                 </div>
 
                                 <div id="question_type_3" style="display: none"
-                                     class='question open_question'>
-                                    <form id='question_type_3_form'>{% csrf_token %}
-                                        <input class="question-title open_question_title" type="hidden" name="oq_title" maxlength="100" />
-                                        <div>
-                                            <input type="checkbox" id="add-o-to-catalog"/> Agregar al catalogo de preguntas
+                                     class='question open_question col-lg-6'>
+                                    <form id='question_type_3_form' class="form-horizontal">{% csrf_token %}
+                                        <div class="form-group">
+                                            <input class="question-title open_question_title form-control" type="hidden" name="oq_title" maxlength="100" />
+                                            <div>
+                                                <input type="checkbox" id="add-o-to-catalog"/> Agregar al catalogo de preguntas
+                                            </div>
+                                            <input id="add_open_question"
+                                                   type="submit"
+                                                   value="Agregar pregunta"
+                                                   class="btn btn-info"/>
                                         </div>
-                                        <input id="add_open_question"
-                                               type="submit"
-                                               value="Agregar pregunta"/>
                                     </form>
                                 </div>
 
                                 <div id="question_type_4" style="display: none"
                                      class='question range'>
-                                    <form id='question_type_4_form'>{% csrf_token %}
-                                        <input class="question-title range_title" type="hidden" name="r_title" maxlength="100" />
-                                        <p>Establece la informacion necesaria</p>
-
-                                        <div class="range_field_set">
-                                            <label>Valor inicial:</label><input
-                                                type="text" maxlength="100"
-                                                class="start_number"/>
-                                            <label>Etiqueta inicial:</label><input
-                                                type="text" maxlength="100"
-                                                class="start_label"/>
-                                            <br>
-                                            <label>Valor final:</label><input
-                                                type="text" maxlength="100"
-                                                class="end_number"/>
-                                            <label>Etiqueta final:</label><input
-                                                type="text" maxlength="100"
-                                                class="end_label"/>
+                                    <form id='question_type_4_form' class="form-horizontal">{% csrf_token %}
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                    <input class="question-title range_title" type="hidden" name="r_title" maxlength="100" />
+                                                    <p>Establece la informacion necesaria</p>
+                                                <div class="col-lg-6 col-sm-6">
+                                                    <div class="range_field_set">
+                                                        <label>Valor inicial:</label><br>
+                                                        <input type="text" maxlength="100"
+                                                               class="start_number form-control"/>
+                                                        <br>
+                                                        <label>Etiqueta inicial:</label><br>
+                                                        <input type="text" maxlength="100"
+                                                               class="start_label form-control"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-sm-6">
+                                                    <label>Valor final:</label><br>
+                                                    <input type="text" maxlength="100"
+                                                           class="end_number form-control"/>
+                                                    <br>
+                                                    <label>Etiqueta final:</label><br>
+                                                    <input type="text" maxlength="100"
+                                                           class="end_label form-control"/>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="checkbox" id="add-r-to-catalog"/> Agregar al catalogo de preguntas
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="add_range_question"
+                                                       type="submit"
+                                                       value="Agregar pregunta"
+                                                       class="btn btn-info"/>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <input type="checkbox" id="add-r-to-catalog"/> Agregar al catalogo de preguntas
-                                        </div>
-                                        <input id="add_range_question"
-                                               type="submit"
-                                               value="Agregar pregunta"/>
                                     </form>
                                 </div>
 
                                 <div id="question_type_5"
                                      class='question true_and_false'>
-                                    <form id='question_type_5_form'>{% csrf_token %}
-                                        <input class="question-title true_and_false_title" type="hidden" name="taf_title" maxlength="100" />
-                                        <div>
+                                    <form id='question_type_5_form form-horizontal'>{% csrf_token %}
+                                        <div class="form-group">
+                                            <input class="question-title true_and_false_title" type="hidden" name="taf_title" maxlength="100" />
                                             <input type="checkbox" id="add-tf-to-catalog"/> Agregar al catalogo de preguntas
                                         </div>
+                                        <div class="form-group">
                                         <input id="add_true_and_false_question"
                                                type="submit"
-                                               value="Agregar ppregunta"/>
+                                               value="Agregar ppregunta"
+                                               class="btn btn-info"/>
+                                        </div>
+
                                     </form>
                                 </div>
                             </div>
