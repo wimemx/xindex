@@ -217,12 +217,6 @@ $(document).ready(function () {
         manage_question_ajax(question);
     });
 
-    $(".remove_question").click(function (event) {
-        event.preventDefault();
-        var url = $(event.target).attr('href');
-        delete_question(url);
-    });
-
     $('#edit_matrix').click(function (event) {
         event.preventDefault();
         var question = {};
@@ -250,23 +244,6 @@ $(document).ready(function () {
         manage_question_ajax(question);
     });
 
-    $('#edit_multiple_choice').click(function (event) {
-        event.preventDefault();
-        var question = {};
-        question.id = $('#question_id').val();
-        question.title = $('.multiple_choice_title').val();
-        var options = new Array();
-
-        $(".multiple_choice_options_set .dynamic_inputs").each(function () {
-            options.push({
-                'id': $(this).find(':input:hidden').first().val(),
-                'label': $(this).find(':input:text').first().val()
-            });
-        });
-
-        question.options = options;
-        manage_question_ajax(question);
-    });
 
     $('#edit_open_question').click(function (event) {
         event.preventDefault();
@@ -310,6 +287,28 @@ $(document).ready(function () {
         addQuestionOptions();
     });
 
+    /*
+    $(document).on('click', '#edit_multiple_choice', function(event){
+        event.preventDefault();
+
+        alert('editando');
+        return false;
+        var question = {};
+        question.id = $('#question_id').val();
+        question.title = $('.multiple_choice_title').val();
+        var options = new Array();
+
+        $(".multiple_choice_options_set .dynamic_inputs").each(function () {
+            options.push({
+                'id': $(this).find(':input:hidden').first().val(),
+                'label': $(this).find(':input:text').first().val()
+            });
+        });
+
+        question.options = options;
+        manage_question_ajax(question);
+    })
+*/
 
 });
 
@@ -374,10 +373,7 @@ function manage_question_ajax(question) {
 };
 
 function delete_question(url) {
-    if (!confirm("Are you sure?")) {
-        return;
-    }
-
+    return false;
     $.ajax({
         type: "POST",
         url: url,

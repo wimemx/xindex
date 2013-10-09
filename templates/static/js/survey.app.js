@@ -7,6 +7,10 @@
  */
 $(document).ready(function () {
 
+    $('.question_actions .actions').hide();
+
+    $('div.block_actions').hide();
+
     $('#save-survey-from-step3').on('click', function (e) {
         e.preventDefault();
         saveSurvey();
@@ -261,6 +265,40 @@ $(document).ready(function () {
         }
     });
 
+    tinymce.init({
+        selector: "textarea#tinymce-editor-update-question",
+        theme: "modern",
+        width: '100%',
+        height: 50,
+        autoresize_min_height: 50,
+        autoresize_max_height: 50,
+        entities: "160,nbsp,38,amp,34,quot,162,cent,8364,euro,163,pound,165,yen,169,copy,174,reg,8482,trade,8240,permil,60,lt,62,gt,8804,le,8805,ge,176,deg,8722,minus",
+        entity_encoding: "raw",
+        plugins: [
+            "autoresize paste textcolor"
+        ],
+        setup: function (ed) {
+            ed.on('keyup', function (e) {
+                var con = ed.getContent();
+                var content = con.replace(/(<([^>]+)>)/ig, "");
+                var current_question = $('#current-question-updated').val();
+                $('#' + current_question + ' div.question-text').html('');
+                $('#' + current_question + ' div.question-text').html(content);
+
+                $('.question_title_updated').val(content);
+            })
+            ed.on('change', function (e) {
+                var con = ed.getContent();
+                var content = con.replace(/(<([^>]+)>)/ig, "");
+                var current_question = $('#current-question-updated').val();
+                $('#' + current_question + ' div.question-text').html('');
+                $('#' + current_question + ' div.question-text').html(content);
+
+                $('.question_title_updated').val(content);
+            })
+        }
+    });
+
 
     $(document).on('click', 'a.add-question-to-block', function () {
         $('#main-configuration-panel').addClass('hidden');
@@ -304,30 +342,6 @@ $(document).ready(function () {
 
             }
         })
-    });
-
-    $('#question-type a').on('click', function (e) {
-        e.preventDefault();
-        var question_type = $(this).attr('id');
-        switch (question_type) {
-            case '1':
-
-                break;
-            case '2':
-
-                break;
-            case '3':
-
-                break;
-            case '4':
-
-                break;
-            case '5':
-
-                break;
-            default:
-                break;
-        }
     });
 
     //funciones para editar bloques
@@ -482,8 +496,9 @@ $(document).ready(function () {
 
             $('#main-configuration-panel').addClass('hidden');
             $('#add-question-option-panel').addClass('hidden');
-            $('#add-new-question-configuration-panel').removeClass('hidden');
+            $('#add-new-question-configuration-panel').addClass('hidden');
             $('#questions-block-configuration-panel').addClass('hidden');
+            $('#update-question-configuration-panel').removeClass('hidden');
 
             $('#survey-main-content div.question-content').each(function () {
                 $(this).removeClass('active-question');
@@ -493,9 +508,51 @@ $(document).ready(function () {
 
             var question_id = $(this).closest('div.question-content').find('div.db_question_id').attr('id');
 
-            console.log(question_id)
+            var question_survey_id = $(this).closest('div.question-content').attr('id');
 
-            $('#current-question').val(question_id);
+            console.log(question_id)
+            console.log(question_survey_id)
+
+            $('#current-question-updated').val(question_survey_id);
+
+            //TODO: make a function to return the options and organize them in a new update form
+            return getQuestionToUpdate(question_id);
+
+        } else if ($(this).hasClass('remove_question')) {
+
+            var self = $(this);
+
+            bootbox.dialog({
+                message: "¿Esta seguro de eliminar la pregunta?",
+                title: "Eliminar Pregunta",
+                buttons: {
+                    success: {
+                        label: "Cancelar",
+                        className: "btn-white",
+                        callback: function () {
+                            return true;
+                        }
+                    },
+                    main: {
+                        label: "Eliminar",
+                        className: "btn-twitter",
+                        callback: function () {
+
+                            var question_id = self.closest('div.question-content').find('div.db_question_id').attr('id');
+
+                            var question_ids = new Array();
+
+                            question_ids.push(
+                                {
+                                    'question_id': question_id
+                                }
+                            );
+
+                            deleteQuestion(self, question_ids);
+                        }
+                    }
+                }
+            });
         }
     })
 
@@ -529,8 +586,20 @@ $(document).ready(function () {
         });
     });
 
+    $('div.question-content').hover(function () {
+        $(this).find('.actions').fadeIn(100);
+    }, function () {
+        $(this).find('.actions').fadeOut(100);
+    });
 
 
+    $(document).on('keyup', '.option_added', function () {
+        addQuestionOptions();
+    });
+
+    $('.multiple_choice_options_set').change(function () {
+        addQuestionOptions();
+    });
 
 })
 
@@ -713,3 +782,93 @@ function enumerateQuestionBlocks() {
         $(this).attr('id', 'block-' + (index + 1));
     });
 }
+
+function getQuestionToUpdate(question_id) {
+    $.ajax({
+        type: 'GET',
+        url: '/surveys/' + question_id + '/edit/',
+        data: {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value
+        },
+        dataType: 'JSON',
+        success: function (json_response) {
+
+            if (json_response.question_type_name == 'Multiple Choice') {
+
+                tinymce.get('tinymce-editor-update-question').setContent(json_response.question_title)
+                var form = '<div id="question_type_2" class="question multiple_choice_u">'
+
+                form += '<select name="question_type_select" id="question_type_select" disabled>'
+                form += '<option value="' + json_response.question_type_id + '" selected>' + json_response.question_type_name + '</option>'
+                form += '</select>'
+
+                form += '<form id="question_type_2_form">'
+                form += '<p>'
+                form += '<input class="multiple_choice_title question_title_updated" type="hidden" name="mo_title" maxlength="100" value="' + json_response.question_title + '"/>'
+                form += '</p>'
+                form += '<p>Options</p>'
+                form += '<div class="multiple_choice_options_set_u">'
+
+                $.each(json_response.question_options, function (index, value) {
+                    form += '<div class="dynamic_inputs">'
+                    form += '<input type="hidden" value="' + value.option_id + '" />'
+                    form += '<input type="text" maxlength="100" class="option_added_u" value="' + value.option_label + '"/>'
+                    form += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
+                    form += '</div>'
+                })
+
+                form += '<input type="text" maxlength="100" class="dummy_option_u" value="Clic para agregar otra opcion"/>'
+                form += '</div>'
+                form += '<input id="edit_multiple_choice" type="submit" value="Modificar Pregunta" />'
+                form += '</form>'
+                form += '<div>'
+
+                if (json_response.question_moment_id) {
+                    var moment_id = json_response.question_moment_id;
+                    $('#update_moment_association option[value='+moment_id+']').prop("selected", true);
+                }
+                if (json_response.question_attribute_id) {
+                    var attribute_id = json_response.question_attribute_id;
+                    $("#update_attribute_association option[value="+attribute_id+"]").prop( "selected", true )
+                }
+
+                $('.question-conf').html(form);
+            }
+        },
+        error: function (msg) {
+            console.log(msg)
+        }
+
+    });
+
+}
+
+
+function deleteQuestion(self, question_ids) {
+    $.ajax({
+        type: 'POST',
+        url: '/surveys/delete_questions/',
+        data: {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            ids: JSON.stringify(question_ids),
+            survey_id: $('#survey_id').val()
+        },
+        dataType: 'JSON',
+        success: function (msg) {
+            //alert(msg);
+            if (msg.success) {
+                $(self).closest('div.question-content').slideUp('slow', function () {
+                    $(this).remove();
+                    enumerateQuestions();
+                    enumerateQuestionBlocks();
+                    saveSurvey();
+                })
+            }
+        },
+        error: function (msg) {
+            console.log('msg no enviado')
+        }
+
+    });
+}
+

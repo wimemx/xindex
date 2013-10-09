@@ -195,17 +195,19 @@
                                         </div>
                                     {% endif %}
                                     {% for question in block.questions %}
-                                        <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.survey_question_id }}">
+                                        <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}">
                                             <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
                                                 <div class="question_actions">
-                                                    {% csrf_token %}
-                                                    <a class="actions_question remove_question" id="remove_block">
-                                                        <i class="icon-trash icon-sm pull-left"></i>
-                                                    </a>
-                                                    <a class="actions_question update_question" id="update_block">
-                                                        <i class="icon-edit icon-sm pull-left"></i>
-                                                    </a>
-                                                    {% if question.moment_title %}
+                                                    <strong class="actions pull-left">
+                                                        {% csrf_token %}
+                                                        <a class="actions_question remove_question" id="remove_block">
+                                                            <i class="icon-trash icon-sm pull-left"></i>
+                                                        </a>
+                                                        <a class="actions_question update_question" id="update_block">
+                                                            <i class="icon-edit icon-sm pull-left"></i>
+                                                        </a>
+                                                    </strong>
+                                                    {% if question.attribute_title %}
                                                         <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
                                                     {% endif %}
                                                     {% if question.moment_title %}
@@ -834,6 +836,118 @@
         </div>
     </div>
 </section>
+<section class="panel hidden" id="update-question-configuration-panel">
+    <div class="wrapper text-center">
+        <p class="h2">Modificar pregunta</p>
+    </div>
+    <header class="panel-heading bg-light">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="active h4"><a data-toggle="tab"
+                                     href="#update-question-content">
+                Contenido
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#update-question-design">
+                Diseño
+            </a></li>
+            <li class="h4"><a data-toggle="tab" href="#update-question-configuration">
+                Configuraci&oacute;n
+            </a></li>
+        </ul>
+    </header>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div id="update-question-content" class="tab-pane active">
+                <input type="hidden" id="current-question-updated" value=""/>
+
+                <div class="col-lg-12 wrapper">
+                    <section class="panel wrapper">
+                        <div class="">
+                            <p class="h4">Texto de la pregunta</p>
+                        </div>
+                        <textarea id="tinymce-editor-update-question"
+                                  name="tinymce-editor-update-question">
+
+                        </textarea>
+
+                        <div class="question-conf padder-v">
+
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div id="update-question-design" class="tab-pane">
+                Diseño de la pregunta
+            </div>
+            <div id="update-question-configuration" class="tab-pane">
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Punto de Contacto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            <div class="checkbox">
+                                <label>
+                                    Escoja el punto de contacto al cual esta vinculado esta pregunta<i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Punto de Contacto
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="update_moment_association" class="form-control">
+                                        <option value="default">No asociar</option>
+                                        {% for moment in setup.moments %}
+                                            <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Atributos
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">
+                                    Escoja los indicadores que seran medidos por la pregunta<i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Atributos
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="update_attribute_association" class="form-control">
+                                        <option value="default">No asociar</option>
+                                        {% for attribute in setup.attributes %}
+                                            <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="footer wrapper">
+                                <div class="">
+                                    <button type="submit" class="btn btn-info pull-left" id="">Guardar y Continuar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
 </div>
 </div>
 </section>
@@ -858,6 +972,7 @@
 
 <!-- question selector -->
 <script src="/static/js/questions_survey_selector.js"></script>
+<script src="/static/js/survey.modify.questions.js"></script>
 
 <!-- fuelux -->
 <script src="/static/js/fuelux/fuelux.js"></script>

@@ -266,18 +266,23 @@ def save(request, action, next_step, survey_id=False):
                                 #Check if question is associated to a moment
                                 try:
                                     association = Question_Attributes.objects.get(question_id=question)
-                                    if association.moment_id == None:
+                                    if association.moment_id is None:
                                         moment_title = False
                                     else:
                                         moment_title = association.moment_id.name
 
-                                    if association.attribute_id:
+                                    if association.attribute_id is None:
+                                        attribute_title = False
+                                    else:
                                         attribute_title = association.attribute_id.name
 
                                 except Question_Attributes.DoesNotExist:
                                     moment_title = False
                                     attribute_title = False
                                 #end check
+
+                                print moment_title
+                                print attribute_title
 
                                 options_o = []
                                 for option in options:
@@ -294,6 +299,7 @@ def save(request, action, next_step, survey_id=False):
                                         'moment_title': moment_title,
                                         'attribute_title': attribute_title,
                                         'survey_question_id': q['question_survey_id'],
+                                        'question_content_id': q['question_content_id'],
                                         'db_question_id': q['db_id'],
                                         'question_title': question.title,
                                         'question_type': question.type.id,
@@ -512,7 +518,7 @@ def associate_questions_to_moments(request):
             print question
 
             try:
-                relation = Question_Attributes.object.get(question_id=q)
+                relation = Question_Attributes.objects.get(question_id=q)
             except Question_Attributes.DoesNotExist:
                 relation = Question_Attributes()
 
@@ -535,7 +541,6 @@ def associate_questions_to_attributes(request):
 
         attribute = Attributes.objects.get(pk=int(request.POST['attribute_id']))
 
-        print 'si llega'
         try:
             question_attribute = Question_Attributes.objects.get(question_id=question)
         except Question_Attributes.DoesNotExist:
@@ -1052,3 +1057,354 @@ def deployment(request, action, next_step, survey_id=False):
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/deployment.html',
                                   request_context)
+
+
+def edit(request, question_id):
+    if request.is_ajax:
+        question_types = Question_Type.objects.all().order_by('name')
+        question = get_object_or_404(Question, pk=question_id)
+
+        #TODO: Refactor using the factory
+        if question.type.name == "Matrix":
+            #We get the pattern of the options based on the first child
+            rows = Question.objects.filter(parent_question=question).order_by('id')
+            options = rows[0].option_set.all().order_by('id')
+            return render_to_response('questions/edit.html',
+                                      {'question': question,
+                                       'question_types': question_types,
+                                       'rows': rows,
+                                       'options': options})
+        elif question.type.name == "Multiple Choice":
+            options = question.option_set.all().order_by('id')
+            """
+            return render_to_response('questions/edit.html',
+                                      {'question': question,
+                                       'question_types': question_types,
+                                       'options': options})
+            """
+            question_json = {}
+            question_json['question_type_id'] = question.type.id
+            question_json['question_type_name'] = question.type.name
+            question_json['question_title'] = question.title
+            question_json['question_options'] = []
+            question_json['question_types'] = []
+
+            #Get Question Association
+            try:
+                question_association = Question_Attributes.objects.get(question_id__id=question_id)
+                if question_association.moment_id is None:
+                    moment_id = False
+                    moment_name = False
+                else:
+                    moment_id = question_association.moment_id.id
+                    moment_name = question_association.moment_id.name
+                if question_association.attribute_id is None:
+                    attribute_id = False
+                    attribute_name = False
+                else:
+                    attribute_id = question_association.attribute_id.id
+                    attribute_name = question_association.attribute_id.name
+
+            except Question_Attributes.DoesNotExist:
+                moment_id = False
+                moment_name = False
+                attribute_id = False
+                attribute_name = False
+
+            question_json['question_moment_id'] = moment_id
+            question_json['question_moment_name'] = moment_name
+            question_json['question_attribute_id'] = attribute_id
+            question_json['question_attribute_name'] = attribute_name
+
+
+
+            for option in options:
+                if option.active:
+                    question_json['question_options'].append(
+                        {
+                            'option_id': option.id,
+                            'option_label': option.label
+                        }
+                    )
+            for question_type in question_types:
+                question_json['question_types'].append(
+                    {
+                        'question_type_id': question_type.id,
+                        'question_type_name': question_type.name
+                    }
+                )
+
+
+            return HttpResponse(json.dumps(question_json),
+                                    content_type="application/json")
+
+        elif question.type.name == "Open question" or question.type.name == "True and False":
+            return render_to_response('questions/edit.html',
+                                      {'question': question,
+                                       'question_types': question_types})
+        elif question.type.name == "Range":
+            options = question.option_set.filter(active=True).order_by('id')
+            first, last = options[0], options.reverse()[0]
+            return render_to_response('questions/edit.html',
+                                      {'question': question,
+                                       'question_types': question_types,
+                                       'options': options,
+                                       'first': first,
+                                       'last': last})
+
+        #If question has an undefined type (weird) return nothing
+        return render_to_response('questions/edit.html',
+                                  {'question': question,
+                                   'question_types': question_types})
+
+
+def update_matrix(question, data):
+    cols = data.cols
+    rows = data.rows
+
+    questions = Question.objects.filter(parent_question=question).order_by('id')
+
+    #Set all subquestions to innactive
+    Question.objects.filter(parent_question=question).update(active=False)
+    #as well as the options for each question
+    for q in questions:
+        #Set all options for this question as innactive
+        q.option_set.all().update(active=False)
+
+    #Assuming the order in data is correct
+    for subquestion in rows:
+        if hasattr(subquestion, 'id'):
+            q = questions.get(pk=subquestion.id)
+            q.title = subquestion.label
+            q.active = True
+            q.save()
+
+            options = q.option_set.all().order_by('id')
+            #assuming both objects are in order
+            i = 0
+            for option in cols:
+                try:
+                    opt = options[i]
+                    if opt:
+                        opt.label = option.label
+                        opt.active = True
+                        opt.save()
+                    i += 1
+                except IndexError:
+                    #It is a new Option
+                    new_option = Option(question=q, label=option.label,
+                            value = i, order = i)
+                    new_option.save()
+        else:
+            #The subquestion is new
+            q = Question(user=Xindex_User.objects.get(pk=1),
+                         title=subquestion.label,
+                         type=Question_Type.objects.get(pk=question.type.id),
+                         parent_question=question)
+            q.save()
+
+            #There must be at leat one
+            cols = questions[0].option_set.all().order_by('id')
+            for option in cols:
+                new_option = Option(question=q, label=option.label,
+                                    value=option.value, order=option.order)
+                new_option.save()
+
+        #At the end, for each question that has been 'removed' (active = False)
+        #We should also delete its options
+        deleted_questions = Question.objects.filter(parent_question=question,
+                                                    active=False)
+        for d_question in deleted_questions:
+            d_question.option_set.all().update(active=False)
+
+
+    json_response = json.dumps(
+        {'messagesent': "Question edited successfully!"}
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+def update_multiple_choice(question, data):
+    options = data.options
+
+    #Set all options to innactive
+    Option.objects.filter(question=question).update(active=False)
+    current_options = question.option_set.all().order_by('id');
+
+    #Assuming the order in data is correct
+    i = 0
+    for option in options:
+        if hasattr(option, 'id'):
+            opt = current_options.get(pk=option.id)
+            opt.label = option.label
+            opt.active = True
+            opt.save()
+            i += 1
+
+        else:
+            #It is a new Option
+            new_option = Option(question=question, label=option.label,
+                    value = i, order = i)
+            new_option.save()
+
+    if data.moment_id or data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+        except Question_Attributes.DoesNotExist:
+            q_a_m = Question_Attributes()
+            q_a_m.question_id = question
+
+        print q_a_m
+
+        if data.moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
+        else:
+            q_a_m.moment_id = None
+
+
+
+        if data.attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()
+
+    if not data.moment_id and not data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+            q_a_m.delete()
+        except Question_Attributes.DoesNotExist:
+            q_a_m = None
+
+    json_response = json.dumps(
+        {
+            'updated': True
+        }
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+def update_open_question(question, data):
+    question.title = data.title
+    question.save()
+    json_response = json.dumps(
+        {'messagesent': "Question edited successfully!"}
+    )
+    return HttpResponse(json_response, content_type="application/json")
+def update_range_question(question, data):
+    start_number = int(float(data.options.start_number))
+    end_number = int(float(data.options.end_number))
+
+    if start_number < 0 or end_number > 20:
+        json_response = json.dumps(
+                    {'messagesent': "Error - Limits are not valid for range"}
+            )
+        return HttpResponse(json_response, content_type="application/json",
+                            status=400)
+
+    #Set all options to innactive
+    Option.objects.filter(question=question).update(active=False)
+    current_options = question.option_set.all().order_by('id')
+
+    #Setting the first value
+    first_option = current_options[start_number]
+    first_option.label = data.options.start_label
+    first_option.value = start_number
+    first_option.order = start_number
+    first_option.active = True
+    first_option.save()
+
+    #Assuming the order in data is correct
+    start_number += 1
+    for i in range(start_number, end_number):
+        try:
+            updated_option = current_options[i]
+            updated_option.label = ''
+            updated_option.value = i
+            updated_option.order = i
+            updated_option.active = True
+            updated_option.save()
+        except IndexError:
+            #It is a new Option
+            new_option = Option(question=question, label="",
+                                value=i, order=i)
+            new_option.save()
+
+    #Setting the last value
+    try:
+        #It's already within the limit
+        lastOption = current_options[end_number]
+        lastOption.label = data.options.end_label
+        lastOption.value = end_number
+        lastOption.order = end_number
+        lastOption.active = True
+        lastOption.save()
+    except IndexError:
+        #Needs to be created
+        lastOption = Option(question=question, label=data.options.end_label,
+                            value=end_number, order=end_number)
+        lastOption.save()
+
+
+    json_response = json.dumps(
+        {'messagesent': "Question edited successfully!"}
+    )
+    return HttpResponse(json_response, content_type="application/json")
+def update_true_and_false(question, data):
+    question.title = data.title
+    question.save()
+    json_response = json.dumps(
+        {'messagesent': "Question edited successfully!"}
+    )
+    return HttpResponse(json_response, content_type="application/json")
+
+
+
+
+
+
+#TODO: Fix this; DO NOT use in production
+@csrf_exempt
+def edit_ajax(request, question_id):
+    if request.is_ajax():
+        try:
+            data = json.loads(request.body,
+                              object_hook=lambda d: namedtuple('X', d.keys())
+                                  (*d.values())
+            )
+
+            print data
+
+            q_id = int(question_id)
+            question = Question.objects.get(pk=q_id)
+            question.title = data.title
+            question.save()
+
+            #TODO: Search for types in the table question_type to avoid hardcoding
+            if question.type.name == "Matrix":
+                return update_matrix(question, data)
+            elif question.type.name == "Multiple Choice":
+                print 'entra al metodo'
+                return update_multiple_choice(question, data)
+            elif question.type.name == "Open question":
+                return update_open_question(question, data)
+            elif question.type.name == "Range":
+                return update_range_question(question, data)
+            elif question.type.name == "True and False":
+                return update_true_and_false(question, data)
+
+            #If the type of question is not defined, throw an error
+            json_response = json.dumps(
+                    {'messagesent': "Error - Not a valid type of question"}
+            )
+            return HttpResponse(json_response, content_type="application/json",
+                                status=400)
+        except ValueError:
+            json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+            return HttpResponse(json_response, content_type="application/json",
+                                status=400)
+    else:
+        raise Http404
