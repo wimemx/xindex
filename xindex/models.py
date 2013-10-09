@@ -304,7 +304,7 @@ class Question_Attributes(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
-    picture = models.ImageField(upload_to="pictures/")
+    #picture = models.ImageField(upload_to="pictures/")
     moments = models.ManyToManyField('Moment', blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)

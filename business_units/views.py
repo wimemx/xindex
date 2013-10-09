@@ -134,25 +134,12 @@ def getBUInJson(request):
         b_u['business_u'].append(
             {
                 "name": eachBusinessUnit.name,
-                "subsidiary": "SUB",
-                "zone": 'subsidiary.zone.name' or '',
+                "subsidiary": eachBusinessUnit.subsidiary.name,
+                "zone": eachBusinessUnit.subsidiary.zone.name or '',
                 "business_unit_id": eachBusinessUnit.id,
                 "subsidiary_id": 'eachBusinessUnit.subsidiary'
             }
         )
-    """
-    print(subsidiaries)
-    for bu in BusinessUnit.objects.filter(active=True).order_by('-date'):
-        b_u['business_u'].append(
-            {
-                "name": bu.name,
-                "description":bu.description,
-                "bu_det": bu.id,
-                "bu_up": bu.id,
-                "bu_del": bu.id,
-            }
-        )
-    """
 
     return HttpResponse(simplejson.dumps(b_u))
 

@@ -1243,39 +1243,11 @@ function zonesDatagrid() {
                         var subid = item.subsidiary_id;
                         item.name = '<a href="/zones/' + item.zone_id + '">' + item.name + '</a>';
                         item.zone_id =
-                            //'<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>'
-                            //    +
-                            //    '<label>|</label>'
-                            //    +
                             '<a href="/zones/'+ item.zone_id + '/edit/" class="update_zone" data-toggle="ajaxModal"><i class="icon-edit"></i></a>'
                                 +
                                 '<label>|</label>'
                                 +
                             '<a href="/zones/'+ item.zone_id + '/remove/" class="remove_zone" data-toggle="ajaxModal"><i class="icon-remove"></i></a>';
-                        //c = (item.active == true) ? "checked" : ""
-                        //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
-
-                    });
-
-                    $.each(items, function (index, item) {
-
-                        if (sucursales.length == 0) {
-                            var sucursal = item.subsidiary;
-                            sucursales.push(sucursal);
-                        }
-                        var coincidencias = 0
-
-                        for (var i = 0; i < sucursales.length; i++) {
-                            if (sucursales[i] == item.subsidiary) {
-                                coincidencias++;
-                            }
-                        }
-
-                        if (coincidencias == 0) {
-                            var sucursal = item.subsidiary;
-                            sucursales.push(sucursal)
-                        }
-
                     });
 
                     $.each(items, function (index, item) {
@@ -1300,9 +1272,6 @@ function zonesDatagrid() {
                     });
 
                 }
-
-                //Crear filtros
-
 
             })
         });

@@ -41,7 +41,7 @@ def index(request, business_unit_id=False):
 def add(request, business_unit_id):
     business_unit = BusinessUnit.objects.get(pk=business_unit_id)
     if request.POST:
-        formulario = AddService(request.POST or None, request.FILES)
+        formulario = AddService(request.POST or None)
         if formulario.is_valid():
             formToSave = formulario.save()
             business_unit.service.add(formToSave)
@@ -202,8 +202,8 @@ def getSByBUInJson(request, business_unit_id):
                     "name": service.name,
                     "business_unit": business_unit.name,
                     "business_unit_id": business_unit.id,
-                    "subsidiary": "Sucursal",
-                    "zone": "Ubicacion",
+                    "subsidiary": business_unit.subsidiary.name,
+                    "zone": business_unit.subsidiary.address,
                     "delete": service.id,
                     "edit": service.id,
                     "details": service.id
@@ -254,7 +254,6 @@ def details(request, service_id):
     template_vars = {
         'titulo': 'Detalles',
         'service': moments,
-        #'counter': counter,
         'service_id': service_id,
         'counter_moments': counter_moments,
         'counter_attributes': counter_attributes_
