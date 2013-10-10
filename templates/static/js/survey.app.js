@@ -849,15 +849,18 @@ function getQuestionToUpdate(question_id) {
         success: function (json_response) {
 
             if (json_response.question_type_name == 'Multiple Choice') {
+
                 //alert('Multiple Choice');
                 tinymce.get('tinymce-editor-update-question').setContent(json_response.question_title)
+
                 var form = '<div id="question_type_2" class="question multiple_choice_u">'
 
                 form += '<select name="question_type_select" id="question_type_select" disabled>'
                 form += '<option value="' + json_response.question_type_id + '" selected>' + json_response.question_type_name + '</option>'
                 form += '</select>'
 
-                form += '<form id="question_type_2_form">'
+                form += '<form class="form-horizontal padder" id="question_type_2_form">'
+                form += '<div class="form-group">'
                 form += '<p>'
                 form += '<input class="multiple_choice_title question_title_updated" type="hidden" name="mo_title" maxlength="100" value="' + json_response.question_title + '"/>'
                 form += '</p>'
@@ -867,14 +870,15 @@ function getQuestionToUpdate(question_id) {
                 $.each(json_response.question_options, function (index, value) {
                     form += '<div class="dynamic_inputs">'
                     form += '<input type="hidden" value="' + value.option_id + '" />'
-                    form += '<input type="text" maxlength="100" class="option_added_u" value="' + value.option_label + '"/>'
+                    form += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
                     form += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
                     form += '</div>'
                 });
 
-                form += '<input type="text" maxlength="100" class="dummy_option_u" value="Clic para agregar otra opcion"/>'
+                form += '<input type="text" maxlength="100" class="dummy_option_u form-control" value="Clic para agregar otra opcion"/>'
                 form += '</div>'
-                form += '<input id="edit_multiple_choice" type="submit" value="Modificar Pregunta" />'
+                form += '</div>'
+                form += '<input id="edit_multiple_choice" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 form += '</form>'
                 form += '<div>'
 
@@ -892,13 +896,16 @@ function getQuestionToUpdate(question_id) {
                 //alert('Matrix');
 
                 tinymce.get('tinymce-editor-update-question').setContent(json_response.question_title)
-                var formMatrix = '<div id="question_type_1" style="display: inline" class="question matrix_u">'
+                var formMatrix
 
-                formMatrix += '<select name="question_type_select" id="question_type_select" disabled>'
+                formMatrix = '<div id="question_type_1" style="display: inline;" class="question matrix_u col-lg-12">'
+
+                formMatrix += '<select class="form-control" name="question_type_select" id="question_type_select" disabled>'
                 formMatrix += '<option value="' + json_response.question_type_id + '" selected>' + json_response.question_type_name + '</option>'
                 formMatrix += '</select>'
 
-                formMatrix += '<form id="question_type_1_form">'
+                formMatrix += '<form class="form-horizontal padder" id="question_type_1_form">'
+                formMatrix += '<div class="form-group">'
                 formMatrix += '<p>'
                 formMatrix += '<input class="matrix_title question_title_updated" type="hidden" name="matrix_title" maxlength="100" value="' + json_response.question_title + '"/>'
                 formMatrix += '</p>'
@@ -906,32 +913,38 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_cols_u">'
 
                 $.each(json_response.question_options, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs">'
+                    formMatrix += '<div class="dynamic_inputs input-close">'
                     formMatrix += '<input type="hidden" value="' + value.option_id + '" />'
-                    formMatrix += '<input type="text" maxlength="100" class="option_added_u" value="' + value.option_label + '"/>'
+                    formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
                     formMatrix += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
                     formMatrix += '</div>'
                 });
 
-                formMatrix += '<input type="text" maxlength="100" class="dummy_option_u" value="Clic para agregar otra columna"/>'
+                formMatrix += '<input type="text" maxlength="100" class="dummy_option_u form-control" value="Clic para agregar otra columna"/>'
+                formMatrix += '</div>'
                 formMatrix += '</div>'
 
+                formMatrix += '<div class="form-group">'
                 formMatrix += '<p>Establece el n&uacute;mero de renglones</p>'
                 formMatrix += '<div class="matrix_rows_u">'
 
                 $.each(json_response.question_rows, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs">'
+                    formMatrix += '<div class="dynamic_inputs input-close">'
                     formMatrix += '<input type="hidden" value="' + value.row_id + '" />'
-                    formMatrix += '<input type="text" maxlength="100" class="option_added_u" value="' + value.row_title + '"/>'
+                    formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.row_title + '"/>'
                     formMatrix += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
                     formMatrix += '</div>'
                 });
 
-                formMatrix += '<input type="text" maxlength="100" class="dummy_option_u" value="Clic para agregar otro renglon"/>'
+                formMatrix += '<input type="text" maxlength="100" class="dummy_option_u form-control" value="Clic para agregar otro renglon"/>'
                 formMatrix += '</div>'
-                formMatrix += '<input id="edit_matrix" type="submit" value="Modificar Pregunta" />'
+                formMatrix += '</div>'
+
+                formMatrix += '<div class="form-group">'
+                formMatrix += '<input id="edit_matrix" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 formMatrix += '</form>'
-                formMatrix += '<div>'
+                formMatrix += '</div>'
+                formMatrix += '</div>'
 
                 if (json_response.question_moment_id) {
                     var moment_id = json_response.question_moment_id;
@@ -954,29 +967,42 @@ function getQuestionToUpdate(question_id) {
                 formRange += '<option value="' + json_response.question_type_id + '" selected>' + json_response.question_type_name + '</option>'
                 formRange += '</select>'
 
-                formRange += '<form id="question_type_4_form">'
+                formRange += '<form class="form-horizontal padder" id="question_type_4_form">'
+                formRange += '<div class="form-group">'
                 formRange += '<p>'
                 formRange += '<input class="range_title question_title_updated" type="hidden" name="range_title" maxlength="100" value="' + json_response.question_title + '"/>'
                 formRange += '</p>'
                 formRange += '<p>Establece los siguientes datos</p>'
                 formRange += '<div class="range_field_set_u">'
 
+                formRange += '<div class="col-lg-6 col-sm-6">'
                 formRange += ' <label>Valor inicial:</label>'
-                formRange += '<input type="text" maxlength="100" class="start_number" value="' + json_response.question_first_value + '"/>'
+                formRange += '<input type="text" maxlength="100" class="start_number form-control" value="' + json_response.question_first_value + '"/>'
 
+                formRange += '<br>'
                 formRange += '<label>Etiqueta Inicial:</label>'
-                formRange += '<input type="text" maxlength="100" class="start_label" value="' + json_response.question_first_label + '"/>'
-
-                formRange += ' <label>Valor Final:</label>'
-                formRange += '<input type="text" maxlength="100" class="end_number" value="' + json_response.question_last_value + '"/>'
-
-                formRange += '<label>Etiqueta Final:</label>'
-                formRange += '<input type="text" maxlength="100" class="end_label" value="' + json_response.question_last_label + '"/>'
+                formRange += '<input type="text" maxlength="100" class="start_label form-control" value="' + json_response.question_first_label + '"/>'
+                formRange += '</div>'
 
                 formRange += '</div>'
-                formRange += '<input id="edit_range_question" type="submit" value="Modificar Pregunta" />'
+                formRange += '<div class="col-lg-6 col-sm-6">'
+                formRange += '<div class="range_field_set_u">'
+                formRange += '<label>Valor Final:</label>'
+                formRange += '<input type="text" maxlength="100" class="end_number form-control" value="' + json_response.question_last_value + '"/>'
+
+                formRange += '<br>'
+                formRange += '<label>Etiqueta Final:</label>'
+                formRange += '<input type="text" maxlength="100" class="end_label form-control" value="' + json_response.question_last_label + '"/>'
+
+                formRange += '</div>'
+                formRange += '</div>'
+                formRange += '</div>'
+
+                formRange += '<div class="form-group">'
+                formRange += '<input id="edit_range_question" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 formRange += '</form>'
-                formRange += '<div>'
+                formRange += '</div>'
+                formRange += '</div>'
 
                 if (json_response.question_moment_id) {
                     var moment_id = json_response.question_moment_id;
@@ -1003,7 +1029,7 @@ function getQuestionToUpdate(question_id) {
                 formOpenQuestion += '</p>'
 
                 formOpenQuestion += '</div>'
-                formOpenQuestion += '<input id="edit_open_question" type="submit" value="Modificar Pregunta" />'
+                formOpenQuestion += '<input id="edit_open_question" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 formOpenQuestion += '</form>'
                 formOpenQuestion += '<div>'
 
@@ -1032,7 +1058,7 @@ function getQuestionToUpdate(question_id) {
                 formFandT += '</p>'
 
                 formFandT += '</div>'
-                formFandT += '<input id="edit_true_and_false_question" type="submit" value="Modificar Pregunta" />'
+                formFandT += '<input id="edit_true_and_false_question" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 formFandT += '</form>'
                 formFandT += '<div>'
 

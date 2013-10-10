@@ -480,7 +480,6 @@ def save_ajax(request, survey_id):
         raise Http404
 
 
-
 def delete_questions(request):
     if request.is_ajax():
 
@@ -531,6 +530,7 @@ def associate_questions_to_moments(request):
             }
         )
         return HttpResponse(json_response, content_type="application/json")
+
 
 def associate_questions_to_attributes(request):
 
@@ -1375,7 +1375,7 @@ def update_matrix(question, data):
             q.save()
 
             #There must be at leat one
-            cols = questions[0].option_set.all().order_by('id')
+            cols = questions[0].option_set.filter(active=True).order_by('id')
             for option in cols:
                 new_option = Option(question=q, label=option.label,
                                     value=option.value, order=option.order)
@@ -1437,7 +1437,7 @@ def update_multiple_choice(question, data):
 
     #Set all options to innactive
     Option.objects.filter(question=question).update(active=False)
-    current_options = question.option_set.all().order_by('id');
+    current_options = question.option_set.all().order_by('id')
 
     #Assuming the order in data is correct
     i = 0
@@ -1666,7 +1666,6 @@ def update_true_and_false(question, data):
         except Question_Attributes.DoesNotExist:
             q_a_m = None
 
-
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
@@ -1723,6 +1722,7 @@ def edit_ajax(request, question_id):
                                 status=400)
     else:
         raise Http404
+
 
 def createAssociationQAM(question, moment_id, attribute_id):
     if moment_id or attribute_id:

@@ -266,23 +266,23 @@
                                                 {% elif question.question.type.name == 'Matrix'%}
                                                     <div class="col-sm-12" style="padding-left: 35px !important;">
                                                     <table border="0">
-                                                    {% for row in question.question.question_set.all|slice:":1" %}
+                                                    {% for row in question.question.question_set.all %}
                                                         {% if forloop.first %}
-                                                        <tr>
-                                                        {% if row.active %}
-                                                            <td class="padder" style="border-right: 1px solid #d3d3d3""></td>
-                                                        {% endif %}
+                                                            <tr>
+                                                            {% if row.active %}
+                                                                <td class="padder" style="border-right: 1px solid #d3d3d3"></td>
+                                                            {% endif %}
 
-                                                        {% for option in row.option_set.all %}
+                                                            {% for option in row.option_set.all %}
 
-                                                                {% if option.active %}
-                                                                <td class="padder">
-                                                                {{ option.label }}
-                                                                </td>
-                                                                {% endif %}
+                                                                    {% if option.active %}
+                                                                    <td class="padder">
+                                                                    {{ option.label }}
+                                                                    </td>
+                                                                    {% endif %}
 
-                                                        {% endfor %}
-                                                        </tr>
+                                                            {% endfor %}
+                                                            </tr>
                                                         {% endif %}
                                                     {% endfor %}
                                                     {% for row in question.question.question_set.all %}
@@ -702,7 +702,7 @@
                                     <form id='question_type_1_form' class="form-horizontal">{% csrf_token %}
                                         <div class="form-group">
                                         <input class="question-title matrix_title" type="hidden" name="m_title" maxlength="100" />
-                                            <p>Establece el número de columnas</p>
+                                            <p>Establece cada una de las columnas</p>
 
                                             <div class="matrix_cols">
                                                 <input type="text" maxlength="100"
@@ -782,7 +782,7 @@
                                                     <div class="range_field_set">
                                                         <label>Valor inicial:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="start_number form-control"/>
+                                                               class="start_number form-control" value="1"/>
                                                         <br>
                                                         <label>Etiqueta inicial:</label><br>
                                                         <input type="text" maxlength="100"
@@ -793,7 +793,7 @@
                                                      <div class="range_field_set">
                                                         <label>Valor final:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="end_number form-control"/>
+                                                               class="end_number form-control" value="10"/>
                                                         <br>
                                                         <label>Etiqueta final:</label><br>
                                                         <input type="text" maxlength="100"
