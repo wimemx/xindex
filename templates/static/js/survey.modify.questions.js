@@ -107,15 +107,173 @@ $(document).ready(function(){
 
         manage_question_ajax_edited(question);
     });
-
-
     /*ENDS MULTIPLE CHOICE*/
 
+    /* ---/Edit
+    * ---/Question
+    * --/MATRIX
+    * */
+    $(document).on('click', '#edit_matrix', function (event) {
+        event.preventDefault();
+        var question = {};
+        var current_question_updated = $('#current-question-updated').val();
+        question.id = $('#'+current_question_updated+' div.db_question_id').attr('id');
+        question.title = $('.question_title_updated').val();
+
+        var rows = new Array();
+        var cols = new Array();
+
+        $(".matrix_cols_u .dynamic_inputs").each(function () {
+            cols.push({
+                'id': $(this).find(':input:hidden').first().val(),
+                'label': $(this).find(':input:text').first().val()
+            });
+        });
+
+         $(".matrix_rows_u .dynamic_inputs").each(function () {
+            rows.push({
+                'id': $(this).find(':input:hidden').first().val(),
+                'label': $(this).find(':input:text').first().val()
+            });
+        });
+
+        question.cols = cols;
+        question.rows = rows;
+
+        var moment_id = $('#update_moment_association').val();
+
+        if (moment_id == 'default'){
+            question.moment_id = false;
+        } else {
+            question.moment_id = moment_id;
+            console.log('El momento es: '+moment_id)
+        }
+
+        var attribute_id = $('#update_attribute_association').val();
+
+        if (attribute_id == 'default'){
+            question.attribute_id = false;
+        } else {
+            question.attribute_id = attribute_id;
+            console.log('El attributo es: '+attribute_id);
+        }
 
 
-})
+        manage_question_ajax_edited(question);
+    });
+
+    /* ---/Edit
+    * ---/Question
+    * --/RANGE
+    * */
+    $(document).on('click', '#edit_range_question', function (event) {
+        event.preventDefault();
+        var question = {};
+        var current_question_updated = $('#current-question-updated').val();
+        question.id = $('#'+current_question_updated+' div.db_question_id').attr('id');
+        question.title = $('.question_title_updated').val();
+
+        var data = {};
+
+        data.start_number = $(".range_field_set_u .start_number").val();
+        data.start_label = $(".range_field_set_u .start_label").val();
+        data.end_number = $(".range_field_set_u .end_number").val();
+        data.end_label = $(".range_field_set_u .end_label").val();
+
+        question.options = data;
+
+        var moment_id = $('#update_moment_association').val();
+
+        if (moment_id == 'default'){
+            question.moment_id = false;
+        } else {
+            question.moment_id = moment_id;
+            console.log('El momento es: '+moment_id)
+        }
+
+        var attribute_id = $('#update_attribute_association').val();
+
+        if (attribute_id == 'default'){
+            question.attribute_id = false;
+        } else {
+            question.attribute_id = attribute_id;
+            console.log('El attributo es: '+attribute_id);
+        }
 
 
+        manage_question_ajax_edited(question);
+    });
+
+    /* ---/Edit
+    * ---/Question
+    * --/Open Question
+    * */
+    $(document).on('click', '#edit_open_question', function (event) {
+        event.preventDefault();
+        var question = {};
+        var current_question_updated = $('#current-question-updated').val();
+        question.id = $('#'+current_question_updated+' div.db_question_id').attr('id');
+        question.title = $('.question_title_updated').val();
+
+        var moment_id = $('#update_moment_association').val();
+
+        if (moment_id == 'default'){
+            question.moment_id = false;
+        } else {
+            question.moment_id = moment_id;
+            console.log('El momento es: '+moment_id)
+        }
+
+        var attribute_id = $('#update_attribute_association').val();
+
+        if (attribute_id == 'default'){
+            question.attribute_id = false;
+        } else {
+            question.attribute_id = attribute_id;
+            console.log('El attributo es: '+attribute_id);
+        }
+
+        manage_question_ajax_edited(question);
+    });
+
+    /* ---/Edit
+    * ---/Question
+    * --/True and False
+    * */
+    $(document).on('click', '#edit_true_and_false_question', function (event) {
+        alert('false and true');
+        event.preventDefault();
+        var question = {};
+        var current_question_updated = $('#current-question-updated').val();
+        question.id = $('#'+current_question_updated+' div.db_question_id').attr('id');
+        question.title = $('.question_title_updated').val();
+
+        var moment_id = $('#update_moment_association').val();
+
+        if (moment_id == 'default'){
+            question.moment_id = false;
+        } else {
+            question.moment_id = moment_id;
+            console.log('El momento es: '+moment_id)
+        }
+
+        var attribute_id = $('#update_attribute_association').val();
+
+        if (attribute_id == 'default'){
+            question.attribute_id = false;
+        } else {
+            question.attribute_id = attribute_id;
+            console.log('El attributo es: '+attribute_id);
+        }
+
+        manage_question_ajax_edited(question);
+    });
+});
+
+/* ---/Manage
+* ---/Question
+* --/AjaxEdited
+* */
 
 function manage_question_ajax_edited(question) {
     $.ajax({

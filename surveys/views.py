@@ -261,7 +261,7 @@ def save(request, action, next_step, survey_id=False):
 
                             try:
                                 question = Question.objects.get(pk=q['db_id'])
-                                options = question.option_set.all().order_by('id')
+                                options = question.option_set.filter(active=True).order_by('id')
 
                                 #Check if question is associated to a moment
                                 try:
@@ -1069,11 +1069,81 @@ def edit(request, question_id):
             #We get the pattern of the options based on the first child
             rows = Question.objects.filter(parent_question=question).order_by('id')
             options = rows[0].option_set.all().order_by('id')
+
+            '''
             return render_to_response('questions/edit.html',
                                       {'question': question,
                                        'question_types': question_types,
                                        'rows': rows,
                                        'options': options})
+            '''
+
+            question_json = {'question_type_id': question.type.id,
+                             'question_type_name': question.type.name,
+                             'question_title': question.title,
+                             'question_rows': [],
+                             'question_options': [],
+                             'question_types': []}
+
+            #Get Question Association
+            try:
+                question_association = Question_Attributes.objects.get(
+                    question_id__id=question_id)
+
+                if question_association.moment_id is None:
+                    moment_id = False
+                    moment_name = False
+                else:
+                    moment_id = question_association.moment_id.id
+                    moment_name = question_association.moment_id.name
+                if question_association.attribute_id is None:
+                    attribute_id = False
+                    attribute_name = False
+                else:
+                    attribute_id = question_association.attribute_id.id
+                    attribute_name = question_association.attribute_id.name
+
+            except Question_Attributes.DoesNotExist:
+                moment_id = False
+                moment_name = False
+                attribute_id = False
+                attribute_name = False
+
+            question_json['question_moment_id'] = moment_id
+            question_json['question_moment_name'] = moment_name
+            question_json['question_attribute_id'] = attribute_id
+            question_json['question_attribute_name'] = attribute_name
+
+            for row in rows:
+                if row.active:
+                    question_json['question_rows'].append(
+                        {
+                            'row_id': row.id,
+                            'row_title': row.title
+                        }
+                    )
+
+            for option in options:
+                if option.active:
+                    question_json['question_options'].append(
+                        {
+                            'option_id': option.id,
+                            'option_label': option.label
+                        }
+                    )
+
+            for question_type in question_types:
+                question_json['question_types'].append(
+                    {
+                        'question_type_id': question_type.id,
+                        'question_type_name': question_type.name
+                    }
+                )
+
+            return HttpResponse(json.dumps(question_json),
+                                content_type="application/json")
+
+        #Editar una pregunta tipo 'Opcion multiple'
         elif question.type.name == "Multiple Choice":
             options = question.option_set.all().order_by('id')
             """
@@ -1116,8 +1186,6 @@ def edit(request, question_id):
             question_json['question_attribute_id'] = attribute_id
             question_json['question_attribute_name'] = attribute_name
 
-
-
             for option in options:
                 if option.active:
                     question_json['question_options'].append(
@@ -1138,19 +1206,112 @@ def edit(request, question_id):
             return HttpResponse(json.dumps(question_json),
                                     content_type="application/json")
 
-        elif question.type.name == "Open question" or question.type.name == "True and False":
+        #Editar una pregunta tipo 'Falso o verdadero o Abierta'
+        elif question.type.name == "Open Question" or question.type.name == "False and True":
+            '''
             return render_to_response('questions/edit.html',
                                       {'question': question,
                                        'question_types': question_types})
+            '''
+            question_json = {}
+            question_json['question_type_id'] = question.type.id
+            question_json['question_type_name'] = question.type.name
+            question_json['question_title'] = question.title
+            question_json['question_types'] = []
+
+            #Get Question Association
+            try:
+                question_association = Question_Attributes.objects.get(question_id__id=question_id)
+                if question_association.moment_id is None:
+                    moment_id = False
+                    moment_name = False
+                else:
+                    moment_id = question_association.moment_id.id
+                    moment_name = question_association.moment_id.name
+                if question_association.attribute_id is None:
+                    attribute_id = False
+                    attribute_name = False
+                else:
+                    attribute_id = question_association.attribute_id.id
+                    attribute_name = question_association.attribute_id.name
+
+            except Question_Attributes.DoesNotExist:
+                moment_id = False
+                moment_name = False
+                attribute_id = False
+                attribute_name = False
+
+            question_json['question_moment_id'] = moment_id
+            question_json['question_moment_name'] = moment_name
+            question_json['question_attribute_id'] = attribute_id
+            question_json['question_attribute_name'] = attribute_name
+
+            return HttpResponse(json.dumps(question_json),
+                                content_type="application/json")
+
+        #Editar una pregunta tipo 'Rango'
         elif question.type.name == "Range":
             options = question.option_set.filter(active=True).order_by('id')
             first, last = options[0], options.reverse()[0]
+
+            '''
             return render_to_response('questions/edit.html',
                                       {'question': question,
                                        'question_types': question_types,
                                        'options': options,
                                        'first': first,
                                        'last': last})
+            '''
+
+            question_json = {'question_type_id': question.type.id,
+                             'question_type_name': question.type.name,
+                             'question_title': question.title,
+                             'question_options': [],
+                             'question_types': [],
+                             'question_first_value': str(first.value),
+                             'question_first_label': first.label,
+                             'question_last_value': str(last.value),
+                             'question_last_label': last.label}
+
+            #Get Question Association
+            try:
+                question_association = Question_Attributes.objects.get(
+                    question_id__id=question_id)
+
+                if question_association.moment_id is None:
+                    moment_id = False
+                    moment_name = False
+                else:
+                    moment_id = question_association.moment_id.id
+                    moment_name = question_association.moment_id.name
+                if question_association.attribute_id is None:
+                    attribute_id = False
+                    attribute_name = False
+                else:
+                    attribute_id = question_association.attribute_id.id
+                    attribute_name = question_association.attribute_id.name
+
+            except Question_Attributes.DoesNotExist:
+                moment_id = False
+                moment_name = False
+                attribute_id = False
+                attribute_name = False
+
+            question_json['question_moment_id'] = moment_id
+            question_json['question_moment_name'] = moment_name
+            question_json['question_attribute_id'] = attribute_id
+            question_json['question_attribute_name'] = attribute_name
+
+            for question_type in question_types:
+                question_json['question_types'].append(
+                    {
+                        'question_type_id': question_type.id,
+                        'question_type_name': question_type.name
+                    }
+                )
+
+            return HttpResponse(json.dumps(question_json),
+                                content_type="application/json")
 
         #If question has an undefined type (weird) return nothing
         return render_to_response('questions/edit.html',
@@ -1217,11 +1378,49 @@ def update_matrix(question, data):
         for d_question in deleted_questions:
             d_question.option_set.all().update(active=False)
 
+    if data.moment_id or data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+        except Question_Attributes.DoesNotExist:
+            q_a_m = Question_Attributes()
+            q_a_m.question_id = question
+
+        print q_a_m
+
+        if data.moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
+        else:
+            q_a_m.moment_id = None
+
+
+
+        if data.attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()
+
+    if not data.moment_id and not data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+            q_a_m.delete()
+        except Question_Attributes.DoesNotExist:
+            q_a_m = None
+
+    json_response = json.dumps(
+        {
+            'updated': True
+        }
+    )
 
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
 
 def update_multiple_choice(question, data):
     options = data.options
@@ -1285,13 +1484,49 @@ def update_multiple_choice(question, data):
     )
     return HttpResponse(json_response, content_type="application/json")
 
+
 def update_open_question(question, data):
     question.title = data.title
     question.save()
+
+    if data.moment_id or data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+        except Question_Attributes.DoesNotExist:
+            q_a_m = Question_Attributes()
+            q_a_m.question_id = question
+
+        print q_a_m
+
+        if data.moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
+        else:
+            q_a_m.moment_id = None
+
+
+
+        if data.attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()
+
+    if not data.moment_id and not data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+            q_a_m.delete()
+        except Question_Attributes.DoesNotExist:
+            q_a_m = None
+
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
+
 def update_range_question(question, data):
     start_number = int(float(data.options.start_number))
     end_number = int(float(data.options.end_number))
@@ -1346,14 +1581,82 @@ def update_range_question(question, data):
                             value=end_number, order=end_number)
         lastOption.save()
 
+    if data.moment_id or data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+        except Question_Attributes.DoesNotExist:
+            q_a_m = Question_Attributes()
+            q_a_m.question_id = question
+
+        print q_a_m
+
+        if data.moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
+        else:
+            q_a_m.moment_id = None
+
+
+
+        if data.attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()
+
+    if not data.moment_id and not data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+            q_a_m.delete()
+        except Question_Attributes.DoesNotExist:
+            q_a_m = None
+
 
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
+
 def update_true_and_false(question, data):
     question.title = data.title
     question.save()
+
+    if data.moment_id or data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+        except Question_Attributes.DoesNotExist:
+            q_a_m = Question_Attributes()
+            q_a_m.question_id = question
+
+        print q_a_m
+
+        if data.moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
+        else:
+            q_a_m.moment_id = None
+
+
+
+        if data.attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()
+
+    if not data.moment_id and not data.attribute_id:
+        try:
+            q_a_m = Question_Attributes.objects.get(question_id=question)
+            q_a_m.delete()
+        except Question_Attributes.DoesNotExist:
+            q_a_m = None
+
+
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
@@ -1387,12 +1690,14 @@ def edit_ajax(request, question_id):
             elif question.type.name == "Multiple Choice":
                 print 'entra al metodo'
                 return update_multiple_choice(question, data)
-            elif question.type.name == "Open question":
+            elif question.type.name == "Open Question":
                 return update_open_question(question, data)
             elif question.type.name == "Range":
                 return update_range_question(question, data)
-            elif question.type.name == "True and False":
+            elif question.type.name == "False and True":
                 return update_true_and_false(question, data)
+
+            print question.type.name
 
             #If the type of question is not defined, throw an error
             json_response = json.dumps(
