@@ -7,6 +7,13 @@
  */
 $(document).ready(function () {
 
+    $('#save_global_configuration').click(function(){
+        enumerateQuestionBlocks();
+        enumerateQuestions();
+        saveSurvey();
+
+    });
+
     $('.question_actions .actions').hide();
 
     $('div.block_actions').hide();
@@ -427,6 +434,8 @@ $(document).ready(function () {
                                     if (msg.success) {
                                         $(self).closest('div.row-block').slideUp('slow', function () {
                                             $(this).remove();
+                                            enumerateQuestionBlocks();
+                                            enumerateQuestions();
                                             saveSurvey();
                                         })
                                     }

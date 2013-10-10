@@ -174,253 +174,257 @@
                     </div>
                 </div>
                 {% if setup %}
+                    <ul class="list-group gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
-                        <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
-                            <div class="col-lg-12">
-                                <section class="padder padder-v question-block">
-                                    <div class="block_actions_content" style="height: 25px; min-height: 25px;">
-                                        <div class="block_actions">
-                                            {% csrf_token %}
-                                            <a class="actions_block remove_block" id="remove_block">
-                                                <i class="icon-trash icon-large pull-right"></i>
-                                            </a>
-                                            <a class="actions_block update_block" id="update_block">
-                                                <i class="icon-edit icon-large pull-right"></i>
-                                            </a>
+                        <li class="list-group-item">
+                            <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
+                                <div class="col-lg-12">
+                                    <section class="padder padder-v question-block">
+                                        <div class="block_actions_content" style="height: 25px; min-height: 25px;">
+                                            <div class="block_actions">
+                                                {% csrf_token %}
+                                                <a class="actions_block remove_block" id="remove_block">
+                                                    <i class="icon-trash icon-large pull-right"></i>
+                                                </a>
+                                                <a class="actions_block update_block" id="update_block">
+                                                    <i class="icon-edit icon-large pull-right"></i>
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                    {% if block.block_default_class %}
-                                        <div class="panel-body">
-                                            {{ block.block_description|safe }}
-                                        </div>
-                                    {% endif %}
-                                    {% for question in block.questions %}
-                                        <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}">
-                                            <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
-                                                <div class="question_actions">
-                                                    <strong class="actions pull-left">
-                                                        {% csrf_token %}
-                                                        <a class="actions_question remove_question" id="remove_block">
-                                                            <i class="icon-trash icon-sm pull-left"></i>
-                                                        </a>
-                                                        <a class="actions_question update_question" id="update_block">
-                                                            <i class="icon-edit icon-sm pull-left"></i>
-                                                        </a>
-                                                    </strong>
-                                                    {% if question.attribute_title %}
-                                                        <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
-                                                    {% endif %}
-                                                    {% if question.moment_title %}
-                                                        <small class="pull-right text-dark"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
-                                                    {% endif %}
-
-                                                </div>
+                                        {% if block.block_default_class %}
+                                            <div class="panel-body">
+                                                {{ block.block_description|safe }}
                                             </div>
-                                            <div class="question_id" style="float:left; margin-left: 15px;">
-                                                {{ question.survey_question_id }}
-                                            </div>
-                                            <div class="question-text" style="float: left; display: table;">
-                                                <label>
-                                                    {{ question.question_title }}
-                                                </label>
-                                            </div>
-                                            <div class="optional-content" style="margin-top: 15px; clear: both;">
-                                            {% if question.question.type.name == "Multiple Choice" %}
-                                                <div class="col-sm-12" style="padding-left: 35px !important;">
-                                                {% for option in question.question_options %}
-                                                    {% if option.option.active %}
-                                                        {% if option.option.label != "" %}
-                                                            <div class="checkbox">
-                                                            <label class="checkbox-custom">
-                                                            <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
-                                                                <i class="icon-unchecked"></i>
-                                                                {{ option.option.label }}
-                                                            </label>
-                                                            </div>
-                                                        {% else %}
-                                                            <div class="checkbox">
-                                                            <label class="checkbox-custom">
-                                                            <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
-                                                                <i class="icon-unchecked"></i>
-                                                                {{ option.option.label }}
-                                                            </label>
-                                                            </div><br>
+                                        {% endif %}
+                                        {% for question in block.questions %}
+                                            <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}">
+                                                <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
+                                                    <div class="question_actions">
+                                                        <strong class="actions pull-left">
+                                                            {% csrf_token %}
+                                                            <a class="actions_question remove_question" id="remove_block">
+                                                                <i class="icon-trash icon-sm pull-left"></i>
+                                                            </a>
+                                                            <a class="actions_question update_question" id="update_block">
+                                                                <i class="icon-edit icon-sm pull-left"></i>
+                                                            </a>
+                                                        </strong>
+                                                        {% if question.attribute_title %}
+                                                            <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
                                                         {% endif %}
-                                                    {% endif %}
-                                                {% endfor %}
-                                                </div>
-                                            {% elif question.question.type.name == "False and True" %}
-                                                <div class="col-sm-12" style="padding-left: 35px !important;">
-                                                {% for option in question.question.option_set.all %}
-                                                    <div class="radio">
-                                                    <label class="radio-custom">
-                                                        <input type="radio" name="{{ question.question.id }}" value="{{ option.value }}">
-                                                        <i class="icon-circle-blank"></i>
-                                                        {{ option.label }}
-                                                    </label>
+                                                        {% if question.moment_title %}
+                                                            <small class="pull-right text-dark"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                        {% endif %}
+
                                                     </div>
-                                                {% endfor %}
                                                 </div>
-                                            {% elif question.question.type.name == 'Matrix'%}
-                                                <div class="col-sm-12" style="padding-left: 35px !important;">
-                                                <table border="0">
-                                                {% for row in question.question.question_set.all|slice:":1" %}
-                                                    {% if forloop.first %}
-                                                    <tr>
-                                                    {% if row.active %}
-                                                        <td class="padder" style="border-right: 1px solid #d3d3d3""></td>
-                                                    {% endif %}
-
-                                                    {% for option in row.option_set.all %}
-
-                                                            {% if option.active %}
-                                                            <td class="padder">
+                                                <div class="question_id" style="float:left; margin-left: 15px;">
+                                                    {{ question.survey_question_id }}
+                                                </div>
+                                                <div class="question-text" style="float: left; display: table;">
+                                                    <label>
+                                                        {{ question.question_title }}
+                                                    </label>
+                                                </div>
+                                                <div class="optional-content" style="margin-top: 15px; clear: both;">
+                                                {% if question.question.type.name == "Multiple Choice" %}
+                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                    {% for option in question.question_options %}
+                                                        {% if option.option.active %}
+                                                            {% if option.option.label != "" %}
+                                                                <div class="checkbox">
+                                                                <label class="checkbox-custom">
+                                                                <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                    <i class="icon-unchecked"></i>
+                                                                    {{ option.option.label }}
+                                                                </label>
+                                                                </div>
+                                                            {% else %}
+                                                                <div class="checkbox">
+                                                                <label class="checkbox-custom">
+                                                                <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                    <i class="icon-unchecked"></i>
+                                                                    {{ option.option.label }}
+                                                                </label>
+                                                                </div><br>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </div>
+                                                {% elif question.question.type.name == "False and True" %}
+                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                    {% for option in question.question.option_set.all %}
+                                                        <div class="radio">
+                                                        <label class="radio-custom">
+                                                            <input type="radio" name="{{ question.question.id }}" value="{{ option.value }}">
+                                                            <i class="icon-circle-blank"></i>
                                                             {{ option.label }}
-                                                            </td>
-                                                            {% endif %}
-
+                                                        </label>
+                                                        </div>
                                                     {% endfor %}
-                                                    </tr>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                {% for row in question.question.question_set.all %}
-                                                    <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
-                                                    {% if row.active %}
-                                                        <td style="padding-bottom: 5px !important;
-                                                                   padding-top: 5px !important;
-                                                                   padding-left: 10px !important;
-                                                                   padding-right: 10px !important;
-                                                                   border-right: 1px solid #d3d3d3">
-                                                            {{ row.title }}</td>
-                                                    {% endif %}
+                                                    </div>
+                                                {% elif question.question.type.name == 'Matrix'%}
+                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                    <table border="0">
+                                                    {% for row in question.question.question_set.all|slice:":1" %}
+                                                        {% if forloop.first %}
+                                                        <tr>
+                                                        {% if row.active %}
+                                                            <td class="padder" style="border-right: 1px solid #d3d3d3""></td>
+                                                        {% endif %}
 
-                                                    {% for option in row.option_set.all %}
-                                                        {% if option.active %}
-                                                            <td style=" text-align: center;">
-                                                            <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                <input type="radio" name="{{ row.id }}" value="{{ option.value }}">
-                                                                <i class="icon-circle-blank"></i>
-                                                            </label>
-                                                            </td>
+                                                        {% for option in row.option_set.all %}
+
+                                                                {% if option.active %}
+                                                                <td class="padder">
+                                                                {{ option.label }}
+                                                                </td>
+                                                                {% endif %}
+
+                                                        {% endfor %}
+                                                        </tr>
                                                         {% endif %}
                                                     {% endfor %}
-                                                    </tr>
-                                                {% endfor %}
-                                                </table>
-                                                </div>
-                                                <br>
-                                            {% elif question.question.type.name == "Open Question" %}
-                                                <div class="col-sm-12" style="padding-left: 35px !important;
-                                                                              padding-right: 35px !important;
-                                                                              padding-top: 10px;
-                                                                              padding-bottom: 20px">
-                                                    <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
-                                                </div>
-                                            {% elif question.question.type.name == "Range" %}
-                                                <div class="col-sm-12" style="padding-left: 35px !important;
-                                                                              padding-right: 35px !important;
-                                                                              padding-top: 10px;
-                                                                              padding-bottom: 20px">
-                                                <table border="0">
-                                                <tr>
-                                                <!-- TABLE HEADER -->
-                                                {% for option in question.question_options %}
-                                                    {% if option.option.active %}
-
-
-
-                                                        {% if forloop.first %}
-                                                            <td></td>
-                                                        {% endif %}
-
-                                                            {% if option.option.label != "" %}
-                                                                <td style=" text-align: center;">
-                                                                <small class="text-muted">
-                                                                    {{ option.option.get_value }}
-                                                                </small>
-                                                                </td>
-                                                            {% else %}
-                                                                <td style=" text-align: center;">
-                                                                <small class="text-muted">
-                                                                    {{ option.option.get_value }}
-                                                                </small>
-                                                                </td>
-                                                                <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
-                                                            {% endif %}
-
-                                                        {% if forloop.last %}
-                                                            <td></td>
-                                                        {% endif %}
-
-
-
-
-
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                                </tr>
-                                                <tr>
-
-                                                {% for option in question.question_options %}
-                                                    {% if option.option.active %}
-
-
-
-                                                        {% if forloop.first %}
+                                                    {% for row in question.question.question_set.all %}
+                                                        <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
+                                                        {% if row.active %}
                                                             <td style="padding-bottom: 5px !important;
-                                                                   padding-top: 5px !important;
-                                                                   padding-left: 10px !important;
-                                                                   padding-right: 10px !important;">
-                                                                {{ option.option.label }}</td>
+                                                                       padding-top: 5px !important;
+                                                                       padding-left: 10px !important;
+                                                                       padding-right: 10px !important;
+                                                                       border-right: 1px solid #d3d3d3">
+                                                                {{ row.title }}</td>
                                                         {% endif %}
 
-                                                            {% if option.option.label != "" %}
+                                                        {% for option in row.option_set.all %}
+                                                            {% if option.active %}
                                                                 <td style=" text-align: center;">
                                                                 <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                    <input type="radio" name="{{ row.id }}" value="{{ option.value }}">
                                                                     <i class="icon-circle-blank"></i>
                                                                 </label>
                                                                 </td>
-                                                            {% else %}
-                                                                <td style=" text-align: center;">
-                                                                <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
-                                                                    <i class="icon-circle-blank"></i>
-                                                                </label>
-                                                                </td>
-                                                                <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </table>
+                                                    </div>
+                                                    <br>
+                                                {% elif question.question.type.name == "Open Question" %}
+                                                    <div class="col-sm-12" style="padding-left: 35px !important;
+                                                                                  padding-right: 35px !important;
+                                                                                  padding-top: 10px;
+                                                                                  padding-bottom: 20px">
+                                                        <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                    </div>
+                                                {% elif question.question.type.name == "Range" %}
+                                                    <div class="col-sm-12" style="padding-left: 35px !important;
+                                                                                  padding-right: 35px !important;
+                                                                                  padding-top: 10px;
+                                                                                  padding-bottom: 20px">
+                                                    <table border="0">
+                                                    <tr>
+                                                    <!-- TABLE HEADER -->
+                                                    {% for option in question.question_options %}
+                                                        {% if option.option.active %}
+
+
+
+                                                            {% if forloop.first %}
+                                                                <td></td>
                                                             {% endif %}
 
-                                                        {% if forloop.last %}
-                                                            <td>{{ option.option.label }}</td>
+                                                                {% if option.option.label != "" %}
+                                                                    <td style=" text-align: center;">
+                                                                    <small class="text-muted">
+                                                                        {{ option.option.get_value }}
+                                                                    </small>
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td style=" text-align: center;">
+                                                                    <small class="text-muted">
+                                                                        {{ option.option.get_value }}
+                                                                    </small>
+                                                                    </td>
+                                                                    <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
+                                                                {% endif %}
+
+                                                            {% if forloop.last %}
+                                                                <td></td>
+                                                            {% endif %}
+
+
+
+
+
                                                         {% endif %}
+                                                    {% endfor %}
+
+                                                    </tr>
+                                                    <tr>
+
+                                                    {% for option in question.question_options %}
+                                                        {% if option.option.active %}
+
+
+
+                                                            {% if forloop.first %}
+                                                                <td style="padding-bottom: 5px !important;
+                                                                       padding-top: 5px !important;
+                                                                       padding-left: 10px !important;
+                                                                       padding-right: 10px !important;">
+                                                                    {{ option.option.label }}</td>
+                                                            {% endif %}
+
+                                                                {% if option.option.label != "" %}
+                                                                    <td style=" text-align: center;">
+                                                                    <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                        <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                        <i class="icon-circle-blank"></i>
+                                                                    </label>
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td style=" text-align: center;">
+                                                                    <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                        <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                        <i class="icon-circle-blank"></i>
+                                                                    </label>
+                                                                    </td>
+                                                                    <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
+                                                                {% endif %}
+
+                                                            {% if forloop.last %}
+                                                                <td>{{ option.option.label }}</td>
+                                                            {% endif %}
 
 
 
 
 
-                                                    {% endif %}
-                                                {% endfor %}
-                                                </tr>
-                                                </table>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </tr>
+                                                    </table>
+                                                    </div>
+                                                {% endif %}
                                                 </div>
-                                            {% endif %}
+                                                <div class="db_question_id" id="{{ question.db_question_id }}"></div>
                                             </div>
-                                            <div class="db_question_id" id="{{ question.db_question_id }}"></div>
-                                        </div>
-                                    {% endfor %}
-                                    {% if block.block_default_class %}
-                                        <footer class="wrapper text-center">
-                                            <a class="btn btn-info wrapper add-question-to-block">
-                                                <i class="icon-plus-sign"></i>
-                                                Añadir una nueva pregunta</a>
-                                        </footer>
-                                    {% endif %}
-                                </section>
+                                        {% endfor %}
+                                        {% if block.block_default_class %}
+                                            <footer class="wrapper text-center">
+                                                <a class="btn btn-info wrapper add-question-to-block">
+                                                    <i class="icon-plus-sign"></i>
+                                                    Añadir una nueva pregunta</a>
+                                            </footer>
+                                        {% endif %}
+                                    </section>
+                                </div>
                             </div>
-                            </div>
+                        </li>
                     {% endfor %}
+                    </ul>
                 {% endif %}
             </section>
         </div>
@@ -539,6 +543,11 @@
                 profile
             </div>
         </div>
+    </div>
+    <div class="footer">
+        <a class="btn btn-md btn-success pull-right padder" id="save_global_configuration">
+            Guardar
+        </a>
     </div>
 </section>
 <section class="panel hidden" id="questions-block-configuration-panel">
@@ -781,13 +790,15 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-sm-6">
-                                                    <label>Valor final:</label><br>
-                                                    <input type="text" maxlength="100"
-                                                           class="end_number form-control"/>
-                                                    <br>
-                                                    <label>Etiqueta final:</label><br>
-                                                    <input type="text" maxlength="100"
-                                                           class="end_label form-control"/>
+                                                    <div class="range_field_set">
+                                                        <label>Valor final:</label><br>
+                                                        <input type="text" maxlength="100"
+                                                               class="end_number form-control"/>
+                                                        <br>
+                                                        <label>Etiqueta final:</label><br>
+                                                        <input type="text" maxlength="100"
+                                                               class="end_label form-control"/>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -831,6 +842,35 @@
                 <section class="panel-heading">
                     <header class="panel-heading">
                         <p class="h3">
+                            Punto de Contacto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            <div class="checkbox">
+                                <label>
+                                    Escoja el punto de contacto al cual esta vinculado esta pregunta<i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Punto de Contacto
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="add_moment_association" class="form-control">
+                                        <option value="default">No asociar</option>
+                                        {% for moment in setup.moments %}
+                                            <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
                             Atributos
                         </p>
                     </header>
@@ -847,7 +887,8 @@
                                     Atributos
                                 </label>
                                 <div class="col-lg-4">
-                                    <select id="attribute_object" class="form-control">
+                                    <select id="add_attribute_association" class="form-control">
+                                        <option value="default">No asociar</option>
                                         {% for attribute in setup.attributes %}
                                             <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
                                         {% endfor %}
@@ -997,6 +1038,9 @@
 
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
+
+<!-- Sortable -->
+<script src="/static/js/sortable/jquery.sortable.js"></script>
 
 <!-- Dropzone -->
 <script src="/static/js/dropzone.js"></script>

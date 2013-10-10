@@ -469,15 +469,13 @@ def save_ajax(request, survey_id):
                 )
 
             return HttpResponse(json_response,
-                                content_type="application/json",
-                                status=400)
+                                content_type="application/json")
         except ValueError:
             json_response = json.dumps(
                     {'messagesent': "Error - Invalid json"}
             )
             return HttpResponse(json_response,
-                                content_type="application/json",
-                                status=400)
+                                content_type="application/json")
     else:
         raise Http404
 
@@ -616,6 +614,8 @@ def create_matrix(request, data):
     question.title = title
     question.save()
 
+    createAssociationQAM(question, data.moment_id, data.attribute_id)
+
     for subquestion in rows:
         q = Question(user=Xindex_User.objects.get(pk=1),
                      title=subquestion.label,
@@ -688,6 +688,8 @@ def create_multiple_choice(request, data):
     question.title = title
     question.save()
 
+    createAssociationQAM(question, data.moment_id, data.attribute_id)
+
     try:
         survey = Survey.objects.get(pk=survey_id)
     except Survey.DoesNotExist:
@@ -741,6 +743,8 @@ def create_open_question(request, data):
     question.title = title
     question.save()
 
+    createAssociationQAM(question, data.moment_id, data.attribute_id)
+
     try:
         survey = Survey.objects.get(pk=survey_id)
     except Survey.DoesNotExist:
@@ -759,6 +763,8 @@ def create_open_question(request, data):
 
 
 def create_range_question(request, data):
+    print "Entra a funciona crear pregunta de rango"
+
     type = int(data.type)
     title = data.title
     start_number = int(float(data.options.start_number))
@@ -807,6 +813,8 @@ def create_range_question(request, data):
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
+
+    createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     new_option = Option(question=question, label=data.options.start_label,
                         value = start_number, order = start_number)
@@ -871,6 +879,8 @@ def create_true_and_false(request, data):
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
+
+    createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     try:
         survey = Survey.objects.get(pk=survey_id)
@@ -1408,3 +1418,22 @@ def edit_ajax(request, question_id):
                                 status=400)
     else:
         raise Http404
+
+def createAssociationQAM(question, moment_id, attribute_id):
+    if moment_id or attribute_id:
+        q_a_m = Question_Attributes()
+        q_a_m.question_id = question
+
+        if moment_id:
+            q_a_m.moment_id = Moment.objects.get(pk=moment_id)
+        else:
+            q_a_m.moment_id = None
+
+        if attribute_id:
+            q_a_m.attribute_id = Attributes.objects.get(pk=attribute_id)
+        else:
+            q_a_m.attribute_id = None
+
+        q_a_m.weight = 10
+
+        q_a_m.save()

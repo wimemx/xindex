@@ -63,6 +63,9 @@ $.fn.sortable = function(options) {
 				e.stopPropagation();
 				placeholders.filter(':visible').after(dragging);
 				dragging.trigger('dragend.h5s');
+                enumerateQuestionBlocks();
+                enumerateQuestions();
+                saveSurvey();
 				return false;
 			}
 			e.preventDefault();
