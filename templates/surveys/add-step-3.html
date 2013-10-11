@@ -151,7 +151,6 @@
                 -->
             </section>
             <section class="panel wrapper" id="survey-main-content"
-                     ondrop="dropQuestionBlock(event)"
                      ondragover="drop(event)">
                 <div class="row">
                     <div class="col-lg-12">
@@ -373,7 +372,8 @@
                                                                 <td style="padding-bottom: 5px !important;
                                                                        padding-top: 5px !important;
                                                                        padding-left: 10px !important;
-                                                                       padding-right: 10px !important;">
+                                                                       padding-right: 10px !important;
+                                                                       width: 90px !important;">
                                                                     {{ option.option.label }}</td>
                                                             {% endif %}
 
@@ -497,8 +497,11 @@
     <div class="panel-body">
         <div class="tab-content">
             <div id="content" class="tab-pane active">
-                <div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>
-                <div id="drag-question-block" class="col-lg-4" draggable="true" ondragstart="dragQuestionBlock(event)">
+                <!--<div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>-->
+                <div id="drag-question-block" class="col-lg-4"
+                     draggable="true"
+                     ondragstart="dragQuestionBlock(event)"
+                     ondragend="dropQuestionBlock(event, this.id)">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-list-alt icon-3x"></i>
@@ -508,7 +511,10 @@
                         </div>
                     </section>
                 </div>
-                <div class="col-lg-4" >
+                <div id="drag-question-only" class="col-lg-4"
+                     draggable="true"
+                     ondragstart="dragQuestionBlock(event)"
+                     ondragend="dropQuestionBlock(event, this.id)">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-question-sign icon-3x"></i>

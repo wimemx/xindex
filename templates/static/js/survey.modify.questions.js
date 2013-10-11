@@ -56,8 +56,8 @@ $(document).ready(function(){
     });
 
     $(document).on('focus', '.dummy_option_u', function () {
-        var new_option_proto = '<div class="dynamic_inputs input-close"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
-        var remove_button = '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i></div>';
+        var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
+        var remove_button = '';
         new_option_proto += remove_button;
 
         $(this).before(new_option_proto);

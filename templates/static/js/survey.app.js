@@ -690,7 +690,7 @@ if (tests.dnd) {
         this.className = 'hover';
         return false;
     };
-    holder.ondragend = function () {
+    holder.ondragend = function (f) {
         this.className = '';
         return false;
     };
@@ -709,16 +709,17 @@ if (tests.dnd) {
 //DRAG AND DROP <<<end
 
 
-//<--------------  DRAG AND DROP QUESTION  --------->//
+//<--------------  DRAG AND DROP QUESTION  BLOCK--------->//
 
 function drop(e) {
     e.preventDefault();
 }
-function dragQuestionBlock(e) {
+function dragQuestionBlock(e, id) {
     e.dataTransfer.setData("Text", e.target.id);
 }
 
-function dropQuestionBlock(e) {
+function dropQuestionBlock(e, a) {
+    if (a=='drag-question-block'){
     $('#main-configuration-panel').addClass('hidden');
     $('#questions-block-configuration-panel').removeClass('hidden');
 
@@ -775,16 +776,18 @@ function dropQuestionBlock(e) {
             '</small>' +
             '</div>'
     );
+    } else if (a=='drag-question-only'){
+
+    dropQuestion(event);
+    }
 }
 
 
 
-//---- Drag and Drop Question ----//
+//---- Drag and Drop Question Sin bloque----//
 
 function dropQuestion(e) {
     /*Funcion para insertar preguntas sin bloque*/
-    $('#add-question').on('click', function () {
-
         $('#main-configuration-panel').addClass('hidden');
         $('#questions-block-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').removeClass('hidden');
@@ -819,7 +822,6 @@ function dropQuestion(e) {
         var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question_id').attr('id')
 
         $('#current-question-block').val(block_selected_id);
-    });
 }
 
 
@@ -868,10 +870,10 @@ function getQuestionToUpdate(question_id) {
                 form += '<div class="multiple_choice_options_set_u">'
 
                 $.each(json_response.question_options, function (index, value) {
-                    form += '<div class="dynamic_inputs">'
+                    form += '<div class="dynamic_inputs" onclick="deleteOption(event);">'
                     form += '<input type="hidden" value="' + value.option_id + '" />'
                     form += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
-                    form += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
+                    form += ''
                     form += '</div>'
                 });
 
@@ -913,10 +915,10 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_cols_u">'
 
                 $.each(json_response.question_options, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs input-close">'
+                    formMatrix += '<div class="dynamic_inputs input-close" onclick="deleteOption(event);">'
                     formMatrix += '<input type="hidden" value="' + value.option_id + '" />'
                     formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
-                    formMatrix += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
+                    formMatrix += ''
                     formMatrix += '</div>'
                 });
 
@@ -929,10 +931,10 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_rows_u">'
 
                 $.each(json_response.question_rows, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs input-close">'
+                    formMatrix += '<div class="dynamic_inputs input-close" onclick="deleteOption(event);">'
                     formMatrix += '<input type="hidden" value="' + value.row_id + '" />'
                     formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.row_title + '"/>'
-                    formMatrix += '<i class="delete_option icon-remove-sign" onclick="deleteOption(event);"></i>'
+                    formMatrix += ''
                     formMatrix += '</div>'
                 });
 
