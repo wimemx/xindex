@@ -352,13 +352,13 @@
                                                                 {% endif %}
 
                                                                     {% if option.option.label != "" %}
-                                                                        <td style=" text-align: center;">
+                                                                        <td style=" text-align: center !important;">
                                                                         <small class="text-muted">
                                                                             {{ option.option.get_value }}
                                                                         </small>
                                                                         </td>
                                                                     {% else %}
-                                                                        <td style=" text-align: center;">
+                                                                        <td style="text-align: center !important;">
                                                                         <small class="text-muted">
                                                                             {{ option.option.get_value }}
                                                                         </small>
@@ -389,19 +389,20 @@
                                                                     <td style="padding-bottom: 5px !important;
                                                                            padding-top: 5px !important;
                                                                            padding-left: 10px !important;
-                                                                           padding-right: 10px !important;">
+                                                                           padding-right: 10px !important;
+                                                                           width: 100px !important;">
                                                                         {{ option.option.label }}</td>
                                                                 {% endif %}
 
                                                                     {% if option.option.label != "" %}
-                                                                        <td style=" text-align: center;">
+                                                                        <td style=" text-align: center !important;">
                                                                         <label class="radio-custom" style="margin-left: 0px !important;">
                                                                             <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
                                                                             <i class="icon-circle-blank"></i>
                                                                         </label>
                                                                         </td>
                                                                     {% else %}
-                                                                        <td style=" text-align: center;">
+                                                                        <td style=" text-align: center !important;">
                                                                         <label class="radio-custom" style="margin-left: 0px !important;">
                                                                             <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
                                                                             <i class="icon-circle-blank"></i>
@@ -411,7 +412,12 @@
                                                                     {% endif %}
 
                                                                 {% if forloop.last %}
-                                                                    <td>{{ option.option.label }}</td>
+                                                                    <td style="padding-bottom: 5px !important;
+                                                                           padding-top: 5px !important;
+                                                                           padding-left: 10px !important;
+                                                                           padding-right: 10px !important;
+                                                                           width: 100px !important;">
+                                                                        {{ option.option.label }}</td>
                                                                 {% endif %}
 
 

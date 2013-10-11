@@ -80,8 +80,8 @@ $(document).ready(function () {
 });
 
 function deleteOption(event) {
-    $(event.target).remove();
-    addQuestionOptions();
+        $(event.target).parent().remove();
+        addQuestionOptions();
 }
 
 function saveSurvey() {

@@ -8,8 +8,7 @@
 
 $(document).ready(function(){
 
-    /*MULTIPLE CHOICE*/
-
+    /*Multiple Choice Question*/
     $(document).on('focus', '.option_added_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
@@ -25,6 +24,7 @@ $(document).ready(function(){
         })
     });
 
+    /*Mostrar en tiempo real una nueva opción (Multiple Choice - Modificando)*/
     $(document).on('keyup', '.option_added_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
@@ -55,9 +55,11 @@ $(document).ready(function(){
         })
     });
 
+    /*Crear una nueva opcion (Modificando)*/
     $(document).on('focus', '.dummy_option_u', function () {
-        var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
-        var remove_button = '';
+        //var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
+        var new_option_proto = '<div class="dynamic_inputs input-close"><i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>';
+        var remove_button = '<input type="text" maxlength="100" class="option_added_u input-query form-control"/></div>';
         new_option_proto += remove_button;
 
         $(this).before(new_option_proto);
@@ -67,7 +69,7 @@ $(document).ready(function(){
         $(prev).find('[type=text]').last().focus();
     });
 
-
+    /*Guardar*/
     $(document).on('click', '#edit_multiple_choice', function (event) {
         event.preventDefault();
         var question = {};
