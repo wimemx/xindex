@@ -7,7 +7,44 @@
  */
 $(document).ready(function () {
 
-    $('#save_global_configuration').click(function(){
+    /*Funciones para nueva pregunta*/
+    $('#new_question_title').on('keyup keypress change', function (e) {
+        var content = $(this).val();
+        var current_question = $('#current-question').val();
+        $('#' + current_question + ' div.question-text').html('');
+        $('#' + current_question + ' div.question-text').html(content);
+
+        $('.question-title').val(content);
+
+    })
+    /*Terminan funciones para nueva pregunta*/
+
+    /*Funciones para edicion de bloque*/
+    $('a.intro_actions').click(function(){
+        if($(this).hasClass('update_intro')){
+            $('#main-configuration-panel').addClass('hidden');
+            $('#questions-block-configuration-panel').addClass('hidden');
+            $('#add-add-question-option-panel').addClass('hidden');
+            $('#add-add-new-question-configuration-panel').addClass('hidden');
+            $('#update-update-question-configuration-panel').addClass('hidden');
+            $('#update-survey-block').removeClass('hidden');
+
+            var current_text_block_id = $(this).closest('section.panel').attr('id');
+            $('#current-text-block-updated').val(current_text_block_id);
+
+            var current_text_block_content = $('#'+current_text_block_id+' div.panel-body').html();
+
+            tinymce.get('tinymce-editor-update-block').setContent(current_text_block_content);
+
+        } else if($(this).hasClass('remove_intro')){
+
+        }
+    });
+    /*Terminan funciones para edicion de bloque*/
+
+    $("#survey-main-content ul").sortable()
+
+    $('#save_global_configuration').click(function () {
         enumerateQuestionBlocks();
         enumerateQuestions();
         saveSurvey();
@@ -15,6 +52,14 @@ $(document).ready(function () {
     });
 
     $('.question_actions .actions').hide();
+    $('.intro_block_actions').hide();
+
+    $('#survey_introduction_block').hover(function () {
+        $(this).find('div.intro_block_actions').fadeIn(100);
+    }, function () {
+        $(this).find('div.intro_block_actions').fadeOut(100);
+    });
+
 
     $('div.block_actions').hide();
 
@@ -237,7 +282,7 @@ $(document).ready(function () {
 
     /*TinyMCE*/
     tinymce.init({
-        selector: "textarea#tinymce-editor-new-question",
+        selector: "textarea#tinymce-editor-update-block",
         theme: "modern",
         width: '100%',
         height: 50,
@@ -249,24 +294,12 @@ $(document).ready(function () {
             "autoresize paste textcolor"
         ],
         setup: function (ed) {
-            ed.on('keyup', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-
-                $('.question-title').val(content);
-
-            })
-            ed.on('change', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-                $('.question-title').val(content);
-            })
+            ed.on('keyup change', function (e) {
+                var content = ed.getContent();
+                var current_text_block_id = $('#current-text-block-updated').val();
+                $('#' + current_text_block_id + ' div.panel-body').html('');
+                $('#' + current_text_block_id + ' div.panel-body').html(content);
+            });
         }
     });
 
@@ -318,7 +351,7 @@ $(document).ready(function () {
 
         var parent_block = '';
 
-        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta (Esta pregunta no se guardara en la configuraci&oacute;n hasta que sea guardad)</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
+        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;"></div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
 
         /*Find question id*/
         $('#survey-main-content div.question-content').each(function (index) {
@@ -336,11 +369,11 @@ $(document).ready(function () {
             if ($(this).hasClass('active-question')) {
 
                 var question_id = $(this).attr('id');
-                var current_question_text = $(this).children('div.question-text').text();
+                $(this).children('div.question-text').text('Este es el texto de la pregunta');
 
                 $('#current-question').val(question_id);
 
-                tinymce.get('tinymce-editor-new-question').setContent(current_question_text);
+                $('#new_question_title').attr('placeholder', 'Este es el texto de la pregunta');
 
                 $('#add-new-question-configuration-panel').removeClass('hidden');
                 $('#add-question-option-panel').addClass('hidden');
@@ -690,7 +723,7 @@ if (tests.dnd) {
         this.className = 'hover';
         return false;
     };
-    holder.ondragend = function (f) {
+    holder.ondragend = function () {
         this.className = '';
         return false;
     };
@@ -714,7 +747,7 @@ if (tests.dnd) {
 function drop(e) {
     e.preventDefault();
 }
-function dragQuestionBlock(e, id) {
+function dragQuestionBlock(e) {
     e.dataTransfer.setData("Text", e.target.id);
 }
 
@@ -784,7 +817,7 @@ function dropQuestionBlock(e, a) {
 
 
 
-//---- Drag and Drop Question Sin bloque----//
+//---- Drag and Drop Question ----//
 
 function dropQuestion(e) {
     /*Funcion para insertar preguntas sin bloque*/
