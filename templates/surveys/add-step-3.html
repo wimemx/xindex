@@ -286,7 +286,7 @@
                                                             {% if forloop.first %}
                                                             <tr>
                                                             {% if row.active %}
-                                                                <td class="padder" style="border-right: 1px solid #d3d3d3""></td>
+                                                                <td class="padder" style="border-right: 1px solid #d3d3d3"></td>
                                                             {% endif %}
 
                                                             {% for option in row.option_set.all %}
@@ -564,13 +564,15 @@
                 </div>
             </div>
             <div id="design" class="tab-pane">
-                profile
+                <a class="h3">
+                    Diseño
+                </a>
             </div>
         </div>
     </div>
     <div class="footer">
-        <a class="btn btn-md btn-success pull-right padder" id="save_global_configuration">
-            Guardar
+        <a class="btn btn-md btn-info pull-right padder" id="save_global_configuration">
+            Guardar y Continuar
         </a>
     </div>
 </section>
@@ -650,6 +652,11 @@
                 </section>
             </div>
         </div>
+    </div>
+    <div class="footer">
+        <a class="btn btn-md btn-info pull-right padder" id="save_block_configuration">
+            Guardar y Continuar
+        </a>
     </div>
 </section>
 <section class="panel hidden" id="add-question-option-panel">
@@ -890,12 +897,6 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="footer wrapper">
-                                <div class="">
-                                    <button type="submit" class="btn btn-info pull-left" id="">Guardar y Continuar</button>
-                                </div>
-                            </div>
                         </form>
                     </section>
                 </section>
@@ -1083,6 +1084,9 @@
 
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
+
+<!-- Survey Questions App -->
+<script src="/static/js/survey.questions.app.js"></script>
 
 <!-- Sortable -->
 <script src="/static/js/sortable/jquery.sortable.js"></script>
