@@ -870,7 +870,8 @@ function getQuestionToUpdate(question_id) {
                 form += '<div class="multiple_choice_options_set_u">'
 
                 $.each(json_response.question_options, function (index, value) {
-                    form += '<div class="dynamic_inputs" onclick="deleteOption(event);">'
+                    form += '<div class="dynamic_inputs">'
+                    form += '<i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>'
                     form += '<input type="hidden" value="' + value.option_id + '" />'
                     form += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
                     form += ''
@@ -915,7 +916,8 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_cols_u">'
 
                 $.each(json_response.question_options, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs input-close" onclick="deleteOption(event);">'
+                    formMatrix += '<div class="dynamic_inputs input-close">'
+                    formMatrix += '<i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>'
                     formMatrix += '<input type="hidden" value="' + value.option_id + '" />'
                     formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.option_label + '"/>'
                     formMatrix += ''
@@ -931,7 +933,12 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_rows_u">'
 
                 $.each(json_response.question_rows, function (index, value) {
-                    formMatrix += '<div class="dynamic_inputs input-close" onclick="deleteOption(event);">'
+                    /*
+                    var new_option_proto = '<div class="dynamic_inputs input-close"><i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>';
+                    var remove_button = '<input type="text" maxlength="100" class="option_added input-query form-control"/></div>';
+                    * */
+                    formMatrix += '<div class="dynamic_inputs input-close">'
+                    formMatrix += '<i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>'
                     formMatrix += '<input type="hidden" value="' + value.row_id + '" />'
                     formMatrix += '<input type="text" maxlength="100" class="option_added_u form-control input-query" value="' + value.row_title + '"/>'
                     formMatrix += ''

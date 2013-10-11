@@ -43,8 +43,8 @@ $(document).ready(function () {
     });
 
     $('.dummy_option').focus(function () {
-        var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);" ><input type="text" maxlength="100" class="option_added input-query form-control" />';
-        var remove_button = '';
+        var new_option_proto = '<div class="dynamic_inputs input-close"><i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>';
+        var remove_button = '<input type="text" maxlength="100" class="option_added input-query form-control"/></div>';
         new_option_proto += remove_button;
 
         $(this).before(new_option_proto);
@@ -418,8 +418,8 @@ function delete_question(url) {
 };
 
 function deleteOption(event) {
-    $(event.target).remove();
-    addQuestionOptions();
+        $(event.target).parent().remove();
+        addQuestionOptions();
 }
 
 function addQuestionOptions() {

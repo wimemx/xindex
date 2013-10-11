@@ -56,8 +56,9 @@ $(document).ready(function(){
     });
 
     $(document).on('focus', '.dummy_option_u', function () {
-        var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
-        var remove_button = '';
+        //var new_option_proto = '<div class="dynamic_inputs input-close" onclick="deleteOption(event);"><input type="text" maxlength="100" class="option_added_u form-control input-query" />';
+        var new_option_proto = '<div class="dynamic_inputs input-close"><i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>';
+        var remove_button = '<input type="text" maxlength="100" class="option_added_u input-query form-control"/></div>';
         new_option_proto += remove_button;
 
         $(this).before(new_option_proto);
