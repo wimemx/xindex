@@ -155,7 +155,6 @@
                 -->
             </section>
             <section class="panel wrapper" id="survey-main-content"
-                     ondrop="dropQuestionBlock(event)"
                      ondragover="drop(event)">
                 <div class="row">
                     <div class="col-lg-12">
@@ -516,8 +515,11 @@
     <div class="panel-body">
         <div class="tab-content">
             <div id="content" class="tab-pane active">
-                <div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>
-                <div id="drag-question-block" class="col-lg-4" draggable="true" ondragstart="dragQuestionBlock(event)">
+                <!--<div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>-->
+                <div id="drag-question-block" class="col-lg-4"
+                     draggable="true"
+                     ondragstart="dragQuestionBlock(event)"
+                     ondragend="dropQuestionBlock(event, this.id)">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-list-alt icon-3x"></i>
@@ -527,7 +529,10 @@
                         </div>
                     </section>
                 </div>
-                <div class="col-lg-4" >
+                <div id="drag-question-only" class="col-lg-4"
+                     draggable="true"
+                     ondragstart="dragQuestionBlock(event)"
+                     ondragend="dropQuestionBlock(event, this.id)">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-question-sign icon-3x"></i>
@@ -705,7 +710,11 @@
                                             id="question_type_select"
                                             class="form-control">
                                         {% for type in question_types %}
-                                            <option value="{{ type.id }}">{{ type.help_text }}</option>
+                                            {% if type.name == 'Range' %}
+                                                <option value="{{ type.id }}" selected>{{ type.help_text }}</option>
+                                            {% else %}
+                                                <option value="{{ type.id }}">{{ type.help_text }}</option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -717,7 +726,7 @@
                                     <form id='question_type_1_form' class="form-horizontal">{% csrf_token %}
                                         <div class="form-group">
                                         <input class="question-title matrix_title" type="hidden" name="m_title" maxlength="100" />
-                                            <p>Establece el número de columnas</p>
+                                            <p>Establece cada una de las columnas</p>
 
                                             <div class="matrix_cols">
                                                 <input type="text" maxlength="100"
@@ -770,7 +779,7 @@
                                     </form>
                                 </div>
 
-                                <div id="question_type_4" style="display: none"
+                                <div id="question_type_4" style="display: block"
                                      class='question range'>
                                     <form id='question_type_4_form' class="form-horizontal">{% csrf_token %}
                                         <div class="col-lg-12">
@@ -781,22 +790,22 @@
                                                     <div class="range_field_set">
                                                         <label>Valor inicial:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="start_number form-control"/>
+                                                               class="start_number form-control" value="1"/>
                                                         <br>
                                                         <label>Etiqueta inicial:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="start_label form-control"/>
+                                                               class="start_label form-control" value="Totalmente insatisfecho"/>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-sm-6">
                                                      <div class="range_field_set">
                                                         <label>Valor final:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="end_number form-control"/>
+                                                               class="end_number form-control" value="10"/>
                                                         <br>
                                                         <label>Etiqueta final:</label><br>
                                                         <input type="text" maxlength="100"
-                                                               class="end_label form-control"/>
+                                                               class="end_label form-control" value="Totalmente satisfecho"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -807,7 +816,7 @@
                                     </form>
                                 </div>
 
-                                <div id="question_type_5"
+                                <div id="question_type_5" style="display: none"
                                      class='question true_and_false'>
                                     <form id='question_type_5_form form-horizontal'>{% csrf_token %}
                                         <div class="form-group">
