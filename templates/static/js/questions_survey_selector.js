@@ -15,19 +15,19 @@ $(document).ready(function () {
 
         switch (selected_value) {
             case 'matriz':
-                selected_value = 'matrix'
+                selected_value = 'matrix';
                 break;
             case 'opcion_multiple':
-                selected_value = 'multiple_choice'
+                selected_value = 'multiple_choice';
                 break;
             case 'falso_y_verdadero':
-                selected_value = 'true_and_false'
+                selected_value = 'true_and_false';
                 break;
             case 'pregunta_abierta':
-                selected_value = 'open_question'
+                selected_value = 'open_question';
                 break;
             case 'rango':
-                selected_value = 'range'
+                selected_value = 'range';
                 break;
             default:
                 caption = "default";
@@ -60,6 +60,29 @@ $(document).ready(function () {
     $('.delete_option').on('click', function (event) {
         event.preventDefault();
         //$(this).parent().remove();
+    });
+
+    $('#save_new_question').on('click', function () {
+        var question_type_name = $('#question_type_select option:selected').text();
+        switch (question_type_name) {
+            case 'Opcion Multiple':
+                addMultipleChoice();
+                break;
+            case 'Rango':
+                addRangeQuestion();
+                break;
+            case 'Pregunta Abierta':
+                addOpenQuestion();
+                break;
+            case 'Matriz':
+                addMatrix();
+                break;
+            case 'Falso y Verdadero':
+                addTrueAndFalseQuestion();
+                break;
+            default:
+                break;
+        }
     });
 
     $('#add_matrix').click(function (event) {
@@ -465,6 +488,16 @@ function saveSurvey() {
         );
 
     });
+    /*
+    $('#survey-main-content div.introduction_panel').each(function(ind){
+        text_blocks.push(
+            {
+                'block_id': $(this).attr('id'),
+                'block_content': $(this).find('div.panel-body').html()
+            }
+        )
+    })
+*/
 
     survey_configuration.blocks = blocks;
 
@@ -490,4 +523,145 @@ function saveSurvey() {
         }
     });
 
+}
+
+function addMatrix() {
+    var content = $('#new_question_title').val();
+    $('.question-title').val(content);
+
+    var check = $("input[id=add-m-to-catalog]:checked").length;
+
+    var question = get_question_object();
+    question.title = $('.matrix_title').val();
+    var rows = new Array();
+    var cols = new Array();
+
+    $(".matrix_cols .option_added").each(function () {
+        cols.push({'label': $(this).val()});
+    });
+
+    $(".matrix_rows .option_added").each(function () {
+        rows.push({'label': $(this).val()});
+    });
+
+    question.rows = rows;
+    question.cols = cols;
+
+    if (check == 1) {
+        question.add_catalog = true;
+    } else {
+        question.add_catalog = false;
+    }
+
+    var survey_id = $('#survey_id').val()
+
+    question.survey_id = survey_id
+
+    manage_question_ajax(question);
+}
+
+function addMultipleChoice() {
+    var content = $('#new_question_title').val();
+    $('.question-title').val(content);
+
+    var check = $("input[id=add-mc-to-catalog]:checked").length;
+
+    var question = get_question_object();
+    question.title = $('.multiple_choice_title').val();
+
+    var data = new Array();
+    $(".multiple_choice_options_set .option_added").each(function () {
+        console.log($(this).val());
+        data.push({'label': $(this).val()});
+    });
+    question.options = data;
+
+    if (check == 1) {
+        question.add_catalog = true;
+    } else {
+        question.add_catalog = false;
+    }
+
+    var survey_id = $('#survey_id').val()
+
+    question.survey_id = survey_id
+
+    manage_question_ajax(question);
+}
+
+function addOpenQuestion() {
+    var content = $('#new_question_title').val();
+    $('.question-title').val(content);
+
+    var check = $("input[id=add-o-to-catalog]:checked").length;
+
+    var question = get_question_object();
+    question.title = $('.open_question_title').val();
+
+    if (check == 1) {
+        question.add_catalog = true;
+    } else {
+        question.add_catalog = false;
+    }
+
+    var survey_id = $('#survey_id').val()
+
+    question.survey_id = survey_id
+
+    manage_question_ajax(question);
+}
+
+function addRangeQuestion() {
+    var content = $('#new_question_title').val();
+    $('.question-title').val(content);
+
+    var check = $("input[id=add-r-to-catalog]:checked").length;
+
+    var question = get_question_object();
+    question.title = $('.range_title').val();
+    var data = {};
+    data.start_number = $(".range_field_set .start_number").val();
+    data.start_label = $(".range_field_set .start_label").val();
+
+    console.log('Valor Final es: ' + $(".range_field_set .end_number").val())
+
+    data.end_number = $(".range_field_set .end_number").val();
+    data.end_label = $(".range_field_set .end_label").val();
+    question.options = data;
+
+    if (check == 1) {
+        question.add_catalog = true;
+    } else {
+        question.add_catalog = false;
+    }
+
+    var survey_id = $('#survey_id').val()
+
+    question.survey_id = survey_id
+
+    manage_question_ajax(question);
+}
+
+function addTrueAndFalseQuestion() {
+    var content = $('#new_question_title').val();
+    $('.question-title').val(content);
+
+    var check = $("input[id=add-tf-to-catalog]:checked").length;
+
+    var question = get_question_object();
+    question.title = $('.true_and_false_title').val();
+
+    if (check == 1) {
+        question.add_catalog = true;
+    } else {
+        question.add_catalog = false;
+    }
+
+    var survey_id = $('#survey_id').val()
+
+    question.survey_id = survey_id
+
+    console.log(question);
+
+    manage_question_ajax(question);
 }

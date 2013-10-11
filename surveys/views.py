@@ -222,6 +222,7 @@ def save(request, action, next_step, survey_id=False):
             configuration = json.loads(survey.configuration)
 
             setup = {}
+            setup['intro_block'] = []
             setup['blocks'] = []
 
             setup['moments'] = []
@@ -254,6 +255,7 @@ def save(request, action, next_step, survey_id=False):
 
             #print simplejson.dumps(configuration)
             for key, values in configuration.items():
+                print(values)
                 for block in values:
                     questions = []
                     for q in block['questions']:

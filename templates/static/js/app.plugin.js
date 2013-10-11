@@ -193,7 +193,7 @@
 	});
 
 	if ($.fn.sortable) {
-	  $('.sortable').sortable();
+	  //$('.sortable').sortable();
 	}
 
   });
