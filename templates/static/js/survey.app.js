@@ -121,190 +121,7 @@ $(document).ready(function () {
 
 
 
-    /*Funcion para insertar preguntas sin bloque*/
-    $('#add-question').on('click', function () {
 
-        $('#main-configuration-panel').addClass('hidden');
-        $('#questions-block-configuration-panel').addClass('hidden');
-        $('#add-question-option-panel').removeClass('hidden');
-
-        $('div.default-buttons').fadeOut(300);
-
-        //Determine next block id
-
-        var n = $('#survey-main-content div.row-block').length;
-
-        $('#survey-main-content div.row-block').each(function (index) {
-            $(this).find('section.question-block').removeClass('selected-block');
-        });
-
-        var new_block_id = 'block-' + (n + 1);
-
-        var new_questions_block_content = '<div class="row row-block row-no-block animated fadeIn" id="' + new_block_id + '">' +
-            '<div class="col-lg-12">' +
-            '<section class="padder padder-v question-block selected-block">' +
-            /*
-             '<div class="wrapper question-blocks-content">' +
-             '</div>' +*/
-            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>' +
-            '</section>' +
-            '</div>' +
-            '</div>';
-
-        $('#survey-main-content').append(new_questions_block_content);
-        enumerateQuestionBlocks();
-        enumerateQuestions();
-
-        var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question_id').attr('id')
-
-        $('#current-question-block').val(block_selected_id);
-    });
-
-
-    /*TinyMCE*/
-    tinymce.init({
-        selector: "textarea#tinymce-editor",
-        theme: "modern",
-        width: '100%',
-        height: 300,
-        autoresize_min_height: 300,
-        autoresize_max_height: 500,
-        plugins: [
-            "autoresize advlist autolink link lists charmap print preview hr anchor pagebreak spellchecker",
-            "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking",
-            "save table contextmenu directionality emoticons template paste textcolor"
-        ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | l      ink image | print preview media fullpage | forecolor backcolor emoticons",
-        style_formats: [
-            {title: 'Bold text', inline: 'b'},
-            {title: 'Red text', inline: 'span', styles: {color: '#ff0000'}},
-            {title: 'Red header', block: 'h1', styles: {color: '#ff0000'}},
-            {title: 'Example 1', inline: 'span', classes: 'example1'},
-            {title: 'Example 2', inline: 'span', classes: 'example2'},
-            {title: 'Table styles'},
-            {title: 'Table row 1', selector: 'tr', classes: 'tablerow1'}
-        ],
-        setup: function (ed) {
-            ed.on('keyup', function (e) {
-                var content = tinymce.get('tinymce-editor').getContent();
-                var current_question_block = $('#current-question-block').val();
-                $('#' + current_question_block + ' div.panel-body').html('');
-                $('#' + current_question_block + ' div.panel-body').html(content);
-            })
-            ed.on('change', function (e) {
-                var content = tinymce.get('tinymce-editor').getContent();
-                var current_question_block = $('#current-question-block').val();
-                $('#' + current_question_block + ' div.panel-body').html('');
-                $('#' + current_question_block + ' div.panel-body').html(content);
-
-            })
-        }
-
-
-    });
-
-
-    /*TinyMCE*/
-    tinymce.init({
-        selector: "textarea#tinymce-editor-update-block",
-        theme: "modern",
-        width: '100%',
-        height: 50,
-        autoresize_min_height: 50,
-        autoresize_max_height: 100,
-        entities: "160,nbsp,38,amp,34,quot,162,cent,8364,euro,163,pound,165,yen,169,copy,174,reg,8482,trade,8240,permil,60,lt,62,gt,8804,le,8805,ge,176,deg,8722,minus",
-        entity_encoding: "raw",
-        plugins: [
-            "autoresize paste textcolor"
-        ],
-        setup: function (ed) {
-            ed.on('keyup change', function (e) {
-                var content = ed.getContent();
-                var current_text_block_id = $('#current-text-block-updated').val();
-                $('#' + current_text_block_id + ' div.panel-body').html('');
-                $('#' + current_text_block_id + ' div.panel-body').html(content);
-            });
-        }
-    });
-
-    tinymce.init({
-        selector: "textarea#tinymce-editor-update-question",
-        theme: "modern",
-        width: '100%',
-        height: 50,
-        autoresize_min_height: 50,
-        autoresize_max_height: 50,
-        entities: "160,nbsp,38,amp,34,quot,162,cent,8364,euro,163,pound,165,yen,169,copy,174,reg,8482,trade,8240,permil,60,lt,62,gt,8804,le,8805,ge,176,deg,8722,minus",
-        entity_encoding: "raw",
-        plugins: [
-            "autoresize paste textcolor"
-        ],
-        setup: function (ed) {
-            ed.on('keyup', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question-updated').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-
-                $('.question_title_updated').val(content);
-            })
-            ed.on('change', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question-updated').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-
-                $('.question_title_updated').val(content);
-            })
-        }
-    });
-
-
-    $(document).on('click', 'a.add-question-to-block', function () {
-        $('#main-configuration-panel').addClass('hidden');
-        $('#questions-block-configuration-panel').addClass('hidden');
-        $('#add-question-option-panel').removeClass('hidden');
-
-        $(this).closest('footer').fadeOut(400);
-
-        var before = $(this)[0];
-
-        var new_question_block = '';
-
-        var parent_block = '';
-
-        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;"></div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
-
-        /*Find question id*/
-        $('#survey-main-content div.question-content').each(function (index) {
-            $(this).attr('id', 'question-' + (index + 1));
-            $(this).children('div.question_id').text(index + 1 + '.- ');
-        })
-        /*end*/
-
-    })
-
-    $('a.btn-create-new-question').on('click', function () {
-        $('#survey-main-content div.question-content').each(function (index) {
-            $(this).attr('id', 'question-' + (index + 1));
-            $(this).children('div.question_id').text(index + 1 + '.- ');
-            if ($(this).hasClass('active-question')) {
-
-                var question_id = $(this).attr('id');
-                $(this).children('div.question-text').text('Este es el texto de la pregunta');
-
-                $('#current-question').val(question_id);
-
-                $('#new_question_title').attr('placeholder', 'Este es el texto de la pregunta');
-
-                $('#add-new-question-configuration-panel').removeClass('hidden');
-                $('#add-question-option-panel').addClass('hidden');
-
-            }
-        })
-    });
 
     //funciones para editar bloques
 
@@ -479,7 +296,6 @@ $(document).ready(function () {
 
             $('#current-question-updated').val(question_survey_id);
 
-            //TODO: make a function to return the options and organize them in a new update form
             return getQuestionToUpdate(question_id);
 
         } else if ($(this).hasClass('remove_question')) {
@@ -565,105 +381,79 @@ $(document).ready(function () {
         addQuestionOptions();
     });
 
-})
 
-//DRAG AND DROP start>>
-var holder = document.getElementById('holder'),
-    tests = {
-        filereader: typeof FileReader != 'undefined',
-        dnd: 'draggable' in document.createElement('span'),
-        formdata: !!window.FormData,
-        progress: "upload" in new XMLHttpRequest
-    },
-    support = {
-        filereader: document.getElementById('filereader'),
-        formdata: document.getElementById('formdata'),
-        progress: document.getElementById('progress')
-    },
-    acceptedTypes = {
-        'image/png': true,
-        'image/jpeg': true,
-        'image/gif': true
-    },
-    progress = document.getElementById('uploadprogress'),
-    fileupload = document.getElementById('upload');
+    //ColorPicker instance for new block text
+    $('#new_block_color_picker').ColorPicker(
+        {
+            color: '#cecece',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#new_block_color_picker div').css('backgroundColor', '#' + hex);
+                setStyleToBlock();
 
-"filereader formdata progress".split(' ').forEach(function (api) {
-    if (tests[api] === false) {
-        support[api].className = 'fail';
-    } else {
-        support[api].className = 'hidden';
-    }
-});
+            }
+        }
+    );
 
-function previewfile(file) {
-    if (tests.filereader === true && acceptedTypes[file.type] === true) {
-        var reader = new FileReader();
-        reader.onload = function (event) {
-            var image = new Image();
-            image.src = event.target.result;
-            image.width = 250; // a fake resize
-            holder.appendChild(image);
-        };
-
-        reader.readAsDataURL(file);
-    } else {
-        holder.innerHTML += '<p>Uploaded ' + file.name + ' ' + (file.size ? (file.size / 1024 | 0) + 'K' : '');
-        console.log(file);
-    }
-}
-
-function readfiles(files) {
-    debugger;
-    var formData = tests.formdata ? new FormData() : null;
-    for (var i = 0; i < files.length; i++) {
-        if (tests.formdata) formData.append('file', files[i]);
-        previewfile(files[i]);
-    }
-
-    // now post a new XHR request
-    if (tests.formdata) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/devnull.php');
-        xhr.onload = function () {
-            progress.value = progress.innerHTML = 100;
-        };
-
-        if (tests.progress) {
-            xhr.upload.onprogress = function (event) {
-                if (event.lengthComputable) {
-                    var complete = (event.loaded / event.total * 100 | 0);
-                    progress.value = progress.innerHTML = complete;
+    //ColorPicker instance for new border block
+    $('#new_block_border_color_picker').ColorPicker(
+        {
+            color: '#cecece',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#new_block_border_color_picker div').css('backgroundColor', '#' + hex);
+                if (!$("#new_block_has_border").is(":checked")) {
+                    setStyleToBlock();
                 }
             }
         }
+    );
 
-        xhr.send(formData);
-    }
-}
+    //ColorPicker instance for new background block
+    $('#new_block_background_color_picker').ColorPicker(
+        {
+            color: '#cecece',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#new_block_background_color_picker div').css('backgroundColor', '#' + hex);
+                if (!$("#new_block_has_background").is(":checked")) {
+                    setStyleToBlock();
+                }
+            }
+        }
+    );
 
-if (tests.dnd) {
-    holder.ondragover = function () {
-        this.className = 'hover';
-        return false;
-    };
-    holder.ondragend = function () {
-        this.className = '';
-        return false;
-    };
-    holder.ondrop = function (e) {
-        this.className = '';
-        e.preventDefault();
-        readfiles(e.dataTransfer.files);
-    }
-} else {
-    fileupload.className = 'hidden';
-    fileupload.querySelector('input').onchange = function () {
-        readfiles(this.files);
-    };
-}
 
-//DRAG AND DROP <<<end
+    /*BLOCK DESIGN*/
+    //button to select font family
+    $('#new_block_font').change(function(){
+        setStyleToBlock();
+    });
+
+
+})
+
 
 
 //<--------------  DRAG AND DROP QUESTION  BLOCK--------->//
@@ -1109,5 +899,65 @@ function saveBlockConfiguration(){
         }
 
     });
+
+}
+
+function setStyleToBlock(){
+    var current_question_block = $('#current-question-block').val();
+
+    var font_family, font_color, border_color, border_style,
+        border_width, background_color;
+
+
+
+    //Determine font selected value
+    switch ($('#new_block_font').val()){
+        case 'times_new_roman':
+            font_family = 'Times New Roman';
+            break;
+        case 'arial':
+            font_family = 'Arial';
+            break;
+        case 'helvetica':
+            font_family = 'Helvetica';
+            break;
+        case 'courier_new':
+            font_family = 'Courier New';
+            break;
+        default:
+            break;
+    }
+
+    //Determine font color
+    font_color = $('#new_block_color_picker div').css('background-color');
+
+    //Determine border properties
+    if (!$("#new_block_has_border").is(":checked")) {
+        border_color = $('#new_block_border_color_picker div').css('background-color');
+        border_style = $('#new_block_border_style').val()+' !important';
+        border_width = $('#new_block_border_width').val()+' !important';
+    }
+
+    //Determine background properties
+    if (!$("#new_block_has_background").is(":checked")) {
+        background_color = $('#new_block_background_color_picker div').css('background-color');
+    } else {
+        background_color = 'transparent';
+    }
+
+    console.log(new_block_style);
+
+    var new_block_style = {
+        'font-family': font_family,
+        color: font_color,
+        'border-color': border_color + '!important',
+        'border-style': border_style,
+        'border-width': border_width,
+        'background-color': background_color
+    }
+
+    console.log(new_block_style);
+
+    $('#' + current_question_block+' section.question-block').css(new_block_style);
 
 }

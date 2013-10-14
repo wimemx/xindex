@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="/static/css/app.css">
     <link rel="stylesheet" href="/static/dzcss/basic.css">
     <link rel="stylesheet" href="/static/dzcss/dropzone.css">
+    <link rel="stylesheet" href="/static/js/colorpicker/css/colorpicker.css">
+    <link rel="stylesheet" href="/static/js/colorpicker/css/layout.css?ver=1.0.2">
     <style type="text/css">
         #drag-question-block:hover {
             cursor: pointer;;
@@ -617,7 +619,124 @@
                 </div>
             </div>
             <div id="block-design" class="tab-pane">
-                <h1>Diseño del bloque</h1>
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Texto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form class="form-horizontal" id="associate_questions_to_attribute">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Tipograf&iacute;a
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="new_block_font" class="form-control">
+                                        <option value="times_new_roman">Times New Roman</option>
+                                        <option value="arial">Arial</option>
+                                        <option value="helvetiva">Helvetica</option>
+                                        <option value="courier_new">Courier New</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Color
+                                </label>
+                                <div class="col-lg-4">
+                                    <div id="new_block_color_picker" class="colorSelector">
+                                        <div style="background-color: #cecece"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Contenedor
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="form-horizontal">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Borde</label>
+                                        <div class="line line-dashed m-t-lg"></div>
+                                        <div class="m-b">
+                                            <div class="checkbox">
+                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_border"><i class="icon-unchecked"></i> Sin borde</label>
+                                            </div>
+                                        </div>
+                                        <div class="m-b">
+                                            <div class="form-group row">
+                                                <p class="col-sm-4">Color del borde</p>
+                                                <div class="col-sm-4">
+                                                    <div id="new_block_border_color_picker" class="colorSelector">
+                                                        <div style="background-color: #cecece"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="m-b">
+                                            <div class="form-group row">
+                                                <p class="col-sm-4 control-label">Tipo de borde</p>
+                                                <div class="col-sm-4">
+                                                    <select id="new_block_border_style" class="form-control">
+                                                        <option value="dotted" style="border-style: dotted">Punteado</option>
+                                                        <option value="dashed" style="border-style: dashed">Con guiones</option>
+                                                        <option value="solid" style="border-style: solid">Solido</option>
+                                                        <option value="double" style="border-style: double">Doble</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="m-b">
+                                            <div class="form-group row">
+                                                <p class="col-sm-4 control-label">Ancho del borde</p>
+                                                <div class="col-sm-4">
+                                                    <select id="new_block_border_width" class="form-control">
+                                                        <option value="1px">1x</option>
+                                                        <option value="2px">2x</option>
+                                                        <option value="3px">3x</option>
+                                                        <option value="4px">4x</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fondo</label>
+                                        <div class="line line-dashed m-t-lg"></div>
+                                        <div class="m-b">
+                                            <div class="checkbox">
+                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_background"><i class="icon-unchecked"></i> Sin fondo</label>
+                                            </div>
+                                        </div>
+                                        <div class="m-b">
+                                            <div class="form-group row">
+                                                <p class="col-sm-4">Color del fondo</p>
+                                                <div class="col-sm-4">
+                                                    <div id="new_block_background_color_picker" class="colorSelector">
+                                                        <div style="background-color: #cecece"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <p>
+                        <input type="checkbox"> Aplicar a todos los bloques de preguntas de esta encuesta
+                    </p>
+                </section>
             </div>
             <div id="block-configuration" class="tab-pane">
                 <section class="panel-heading">
@@ -844,7 +963,66 @@
                 </div>
             </div>
             <div id="design-question" class="tab-pane">
-                Diseño de la pregunta
+                current
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Texto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            <div class="checkbox">
+                                <label>
+                                    Escoja el punto de contacto al cual esta vinculado esta pregunta<i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Punto de Contacto
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="add_moment_association" class="form-control">
+                                        <option value="default">No asociar</option>
+                                        {% for moment in setup.moments %}
+                                            <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Atributos
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="associate_questions_to_attribute">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">
+                                    Escoja los indicadores que seran medidos por la pregunta<i class="icon-question-sign"></i>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Atributos
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="add_attribute_association" class="form-control">
+                                        <option value="default">No asociar</option>
+                                        {% for attribute in setup.attributes %}
+                                            <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
             </div>
             <div id="question_configuration_panel" class="tab-pane">
                 <section class="panel-heading">
@@ -1091,6 +1269,9 @@
 <!-- Survey App -->
 <script src="/static/js/survey.app.js"></script>
 
+<!-- TinyMCE instances -->
+<script src="/static/js/tinymce.survey.app.js"></script>
+
 <!-- Survey Questions App -->
 <script src="/static/js/survey.questions.app.js"></script>
 
@@ -1099,6 +1280,15 @@
 
 <!-- Dropzone -->
 <script src="/static/js/dropzone.js"></script>
+
+<!-- Drag and drop app -->
+<script src="/static/js/drag.and.drop.survey.app.js"></script>
+
+<!-- Color Picker Plugin -->
+<script src="/static/js/colorpicker/colorpicker.js"></script>
+<script src="/static/js/colorpicker/eye.js"></script>
+<script src="/static/js/colorpicker/utils.js"></script>
+<script src="/static/js/colorpicker/layout.js?ver=1.0.2"></script>
 
 <!-- question selector -->
 <script src="/static/js/questions_survey_selector.js"></script>
