@@ -24,8 +24,10 @@
                             <section class="wrapper text-left stretch b-b">
                                 <div class="h3 m-t-xs m-b-xs">
                                     <i class="icon-briefcase icon-xlarge"></i> {{ service.name }}
-                                    <small>Unidad de servicio, Subsidiaria,
-                                        Direccion
+                                    <small>
+                                        {{ business_unit.name }},
+                                        {{ business_unit.subsidiary.name }},
+                                        {{ business_unit.subsidiary.address }}
                                     </small>
 
                                     <a class="pull-right "

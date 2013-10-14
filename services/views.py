@@ -203,6 +203,7 @@ def getSByBUInJson(request, business_unit_id):
                     "business_unit": business_unit.name,
                     "business_unit_id": business_unit.id,
                     "subsidiary": business_unit.subsidiary.name,
+                    "subsidiary_id": business_unit.subsidiary.id,
                     "zone": business_unit.subsidiary.address,
                     "delete": service.id,
                     "edit": service.id,
@@ -234,9 +235,10 @@ def details(request, service_id):
 
 
 @login_required(login_url='/signin/')
-def details(request, service_id):
+def details(request, service_id, business_unit_id):
     try:
         moments = Service.objects.get(pk=service_id)
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
         status = str(moments.active)
     except Service.DoesNotExist:
         raise Http404
@@ -256,7 +258,8 @@ def details(request, service_id):
         'service': moments,
         'service_id': service_id,
         'counter_moments': counter_moments,
-        'counter_attributes': counter_attributes_
+        'counter_attributes': counter_attributes_,
+        'business_unit': business_unit
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)
