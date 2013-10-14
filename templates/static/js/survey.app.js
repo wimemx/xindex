@@ -630,7 +630,7 @@ function getQuestionToUpdate(question_id) {
                 form += '</div>'
                 form += '<input id="edit_multiple_choice" type="submit" class="btn btn-info" value="Modificar Pregunta" />'
                 form += '</form>'
-                form += '<div>'
+                form += '</div>'
 
                 if (json_response.question_moment_id) {
                     var moment_id = json_response.question_moment_id;
@@ -680,7 +680,7 @@ function getQuestionToUpdate(question_id) {
                 formMatrix += '<div class="matrix_rows_u">'
 
                 $.each(json_response.question_rows, function (index, value) {
-                    /*
+                    /* New option remove dummy-option
                     var new_option_proto = '<div class="dynamic_inputs input-close"><i class="icon-remove remove-dummy" onclick="deleteOption(event);" ></i>';
                     var remove_button = '<input type="text" maxlength="100" class="option_added input-query form-control"/></div>';
                     * */
