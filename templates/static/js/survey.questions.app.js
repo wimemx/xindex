@@ -410,4 +410,92 @@ $(document).ready(function () {
     });
 
 
+    //button to create a new question inside of block
+    $(document).on('click', 'a.add-question-to-block', function () {
+        $('#main-configuration-panel').addClass('hidden');
+        $('#questions-block-configuration-panel').addClass('hidden');
+        $('#add-question-option-panel').removeClass('hidden');
+
+        $(this).closest('footer').fadeOut(400);
+
+        var before = $(this)[0];
+
+        var new_question_block = '';
+
+        var parent_block = '';
+
+        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;"></div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
+
+        /*Find question id*/
+        $('#survey-main-content div.question-content').each(function (index) {
+            $(this).attr('id', 'question-' + (index + 1));
+            $(this).children('div.question_id').text(index + 1 + '.- ');
+        })
+        /*end*/
+
+    });
+
+
+    //button to show the editor for a new question
+    $('a.btn-create-new-question').on('click', function () {
+        $('#survey-main-content div.question-content').each(function (index) {
+            $(this).attr('id', 'question-' + (index + 1));
+            $(this).children('div.question_id').text(index + 1 + '.- ');
+            if ($(this).hasClass('active-question')) {
+
+                var question_id = $(this).attr('id');
+                $(this).children('div.question-text').text('Este es el texto de la pregunta');
+
+                $('#current-question').val(question_id);
+
+                $('#new_question_title').attr('placeholder', 'Este es el texto de la pregunta');
+
+                $('#add-new-question-configuration-panel').removeClass('hidden');
+                $('#add-question-option-panel').addClass('hidden');
+
+            }
+        })
+    });
+
+
+    //function to create a new question within block
+    $('#add-question').on('click', function () {
+
+        $('#main-configuration-panel').addClass('hidden');
+        $('#questions-block-configuration-panel').addClass('hidden');
+        $('#add-question-option-panel').removeClass('hidden');
+
+        $('div.default-buttons').fadeOut(300);
+
+        //Determine next block id
+
+        var n = $('#survey-main-content div.row-block').length;
+
+        $('#survey-main-content div.row-block').each(function (index) {
+            $(this).find('section.question-block').removeClass('selected-block');
+        });
+
+        var new_block_id = 'block-' + (n + 1);
+
+        var new_questions_block_content = '<div class="row row-block row-no-block animated fadeIn" id="' + new_block_id + '">' +
+            '<div class="col-lg-12">' +
+            '<section class="padder padder-v question-block selected-block">' +
+            /*
+             '<div class="wrapper question-blocks-content">' +
+             '</div>' +*/
+            '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>' +
+            '</section>' +
+            '</div>' +
+            '</div>';
+
+        $('#survey-main-content').append(new_questions_block_content);
+        enumerateQuestionBlocks();
+        enumerateQuestions();
+
+        var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question_id').attr('id')
+
+        $('#current-question-block').val(block_selected_id);
+    });
+
+
 })
