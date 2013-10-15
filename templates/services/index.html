@@ -21,7 +21,8 @@
                 <input type="hidden" id="business_unit_id" value="{{ business_unit.id }}">
             <div class="wrapper">
                 <p class="h3">Servicio de <a class="h3 text-success"
-                                             href="#">{{ business_unit.name }}</a>
+                                             href="/services/{{ business_unit.id }}">
+                                            {{ business_unit.name }}</a>
                     <small class="padder" style="font-style: italic">{{ company }}</small></p>
             </div>
             {% endif %}
