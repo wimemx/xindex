@@ -258,6 +258,16 @@ function insertQuestionsBlock() {
     var new_questions_block_content = '<div class="row row-block animated fadeIn" id="' + new_block_id + '">' +
         '<div class="col-lg-12">' +
         '<section class="padder padder-v question-block selected-block">' +
+        '<div class="block_actions_content" style="height: 25px; min-height: 25px;">'+
+            '<div class="block_actions">'+
+                '<a class="actions_block remove_block" id="remove_block">'+
+                    '<i class="icon-trash icon-large pull-right"></i>'+
+                '</a>'+
+                '<a class="actions_block update_block" id="update_block">'+
+                    '<i class="icon-edit icon-large pull-right"></i>'+
+                '</a>'+
+            '</div>'+
+        '</div>'+
         '<div class="panel-body">' +
         '<div>' +
         '<header class="block-title">' +

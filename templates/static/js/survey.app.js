@@ -934,8 +934,8 @@ function setStyleToBlock(){
     //Determine border properties
     if (!$("#new_block_has_border").is(":checked")) {
         border_color = $('#new_block_border_color_picker div').css('background-color');
-        border_style = $('#new_block_border_style').val()+' !important';
-        border_width = $('#new_block_border_width').val()+' !important';
+        border_style = $('#new_block_border_style').val();
+        border_width = $('#new_block_border_width').val();
     }
 
     //Determine background properties
@@ -945,19 +945,29 @@ function setStyleToBlock(){
         background_color = 'transparent';
     }
 
-    console.log(new_block_style);
+
 
     var new_block_style = {
         'font-family': font_family,
         color: font_color,
-        'border-color': border_color + '!important',
-        'border-style': border_style,
-        'border-width': border_width,
+        border: border_width + ' ' +border_style + ' ' +border_color,
         'background-color': background_color
     }
 
     console.log(new_block_style);
 
-    $('#' + current_question_block+' section.question-block').css(new_block_style);
+    var attr_style = 'border: '+border_width+' '+border_style+' '+border_color+' !important; font-family: '+font_family+'; color: '+font_color+'; background-color: '+background_color+';';
+
+    $('#' + current_question_block+' section.question-block').attr('style', attr_style);
+
+
+    //$('#' + current_question_block+' section.question-block').css(new_block_style);
+
+    var styleProps = $('#' + current_question_block+' section.question-block').css([
+        "border", "color", "background-color", "font-family"
+    ]);
+    $.each( styleProps, function( prop, value ) {
+        console.log( prop + ": " + value );
+    });
 
 }
