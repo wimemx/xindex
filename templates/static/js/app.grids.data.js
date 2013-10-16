@@ -659,7 +659,7 @@ function servicesDatagrid() {
                         item.name = '<a href="/services/details/' + item.details + '/'+ item.business_unit_id + ' ">' + item.name + '</a>';
                         //item.detail = '<a href="/services/details/' + item.detail + '"><i class="icon-eye-open"></i></a>';
                         item.delete =
-                            '<a href="/services/update/' + item.edit + '/' + item.business_unit_id + '"><i class="icon-edit text-warning"></i></a>'
+                            '<a href="/services/update/' + item.edit + '/' + item.business_unit_id + '" class="update_service" data-toggle="ajaxModal"><i class="icon-edit text-warning"></i></a>'
                                 +
                                 '<label>|</label>'
                                 +

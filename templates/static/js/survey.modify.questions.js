@@ -8,34 +8,34 @@
 
 $(document).ready(function(){
 
-    /*Multiple Choice Question*/
+    /*Multiple Choice Question
     $(document).on('focus', '.option_added_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
 
         console.log('keyup event: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
         $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
-    });
+    });*/
 
     /*Mostrar en tiempo real una nueva opción (Multiple Choice - Modificando)*/
-    $(document).on('keyup', '.option_added_u', function () {
+    $(document).on('keyup', '.multiple_choice_options_set_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
 
         console.log('keyup event: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
         $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
     });
@@ -46,14 +46,135 @@ $(document).ready(function(){
 
         console.log('Este es el id de la pregunta: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
-        $('div.multiple_choice_u input.option_added').each(function () {
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
+        $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
     });
+
+    /*Mostrar en tiempo real la matriz (Matrix - Modificando)*/
+    $(document).on('keyup', '#question_type_1_form', function () {
+
+        var current_question_updated = $('#current-question-updated').val();
+        var counter_td = 0;
+        var td_to_complete = '';
+        var i;
+
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;">' +
+            '<table border=0 class="question_options">' +
+                '<tr class="tr-cols" style="border-bottom: 1px solid #d3d3d3;">' +
+                '<td style="border-right: 1px solid #d3d3d3;">' +
+                '</td>' +
+                '</tr>' +
+            '</table>' +
+            '</div>');
+
+        $('div.matrix_cols_u input.option_added_u').each(function () {
+            var col_value = $(this).val();
+            $('#' + current_question_updated + ' tr.tr-cols').append(
+                '<td class="padder">' + col_value + '</td>'
+            );
+            counter_td ++;
+        });
+
+        for (i=0; i < parseInt(counter_td); i ++){
+
+            td_to_complete += '<td style=" text-align: center !important;' +
+                'border-bottom: 1px solid #d3d3d3;">' +
+                '<label class="radio-custom" style="margin-left: 0px !important;">' +
+                '<input type="radio">' +
+                '<i class="icon-circle-blank"></i>' +
+                '</label>' +
+                '</td>';
+        }
+
+
+        $('div.matrix_rows_u input.option_added_u').each(function () {
+            var row_value = $(this).val();
+            $('#' + current_question_updated + ' table.question_options').append(
+                '<tr style="border-bottom: 1px solid #d3d3d3;">' +
+                    '<td style="' +
+                        'border-right: 1px solid #d3d3d3;' +
+                        'padding-bottom: 5px !important;' +
+                        'padding-top: 5px !important;' +
+                        'padding-left: 10px !important;' +
+                        'padding-right: 10px !important;' +
+                    '">' + row_value + '</td>' +
+                    td_to_complete +
+                '</tr>'
+            );
+        });
+    });
+
+    /*Mostrar en tiempo real la escala del rango (Range - Modificando)*/
+    $(document).on('keyup', '.range_field_set_u', (function () {
+
+        var current_question_updated = $('#current-question-updated').val();
+        var start_value = $('div.range_field_set_u input.start_number').val();
+        var start_label = $('div.range_field_set_u input.start_label').val();
+        var end_value = $('div.range_field_set_u input.end_number').val();
+        var end_label = $('div.range_field_set_u input.end_label').val();
+        var i;
+        var header_value = '<td></td>';
+        var circle_btn = '';
+
+        for (i=parseInt(start_value); i <= parseInt(end_value); i ++){
+
+            header_value += '<td  style=" text-align: center !important;">' +
+               '<small>' +
+
+               i +
+
+               '</small>' +
+               '</td>';
+
+            circle_btn += '<td  style=" text-align: center !important;">'+
+
+                '<label class="radio-custom" style="margin-left: 0px !important;">' +
+                '<input type="radio">' +
+                '<i class="icon-circle-blank"></i>' +
+                '</label>' +
+               '</td>';
+        }
+
+        $('#' + current_question_updated + ' div.optional-content').html('' +
+            '<div class="col-sm-12" ' +
+                '' +
+                'style="padding-left: 35px !important; ' +
+                'padding-right: 35px !important;' +
+                'padding-top: 10px;' +
+                'padding-bottom: 20px;' +
+                'clear: both;">' +
+            '<table border=0 class="question_options">' +
+                 '<tr>'+ header_value +'</tr>' +
+                '<tr class="tr-options">' +
+                '<td class="padder" ' +
+                    'style="padding-bottom: 5px !important;' +
+                    'padding-top: 5px !important;' +
+                    'padding-left: 10px !important;' +
+                    'padding-right: 10px !important;' +
+                    'width: 100px !important;">' + start_label + '</td>' +
+                '</tr>' +
+            '</table>' +
+            '</div>');
+
+        $('div#question_type_4 div.range_field_set_u input.start_number').each(function () {
+            $('#' + current_question_updated + ' tr.tr-options ').append(
+                circle_btn +
+
+                '<td class="padder" ' +
+                    'style="padding-bottom: 5px !important;' +
+                    'padding-top: 5px !important;' +
+                    'padding-left: 10px !important;' +
+                    'padding-right: 10px !important;' +
+                    'width: 100px !important;">' + end_label + '</td>'
+            );
+        })
+    })
+    );
 
     /*Crear una nueva opcion (Modificando)*/
     $(document).on('focus', '.dummy_option_u', function () {

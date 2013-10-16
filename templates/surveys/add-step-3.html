@@ -156,8 +156,7 @@
                 </small>
                 -->
             </section>
-            <section class="panel wrapper" id="survey-main-content"
-                     ondragover="drop(event)">
+            <section class="panel wrapper drop" id="survey-main-content">
                 <div class="row">
                     <div class="col-lg-12">
                         <section class="panel introduction_panel" id="survey_introduction_block">
@@ -526,8 +525,8 @@
         </section>
     </section>
 </div>
-<div class="col-lg-6"
-     style="position: fixed; float: left; margin-left: 50%; height: 100% !important; overflow: auto;">
+<div class="col-lg-6 overfloyd" id="flag-to-drag"
+     style="position: fixed; float: left; margin-left: 50%; height: 100% !important;">
 <section class="panel" id="main-configuration-panel" style="height: 95%;">
     <header class="panel-heading bg-light">
         <ul class="nav nav-tabs nav-justified">
@@ -543,11 +542,12 @@
     <div class="panel-body">
         <div class="tab-content">
             <div id="content" class="tab-pane active">
-                <!--<div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>-->
-                <div id="drag-question-block" class="col-lg-4"
+                <div id="div-drop-question" ondrop="dropQuestionBlock(event)" ondragover="drop(event)"></div>
+                <!--<div id="drag-question-block" class="col-lg-4"
                      draggable="true"
                      ondragstart="dragQuestionBlock(event)"
-                     ondragend="dropQuestionBlock(event, this.id)">
+                     ondragend="dropQuestionBlock(event)">-->
+                <div id="drag-question-block" class="col-lg-4 drag">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-list-alt icon-3x"></i>
@@ -557,10 +557,12 @@
                         </div>
                     </section>
                 </div>
-                <div id="drag-question-only" class="col-lg-4"
+
+                <!--<div id="drag-question-only" class="col-lg-4 drag"
                      draggable="true"
                      ondragstart="dragQuestionBlock(event)"
-                     ondragend="dropQuestionBlock(event, this.id)">
+                     >-->
+                <div id="drag-question-only" class="col-lg-4 drag">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-question-sign icon-3x"></i>
@@ -570,7 +572,7 @@
                         </div>
                     </section>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-4 drag">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-picture icon-3x"></i>
@@ -580,7 +582,7 @@
                         </div>
                     </section>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-4 drag">
                     <section class="panel">
                         <div class="panel-body text-center m-t">
                             <i class="icon-align-justify icon-3x"></i>
@@ -1256,6 +1258,7 @@
 
 <!-- Drag and drop app -->
 <script src="/static/js/drag.and.drop.survey.app.js"></script>
+<script src="/static/js/jquery-ui-1.10.3.custom.min.js"></script>
 
 <!-- Color Picker Plugin -->
 <script src="/static/js/colorpicker/colorpicker.js"></script>
@@ -1277,18 +1280,53 @@
 
 <!-- BootBox -->
 <script src="/static/js/bootbox/bootbox.min.js"></script>
+
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
 <script>
-       Dropzone.options.picture = {
-       maxFiles: 1,
-       dictDefaultMessage: 'Arrastre una imagen aquí o',
-       dictRemoveFile: 'Eliminar',
-       addRemoveLinks: true,
-       init: function() {
-           this.on("addedfile", function(file) {
-               $('#picture .dz-message').fadeOut(300);
-           });
-       }
-   }
+    $('.drag').draggable({
+        start: function() {
+            $(this).removeClass("zindexMin");
+            $('#flag-to-drag').removeClass("overfloyd");
+            $(this).addClass("zindexMax");
+        },
+        revert : function(event, ui) {
+            $(this).data("uiDraggable").originalPosition = {
+                top : 0,
+                left : 0
+            };
+            return !event;
+        },
+        stop: function() {
+            $(this).removeClass("zindexMax")
+            $('#flag-to-drag').addClass("overfloyd");
+            $(this).addClass("zindexMin");
+        }
+    });
+    $(".drop").droppable({
+        drop: function(event, ui) {
+            var id = ui.draggable.attr("id");
+            if (id == 'drag-question-block'){
+                dropQuestionBlock(event);
+            } else if (id == 'drag-question-only'){
+                dropQuestion(event);
+            } else {
+                alert('Funcion no definida');
+                revertDraggable($(".drag"));
+            }
+        }
+    });
+
+    Dropzone.options.picture = {
+    maxFiles: 1,
+    dictDefaultMessage: 'Arrastre una imagen aquí o',
+    dictRemoveFile: 'Eliminar',
+    addRemoveLinks: true,
+    init: function() {
+       this.on("addedfile", function(file) {
+           $('#picture .dz-message').fadeOut(300);
+       });
+    }}
 </script>
 </body>
 </html>
