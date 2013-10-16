@@ -190,12 +190,25 @@
                     </div>
                 </div>
                 {% if setup %}
+                    <!--input to verify if survey has a style for all the blocks or not-->
+                    {% if setup.blocks_style %}
+                        <input type="hidden" id="survey_has_blocks_style" value="True"/>
+                        <input type="hidden" id="survey_blocks_style" value="{{ setup.blocks_style }}"/>
+                    {% else %}
+                        <input type="hidden" id="survey_has_blocks_style" value="False"/>
+                        <input type="hidden" id="survey_blocks_style" value=""/>
+                    {% endif %}
                     <ul class="list-group gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
+                        <div class="pull-in clearfix m-b-n icon_current_edited">
+                            <p class="m-t-sm m-b text-center animated bounceInDown">
+                                <i class="icon-map-marker text-danger icon-2x" data-toggle="tooltip" title="" data-original-title="Editando este bloque"></i>
+                            </p>
+                        </div>
                         <li class="list-group-item">
                             <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                 <div class="col-lg-12">
-                                    <section class="padder padder-v question-block">
+                                    <section class="padder padder-v question-block" {% if setup.blocks_style %}style="{{ setup.blocks_style }}" {% else %}{% if block.style %}style="{{ block.style }}"{% endif %}{% endif %}>
                                         <div class="block_actions_content" style="height: 25px; min-height: 25px;">
                                             <div class="block_actions">
                                                 {% csrf_token %}
@@ -613,9 +626,11 @@
 
                         </textarea>
                     </section>
+                    <!--
                     <div class="wrapper">
                         <a class="btn btn-success pull-right" href="#" id="save-survey-question-block">Guardar</a>
                     </div>
+                    -->
                 </div>
             </div>
             <div id="block-design" class="tab-pane">
@@ -633,6 +648,7 @@
                                 </label>
                                 <div class="col-lg-4">
                                     <select id="new_block_font" class="form-control">
+                                        <option value="lato">Predeterminada</option>
                                         <option value="times_new_roman">Times New Roman</option>
                                         <option value="arial">Arial</option>
                                         <option value="helvetiva">Helvetica</option>
@@ -646,7 +662,7 @@
                                 </label>
                                 <div class="col-lg-4">
                                     <div id="new_block_color_picker" class="colorSelector">
-                                        <div style="background-color: #cecece"></div>
+                                        <div style="background-color: #717171"></div>
                                     </div>
                                 </div>
                             </div>
@@ -671,39 +687,41 @@
                                                 <label class="checkbox-custom"><input type="checkbox" id="new_block_has_border"><i class="icon-unchecked"></i> Sin borde</label>
                                             </div>
                                         </div>
-                                        <div class="m-b">
-                                            <div class="form-group row">
-                                                <p class="col-sm-4">Color del borde</p>
-                                                <div class="col-sm-4">
-                                                    <div id="new_block_border_color_picker" class="colorSelector">
-                                                        <div style="background-color: #cecece"></div>
+                                        <div id="border_block_configuration_section">
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4">Color del borde</p>
+                                                    <div class="col-sm-4">
+                                                        <div id="new_block_border_color_picker" class="colorSelector">
+                                                            <div style="background-color: transparent"></div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="m-b">
-                                            <div class="form-group row">
-                                                <p class="col-sm-4 control-label">Tipo de borde</p>
-                                                <div class="col-sm-4">
-                                                    <select id="new_block_border_style" class="form-control">
-                                                        <option value="dotted" style="border-style: dotted">Punteado</option>
-                                                        <option value="dashed" style="border-style: dashed">Con guiones</option>
-                                                        <option value="solid" style="border-style: solid">Solido</option>
-                                                        <option value="double" style="border-style: double">Doble</option>
-                                                    </select>
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4 control-label">Tipo de borde</p>
+                                                    <div class="col-sm-4">
+                                                        <select id="new_block_border_style" class="form-control">
+                                                            <option value="solid" style="border-style: solid">Solido</option>
+                                                            <option value="dotted" style="border-style: dotted">Punteado</option>
+                                                            <option value="dashed" style="border-style: dashed">Con guiones</option>
+                                                            <option value="double" style="border-style: double">Doble</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="m-b">
-                                            <div class="form-group row">
-                                                <p class="col-sm-4 control-label">Ancho del borde</p>
-                                                <div class="col-sm-4">
-                                                    <select id="new_block_border_width" class="form-control">
-                                                        <option value="1px">1x</option>
-                                                        <option value="2px">2x</option>
-                                                        <option value="3px">3x</option>
-                                                        <option value="4px">4x</option>
-                                                    </select>
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4 control-label">Ancho del borde</p>
+                                                    <div class="col-sm-4">
+                                                        <select id="new_block_border_width" class="form-control">
+                                                            <option value="1px">1x</option>
+                                                            <option value="2px">2x</option>
+                                                            <option value="3px">3x</option>
+                                                            <option value="4px">4x</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -716,12 +734,12 @@
                                                 <label class="checkbox-custom"><input type="checkbox" id="new_block_has_background"><i class="icon-unchecked"></i> Sin fondo</label>
                                             </div>
                                         </div>
-                                        <div class="m-b">
+                                        <div class="m-b" id="new_block_background_configuration_section">
                                             <div class="form-group row">
                                                 <p class="col-sm-4">Color del fondo</p>
                                                 <div class="col-sm-4">
                                                     <div id="new_block_background_color_picker" class="colorSelector">
-                                                        <div style="background-color: #cecece"></div>
+                                                        <div style="background-color: transparent"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -734,7 +752,7 @@
                 </section>
                 <section class="panel-heading">
                     <p>
-                        <input type="checkbox"> Aplicar a todos los bloques de preguntas de esta encuesta
+                        <input type="checkbox" id="apply_design_to_all_blocks"> Aplicar a todos los bloques de preguntas de esta encuesta
                     </p>
                 </section>
             </div>
@@ -767,11 +785,13 @@
                                     </select>
                                 </div>
                             </div>
+                            <!--
                             <div class="footer wrapper">
                                 <div class="">
                                     <button type="submit" class="btn btn-info pull-right" id="">Guardar y Continuar</button>
                                 </div>
                             </div>
+                            -->
                         </form>
                     </section>
                 </section>

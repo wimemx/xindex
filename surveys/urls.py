@@ -24,6 +24,9 @@ urlpatterns = patterns('surveys.views',
     #url to remove questions
     url(r'^delete_questions/', views.delete_questions, name='Delete Questions'),
 
+    #url to check if a survey has blocks style and return it if so
+    url(r'^getSurveyBlocksStyle/', views.get_survey_blocks_style, name='Get survey blocks style'),
+
     #url to remove questions
     url(r'^questions_moments/', views.associate_questions_to_moments, name='Associate Questions to Moments'),
     url(r'^questions_attributes/', views.associate_questions_to_attributes, name='Associate Questions to Attributes'),
