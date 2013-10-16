@@ -200,15 +200,160 @@ function get_question_object() {
 
 
 //function to add options to multiple option and matrix questions
-function addQuestionOptions() {
+function addQuestionOptions(from) {
     var current_question_id = $('#current-question').val();
-    $('#' + current_question_id + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
-    $('div.multiple_choice input.option_added').each(function () {
-        var list_value = $(this).val();
-        $('#' + current_question_id + ' ul.question_options').append(
-            '<li>' + list_value + '</li>'
+
+    if (from=='multiple'){
+
+        $('#' + current_question_id + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
+
+        $('div.multiple_choice input.option_added').each(function () {
+            var list_value = $(this).val();
+            $('#' + current_question_id + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
+            );
+        })
+    } else if (from=='matrix'){
+
+        var counter_td = 0;
+        var td_to_complete = '';
+
+        $('#' + current_question_id + ' div.optional-content').html('<div style="clear: both;">' +
+            '<table border=0 class="question_options">' +
+                '<tr class="tr-cols" style="border-bottom: 1px solid #d3d3d3;">' +
+                '<td style="border-right: 1px solid #d3d3d3;">' +
+                '</td>' +
+                '</tr>' +
+            '</table>' +
+            '</div>');
+
+        $('div.matrix div.matrix_cols input.option_added').each(function () {
+            var col_value = $(this).val();
+            $('#' + current_question_id + ' tr.tr-cols').append(
+                '<td class="padder">' + col_value + '</td>'
+            );
+            counter_td ++;
+        });
+
+        for (i=0; i < parseInt(counter_td); i ++){
+
+            td_to_complete += '<td style=" text-align: center !important;' +
+                'border-bottom: 1px solid #d3d3d3;">' +
+                '<label class="radio-custom" style="margin-left: 0px !important;">' +
+                '<input type="radio">' +
+                '<i class="icon-circle-blank"></i>' +
+                '</label>' +
+                '</td>';
+        }
+
+
+        $('div.matrix div.matrix_rows input.option_added').each(function () {
+            var row_value = $(this).val();
+            $('#' + current_question_id + ' table.question_options').append(
+                '<tr style="border-bottom: 1px solid #d3d3d3;">' +
+                    '<td style="' +
+                        'border-right: 1px solid #d3d3d3;' +
+                        'padding-bottom: 5px !important;' +
+                        'padding-top: 5px !important;' +
+                        'padding-left: 10px !important;' +
+                        'padding-right: 10px !important;' +
+                    '">' + row_value + '</td>' +
+                    td_to_complete +
+                '</tr>'
+            );
+        });
+    } else if (from=='range'){
+        var start_value = $('.start_number').val();
+        var start_label = $('.start_label').val();
+        var end_value = $('.end_number').val();
+        var end_label = $('.end_label').val();
+        var i;
+        var header_value = '<td></td>';
+        var circle_btn = '';
+
+        for (i=parseInt(start_value); i <= parseInt(end_value); i ++){
+
+            header_value += '<td  style=" text-align: center !important;">' +
+               '<small>' +
+
+               i +
+
+               '</small>' +
+               '</td>';
+
+            circle_btn += '<td  style=" text-align: center !important;">'+
+
+                '<label class="radio-custom" style="margin-left: 0px !important;">' +
+                '<input type="radio">' +
+                '<i class="icon-circle-blank"></i>' +
+                '</label>' +
+               '</td>';
+        }
+
+        $('#' + current_question_id + ' div.optional-content').html('' +
+            '<div class="col-sm-12" ' +
+                '' +
+                'style="padding-left: 35px !important; ' +
+                'padding-right: 35px !important;' +
+                'padding-top: 10px;' +
+                'padding-bottom: 20px;' +
+                'clear: both;">' +
+            '<table border=0 class="question_options">' +
+                 '<tr>'+ header_value +'</tr>' +
+                '<tr class="tr-options">' +
+                '<td class="padder" ' +
+                    'style="padding-bottom: 5px !important;' +
+                    'padding-top: 5px !important;' +
+                    'padding-left: 10px !important;' +
+                    'padding-right: 10px !important;' +
+                    'width: 100px !important;">' + start_label + '</td>' +
+                '</tr>' +
+            '</table>' +
+            '</div>');
+
+        $('div#question_type_4 div.range_field_set input.start_number').each(function () {
+            $('#' + current_question_id + ' tr.tr-options ').append(
+                circle_btn +
+
+                '<td class="padder" ' +
+                    'style="padding-bottom: 5px !important;' +
+                    'padding-top: 5px !important;' +
+                    'padding-left: 10px !important;' +
+                    'padding-right: 10px !important;' +
+                    'width: 100px !important;">' + end_label + '</td>'
+            );
+        })
+    } else if (from=='open_question'){
+
+        $('#' + current_question_id + ' div.optional-content').html('' +
+            '<div class="col-sm-12" style="padding-left: 35px !important;' +
+            'padding-right: 35px !important;' +
+            'padding-top: 10px;' +
+            'padding-bottom: 20px">' +
+            '<textarea class="form-control" name="comment" cols="30" rows="5"  ' +
+            'maxlength="100"' +
+            'placeholder="Vista previa de pregunta abierta"></textarea>' +
+            '</div>'
         );
-    })
+    } else if (from=='true_and_false'){
+
+        $('#' + current_question_id + ' div.optional-content').html('' +
+            '<div class="col-sm-12" style="padding-left: 35px !important;">' +
+            '<div class="radio">' +
+            '<br> <label class="radio-custom">' +
+            '<input type="radio">' +
+            '<i class="icon-circle-blank"></i>' +
+            'Verdadero' +
+            '</label> <br>' +
+            '<label class="radio-custom">' +
+            '<input type="radio">' +
+            '<i class="icon-circle-blank"></i>' +
+            'Falso' +
+            '</label>' +
+            '</div>' +
+            '</div>'
+        );
+    }
 }
 
 /**
@@ -314,6 +459,7 @@ $(document).ready(function () {
         $('.question').hide();
         var selected_value = this.options[this.selectedIndex].text;
         selected_value = selected_value.replace(/ /g, '_').toLowerCase();
+
         switch (selected_value) {
             case 'matriz':
                 selected_value = 'matrix';
@@ -340,6 +486,18 @@ $(document).ready(function () {
         var current_question_id = $('#current-question').val();
         $('#' + current_question_id + ' div.optional-content').html('');
 
+        //cargar la vista previa de los valores por default para 'range'
+        if (selected_value == 'range'){
+            addQuestionOptions('range');
+        }
+
+        if (selected_value == 'open_question'){
+            addQuestionOptions('open_question');
+        }
+
+        if (selected_value == 'true_and_false'){
+            addQuestionOptions('true_and_false');
+        }
     });
 
 
@@ -359,13 +517,22 @@ $(document).ready(function () {
 
     //detect key up event and make preview in left side
     $('div.multiple_choice').on('keyup', '.option_added', function () {
-        addQuestionOptions();
+        addQuestionOptions('multiple');
+    });
+
+    $('div.matrix').on('keyup', '.option_added', function () {
+        addQuestionOptions('matrix');
     });
 
     //detect change event in content from dynamic inputs and make preview
     $('.multiple_choice_options_set').change(function () {
-        addQuestionOptions();
+        addQuestionOptions('multiple');
     });
+
+    $('#question_type_4').on('keyup', (function () {
+        addQuestionOptions('range');
+    })
+    );
 
     <!-- ends multiple choice functions-->
 
@@ -436,7 +603,7 @@ $(document).ready(function () {
 
     });
 
-
+//flag
     //button to show the editor for a new question
     $('a.btn-create-new-question').on('click', function () {
         $('#survey-main-content div.question-content').each(function (index) {
@@ -456,6 +623,8 @@ $(document).ready(function () {
 
             }
         })
+
+        addQuestionOptions('range');
     });
 
 
@@ -499,4 +668,4 @@ $(document).ready(function () {
     });
 
 
-})
+});

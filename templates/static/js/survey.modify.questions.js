@@ -15,11 +15,11 @@ $(document).ready(function(){
 
         console.log('keyup event: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
         $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
     });
@@ -31,11 +31,11 @@ $(document).ready(function(){
 
         console.log('keyup event: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
         $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
     });
@@ -46,11 +46,11 @@ $(document).ready(function(){
 
         console.log('Este es el id de la pregunta: '+current_question_updated);
 
-        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><ul class="question_options"></ul></div>');
-        $('div.multiple_choice_u input.option_added').each(function () {
+        $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
+        $('div.multiple_choice_u input.option_added_u').each(function () {
             var list_value = $(this).val();
-            $('#' + current_question_updated + ' ul.question_options').append(
-                '<li>' + list_value + '</li>'
+            $('#' + current_question_updated + ' div.question_options').append(
+                '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
     });

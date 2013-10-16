@@ -2781,3 +2781,15 @@ div.input-close:before {
     width: 14px !important;
     height: 14px !important;
 }
+
+.zindexMax{
+    z-index: 2000 !important;
+}
+
+.zindexMin{
+    z-index: 1 !important;
+}
+
+.overfloyd{
+    overflow: auto;
+}

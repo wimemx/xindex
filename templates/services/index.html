@@ -36,7 +36,9 @@
                                     <div class="row">
                                         <div class="col-sm-8 m-t-xs m-b-xs">
                                             <div>
-                                                <a class="btn btn-success btn-sm" href="/services/add/{{ business_unit.id }}">
+                                                <a class="btn btn-success btn-sm"
+                                                   href="/services/add/{{ business_unit.id }}"
+                                                   data-toggle="ajaxModal">
                                                     <i class="icon-plus-sign"></i>
                                                     Agregar
                                                 </a>
@@ -126,7 +128,8 @@
     <script src="/static/js/app.js"></script>
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.grids.data.js"></script>
-
+    <script src="/static/js/app.grids.xindex.js"></script>
+    <script src="/static/js/app.forms.xindex.js"></script>
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
     <script src="/static/js/libs/underscore-min.js"></script>

@@ -1,56 +1,149 @@
-{% extends "base.html" %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% block title %}Servicios{% endblock %}</title>
-</head>
-<body>
-{% block mainContent %}
-    <section id="content">
-        <section class="vbox">
-            <header class="header b-b">
-                <p class="h4 animated bounceInDown">Servicios</p>
-            </header>
-            <section class="wrapper" id="basic">
+<div class="modal-dialog" id="addMomentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Crear un nuevo servicio</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl">
                 <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
                       action="" enctype="multipart/form-data">{% csrf_token %}
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Nombre:</label>
 
-                        <div class="col-sm-5">
-                            {{ formulario.name }}
-                            {{ formulario.name.errors }}
-                        </div>
+                    <div class="form-group m-t-lg">
+                        Nombre:
+                        {{ formulario.name }}
+                        {{ formulario.name.errors }}
                     </div>
                     <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Descripci&oacute;n:</label>
-
-                        <div class="col-sm-6">
-                            {{ formulario.description }}
-                            {{ formulario.description.errors }}
-                        </div>
+                        Descripci&oacute;n:
+                        {{ formulario.description }}
+                        {{ formulario.description.errors }}
                     </div>
                     <div class="form-group m-t-lg">
-                        <label class="col-sm-4 control-label">Momentos:</label>
-
-                        <div class="col-sm-5">
-                            {{ formulario.moments }}
-                            {{ formulario.moments.errors }}
-                        </div>
-                        <div class="line line-dashed m-t-xs"></div>
+                        Atributos:
+                        {{ formulario.moments }}
+                        {{ formulario.moments.errors }}
                     </div>
-                    <div class="form-group">
-                        <div class="col-sm-6 col-sm-offset-6">
-                            <button type="submit" class="btn btn-twitter">Agregar</button>
-                            <a class="btn btn-white" href="/services">
-                                Cancelar
-                            </a>
-                        </div>
+                    <div class="form-group m-t-lg">
+                        <button type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
+                        </button>
                     </div>
                 </form>
-            </section>
-        </section>
-    </section>
-{% endblock %}
-</body>
-</html>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script src="/static/js/jquery.validate.min.js"></script>
+<script>
+    /*
+    jQuery.validator.setDefaults({
+    debug: true,
+    success: "valid",
+    submitHandler: function(form) {
+        form.submit();
+    }
+});*/
+    $(function () {
+        //alert('Validate')
+        $("#moment_form").validate({
+            rules: {
+                name: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 20
+
+                },
+                description: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 100
+
+                }
+            },
+            messages: {
+                name: {
+                    required: "Ingresa un nombre",
+                    minlength: "Logitud minina {0} caracteres",
+                    maxlength: "Longitud maxima {0} caracteres"
+                },
+                description: {
+                    required: "Ingresa una descripcion",
+                    minlength: "Logitud minina {0} caracteres",
+                    maxlength: "Longitud maxima {0} caracteres"
+                }
+            },
+            errorPlacement: function (error, element) {
+                //element.css('background', '#ffdddd');
+                //element.css('border-color', 'red');
+                error.insertAfter(element);
+                error.css('color', 'red');
+                error.css('font-size', '10px');
+            },
+            success: function (element) {
+
+            }
+        });
+
+
+        //// <------ Remove modal with close class ->
+
+        $('.close').on('click', function (e) {
+            e.preventDefault();
+            $('div.modal').modal('hide');
+            $('#ajaxModal').remove();
+        });
+    });
+    /*
+    $(function () {
+        // <------ On Submit Form ->
+        //var form = $("#moment_form");
+        //if(form.valid()){
+
+
+        //$("#moment_form").on('submit', function (e) {
+            //e.preventDefault();
+/*
+            var service_id = $('#service_id').val();
+            var url = "/moments/add/" + service_id;
+            var action = $('#moment_form').attr('action');
+            $.ajax({
+                type: "POST",
+                url: $('#moment_form').attr('action'),
+                data: $('#moment_form').serialize(),
+                success: function (msg) {
+                    if (msg == 'Si') {
+                        var alerta = '<div class="alert alert-success">' +
+                                '<button type="button" class="close" data-dismiss="alert">' +
+                                '<i class="icon-remove"></i>' +
+                                '</button>' +
+                                '<i class="icon-ok-sign"></i>' +
+                                '<strong>¡El punto de contacto se ha dado de alta!</strong>' +
+                                '</div>';
+                        $('#news_section').html(alerta);
+                        $('#ajaxModal').modal('hide');
+                        setTimeout(function () {
+                            window.location.reload(true);
+                        }, 2000);
+                    } else if (msg == 'No') {
+                    }
+                },
+                error: function (msg_failu) {
+                    var alerta = '<div class="alert alert-danger">' +
+                            '<button type="button" class="close" data-dismiss="alert">' +
+                            '<i class="icon-remove"></i>' +
+                            '</button>' +
+                            '<i class="icon-ban-circle"></i>' +
+                            '<strong>¡No fue posible realizar su peticion, intente mas tarde!< /strong>' +
+                            '</div>';
+                    $('#news_section').html(alerta);
+                    $('#ajaxModal').modal('hide');
+                }
+            });
+        //});
+
+    });*/
+</script>
