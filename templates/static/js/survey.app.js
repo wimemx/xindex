@@ -140,6 +140,14 @@ $(document).ready(function () {
 
         var parent = $(this).closest('div.row-block');
 
+        var style =($(this).closest('div.row-block').find('section.question-block').attr('style')).split(';');
+
+        setDefaultStyleInDesign(style);
+
+        if($('#survey_has_blocks_style').val() == 'True'){
+           $('#apply_design_to_all_blocks').prop('disabled', true);
+        }
+
         $('#main-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').addClass('hidden');
         $('#add-new-question-configuration-panel').addClass('hidden');
@@ -278,7 +286,7 @@ $(document).ready(function () {
 
     $('a.actions_question').on('click', function () {
         if ($(this).hasClass('update_question')) {
-            //alert('Edit Question');
+            console.log('Edit Question');
             $('#main-configuration-panel').addClass('hidden');
             $('#add-question-option-panel').addClass('hidden');
             $('#add-new-question-configuration-panel').addClass('hidden');
@@ -399,9 +407,9 @@ $(document).ready(function () {
                 return false;
             },
             onChange: function (hsb, hex, rgb) {
-                $('#new_block_color_picker div').css('backgroundColor', '#' + hex);
+                //$('#new_block_color_picker div').css('backgroundColor', '#' + hex);
+                $('#new_block_color_picker div').attr('style', 'background-color: #' + hex + ';');
                 setStyleToBlock();
-
             }
         }
     );
@@ -419,7 +427,8 @@ $(document).ready(function () {
                 return false;
             },
             onChange: function (hsb, hex, rgb) {
-                $('#new_block_border_color_picker div').css('backgroundColor', '#' + hex);
+                //$('#new_block_border_color_picker div').css('backgroundColor', '#' + hex);
+                $('#new_block_border_color_picker div').attr('style', 'background-color: #' + hex + ';');
                 if (!$("#new_block_has_border").is(":checked")) {
                     setStyleToBlock();
                 }
@@ -440,7 +449,8 @@ $(document).ready(function () {
                 return false;
             },
             onChange: function (hsb, hex, rgb) {
-                $('#new_block_background_color_picker div').css('backgroundColor', '#' + hex);
+                //$('#new_block_border_color_picker div').css('backgroundColor', '#' + hex);
+                $('#new_block_background_color_picker div').attr('style', 'background-color: #' + hex + ';');
                 if (!$("#new_block_has_background").is(":checked")) {
                     setStyleToBlock();
                 }
@@ -485,6 +495,16 @@ $(document).ready(function () {
         setStyleToBlock();
     });
 
+    //control to put a general style to blocks in this survey
+    $('#apply_design_to_all_blocks').change(function(){
+        if($(this).is(':checked')){
+            $('#survey_has_blocks_style').val('True');
+            $('#survey_blocks_style').val(setStyleToBlock());
+        } else {
+            $('#survey_has_blocks_style').val('False');
+            $('#survey_blocks_style').val('');
+        }
+    });
 
 })
 
@@ -906,6 +926,12 @@ function saveBlockConfiguration(){
     var question_ids = new Array();
     var moment_id = $("#moment_object").val();
 
+    if($('#associate_moment_to_block').is(':checked')){
+        $('#block_moment_associated_id').removeClass('false');
+        $('#block_moment_associated_id').addClass('true');
+        $('#block_moment_associated_id').val(block_id);
+    }
+
     $('#' + block_id + ' div.db_question_id').each(function (index) {
         question_ids.push(
             {
@@ -972,51 +998,31 @@ function setStyleToBlock(){
     }
 
     //Determine font color
-    font_color = $('#new_block_color_picker div').css('background-color');
+    font_color = rgb2hex($('#new_block_color_picker div').css('background-color'));
 
     //Determine border properties
     if (!$("#new_block_has_border").is(":checked")) {
-        border_color = $('#new_block_border_color_picker div').css('background-color');
+        border_color = rgb2hex($('#new_block_border_color_picker div').css('background-color'));
         border_style = $('#new_block_border_style').val();
         border_width = $('#new_block_border_width').val();
     } else {
-        border_color = 'transparent';
+        border_color = 'rgba(255, 255, 255, 0)';
         border_style = 'solid';
         border_width = '0px';
     }
 
     //Determine background properties
     if (!$("#new_block_has_background").is(":checked")) {
-        background_color = $('#new_block_background_color_picker div').css('background-color');
+        background_color = rgb2hex($('#new_block_background_color_picker div').css('background-color'));
     } else {
-        background_color = 'transparent';
+        background_color = rgb2hex('rgba(255, 255, 255, 0)');
     }
-
-
-
-    var new_block_style = {
-        'font-family': font_family,
-        color: font_color,
-        border: border_width + ' ' +border_style + ' ' +border_color,
-        'background-color': background_color
-    }
-
-    console.log(new_block_style);
 
     var attr_style = 'border: '+border_width+' '+border_style+' '+border_color+' !important; font-family: '+font_family+'; color: '+font_color+'; background-color: '+background_color+';';
 
     $('#' + current_question_block+' section.question-block').attr('style', attr_style);
 
     return attr_style;
-
-    //$('#' + current_question_block+' section.question-block').css(new_block_style);
-
-    var styleProps = $('#' + current_question_block+' section.question-block').css([
-        "border", "color", "background-color", "font-family"
-    ]);
-    $.each( styleProps, function( prop, value ) {
-        console.log( prop + ": " + value );
-    });
 
 }
 
@@ -1067,6 +1073,11 @@ function getSurveyBlocksStyle(){
 
 function setDefaultStyle(){
     var default_style = ($('#survey_blocks_style').val()).split(';');
+    setDefaultStyleInDesign(default_style);
+}
+
+function setDefaultStyleInDesign(default_style){
+    console.log('setting default style');
     var border = (default_style[0]).split(' '); // border: 1px solid #cecece !important
     var border_width = $.trim(border[1]),
         border_style = $.trim(border[2]),
@@ -1083,7 +1094,53 @@ function setDefaultStyle(){
 
     var background_c = $.trim(background_color[1]);
 
-    //$('#new_block_font option[value='++']').prop("selected", true);
+
+
+
+    switch(font_family){
+        case 'Lato':
+            font_family = 'lato';
+            break;
+        case 'Times New Roman':
+            font_family = 'time_new_roman';
+            break;
+        case 'Arial':
+            font_family = 'arial';
+            break;
+        case 'Helvetica':
+            font_family = 'helvetica';
+            break;
+        case 'Courier New':
+            font_family = 'courier_new';
+            break;
+    }
+
+    $('#new_block_font option[value='+font_family+']').prop("selected", true);
+
+
+    $('#new_block_color_picker div').attr('style', 'background-color: '+color)
+
+    if(border_width == '0px' & border_style == 'solid' & border_color == 'transparent'){
+        console.log('checked');
+        $('#new_block_has_border').prop('checked', true);
+        $('#new_block_has_border_icon').addClass('checked');
+        $('#border_block_configuration_section').slideUp(200);
+    }
+
+    $('#new_block_border_color_picker div').attr('style', 'background-color: '+border_color);
+
+    $('#new_block_border_style option[value='+border_style+']').prop("selected", true);
+
+    $('#new_block_border_width option[value='+border_width+']').prop('selected', true);
+
+    if(background_c == 'rgba(255, 255, 255, 0)'){
+        $('#new_block_has_background').attr('checked', true);
+        $('#new_block_has_background_icon').addClass('checked');
+        $('#new_block_background_configuration_section').slideUp(200);
+    }
+
+    $('#new_block_background_color_picker div').attr('style', 'background-color: '+background_c);
+
 
     console.log(border_width);
     console.log(border_style);
@@ -1094,3 +1151,10 @@ function setDefaultStyle(){
 
 }
 
+function rgb2hex(rgb){
+ rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+ return (rgb && rgb.length === 4) ? "#" +
+  ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+  ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
+}
