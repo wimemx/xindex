@@ -218,6 +218,7 @@ function addQuestionOptions(from) {
         var counter_td = 0;
         var td_to_complete = '';
 
+
         $('#' + current_question_id + ' div.optional-content').html('<div style="clear: both;">' +
             '<table border=0 class="question_options">' +
                 '<tr class="tr-cols" style="border-bottom: 1px solid #d3d3d3;">' +
