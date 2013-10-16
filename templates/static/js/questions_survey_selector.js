@@ -91,6 +91,7 @@ function saveSurvey() {
     $('#survey-main-content div.row-block').each(function (index) {
         var questions = new Array();
         var selector = $(this).attr('id');
+        var style = $(this).find('section.question-block').attr('style');
         var class_default = true;
         if ($(this).hasClass('row-no-block')) {
             class_default = false;
@@ -110,7 +111,8 @@ function saveSurvey() {
                 'class_default': class_default,
                 'block_title': $(this).find('header.block-title').text(),
                 'block_description': $(this).find('div.panel-body').html(),
-                'questions': questions
+                'questions': questions,
+                'style': style
             }
         );
 
@@ -126,6 +128,12 @@ function saveSurvey() {
     })
     */
     survey_configuration.blocks = blocks;
+
+    if($('#apply_design_to_all_blocks').is(':checked')){
+        console.log(setStyleToBlock());
+        survey_configuration.blocks_style = setStyleToBlock();
+        $('#survey_blocks_style').val(setStyleToBlock());
+    }
 
     var survey_id = $('#survey_id').val();
 

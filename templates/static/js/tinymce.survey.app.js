@@ -21,11 +21,16 @@ $(document).ready(function () {
             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking",
             "save table contextmenu directionality emoticons template paste textcolor"
         ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | l      ink image | print preview media fullpage | forecolor backcolor emoticons",
+        toolbar: "insertfile undo redo | styleselect | bold italic| Red header | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
         style_formats: [
             {title: 'Bold text', inline: 'b'},
             {title: 'Red text', inline: 'span', styles: {color: '#ff0000'}},
             {title: 'Red header', block: 'h1', styles: {color: '#ff0000'}},
+            {title: 'Titulo 1', block: 'h1', styles: {color: '#cecece'}},
+            {title: 'Titulo 2', block: 'h2', styles: {color: '#cecece'}},
+            {title: 'Titulo 3', block: 'h3', styles: {color: '#cecece'}},
+            {title: 'Titulo 4', block: 'h4', styles: {color: '#cecece'}},
+            {title: 'Titulo 5', block: 'h5', styles: {color: '#cecece'}},
             {title: 'Example 1', inline: 'span', classes: 'example1'},
             {title: 'Example 2', inline: 'span', classes: 'example2'},
             {title: 'Table styles'},

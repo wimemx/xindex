@@ -400,9 +400,31 @@ function insertQuestionsBlock() {
 
     var new_block_id = 'block-' + (n + 1);
 
+    //check if survey has blocks style by default
+    var hasBlocksStyle = checkIfSurveyHasBlocksStyle();
+    var blocks_style;
+    if(hasBlocksStyle){
+        //TO DO: fix this, recover the style from db with this function
+        //blocks_style = getSurveyBlocksStyle();
+        blocks_style = $('#survey_blocks_style').val();
+        setDefaultStyle();
+    }
+
+    console.log('Este es el estilo de los bloques: '+blocks_style);
+
     var new_questions_block_content = '<div class="row row-block animated fadeIn" id="' + new_block_id + '">' +
         '<div class="col-lg-12">' +
-        '<section class="padder padder-v question-block selected-block">' +
+        '<section class="padder padder-v question-block selected-block" style="'+blocks_style+'">' +
+        '<div class="block_actions_content" style="height: 25px; min-height: 25px;">'+
+            '<div class="block_actions">'+
+                '<a class="actions_block remove_block" id="remove_block">'+
+                    '<i class="icon-trash icon-large pull-right"></i>'+
+                '</a>'+
+                '<a class="actions_block update_block" id="update_block">'+
+                    '<i class="icon-edit icon-large pull-right"></i>'+
+                '</a>'+
+            '</div>'+
+        '</div>'+
         '<div class="panel-body">' +
         '<div>' +
         '<header class="block-title">' +
@@ -668,4 +690,4 @@ $(document).ready(function () {
     });
 
 
-});
+})

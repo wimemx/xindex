@@ -255,76 +255,82 @@ def save(request, action, next_step, survey_id=False):
 
             #print simplejson.dumps(configuration)
             for key, values in configuration.items():
-                print(values)
-                for block in values:
-                    questions = []
-                    for q in block['questions']:
-                        if 'db_id' in q:
+                if key == 'blocks':
+                    for block in values:
+                        questions = []
+                        for q in block['questions']:
+                            if 'db_id' in q:
 
-                            try:
-                                question = Question.objects.get(pk=q['db_id'])
-                                options = question.option_set.filter(active=True).order_by('id')
-
-                                #Check if question is associated to a moment
                                 try:
-                                    association = Question_Attributes.objects.get(question_id=question)
-                                    if association.moment_id is None:
+                                    question = Question.objects.get(pk=q['db_id'])
+                                    options = question.option_set.filter(active=True).order_by('id')
+
+                                    #Check if question is associated to a moment
+                                    try:
+                                        association = Question_Attributes.objects.get(question_id=question)
+                                        if association.moment_id is None:
+                                            moment_title = False
+                                        else:
+                                            moment_title = association.moment_id.name
+
+                                        if association.attribute_id is None:
+                                            attribute_title = False
+                                        else:
+                                            attribute_title = association.attribute_id.name
+
+                                    except Question_Attributes.DoesNotExist:
                                         moment_title = False
-                                    else:
-                                        moment_title = association.moment_id.name
-
-                                    if association.attribute_id is None:
                                         attribute_title = False
-                                    else:
-                                        attribute_title = association.attribute_id.name
+                                    #end check
 
-                                except Question_Attributes.DoesNotExist:
-                                    moment_title = False
-                                    attribute_title = False
-                                #end check
+                                    print moment_title
+                                    print attribute_title
 
-                                print moment_title
-                                print attribute_title
-
-                                options_o = []
-                                for option in options:
-                                    options_o.append(
+                                    options_o = []
+                                    for option in options:
+                                        options_o.append(
+                                            {
+                                                'id_option': option.id,
+                                                'text': option.label,
+                                                'option': option
+                                            }
+                                        )
+                                    questions.append(
                                         {
-                                            'id_option': option.id,
-                                            'text': option.label,
-                                            'option': option
+                                            'question': question,
+                                            'moment_title': moment_title,
+                                            'attribute_title': attribute_title,
+                                            'survey_question_id': q['question_survey_id'],
+                                            'question_content_id': q['question_content_id'],
+                                            'db_question_id': q['db_id'],
+                                            'question_title': question.title,
+                                            'question_type': question.type.id,
+                                            'question_type_name': question.type.name,
+                                            'question_options': options_o
                                         }
                                     )
-                                questions.append(
-                                    {
-                                        'question': question,
-                                        'moment_title': moment_title,
-                                        'attribute_title': attribute_title,
-                                        'survey_question_id': q['question_survey_id'],
-                                        'question_content_id': q['question_content_id'],
-                                        'db_question_id': q['db_id'],
-                                        'question_title': question.title,
-                                        'question_type': question.type.id,
-                                        'question_type_name': question.type.name,
-                                        'question_options': options_o
-                                    }
-                                )
-                            except Question.DoesNotExist:
-                                question = None
+                                except Question.DoesNotExist:
+                                    question = None
 
-                    if 'block_description' in block:
-                        block_description = block['block_description']
-                    else:
-                        block_description = ''
-                    setup['blocks'].append(
-                        {
-                            'block_id': block['block_id'],
-                            'block_default_class': block['class_default'],
-                            'block_description': block_description,
-                            'questions': questions
-                        }
-                    )
-
+                        if 'block_description' in block:
+                            block_description = block['block_description']
+                        else:
+                            block_description = ''
+                        if 'style' in block:
+                            style = block['style']
+                        else:
+                            style = ''
+                        setup['blocks'].append(
+                            {
+                                'block_id': block['block_id'],
+                                'block_default_class': block['class_default'],
+                                'block_description': block_description,
+                                'style': style,
+                                'questions': questions
+                            }
+                        )
+                if key == 'blocks_style':
+                    setup['blocks_style'] = values
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -1744,3 +1750,37 @@ def createAssociationQAM(question, moment_id, attribute_id):
         q_a_m.weight = 10
 
         q_a_m.save()
+
+
+def get_survey_blocks_style(request):
+    if request.is_ajax():
+        survey = Survey.objects.get(pk=int(request.POST['survey_id']))
+        configuration = json.loads(survey.configuration)
+        blocks_style = False
+        for key, values in configuration.items():
+            if key == 'blocks_style':
+                blocks_style = values
+
+        if not blocks_style is False:
+            json_response = json.dumps(
+                {
+                    'answer': True,
+                    'blocks_style': blocks_style
+                }
+            )
+        else:
+            json_response = json.dumps(
+                {
+                    'answer': False,
+                    'blocks_style': False
+                }
+            )
+        return HttpResponse(json_response, content_type='application/json')
+    else:
+        print 'La peticion no se realiza via ajax'
+        json_response = json.dumps(
+            {
+                'answer': False,
+            }
+        )
+        return HttpResponse(json_response, content_type='application/json')
