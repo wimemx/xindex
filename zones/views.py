@@ -8,10 +8,9 @@ from xindex.models import Zone
 
 def index(request):
     all_zones = Zone.objects.all().filter(active=True).order_by('-date')
-    template_vars = {"title": "Zones",
-                     "zones": all_zones}
+    template_vars = {"zones": all_zones}
     request_context = RequestContext(request, template_vars)
-    return render_to_response("zones/zones.html", request_context)
+    return render_to_response("zones/index.html", request_context)
 
 
 def add(request):
