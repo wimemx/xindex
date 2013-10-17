@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Zones{% endblock %}</title>
+</head>
+<body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body out collapse">
+                    <li>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/" class="blue-xindex">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Zones</p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row">
+                    <div class="col-lg-8">
+                        <div class="header h2">
+                            Mis Zonas
+                        </div>
+                        <div class="footer h4">
+                            <div class="pull-left ">
+                                <div class="m-b-sm">
+                                Ordenar por
+                                <div class="btn-group">
+                                    <button class="btn btn-white btn-s-md dropdown-toggle" data-toggle="dropdown">
+                                        {{ order_query }}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">Pais</a></li>
+                                        <li><a href="#">Orden alfabético</a></li>
+                                        <li><a href="#">Fecha de creación</a></li>
+                                    </ul>
+                                    <a href="/surveys/add" class="btn btn-success btn-s-md padder btn-group-m-l">
+                                        <i class="icon-plus"></i>
+                                        Agregar zona
+                                    </a>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="header" style="padding-top:38px">
+                            <div class="input-group text-sm pull-left padder-v">
+                                <div class="form-search form-inline" style="width: 250px">
+                                    <form action="" method="GET">
+                                    <input type="text" id="id_q" name="q"
+                                           class="search-query input-sm form-control"
+                                           placeholder="Buscar..." value="{{ query_string }}"/>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <section class="panel">
+                        <ul class="list-group">
+                            {% if found_entries %}
+                                {% for each_survey in found_entries.surveys %}
+                                <li class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-left text-success m-t-sm">
+                                            <input type="checkbox" class="check"/>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            {% if each_survey.status %}
+                                                <div class="h4">
+                                                    <a href="/surveys/available/{{ each_survey.id }}/">
+                                                    <i class="icon-ok text-success"></i>
+                                                    </a>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Status
+                                                </small>
+                                            {% else %}
+                                                <div class="h4">
+                                                    <a href="/surveys/available/{{ each_survey.id }}/">
+                                                    <i class="icon-remove text-danger"></i>
+                                                    </a>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Status
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            <div class="h4">
+                                                {{ each_survey.counter_attribute }}
+                                            </div>
+                                            <small class="text-muted">
+                                                Indicadores
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center">
+                                            <div class="h4">
+                                                {{ each_survey.counter_question }}
+                                            </div>
+                                            <small class="text-muted">
+                                                Preguntas
+                                            </small>
+                                        </div>
+                                        {% if each_survey.next_step == 3 %}
+                                            <div class="pull-right m-t-sm text-center">
+                                                <div class="h4">
+                                                    <a href="/surveys/preview/next/4/{{ survey_id }}">
+                                                    <i class="icon-eye-open text-muted"></i>
+                                                    </a>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Preview
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                        <div class="media-body">
+                                            <div class="h4">
+                                                <a href="/surveys/save/next/{{ each_survey.next_step }}/{{ each_survey.id }}">
+                                                    {{ each_survey.name }}
+                                                </a>
+                                            </div>
+                                            <small class="text-muted">
+                                                Creada el {{ each_survey.date }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            {% endif %}
+                            {% for each_zone in zones %}
+                                <li class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-right m-t-sm text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4 text-muted"
+                                                 style="padding-left: 10px;">
+                                                <a href="#" class="text-warning">
+                                                <i class="icon-edit"></i>
+                                                </a>
+                                                |
+                                                <a href="#" class="text-danger">
+                                                <i class="icon-remove"></i>
+                                                </a>
+                                            </div>
+                                            <small class="text-muted">
+                                                Acciones
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4" style="padding-left: 10px;">
+                                                <a class="text-info"
+                                                        data-toggle="popover"
+                                                        data-html="true"
+                                                        data-placement="bottom"
+                                                        data-content="
+                                                        <div>
+                                                        {% for eachSub in zones %}
+                                                        {{ eachSub.name }}<br>
+                                                        {% endfor %}
+                                                        </div>
+                                                        "
+                                                        title=""
+                                                        data-original-title="Sucursales">
+                                                    15
+                                                </a>
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Sucursales
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4">
+                                                <a class="text-info"
+                                                        data-toggle="popover"
+                                                        data-html="true"
+                                                        data-placement="bottom"
+                                                        data-content=""
+                                                        title=""
+                                                        data-original-title="Ciudades">
+                                                15
+                                                </a>
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Ciudades
+                                            </small>
+                                        </div>
+                                        <div class="pull-right m-t-sm text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4">
+                                                <a class="text-info"
+                                                        data-toggle="popover"
+                                                        data-html="true"
+                                                        data-placement="bottom"
+                                                        data-content=""
+                                                        title=""
+                                                        data-original-title="
+                                                        &lt;button type=&quot;button&quot;
+                                                                   class=&quot;close pull-right&quot;
+                                                                   data-dismiss=&quot;popover&quot;
+                                                                   &gt;×&lt/button&gt;Estados">
+                                                10
+                                                </a>
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Estados
+                                            </small>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="h4">
+                                                <a href="/zones/{{ each_zone.id }}/">
+                                                    {{ each_zone.name }}
+                                                </a>
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Creada el {{ each_zone.date }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
+    <script src="/static/js/app.forms.xindex.js"></script>
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.data.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <!-- datatables -->
+    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+    <!-- Sparkline Chart -->
+    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+    <!-- Easy Pie Chart -->
+    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
+
+    <script src="/static/js/datepicker/bootstrap-datepicker.js"></script>
+    <!-- slider -->
+    <script src="/static/js/slider/bootstrap-slider.js"></script>
+    <!-- file input -->
+    <script src="/static/js/file-input/bootstrap.file-input.js"></script>
+    <!-- combodate -->
+    <script src="/static/js/libs/moment.min.js"></script>
+    <script src="/static/js/combodate/combodate.js"></script>
+    <!-- parsley -->
+    <script src="/static/js/parsley/parsley.min.js"></script>
+    <!-- select2 -->
+    <script src="/static/js/select2/select2.min.js"></script>
+
+    <script src="/static/js/app.grids.xindex.js"></script>
+
+{% endblock %}
+</body>
+</html>
