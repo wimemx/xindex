@@ -420,9 +420,10 @@ function insertQuestionsBlock() {
 
     console.log('Este es el estilo de los bloques: '+blocks_style);
 
-    var new_questions_block_content = '<div class="row row-block animated fadeIn" id="' + new_block_id + '">' +
+    var new_questions_block_content = '<div class="row row-block animated fadeInDown" id="' + new_block_id + '">' +
         '<div class="col-lg-12">' +
         '<section class="padder padder-v question-block selected-block" style="'+blocks_style+'">' +
+        '<input type="hidden" class="block_moment_associated_id false">'+
         '<div class="block_actions_content" style="height: 25px; min-height: 25px;">'+
             '<div class="block_actions">'+
                 '<a class="actions_block remove_block" id="remove_block">'+
@@ -445,6 +446,8 @@ function insertQuestionsBlock() {
         '</small>' +
         '</div>' +
         '</div>' +
+        '<ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">'+
+        '</ul>'+
         '<footer class="wrapper text-center">' +
         '<a class="btn btn-info wrapper add-question-to-block">' +
         '<i class="icon-plus-sign-alt"></i>' +
@@ -455,7 +458,13 @@ function insertQuestionsBlock() {
         '</div>' +
         '</div>';
 
-    $('#survey-main-content').append(new_questions_block_content);
+    //$('#survey-main-content').append(new_questions_block_content);
+
+    $('#sortable_block_list').append('<li class="list-group-item" style="display: none;">'+new_questions_block_content+'</li>');
+
+    //$("#survey-main-content ul").sortable('refresh');
+
+    $('#sortable_block_list').find('li').last().slideDown('slow');
 
     var block_selected_id = $('#survey-main-content').find('section.selected-block').closest('div.row').attr('id');
 
@@ -575,7 +584,7 @@ $(document).ready(function () {
 
         $('.question-title').val(content);
 
-    })
+    });
 
 
     //button to save questions detecting which one
@@ -615,14 +624,41 @@ $(document).ready(function () {
         $('#add-question-option-panel').removeClass('hidden');
 
         $(this).closest('footer').fadeOut(400);
+        var question_info_moment = 'Sin asignar';
+        if($(this).closest('section.question-block').find('input.block_moment_associated_id').hasClass('true')){
+            var moment_associated_id = $(this).closest('section.question-block').find('input.block_moment_associated_id').val();
+            $('#add_moment_association option[value='+moment_associated_id+']').prop("selected", true);
+            $('#add_moment_association').attr('disabled', true);
+            question_info_moment = $('#add_moment_association option[value='+moment_associated_id+']').text();
+        }
 
-        var before = $(this)[0];
+        var new_question =
+                '<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;">'+
+                    '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
+                        '<div class="question_actions">'+
+                            '<strong class="actions pull-left">'+
+                                '<a class="actions_question remove_question" id="remove_block">'+
+                                    '<i class="icon-trash icon-sm pull-left"></i>'+
+                                '</a>'+
+                                '<a class="actions_question update_question" id="update_block">'+
+                                    '<i class="icon-edit icon-sm pull-left"></i>'+
+                                '</a>'+
+                            '</strong>'+
+                            '<small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" Sin asignar " </small>'+
+                            '<small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" '+question_info_moment+' "</small>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="question_id" style="float:left;"></div>'+
+                    '<div class="question-text" style="float: left; margin-left: 5px; display: table;"></div>'+
+                    '<div class="optional-content" style="margin-top: 15px;"></div>'+
+                    '<div class="db_question_id"></div>'+
+                '</div>';
 
-        var new_question_block = '';
 
-        var parent_block = '';
-
-        $('<div class="wrapper question-content active-question" style="display: table; min-width: 100%; min-heigth: 50px;"><div class="question_id" style="float:left;"></div><div class="question-text" style="float: left; margin-left: 5px; display: table;"></div><div class="optional-content" style="margin-top: 15px;"></div><div class="db_question_id"></div></div>').insertBefore($(this).parent());
+        $(this).parent().parent().find('ul').append('<li class="list-group-item" style="display: none;">'+new_question+'</li>');
+        console.log($(this).parent().parent().find('ul'));
+        console.log('lo ha agregado');
+        $(this).parent().parent().find('ul').find('li').last().slideDown(300);
 
         /*Find question id*/
         $('#survey-main-content div.question-content').each(function (index) {
@@ -631,6 +667,18 @@ $(document).ready(function () {
         })
         /*end*/
 
+    });
+
+    //control to put the attribute info in the new question information section
+    $('#add_attribute_association').change(function(){
+        var current_text = $('#add_attribute_association option:selected').text();
+        var current_question = $('#current-question').val();
+
+        if(current_text == 'No asociar'){
+            current_text = 'Sin asignar'
+        }
+
+        $('#'+current_question).find('.attribute_info').html('<strong class="text-black">Atributo: </strong>" '+ current_text +' "');
     });
 
 //flag

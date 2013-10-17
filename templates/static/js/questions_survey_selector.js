@@ -96,6 +96,15 @@ function saveSurvey() {
         if ($(this).hasClass('row-no-block')) {
             class_default = false;
         }
+
+        if($(this).find('input.block_moment_associated_id').hasClass('true')){
+            console.log('recovering moment id');
+            var moment_associated_id = $(this).find('input.block_moment_associated_id').val();
+            console.log('moment id: '+moment_associated_id);
+        } else {
+            var moment_associated_id = false;
+        }
+
         $('#' + selector + ' div.question-content').each(function (ind) {
             questions.push(
                 {
@@ -112,7 +121,8 @@ function saveSurvey() {
                 'block_title': $(this).find('header.block-title').text(),
                 'block_description': $(this).find('div.panel-body').html(),
                 'questions': questions,
-                'style': style
+                'style': style,
+                'block_moment_associated_id': moment_associated_id
             }
         );
 
@@ -150,6 +160,7 @@ function saveSurvey() {
         success: function (data) {
             if (data.answer) {
                 //window.location.href = '';
+                set_current_operation_inactive();
                 console.log('The survey has been saved!')
             }
         },
