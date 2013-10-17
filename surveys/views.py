@@ -320,13 +320,19 @@ def save(request, action, next_step, survey_id=False):
                             style = block['style']
                         else:
                             style = ''
+                        if 'block_moment_associated_id' in block:
+                            block_moment_associated_id = block['block_moment_associated_id']
+                        else:
+                            block_moment_associated_id = False
+
                         setup['blocks'].append(
                             {
                                 'block_id': block['block_id'],
                                 'block_default_class': block['class_default'],
                                 'block_description': block_description,
                                 'style': style,
-                                'questions': questions
+                                'questions': questions,
+                                'block_moment_associated_id': block_moment_associated_id
                             }
                         )
                 if key == 'blocks_style':

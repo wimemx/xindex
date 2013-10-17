@@ -197,7 +197,7 @@
                         <input type="hidden" id="survey_has_blocks_style" value="False"/>
                         <input type="hidden" id="survey_blocks_style" value=""/>
                     {% endif %}
-                    <ul class="list-group gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
+                    <ul class="list-group no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
                         <div class="pull-in clearfix m-b-n icon_current_edited">
                             <p class="m-t-sm m-b text-center animated bounceInDown">
@@ -207,7 +207,14 @@
                         <li class="list-group-item">
                             <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                 <div class="col-lg-12">
-                                    <section class="padder padder-v question-block" {% if setup.blocks_style %}style="{{ setup.blocks_style }}" {% else %}{% if block.style %}style="{{ block.style }}"{% endif %}{% endif %}>
+                                    <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para mover este bloque de pocisión">
+                                    <!-- input to verify if block has a moment associated -->
+                                    {% if block.block_moment_associated_id %}
+                                        <input type="hidden" class="block_moment_associated_id" value="{{ block.moment_associated_id }}">
+                                    {% else %}
+                                        <input type="hidden" class="block_moment_associated_id false">
+                                    {% endif %}
+
                                         <div class="block_actions_content" style="height: 25px; min-height: 25px;">
                                             <div class="block_actions">
                                                 {% csrf_token %}
@@ -224,10 +231,10 @@
                                                 {{ block.block_description|safe }}
                                             </div>
                                         {% endif %}
-                                        <ul class="list-group gutter list-group-lg list-group-sp sortable" id="sortable_question_list">
+                                        <ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">
                                         {% for question in block.questions %}
                                             <li class="list-group-item">
-                                                <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}">
+                                                <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastre para mover de pocisión">
                                                     <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
                                                         <div class="question_actions">
                                                             <strong class="actions pull-left">
@@ -686,7 +693,7 @@
                                         <div class="line line-dashed m-t-lg"></div>
                                         <div class="m-b">
                                             <div class="checkbox">
-                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_border"><i class="icon-unchecked"></i> Sin borde</label>
+                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_border"><i id="new_block_has_border_icon" class="icon-unchecked"></i> Sin borde</label>
                                             </div>
                                         </div>
                                         <div id="border_block_configuration_section">
@@ -733,7 +740,7 @@
                                         <div class="line line-dashed m-t-lg"></div>
                                         <div class="m-b">
                                             <div class="checkbox">
-                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_background"><i class="icon-unchecked"></i> Sin fondo</label>
+                                                <label class="checkbox-custom"><input type="checkbox" id="new_block_has_background"><i id="new_block_has_background_icon" class="icon-unchecked"></i> Sin fondo</label>
                                             </div>
                                         </div>
                                         <div class="m-b" id="new_block_background_configuration_section">
@@ -741,7 +748,7 @@
                                                 <p class="col-sm-4">Color del fondo</p>
                                                 <div class="col-sm-4">
                                                     <div id="new_block_background_color_picker" class="colorSelector">
-                                                        <div style="background-color: transparent"></div>
+                                                        <div style="background-color: rgba(255, 255, 255, 0);"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -770,9 +777,14 @@
                             {% csrf_token %}
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox">
-                                    ¿Este bloque de preguntas est&aacute; vinculado a un punto de contacto?
-                                    <i class="icon-question-sign"></i>
+                                    <div class="checkbox">
+                                        <label class="checkbox-custom">
+                                            <input type="checkbox" name="associate_moment_to_block" id="associate_moment_to-block">
+                                            <i class="icon-unchecked checked" id="associate_moment_to_block_icon"></i>
+                                            ¿Este bloque de preguntas est&aacute; vinculado a un punto de contacto?
+                                        </label>
+                                        <i class="icon-question-sign" data-toggle="popover" data-html="true" data-placement="top" data-content="Si marca este campo, todas las preguntas de este bloque se asociaran con el punto de contacto que seleccione abajo." title="" data-original-title="&lt;button type=&quot;button&quot; class=&quot;close pull-right&quot; data-dismiss=&quot;popover&quot;&gt;×&lt;/button&gt;Ayuda de Xindex"></i>
+                                    </div>
                                 </label>
                             </div>
                             <div class="form-group">
@@ -985,66 +997,7 @@
                 </div>
             </div>
             <div id="design-question" class="tab-pane">
-                current
-                <section class="panel-heading">
-                    <header class="panel-heading">
-                        <p class="h3">
-                            Texto
-                        </p>
-                    </header>
-                    <section class="panel-body">
-                        <form id="associate_questions_to_attribute">
-                            <div class="checkbox">
-                                <label>
-                                    Escoja el punto de contacto al cual esta vinculado esta pregunta<i class="icon-question-sign"></i>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label v-middle">
-                                    Punto de Contacto
-                                </label>
-                                <div class="col-lg-4">
-                                    <select id="add_moment_association" class="form-control">
-                                        <option value="default">No asociar</option>
-                                        {% for moment in setup.moments %}
-                                            <option value="{{ moment.moment.id }}">{{ moment.moment.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </form>
-                    </section>
-                </section>
-                <section class="panel-heading">
-                    <header class="panel-heading">
-                        <p class="h3">
-                            Atributos
-                        </p>
-                    </header>
-                    <section class="panel-body">
-                        <form id="associate_questions_to_attribute">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox">
-                                    Escoja los indicadores que seran medidos por la pregunta<i class="icon-question-sign"></i>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label v-middle">
-                                    Atributos
-                                </label>
-                                <div class="col-lg-4">
-                                    <select id="add_attribute_association" class="form-control">
-                                        <option value="default">No asociar</option>
-                                        {% for attribute in setup.attributes %}
-                                            <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </form>
-                    </section>
-                </section>
+                DESIGN AREA
             </div>
             <div id="question_configuration_panel" class="tab-pane">
                 <section class="panel-heading">
@@ -1112,7 +1065,7 @@
     <section class="panel-body wrapper padder">
         <div class="col-lg-12">
             <button class="padder btn btn-md btn-info save-new-question" id="save_new_question">
-                AGREGAR
+                Guardar
             </button>
         </div>
     </section>

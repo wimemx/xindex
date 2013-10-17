@@ -409,7 +409,14 @@ function insertQuestionsBlock() {
         //blocks_style = getSurveyBlocksStyle();
         blocks_style = $('#survey_blocks_style').val();
         setDefaultStyle();
+        //disable check box to apply style to all blocks
+        $('#apply_design_to_all_blocks').prop('disabled', true);
+    } else {
+        blocks_style = 'border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);';
+
+        setDefaultStyleInDesign((blocks_style).split(';'));
     }
+
 
     console.log('Este es el estilo de los bloques: '+blocks_style);
 

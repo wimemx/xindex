@@ -129,10 +129,13 @@ function saveSurvey() {
     */
     survey_configuration.blocks = blocks;
 
-    if($('#apply_design_to_all_blocks').is(':checked')){
-        console.log(setStyleToBlock());
-        survey_configuration.blocks_style = setStyleToBlock();
-        $('#survey_blocks_style').val(setStyleToBlock());
+    if($('#survey_has_blocks_style').val() == 'True'){
+        survey_configuration.blocks_style = $('#survey_blocks_style').val();
+    } else if($('#survey_has_blocks_style').val() == 'False'){
+        if($('#apply_design_to_all_blocks').is(':checked')){
+            survey_configuration.blocks_style = setStyleToBlock();
+            $('#survey_blocks_style').val(setStyleToBlock());
+        }
     }
 
     var survey_id = $('#survey_id').val();
