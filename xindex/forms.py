@@ -133,21 +133,23 @@ class CompanyForm(ModelForm):
 
 class ZoneForm(ModelForm):
 
-    countries = forms.ModelMultipleChoiceField(
-        queryset=Country.objects.all().filter(active=True),
-        label="Country",
-        widget=forms.CheckboxSelectMultiple,
-        required=False)
-    states = forms.ModelMultipleChoiceField(
-        queryset=State.objects.all().filter(active=True),
-        label="State",
-        widget=forms.CheckboxSelectMultiple,
-        required=False)
-    cities = forms.ModelMultipleChoiceField(
-        queryset=City.objects.all().filter(active=True),
-        label="City",
-        widget=forms.CheckboxSelectMultiple,
-        required=False)
+    def __init__(self, *args, **kwargs):
+        super(ZoneForm, self).__init__(*args, **kwargs)
+        self.fields['name'].error_messages = {
+            'required': 'Ingrese un nombre',
+            'invalid': 'Ingrese un nombre valido'
+        }
+        self.fields['description'].error_messages = {
+            'required': 'Ingrese una descripcion',
+            'invalid': 'Ingrese una descipcion valida'
+        }
+
+        self.fields['name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control'})
+        self.fields['countries'].widget.attrs.update({'class': 'form-control'})
+        self.fields['states'].widget.attrs.update({'class': 'form-control'})
+        self.fields['cities'].widget.attrs.update({'class': 'form-control'})
+
     description = forms.CharField(label="Description", widget=Textarea)
 
     class Meta:

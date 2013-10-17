@@ -8,7 +8,7 @@
         <div class="modal-body">
             <div class="padder-xl">
                 <form class="form-horizontal animated fadeInRight" data-validate="parsley" id="formulario" method="POST"
-                      action="" enctype="multipart/form-data">{% csrf_token %}
+                      action="/services/add/{{ buid }}" enctype="multipart/form-data">{% csrf_token %}
 
                     <div class="form-group m-t-lg">
                         Nombre:

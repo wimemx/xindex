@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
@@ -7,27 +8,70 @@ from xindex.models import Zone
 
 
 def index(request):
+    zones = {'zones': []}
     all_zones = Zone.objects.all().filter(active=True).order_by('-date')
-    template_vars = {"zones": all_zones}
+
+    for each_zone in all_zones:
+        counter_states = 0
+        states = {'states': []}
+        counter_cities = 0
+        cities = {'cities': []}
+        counter_subsidiaries = 0
+        subsidiaries = {'subsidiaries': []}
+
+        for each_state in each_zone.states.all():
+            counter_states += 1
+            states['states'].append({
+                'name': each_state.name
+            })
+
+        for each_citie in each_zone.cities.all():
+            counter_cities += 1
+            cities['cities'].append({
+                'name': each_citie.name
+            })
+
+        for each_subsidiary in each_zone.subsidiary_set.all():
+            counter_subsidiaries += 1
+            subsidiaries['subsidiaries'].append({
+                'name': each_subsidiary.name
+            })
+
+        zones['zones'].append({
+            'id': each_zone.id,
+            'name': each_zone.name,
+            'date': each_zone.date,
+            'counter_states': counter_states,
+            'states': states,
+            'counter_cities': counter_cities,
+            'cities': cities,
+            'counter_subsidiaries': counter_subsidiaries,
+            'subsidiaries': subsidiaries
+        })
+
+    template_vars = {"zones": zones}
     request_context = RequestContext(request, template_vars)
     return render_to_response("zones/index.html", request_context)
 
 
 def add(request):
-    if request.method=='POST':
-        formulario = ZoneForm(request.POST)
+    if request.POST:
+        formulario = ZoneForm(request.POST or None)
         if formulario.is_valid():
             formulario.save()
-            return HttpResponseRedirect('/zones')
+            if formulario.save():
+                return HttpResponseRedirect('/zones')
+        else:
+            template_vars = {
+                "formulario": formulario
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("zones/new_zone.html", request_context)
     else:
         formulario = ZoneForm()
-
-    request_context = RequestContext(request)
-    return render_to_response("zones/new_zone.html", {"title": "New Zone",
-                                                      "formulario": formulario,
-                                                      "Add": "Add",
-                                                      "reset": "reset"},
-                              request_context)
+        request_context = RequestContext(request)
+        return render_to_response("zones/new_zone.html", {"formulario": formulario},
+                                  request_context)
 
 
 def edit(request, zone_id):

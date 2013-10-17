@@ -79,9 +79,11 @@ Date.now = Date.now || function() { return +new Date; };
 
     // popover
     $("[data-toggle=popover]").popover();
-    $(document).on('click', '.popover-title .close', function(e){
+    $(document).on('click', '.popover', function(e){
     	var $target = $(e.target), $popover = $target.closest('.popover').prev();
     	$popover && $popover.popover('hide');
+        //new line by Martin to remove the popover
+        $(".popover").remove();
     });
 
     // ajax modal
@@ -203,3 +205,27 @@ Date.now = Date.now || function() { return +new Date; };
 
   });
 }(window.jQuery);
+
+//Solo un popover visible a la vez
+var visiblePopover;
+
+$(".hov").popover({ 'container': 'body' });
+$('.hov').on('click', function(e) {
+    e.stopPropagation();
+    var $this = $(this);
+
+    //si otro popover se esta mostrando ocultar los demas
+    if ($('.popover').hasClass('in')) {
+        visiblePopover && visiblePopover.popover('hide');
+        visiblePopover = $this;
+    } else {
+        visiblePopover = '';
+    }
+});
+
+// Ocultar todos los popover si se da click fuera de uno
+$("body").on('click', function () {
+    $(".hov").popover('hide');
+    $('.popover').remove();
+    visiblePopover = '';
+});

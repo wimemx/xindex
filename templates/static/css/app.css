@@ -2793,3 +2793,6 @@ div.input-close:before {
 .overfloyd{
     overflow: auto;
 }
+a:hover{
+    cursor: pointer;
+}

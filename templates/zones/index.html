@@ -86,6 +86,7 @@
                                 Ordenar por
                                 <div class="btn-group">
                                     <button class="btn btn-white btn-s-md dropdown-toggle" data-toggle="dropdown">
+                                        Orden Alfabetico
                                         {{ order_query }}
                                         <span class="caret"></span>
                                     </button>
@@ -94,7 +95,9 @@
                                         <li><a href="#">Orden alfabético</a></li>
                                         <li><a href="#">Fecha de creación</a></li>
                                     </ul>
-                                    <a href="/surveys/add" class="btn btn-success btn-s-md padder btn-group-m-l">
+                                    <a href="/zones/add"
+                                       class="btn btn-success btn-s-md padder btn-group-m-l"
+                                       data-toggle="ajaxModal">
                                         <i class="icon-plus"></i>
                                         Agregar zona
                                     </a>
@@ -122,111 +125,42 @@
                     <section class="panel">
                         <ul class="list-group">
                             {% if found_entries %}
-                                {% for each_survey in found_entries.surveys %}
-                                <li class="list-group-item">
-                                    <div class="media">
-                                        <div class="pull-left text-success m-t-sm">
-                                            <input type="checkbox" class="check"/>
-                                        </div>
-                                        <div class="pull-right m-t-sm text-center">
-                                            {% if each_survey.status %}
-                                                <div class="h4">
-                                                    <a href="/surveys/available/{{ each_survey.id }}/">
-                                                    <i class="icon-ok text-success"></i>
-                                                    </a>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Status
-                                                </small>
-                                            {% else %}
-                                                <div class="h4">
-                                                    <a href="/surveys/available/{{ each_survey.id }}/">
-                                                    <i class="icon-remove text-danger"></i>
-                                                    </a>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Status
-                                                </small>
-                                            {% endif %}
-                                        </div>
-                                        <div class="pull-right m-t-sm text-center">
-                                            <div class="h4">
-                                                {{ each_survey.counter_attribute }}
-                                            </div>
-                                            <small class="text-muted">
-                                                Indicadores
-                                            </small>
-                                        </div>
-                                        <div class="pull-right m-t-sm text-center">
-                                            <div class="h4">
-                                                {{ each_survey.counter_question }}
-                                            </div>
-                                            <small class="text-muted">
-                                                Preguntas
-                                            </small>
-                                        </div>
-                                        {% if each_survey.next_step == 3 %}
-                                            <div class="pull-right m-t-sm text-center">
-                                                <div class="h4">
-                                                    <a href="/surveys/preview/next/4/{{ survey_id }}">
-                                                    <i class="icon-eye-open text-muted"></i>
-                                                    </a>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Preview
-                                                </small>
-                                            </div>
-                                        {% endif %}
-                                        <div class="media-body">
-                                            <div class="h4">
-                                                <a href="/surveys/save/next/{{ each_survey.next_step }}/{{ each_survey.id }}">
-                                                    {{ each_survey.name }}
-                                                </a>
-                                            </div>
-                                            <small class="text-muted">
-                                                Creada el {{ each_survey.date }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </li>
-                                {% endfor %}
+                                <!-- Busqueda de zonas -->
                             {% endif %}
-                            {% for each_zone in zones %}
+                            {% for each_zone in zones.zones %}
                                 <li class="list-group-item">
                                     <div class="media">
-                                        <div class="pull-right m-t-sm text-center"
+                                        <div class="pull-right text-center"
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4 text-muted"
-                                                 style="padding-left: 10px;">
+                                                 style="padding-left: 10px; padding-top: 10px; padding-bottom: 10px">
                                                 <a href="#" class="text-warning">
                                                 <i class="icon-edit"></i>
                                                 </a>
-                                                |
                                                 <a href="#" class="text-danger">
                                                 <i class="icon-remove"></i>
                                                 </a>
                                             </div>
-                                            <small class="text-muted">
-                                                Acciones
-                                            </small>
                                         </div>
-                                        <div class="pull-right m-t-sm text-center"
+                                        <div class="pull-right text-center"
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4" style="padding-left: 10px;">
-                                                <a class="text-info"
+                                                <a class="text-info hov"
                                                         data-toggle="popover"
                                                         data-html="true"
                                                         data-placement="bottom"
                                                         data-content="
                                                         <div>
-                                                        {% for eachSub in zones %}
-                                                        {{ eachSub.name }}<br>
+
+                                                        {% for each_subsidiary in each_zone.subsidiaries.subsidiaries %}
+                                                            {{ each_subsidiary.name }}<br>
                                                         {% endfor %}
+
                                                         </div>
                                                         "
                                                         title=""
                                                         data-original-title="Sucursales">
-                                                    15
+                                                    {{ each_zone.counter_subsidiaries }}
                                                 </a>
                                             </div>
                                             <small class="text-muted"
@@ -234,17 +168,20 @@
                                                 Sucursales
                                             </small>
                                         </div>
-                                        <div class="pull-right m-t-sm text-center"
+                                        <div class="pull-right text-center"
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4">
-                                                <a class="text-info"
+                                                <a class="text-info hov"
                                                         data-toggle="popover"
                                                         data-html="true"
                                                         data-placement="bottom"
-                                                        data-content=""
+                                                        data-content="
+                                                        {% for each_city in each_zone.cities.cities %}
+                                                            {{ each_city.name }}<br>
+                                                        {% endfor %}"
                                                         title=""
                                                         data-original-title="Ciudades">
-                                                15
+                                                {{ each_zone.counter_cities }}
                                                 </a>
                                             </div>
                                             <small class="text-muted"
@@ -252,21 +189,25 @@
                                                 Ciudades
                                             </small>
                                         </div>
-                                        <div class="pull-right m-t-sm text-center"
+                                        <div class="pull-right text-center"
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4">
-                                                <a class="text-info"
+                                                <a class="text-info hov"
                                                         data-toggle="popover"
                                                         data-html="true"
                                                         data-placement="bottom"
-                                                        data-content=""
+                                                        data-content="
+                                                        {% for each_state in each_zone.states.states %}
+                                                            {{ each_state.name }}<br>
+                                                        {% endfor %}
+                                                        "
                                                         title=""
                                                         data-original-title="
                                                         &lt;button type=&quot;button&quot;
                                                                    class=&quot;close pull-right&quot;
                                                                    data-dismiss=&quot;popover&quot;
                                                                    &gt;×&lt/button&gt;Estados">
-                                                10
+                                                {{ each_zone.counter_states }}
                                                 </a>
                                             </div>
                                             <small class="text-muted"
@@ -275,15 +216,11 @@
                                             </small>
                                         </div>
                                         <div class="media-body">
-                                            <div class="h4">
+                                            <div class="h4" style="padding-top: 10px;">
                                                 <a href="/zones/{{ each_zone.id }}/">
                                                     {{ each_zone.name }}
                                                 </a>
                                             </div>
-                                            <small class="text-muted"
-                                                   style="padding-left: 10px;">
-                                                Creada el {{ each_zone.date }}
-                                            </small>
                                         </div>
                                     </div>
                                 </li>

@@ -58,7 +58,8 @@ def add(request, business_unit_id):
             template_vars = {
                 "titulo": "Agregar servicio",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "buid": business_unit_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("services/add.html", request_context)
@@ -67,7 +68,8 @@ def add(request, business_unit_id):
         template_vars = {
             "titulo": "Agregar servicio",
             "message": "",
-            "formulario": formulario
+            "formulario": formulario,
+            "buid": business_unit_id
         }
         request_context = RequestContext(request, template_vars)
         return render_to_response("services/add.html", request_context)
