@@ -175,7 +175,7 @@ $(document).ready(function () {
     });
 
 
-    $('a.actions_block').on('click', function (e) {
+    $(document).on('click', 'a.actions_block', function (e) {
         e.preventDefault();
         var action = $(this).attr('id')
         if ($(this).hasClass("remove_block")) {
@@ -218,7 +218,7 @@ $(document).ready(function () {
                                 success: function (msg) {
                                     //alert(msg);
                                     if (msg.success) {
-                                        $(self).closest('div.row-block').slideUp('slow', function () {
+                                        $(self).closest('li.list-group-item').slideUp('slow', function () {
                                             $(this).remove();
                                             enumerateQuestionBlocks();
                                             enumerateQuestions();
@@ -240,6 +240,7 @@ $(document).ready(function () {
 
 
     $('#save_block_configuration').on('click', function () {
+        console.log('saving');
         saveBlockConfiguration();
         enumerateQuestionBlocks();
         enumerateQuestions();
@@ -789,7 +790,7 @@ function deleteQuestion(self, question_ids) {
         success: function (msg) {
             //alert(msg);
             if (msg.success) {
-                $(self).closest('div.question-content').slideUp('slow', function () {
+                $(self).closest('li.list-group-item').slideUp('slow', function () {
                     $(this).remove();
                     enumerateQuestions();
                     enumerateQuestionBlocks();
@@ -810,39 +811,46 @@ function saveBlockConfiguration(){
     var moment_id = $("#moment_object").val();
 
     if($('#associate_moment_to_block').is(':checked')){
-        $('#block_moment_associated_id').removeClass('false');
-        $('#block_moment_associated_id').addClass('true');
-        $('#block_moment_associated_id').val(block_id);
-    }
+        console.log('associating moment');
+        $('#'+block_id+' input.block_moment_associated_id').removeClass('false');
+        $('#'+block_id+' input.block_moment_associated_id').addClass('true');
+        $('#'+block_id+' input.block_moment_associated_id').val(moment_id);
 
-    $('#' + block_id + ' div.db_question_id').each(function (index) {
-        question_ids.push(
-            {
-                'question_id': $(this).attr('id')
-            }
-        );
-    });
+        var questions_in_block = $('#'+block_id+' div.question-content').length;
 
-    $.ajax({
-        type: 'POST',
-        url: '/surveys/questions_moments/',
-        data: {
-            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-            ids: JSON.stringify(question_ids),
-            'moment_id': moment_id
-        },
-        dataType: 'JSON',
-        success: function (msg) {
-            if (msg.success) {
-                //alert('Se han asociado los momentos a las preguntas');
-            }
-        },
-        error: function (msg) {
-            console.log('msg no enviad')
+        if(questions_in_block == 0){
+            return true;
+        } else {
+            $('#' + block_id + ' div.db_question_id').each(function (index) {
+                question_ids.push(
+                    {
+                        'question_id': $(this).attr('id')
+                    }
+                );
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '/surveys/questions_moments/',
+                data: {
+                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                    ids: JSON.stringify(question_ids),
+                    'moment_id': moment_id
+                },
+                dataType: 'JSON',
+                success: function (msg) {
+                    if (msg.success) {
+                        //alert('Se han asociado los momentos a las preguntas');
+                    }
+                },
+                error: function (msg) {
+                    console.log('msg no enviad')
+                }
+
+            });
         }
 
-    });
-
+    }
 }
 
 
@@ -1040,4 +1048,45 @@ function rgb2hex(rgb){
   ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
   ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
   ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
+}
+
+
+function set_current_operation_active(){
+    $('#current_element_active').val('True');
+}
+
+function set_current_operation_inactive(){
+    $('#current_element_active').val('False');
+    $('#main-configuration-panel').removeClass('hidden');
+    $('#question-questions-block-configuration-panel').addClass('hidden');
+    $('#add-question-option-panel').addClass('hidden');
+    $('#add-new-question-configuration-panel').addClass('hidden');
+    $('#update-question-configuration-panel').addClass('hidden');
+    $('#update-survey-block').addClass('hidden');
+}
+
+function checkIfExistsCurrentOperation(){
+    var current_operation = $('#current_element_active').val();
+    if(current_operation == 'True'){
+        bootbox.dialog({
+            message: "Actualmente esta editando otro elemento, ¿Desea cancelar el proceso y continuar?",
+            title: "Ayuda de Xindex",
+            buttons: {
+                success: {
+                    label: "Volver",
+                    className: "btn-white",
+                    callback: function () {
+                        return false;
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "btn-twitter",
+                    callback: function () {
+                        return true;
+                    }
+                }
+            }
+        });
+    }
 }

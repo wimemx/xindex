@@ -189,6 +189,8 @@
                     </div>
                 </div>
                 {% if setup %}
+                    <!-- input to verify if an element is updated -->
+                    <input id="current_element_active" type="hidden" value="False">
                     <!--input to verify if survey has a style for all the blocks or not-->
                     {% if setup.blocks_style %}
                         <input type="hidden" id="survey_has_blocks_style" value="True"/>
@@ -199,18 +201,13 @@
                     {% endif %}
                     <ul class="list-group no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
-                        <div class="pull-in clearfix m-b-n icon_current_edited">
-                            <p class="m-t-sm m-b text-center animated bounceInDown">
-                                <i class="icon-map-marker text-danger icon-2x" data-toggle="tooltip" title="" data-original-title="Editando este bloque"></i>
-                            </p>
-                        </div>
                         <li class="list-group-item">
                             <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                 <div class="col-lg-12">
                                     <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para mover este bloque de pocisión">
                                     <!-- input to verify if block has a moment associated -->
                                     {% if block.block_moment_associated_id %}
-                                        <input type="hidden" class="block_moment_associated_id" value="{{ block.moment_associated_id }}">
+                                        <input type="hidden" class="block_moment_associated_id true" value="{{ block.block_moment_associated_id }}">
                                     {% else %}
                                         <input type="hidden" class="block_moment_associated_id false">
                                     {% endif %}
@@ -779,7 +776,7 @@
                                 <label>
                                     <div class="checkbox">
                                         <label class="checkbox-custom">
-                                            <input type="checkbox" name="associate_moment_to_block" id="associate_moment_to-block">
+                                            <input type="checkbox" name="associate_moment_to_block" id="associate_moment_to_block">
                                             <i class="icon-unchecked checked" id="associate_moment_to_block_icon"></i>
                                             ¿Este bloque de preguntas est&aacute; vinculado a un punto de contacto?
                                         </label>
@@ -1039,7 +1036,6 @@
                         <form id="associate_questions_to_attribute">
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox">
                                     Escoja los indicadores que seran medidos por la pregunta<i class="icon-question-sign"></i>
                                 </label>
                             </div>
@@ -1311,8 +1307,14 @@
             } else if (id == 'drag-question-only'){
                 dropQuestion(event);
             } else {
-                alert('Funcion no definida');
+
                 revertDraggable($(".drag"));
+                /*setTimeout(function(){
+                    enumerateQuestionBlocks();
+                    enumerateQuestions();
+                    saveSurvey();
+                }, 600)*/
+                alert('Funcion no definida');
             }
         }
     });

@@ -322,6 +322,7 @@ def save(request, action, next_step, survey_id=False):
                             style = ''
                         if 'block_moment_associated_id' in block:
                             block_moment_associated_id = block['block_moment_associated_id']
+                            print block_moment_associated_id
                         else:
                             block_moment_associated_id = False
 

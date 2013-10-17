@@ -16,6 +16,8 @@ $(document).ready(function () {
         height: 300,
         autoresize_min_height: 300,
         autoresize_max_height: 500,
+        language : 'es',
+        language_url : '/langs/es.js',
         plugins: [
             "autoresize advlist autolink link lists charmap print preview hr anchor pagebreak spellchecker",
             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking",

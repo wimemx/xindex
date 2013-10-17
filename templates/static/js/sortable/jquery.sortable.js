@@ -64,6 +64,7 @@ $.fn.sortable = function(options) {
 				e.stopPropagation();
 				placeholders.filter(':visible').after(dragging);
 				dragging.trigger('dragend.h5s');
+                alert('gj');
                 enumerateQuestionBlocks();
                 enumerateQuestions();
                 saveSurvey();
