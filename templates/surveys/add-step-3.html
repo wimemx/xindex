@@ -91,6 +91,18 @@
         .question-content:hover {
             border: 1px dashed #243a69;
         }
+        .question-content.block-question {
+            border: 1px solid rgba(255, 255, 255, 0) !important;
+        }
+        .question-content.block-question:hover {
+            border: 1px dashed rgba(255, 255, 255, 0);
+        }
+        .row-no-block {
+            border: 2px dashed rgba(255, 255, 255, 0);
+        }
+        .row-no-block:hover {
+            border: 2px dashed #cecece;
+        }
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -199,12 +211,20 @@
                         <input type="hidden" id="survey_has_blocks_style" value="False"/>
                         <input type="hidden" id="survey_blocks_style" value=""/>
                     {% endif %}
+                    <!--input to verify if survey has a style for all the questions or not-->
+                    {% if setup.questions_style %}
+                        <input type="hidden" id="survey_has_question_style" value="True"/>
+                        <input type="hidden" id="survey_question_style" value="{{ setup.questions_style }}"/>
+                    {% else %}
+                        <input type="hidden" id="survey_has_question_style" value="False"/>
+                        <input type="hidden" id="survey_question_style" value=""/>
+                    {% endif %}
                     <ul class="list-group no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
                         <li class="list-group-item">
                             <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                 <div class="col-lg-12">
-                                    <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para mover este bloque de pocisión">
+                                    <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
                                     <!-- input to verify if block has a moment associated -->
                                     {% if block.block_moment_associated_id %}
                                         <input type="hidden" class="block_moment_associated_id true" value="{{ block.block_moment_associated_id }}">
@@ -231,7 +251,7 @@
                                         <ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">
                                         {% for question in block.questions %}
                                             <li class="list-group-item">
-                                                <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastre para mover de pocisión">
+                                                <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastrame">
                                                     <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
                                                         <div class="question_actions">
                                                             <strong class="actions pull-left">
@@ -994,7 +1014,58 @@
                 </div>
             </div>
             <div id="design-question" class="tab-pane">
-                DESIGN AREA
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Texto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Tipograf&iacute;a
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="new_question_font" class="form-control">
+                                        <option value="lato">Predeterminada</option>
+                                        <option value="times_new_roman">Times New Roman</option>
+                                        <option value="arial">Arial</option>
+                                        <option value="helvetiva">Helvetica</option>
+                                        <option value="courier_new">Courier New</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Estilo
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="new_question_font_style" class="form-control">
+                                        <option value="normal">Normal</option>
+                                        <option value="italic">Italica</option>
+                                        <option value="oblique">Oblicua</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Color
+                                </label>
+                                <div class="col-lg-4">
+                                    <div id="new_question_font_color_picker" class="colorSelector">
+                                        <div style="background-color: #717171"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <p>
+                        <input type="checkbox" id="apply_design_to_all_questions"> Aplicar a todas las preguntas de esta encuesta
+                    </p>
+                </section>
             </div>
             <div id="question_configuration_panel" class="tab-pane">
                 <section class="panel-heading">
@@ -1276,10 +1347,11 @@
 
 <!-- BootBox -->
 <script src="/static/js/bootbox/bootbox.min.js"></script>
-
+<!--
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-
+-->
 <script>
+
     $('.drag').draggable({
         start: function() {
             $(this).removeClass("zindexMin");
@@ -1314,7 +1386,10 @@
                     enumerateQuestions();
                     saveSurvey();
                 }, 600)*/
-                alert('Funcion no definida');
+                setTimeout(function(){
+                    enumerateQuestions();
+                }, 600);
+                //alert('Funcion no definida');
             }
         }
     });

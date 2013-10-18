@@ -229,6 +229,8 @@ def save(request, action, next_step, survey_id=False):
 
             setup['attributes'] = []
 
+            setup['question_styles'] = False
+
             user = Xindex_User.objects.get(pk=request.user.id)
 
             for company in user.company_set.all():
@@ -236,11 +238,17 @@ def save(request, action, next_step, survey_id=False):
                     for business_unit in subsidiary.businessunit_set.all():
                         for service in business_unit.service.all():
                             for moment in service.moments.all():
-                                setup['moments'].append(
-                                    {
-                                        'moment': moment
-                                    }
-                                )
+                                current_moment = moment
+                                duplicated = False
+                                for moments in setup['moments']:
+                                    if moments['moment'] == current_moment:
+                                        duplicated = True
+                                if duplicated is False:
+                                    setup['moments'].append(
+                                        {
+                                            'moment': current_moment
+                                        }
+                                    )
 
             attributes = Attributes.objects.all()
 
@@ -338,6 +346,8 @@ def save(request, action, next_step, survey_id=False):
                         )
                 if key == 'blocks_style':
                     setup['blocks_style'] = values
+                if key == 'question_styles':
+                    setup['question_styles'] = values
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
