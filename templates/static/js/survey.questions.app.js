@@ -417,9 +417,6 @@ function insertQuestionsBlock() {
         setDefaultStyleInDesign((blocks_style).split(';'));
     }
 
-
-    console.log('Este es el estilo de los bloques: '+blocks_style);
-
     var new_questions_block_content = '<div class="row row-block animated fadeInDown" id="' + new_block_id + '">' +
         '<div class="col-lg-12">' +
         '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="'+blocks_style+'">' +
@@ -637,13 +634,14 @@ $(document).ready(function () {
         var questions_style = 'display: table; min-width: 100%; min-height: 50px; font-family: Lato; font-style: normal; color: #717171;';
         if(survey_has_question_style){
             questions_style = getSurveyQuestionsStyle();
-
             setDefaultStyleInQuestionDesign((questions_style).split(';'));
+
+            $('#apply_design_to_all_questions').prop('disabled', true);
         }
 
 
         var new_question =
-                '<div class="wrapper question-content active-question" style="" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastre para mover de pocisión">'+
+                '<div class="wrapper question-content active-question" style="'+questions_style+'" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastre para mover de pocisión">'+
                     '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
                         '<div class="question_actions">'+
                             '<strong class="actions pull-left">'+

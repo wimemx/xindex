@@ -141,7 +141,7 @@
 <div class="row">
 <input type="hidden" value="{{ survey_id }}" id="survey_id"/>
 <div class="col-lg-6" style="float: right; margin-right: 50%;">
-    <section class="panel">
+    <section class="panel" id="survey_global_content">
         <div class="panel-body">
             <section class="header text-center panel visible-lg border-dropzone">
 
@@ -168,7 +168,7 @@
                 </small>
                 -->
             </section>
-            <section class="panel wrapper drop" id="survey-main-content">
+            <section class="panel wrapper drop" id="survey-main-content" style="background-color: transparent !important; border: 0px !important;">
                 <div class="row">
                     <div class="col-lg-12">
                         <section class="panel introduction_panel" id="survey_introduction_block">
@@ -219,7 +219,32 @@
                         <input type="hidden" id="survey_has_question_style" value="False"/>
                         <input type="hidden" id="survey_question_style" value=""/>
                     {% endif %}
-                    <ul class="list-group no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
+                    {% if  setup.block_border_color %}
+                        <input type="hidden" id="configured_survey_border_color" value="{{ setup.block_border_color }}"/>
+                    {% else %}
+                        <input type="hidden" id="configured_survey_border_color" value="#cecece"/>
+                    {% endif %}
+                    {% if  setup.block_border_style %}
+                        <input type="hidden" id="configured_survey_border_style" value="{{ setup.block_border_style }}"/>
+                    {% else %}
+                        <input type="hidden" id="configured_survey_border_style" value="solid"/>
+                    {% endif %}
+                    {% if  setup.block_border_width %}
+                        <input type="hidden" id="configured_survey_border_width" value="{{ setup.block_border_width }}"/>
+                    {% else %}
+                        <input type="hidden" id="configured_survey_border_width" value="0px"/>
+                    {% endif %}
+                    {% if  setup.block_background_color %}
+                        <input type="hidden" id="configured_survey_background_color" value="{{ setup.block_background_color }}"/>
+                    {% else %}
+                        <input type="hidden" id="configured_survey_background_color" value="#FFFFFF"/>
+                    {% endif %}
+                    {% if  setup.block_box_shadow %}
+                        <input type="hidden" id="configured_survey_box_shadow" value="{{ setup.block_box_shadow }}"/>
+                    {% else %}
+                        <input type="hidden" id="configured_survey_box_shadow" value="rgb(206, 206, 206) 0px 0px 5px 0px"/>
+                    {% endif %}
+                    <ul class="list-group no-bg no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
                     {% for block in setup.blocks %}
                         <li class="list-group-item">
                             <div class="row row-block animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
@@ -251,7 +276,7 @@
                                         <ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">
                                         {% for question in block.questions %}
                                             <li class="list-group-item">
-                                                <div class="wrapper question-content padder" style="display: table; min-width: 100%; min-heigth: 70px;" id="{{ question.question_content_id }}" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastrame">
+                                                <div class="wrapper question-content padder" {% if question.question_style %} style="{{ question.question_style }}" {% else %} style="display: table; min-width: 100%; min-heigth: 70px;" {% endif %} id="{{ question.question_content_id }}" data-toggle="tooltip" data-placement="top" title="" data-original-title="Arrastrame">
                                                     <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
                                                         <div class="question_actions">
                                                             <strong class="actions pull-left">
@@ -551,7 +576,7 @@
                                   href="#content">
                 Contenido
             </a></li>
-            <li class=""><a data-toggle="tab" href="#design">
+            <li class=""><a data-toggle="tab" href="#global_design_pane">
                 Diseño
             </a></li>
         </ul>
@@ -610,10 +635,97 @@
                     </section>
                 </div>
             </div>
-            <div id="design" class="tab-pane">
-                <a class="h3">
-                    Diseño
-                </a>
+            <div id="global_design_pane" class="tab-pane">
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Diseño de la encuesta
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form id="form-horizontal">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Borde</label>
+                                        <div class="line line-dashed m-t-lg"></div>
+                                        <div class="m-b">
+                                            <div class="checkbox">
+                                                <label class="checkbox-custom"><input type="checkbox" id="survey_has_border"><i id="survey_has_border_icon" class="icon-unchecked"></i> Sin borde</label>
+                                            </div>
+                                        </div>
+                                        <div id="border_survey_configuration_section">
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4">Color del borde</p>
+                                                    <div class="col-sm-4">
+                                                        <div id="survey_border_color_picker" class="colorSelector">
+                                                            <div style="background-color: rgba(255, 255, 255, 0);"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4 control-label">Tipo de borde</p>
+                                                    <div class="col-sm-4">
+                                                        <select id="survey_border_style" class="form-control">
+                                                            <option value="solid" style="border-style: solid">Solido</option>
+                                                            <option value="dotted" style="border-style: dotted">Punteado</option>
+                                                            <option value="dashed" style="border-style: dashed">Con guiones</option>
+                                                            <option value="double" style="border-style: double">Doble</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="m-b">
+                                                <div class="form-group row">
+                                                    <p class="col-sm-4 control-label">Ancho del borde</p>
+                                                    <div class="col-sm-4">
+                                                        <select id="survey_border_width" class="form-control">
+                                                            <option value="1px">1x</option>
+                                                            <option value="2px">2x</option>
+                                                            <option value="3px">3x</option>
+                                                            <option value="4px">4x</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <label>Sombra</label>
+                                        <div class="line line-dashed m-t-lg"></div>
+                                        <div>
+                                            <div class="m-b">
+                                                <div class="checkbox">
+                                                    <label class="checkbox-custom"><input type="checkbox" id="survey_has_shadow"><i id="survey_has_shadow_icon" class="icon-unchecked"></i> Sin sombra</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fondo</label>
+                                        <div class="line line-dashed m-t-lg"></div>
+                                        <div class="m-b">
+                                            <div class="checkbox">
+                                                <label class="checkbox-custom"><input type="checkbox" id="survey_has_background"><i id="survey_has_background_icon" class="icon-unchecked"></i> Sin fondo</label>
+                                            </div>
+                                        </div>
+                                        <div class="m-b" id="survey_background_configuration_section">
+                                            <div class="form-group row">
+                                                <p class="col-sm-4">Color del fondo</p>
+                                                <div class="col-sm-4">
+                                                    <div id="survey_background_color_picker" class="colorSelector">
+                                                        <div style="background-color: rgba(255, 255, 255, 0);"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
             </div>
         </div>
     </div>
@@ -1177,7 +1289,58 @@
                 </div>
             </div>
             <div id="update-question-design" class="tab-pane">
-                Diseño de la pregunta
+                <section class="panel-heading">
+                    <header class="panel-heading">
+                        <p class="h3">
+                            Texto
+                        </p>
+                    </header>
+                    <section class="panel-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Tipograf&iacute;a
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="update_question_font" class="form-control">
+                                        <option value="lato">Predeterminada</option>
+                                        <option value="times_new_roman">Times New Roman</option>
+                                        <option value="arial">Arial</option>
+                                        <option value="helvetiva">Helvetica</option>
+                                        <option value="courier_new">Courier New</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Estilo
+                                </label>
+                                <div class="col-lg-4">
+                                    <select id="update_question_font_style" class="form-control">
+                                        <option value="normal">Normal</option>
+                                        <option value="italic">Italica</option>
+                                        <option value="oblique">Oblicua</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label v-middle">
+                                    Color
+                                </label>
+                                <div class="col-lg-4">
+                                    <div id="update_question_font_color_picker" class="colorSelector">
+                                        <div style="background-color: #717171"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </section>
+                <section class="panel-heading">
+                    <p>
+                        <input type="checkbox" id="apply_design_to_all_questions_update"> Aplicar a todas las preguntas de esta encuesta
+                    </p>
+                </section>
             </div>
             <div id="update-question-configuration" class="tab-pane">
                 <section class="panel-heading">
@@ -1248,6 +1411,13 @@
             </div>
         </div>
     </div>
+    <section class="panel-body wrapper padder">
+        <div class="col-lg-12">
+            <button class="padder btn btn-md btn-info save-new-question" id="save_updated_question">
+                Guardar
+            </button>
+        </div>
+    </section>
 </section>
 <section class="panel hidden" id="update-survey-block">
     <div class="wrapper text-center">
