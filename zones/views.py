@@ -1,3 +1,4 @@
+import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -59,14 +60,27 @@ def add(request):
 
     listform = StateListForm()
     listform.fields['countries'].choices = [(x.id, x) for x in Country.objects.filter(active=True)]
-    #userlist = request.POST.getlist('users')
+
+    states = request.POST.getlist('id_state')
 
     if request.POST:
         formulario = ZoneForm(request.POST or None)
+
         if formulario.is_valid():
-            formulario.save()
-            if formulario.save():
-                return HttpResponseRedirect('/zones')
+            idZone = formulario.save()
+            zoneAfterSave = Zone.objects.get(pk=idZone.id)
+
+            countryToAdd = request.POST.getlist('id_country')
+
+            for eachCountry in countryToAdd:
+                countrySelected = Country.objects.get(pk=eachCountry)
+                zoneAfterSave.countries.add(countrySelected)
+
+            for eachState in states:
+                stateSelected = State.objects.get(pk=eachState)
+                zoneAfterSave.states.add(stateSelected)
+
+            return HttpResponseRedirect('/zones')
         else:
             template_vars = {
                 "formulario": formulario
@@ -83,7 +97,6 @@ def add(request):
 
 
 def edit(request, zone_id):
-    #return HttpResponse("You're editing zone %s." % zone_id)
     zona = Zone.objects.get(pk=zone_id)
     if request.method=='POST':
         formulario = ZoneForm(request.POST, instance=zona)
@@ -174,26 +187,4 @@ def country(request, country_id):
                 }
             )
 
-    print '==========================================='
-    print statesToJson
     return HttpResponse(simplejson.dumps(statesToJson))
-
-    '''
-def city(request, state_id):
-    city_list = City.objects.filter(state_id=state_id)
-
-    citiesToJson = {'cities': []}
-
-    if city_list:
-        for eachCity in city_list:
-            citiesToJson['cities'].append(
-                {
-                    "name": eachCity.name,
-                    "id": eachCity.id
-                }
-            )
-
-    print '==========================================='
-    print citiesToJson
-    return HttpResponse(simplejson.dumps(citiesToJson))
-    '''

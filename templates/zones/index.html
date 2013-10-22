@@ -3,7 +3,9 @@
 <html>
 <head>
     <title>{% block title %}Zones{% endblock %}</title>
-<script src="/static/js/js/jquery.js"></script>
+    <!--
+    <script src="/static/js/js/jquery.js"></script>
+    -->
 </head>
 <body>
 {% block menu %}
@@ -222,6 +224,7 @@
     </section>
 {% endblock %}
 
+{% block externalJs %}
     <script src="/static/js/bootbox/bootbox.min.js"></script>
     <script src="/static/js/app.forms.xindex.js"></script>
     <!-- App -->
@@ -229,6 +232,7 @@
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.data.js"></script>
     <script src="/static/js/app.grids.data.js"></script>
+
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
     <!-- datatables -->
@@ -252,5 +256,39 @@
     <script src="/static/js/select2/select2.min.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
+    <script>
+        $(document).on('submit', '#formulario', function(e){
+        e.preventDefault();
+
+        country = $('#country_select').val();
+        state = $('#state_select').val();
+        serialize = $(this).serializeArray();
+        console.log(country);
+        console.log(state);
+        serialize.push({name: 'id_country', value: country});
+
+
+        $.each(state, function(index, value){
+            console.log(value);
+            serialize.push({name: 'id_state', value: value});
+         });
+        console.log(serialize);
+
+        $.ajax({
+            type: 'POST',
+            url: $('#formulario').attr('action'),
+            data: serialize,
+            success: function(){
+                setTimeout(function () {
+                    window.location.reload()
+                },0);
+            },
+            error: function(){
+
+            }
+        });
+    });
+    </script>
+{% endblock%}
 </body>
 </html>
