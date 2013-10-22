@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/static/chosen_v1.0.0/chosen.css">
+</head>
+<body>
 <div class="modal-dialog" id="addZoneModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -18,16 +25,16 @@
                         {{ formulario.description }}
                     </div>
                     <div class="form-group m-t-lg">
-                        Pa&iacute;ses:
-                        {{ formulario.countries }}
+
+                        Pa&iacute;s:
+                        <select class="form-control" id="country_select">
+                            <option value="Z">Selecciona un país</option>
+                            {% for country in countries %}
+                                <option value="{{ country.id }}">{{ country.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <div class="form-group m-t-lg">
-                        Estados:
-                        {{ formulario.states }}
-                    </div>
-                    <div class="form-group m-t-lg">
-                        Ciudades:
-                        {{ formulario.cities }}
+                    <div class="form-group m-t-lg" id="first">
                     </div>
                     <div class="form-group m-t-lg">
                         <input type="submit" onclick="{{ onclick }}"
@@ -39,13 +46,60 @@
         </div>
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
-<script>
-        //// <------ Remove modal with close class ->
 
-        $('.close').on('click', function (e) {
-            e.preventDefault();
-            $('div.modal').modal('hide');
-            $('#ajaxModal').remove();
+<script src="/static/chosen_v1.0.0/chosen.jquery.js" type="text/javascript"></script>
+<script src="/static/chosen_v1.0.0/docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+<script>
+
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'Sin resultados'},
+        '.chosen-select-width'     : {width:"100%"}
+    }
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    });
+
+    $("#country_select").on('change', function (e) {
+        e.preventDefault();
+
+        var country_filter = $('#country_select').val();
+        var url = "/zones/country/" + country_filter;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: 'nocache' + Math.random(),
+            success: function (response) {
+                var options = '';
+                $.each(response["states"], function(idx,state) {
+                    options += '<option value="' + state.id + '">' +
+                               state.name + '</option>'
+                });
+
+                var select = 'Estados:' +
+                    '<select multiple class="chosen-select form-control" ' +
+                    'data-placeholder="Selecciona los estados">' +
+                    options +
+                    '</select>';
+                $('#first').html(select);
+                $(".chosen-select").chosen();
+            },
+            error: function (response) {
+                alert('NO!')
+            }
         });
+
     });
 </script>
+</body>
+</html>

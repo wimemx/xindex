@@ -173,7 +173,6 @@ class CompanyTypeForm(ModelForm):
 
 class SurveyForm(ModelForm):
 
-
     def __init__(self, *args, **kwargs):
         super(SurveyForm, self).__init__(*args, **kwargs)
 
@@ -196,3 +195,9 @@ class SurveyForm(ModelForm):
         fields = ('name', 'picture')
         exclude = ('description', 'questions', 'user', 'step', 'configuration', 'active', 'date',
                    'meta')
+
+
+class StateListForm(forms.Form):
+    countries = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        label="States!")

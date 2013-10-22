@@ -3,8 +3,8 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from xindex.forms import ZoneForm
-from xindex.models import Zone
+from xindex.forms import ZoneForm, StateListForm
+from xindex.models import Zone, BusinessUnit, Country, State, City
 
 
 def index(request):
@@ -55,6 +55,12 @@ def index(request):
 
 
 def add(request):
+    countries = Country.objects.filter(active=True)
+
+    listform = StateListForm()
+    listform.fields['countries'].choices = [(x.id, x) for x in Country.objects.filter(active=True)]
+    #userlist = request.POST.getlist('users')
+
     if request.POST:
         formulario = ZoneForm(request.POST or None)
         if formulario.is_valid():
@@ -70,7 +76,9 @@ def add(request):
     else:
         formulario = ZoneForm()
         request_context = RequestContext(request)
-        return render_to_response("zones/new_zone.html", {"formulario": formulario},
+        return render_to_response("zones/new_zone.html", {"formulario": formulario,
+                                                          'countries': countries,
+                                                          'listform': listform},
                                   request_context)
 
 
@@ -86,7 +94,7 @@ def edit(request, zone_id):
         formulario = ZoneForm(instance=zona)
 
     request_context = RequestContext(request)
-    return render_to_response("zones/new_zone.html",
+    return render_to_response("zones/edit_zone.html",
                               {"formulario": formulario,
                                "Add": "Save",
                                "reset": "button",
@@ -96,20 +104,45 @@ def edit(request, zone_id):
 
 def remove(request, zone_id):
     zone = Zone.objects.get(pk=zone_id)
-    #zone.delete()
     zone.active = False
     zone.save()
     return HttpResponseRedirect('/zones')
 
 
 def detail(request, zone_id):
+    zones = {'zones': []}
+    subsidiaries = {'subsidiaries': []}
+    business_units = {'business_units': []}
+    counter_business_units = 0
+
+    business_units_all = BusinessUnit.objects.filter(active=True)
     try:
         zone = Zone.objects.get(pk=zone_id)
         status = str(zone.active)
+
+        for each_subsidiary in zone.subsidiary_set.all():
+            for each_business_unit in each_subsidiary.businessunit_set.all():
+                counter_business_units += 1
+
+            subsidiaries['subsidiaries'].append({
+                'name': each_subsidiary.name,
+                'city': each_subsidiary.city_id.name,
+                'state': each_subsidiary.state_id.name,
+                'business_units': business_units,
+                'counter_business_units': counter_business_units
+
+            })
+        zones['zones'].append({
+            'id': zone.id,
+            'name': zone.name,
+            'date': zone.date,
+            'subsidiaries': subsidiaries
+        })
+
     except Zone.DoesNotExist:
         raise Http404
     return render_to_response('zones/detail.html',
-                              {'zone': zone, 'status': status})
+                              {'zones': zones})
 
 
 def getZonesInJson(request):
@@ -125,3 +158,42 @@ def getZonesInJson(request):
             }
         )
     return HttpResponse(simplejson.dumps(zonesToJson))
+
+
+def country(request, country_id):
+    state_list = State.objects.filter(country_id=country_id)
+
+    statesToJson = {'states': []}
+
+    if state_list:
+        for eachState in state_list:
+            statesToJson['states'].append(
+                {
+                    "name": eachState.name,
+                    "id": eachState.id
+                }
+            )
+
+    print '==========================================='
+    print statesToJson
+    return HttpResponse(simplejson.dumps(statesToJson))
+
+    '''
+def city(request, state_id):
+    city_list = City.objects.filter(state_id=state_id)
+
+    citiesToJson = {'cities': []}
+
+    if city_list:
+        for eachCity in city_list:
+            citiesToJson['cities'].append(
+                {
+                    "name": eachCity.name,
+                    "id": eachCity.id
+                }
+            )
+
+    print '==========================================='
+    print citiesToJson
+    return HttpResponse(simplejson.dumps(citiesToJson))
+    '''
