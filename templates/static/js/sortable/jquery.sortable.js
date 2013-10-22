@@ -64,10 +64,10 @@ $.fn.sortable = function(options) {
 				e.stopPropagation();
 				placeholders.filter(':visible').after(dragging);
 				dragging.trigger('dragend.h5s');
-                alert('gj');
-                enumerateQuestionBlocks();
+                console.log(e);
+                //enumerateQuestionBlocks();
                 enumerateQuestions();
-                saveSurvey();
+                //saveSurvey();
 				return false;
 			}
 			e.preventDefault();

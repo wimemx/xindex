@@ -287,7 +287,6 @@ $(document).ready(function () {
 
     $('a.actions_question').on('click', function () {
         if ($(this).hasClass('update_question')) {
-            console.log('Edit Question');
             $('#main-configuration-panel').addClass('hidden');
             $('#add-question-option-panel').addClass('hidden');
             $('#add-new-question-configuration-panel').addClass('hidden');
@@ -308,6 +307,10 @@ $(document).ready(function () {
             console.log(question_survey_id)
 
             $('#current-question-updated').val(question_survey_id);
+
+            var style = $(this).closest('div.question-content').attr('style');
+
+            setDefaultStyleInQuestionDesignUpdate((style).split(';'));
 
             return getQuestionToUpdate(question_id);
 
@@ -459,6 +462,120 @@ $(document).ready(function () {
         }
     );
 
+    //ColorPicker instance for new font color question
+    $('#new_question_font_color_picker').ColorPicker(
+        {
+            color: '#717171',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#new_question_font_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                setStyleToQuestion();
+                if($('#apply_design_to_all_questions').is(':checked')){
+                    var global_question_style = setStyleToQuestion();
+                    $('#survey_question_style').val(global_question_style);
+                }
+            }
+        }
+    );
+
+    //ColorPicker instance for border color survey
+    $('#survey_border_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#survey_border_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                buildSurveyStyle();
+            }
+        }
+    );
+
+    //ColorPicker instance for background color survey
+    $('#survey_background_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#survey_background_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                buildSurveyStyle();
+            }
+        }
+    );
+
+    //ColorPicker instance for font color when question is updated
+    $('#update_question_font_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#update_question_font_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                updateStyleToBlock();
+            }
+        }
+    );
+
+    //control to add style to question
+    $('#new_question_font_style').change(function(){
+        setStyleToQuestion()
+        if($('#apply_design_to_all_questions').is(':checked')){
+            var global_question_style = setStyleToQuestion();
+            $('#survey_question_style').val(global_question_style);
+        }
+    });
+
+    //control to add style to question
+    $('#new_question_font').change(function(){
+        setStyleToQuestion()
+        if($('#apply_design_to_all_questions').is(':checked')){
+            var global_question_style = setStyleToQuestion();
+            $('#survey_question_style').val(global_question_style);
+        }
+    });
+
+    $('#apply_design_to_all_questions').change(function(){
+        if($(this).is(':checked')){
+            var global_question_style = setStyleToQuestion();
+            $('#survey_has_question_style').val('True');
+            $('#survey_question_style').val(global_question_style);
+        } else {
+            $('#survey_has_question_style').val('False');
+            $('#survey_question_style').val('');
+        }
+    });
+
+    //control to update question style in the preview
+    $('#update_question_font, #update_question_font_style').change(function(){
+        updateStyleToBlock();
+    });
+
 
     /*BLOCK DESIGN*/
     //button to select font family
@@ -506,6 +623,58 @@ $(document).ready(function () {
             $('#survey_blocks_style').val('');
         }
     });
+
+    //control to verify if checkbox is checked and change the value of the input about moment associated
+    $('#associate_moment_to_block').change(function(){
+        var block_id = $('#current-question-block').val();
+        var moment_id = $("#moment_object").val();
+        if($(this).is(':checked')){
+            $('#'+block_id+' input.block_moment_associated_id').removeClass('false');
+            $('#'+block_id+' input.block_moment_associated_id').addClass('true');
+            $('#'+block_id+' input.block_moment_associated_id').val(moment_id);
+        } else {
+            $('#'+block_id+' input.block_moment_associated_id').removeClass('true');
+            $('#'+block_id+' input.block_moment_associated_id').addClass('false');
+            $('#'+block_id+' input.block_moment_associated_id').val('');
+        }
+    });
+
+    //control to change the value of the moment associated inside the block
+    $('#moment_object').change(function(){
+        var block_id = $('current-question-block').val();
+        if($('#associate_moment_to_block').is(':checked')){
+            $('#'+block_id+' input.block_moment_associated_id').removeClass('false');
+            $('#'+block_id+' input.block_moment_associated_id').addClass('true');
+            $('#'+block_id+' input.block_moment_associated_id').val($(this).val());
+        }
+    });
+
+
+    //control to check if survey has border
+    $('#survey_has_border').change(function(){
+        if($(this).is(':checked')){
+            $('#border_survey_configuration_section').slideUp(200);
+        } else {
+            $('#border_survey_configuration_section').slideDown(200);
+        }
+        buildSurveyStyle();
+    });
+
+    //control to check if survey has background
+    $('#survey_has_background').change(function(){
+        if($(this).is(':checked')){
+            $('#survey_background_configuration_section').slideUp(200);
+        } else {
+            $('#survey_background_configuration_section').slideDown(200);
+        }
+        buildSurveyStyle();
+    });
+
+    $('#survey_border_style, #survey_border_width, #survey_has_shadow').change(function(){
+        buildSurveyStyle();
+    });
+
+    getSurveyStyle();
 
 })
 
@@ -906,7 +1075,7 @@ function setStyleToBlock(){
     if (!$("#new_block_has_background").is(":checked")) {
         background_color = rgb2hex($('#new_block_background_color_picker div').css('background-color'));
     } else {
-        background_color = rgb2hex('rgba(255, 255, 255, 0)');
+        background_color = 'rgba(255, 255, 255, 0)';
     }
 
     var attr_style = 'border: '+border_width+' '+border_style+' '+border_color+' !important; font-family: '+font_family+'; color: '+font_color+'; background-color: '+background_color+';';
@@ -915,6 +1084,89 @@ function setStyleToBlock(){
 
     return attr_style;
 
+}
+
+
+function setStyleToQuestion(){
+    var current_question = $('#current-question').val();
+
+    var font_family, font_color, font_style;
+
+    //Determine font selected value
+    switch ($('#new_question_font').val()){
+        case 'times_new_roman':
+            font_family = 'Times New Roman';
+            break;
+        case 'lato':
+            font_family = 'Lato';
+            break;
+        case 'arial':
+            font_family = 'Arial';
+            break;
+        case 'helvetica':
+            font_family = 'Helvetica';
+            break;
+        case 'courier_new':
+            font_family = 'Courier New';
+            break;
+        default:
+            break;
+    }
+
+    //Determine font style
+    font_style = $('#new_question_font_style').val();
+
+    console.log(font_style);
+
+    //Determine font color
+    font_color = rgb2hex($('#new_question_font_color_picker div').css('background-color'));
+
+    var attr_style = 'display: table; min-width: 100%; min-height: 50px; font-family: '+font_family+'; font-style: '+font_style+'; color: '+font_color+';';
+
+    $('#' + current_question).attr('style', attr_style);
+
+    return attr_style;
+}
+
+function updateStyleToBlock(){
+    var current_question = $('#current-question-updated').val();
+
+    var font_family, font_color, font_style;
+
+    //Determine font selected value
+    switch ($('#update_question_font').val()){
+        case 'times_new_roman':
+            font_family = 'Times New Roman';
+            break;
+        case 'lato':
+            font_family = 'Lato';
+            break;
+        case 'arial':
+            font_family = 'Arial';
+            break;
+        case 'helvetica':
+            font_family = 'Helvetica';
+            break;
+        case 'courier_new':
+            font_family = 'Courier New';
+            break;
+        default:
+            break;
+    }
+
+    //Determine font style
+    font_style = $('#update_question_font_style').val();
+
+    console.log(font_style);
+
+    //Determine font color
+    font_color = rgb2hex($('#update_question_font_color_picker div').css('background-color'));
+
+    var attr_style = 'display: table; min-width: 100%; min-height: 50px; font-family: '+font_family+'; font-style: '+font_style+'; color: '+font_color+';';
+
+    $('#' + current_question).attr('style', attr_style);
+    console.log(current_question);
+    console.log(attr_style);
 }
 
 
@@ -962,13 +1214,32 @@ function getSurveyBlocksStyle(){
     });
 }
 
+function checkIfSurveyHasQuestionsStyle(){
+    var answer = $('#survey_has_question_style').val();
+    if(answer == 'True'){
+        return true;
+    } else if(answer == 'False'){
+        return false;
+    }
+}
+
+
+function getSurveyQuestionsStyle(){
+    var questions_style = $('#survey_question_style').val();
+    return questions_style;
+}
+
 function setDefaultStyle(){
     var default_style = ($('#survey_blocks_style').val()).split(';');
     setDefaultStyleInDesign(default_style);
 }
 
+function setStyleInUpdateQuestion(){
+    var default_style = ($('#survey_question_style').val()).split(';');
+    setDefaultStyleInQuestionDesignUpdate(default_style);
+}
+
 function setDefaultStyleInDesign(default_style){
-    console.log('setting default style');
     var border = (default_style[0]).split(' '); // border: 1px solid #cecece !important
     var border_width = $.trim(border[1]),
         border_style = $.trim(border[2]),
@@ -1012,7 +1283,6 @@ function setDefaultStyleInDesign(default_style){
     $('#new_block_color_picker div').attr('style', 'background-color: '+color)
 
     if(border_width == '0px' & border_style == 'solid' & border_color == 'transparent'){
-        console.log('checked');
         $('#new_block_has_border').prop('checked', true);
         $('#new_block_has_border_icon').addClass('checked');
         $('#border_block_configuration_section').slideUp(200);
@@ -1032,15 +1302,115 @@ function setDefaultStyleInDesign(default_style){
 
     $('#new_block_background_color_picker div').attr('style', 'background-color: '+background_c);
 
+}
 
-    console.log(border_width);
-    console.log(border_style);
-    console.log(border_color);
-    console.log(font_family);
-    console.log(color);
-    console.log(background_c);
+
+function setDefaultStyleInQuestionDesign(default_question_style){
+    console.log(default_question_style);
+    var font = (default_question_style[3]).split(':'); // font-family: Times New Roman
+    var font_family = $.trim(font[1]);
+
+    var font_sty = (default_question_style[4]).split(':'); // color: #cec4fe
+    var font_style = $.trim(font_sty[1]);
+
+    var font_color = (default_question_style[5]).split(':'); // color: #cec4fe
+    var color = $.trim(font_color[1]);
+
+    switch(font_family){
+        case 'Lato':
+            font_family = 'lato';
+            break;
+        case 'Times New Roman':
+            font_family = 'time_new_roman';
+            break;
+        case 'Arial':
+            font_family = 'arial';
+            break;
+        case 'Helvetica':
+            font_family = 'helvetica';
+            break;
+        case 'Courier New':
+            font_family = 'courier_new';
+            break;
+    }
+
+    switch(font_style){
+        case 'Normal':
+            font_style = 'normal';
+            break;
+        case 'Italica':
+            font_style = 'italic';
+            break;
+        case 'Oblicua':
+            font_style = 'oblique';
+            break;
+    }
+
+    $('#new_question_font option[value='+font_family+']').prop("selected", true);
+
+    $('#new_question_font_style option[value='+font_style+']').prop("selected", true);
+
+    $('#new_question_font_color_picker div').attr('style', 'background-color: '+color);
 
 }
+
+function setDefaultStyleInQuestionDesignUpdate(default_question_style){
+    console.log(default_question_style);
+    var font = (default_question_style[3]).split(':'); // font-family: Times New Roman
+    var font_family = $.trim(font[1]);
+
+    var font_sty = (default_question_style[4]).split(':'); // color: #cec4fe
+    var font_style = $.trim(font_sty[1]);
+
+    var font_color = (default_question_style[5]).split(':'); // color: #cec4fe
+    var color = $.trim(font_color[1]);
+
+    switch(font_family){
+        case 'Lato':
+            font_family = 'lato';
+            break;
+        case 'Times New Roman':
+            font_family = 'time_new_roman';
+            break;
+        case 'Arial':
+            font_family = 'arial';
+            break;
+        case 'Helvetica':
+            font_family = 'helvetica';
+            break;
+        case 'Courier New':
+            font_family = 'courier_new';
+            break;
+    }
+
+    switch(font_style){
+        case 'Normal':
+            font_style = 'normal';
+            break;
+        case 'Italica':
+            font_style = 'italic';
+            break;
+        case 'Oblicua':
+            font_style = 'oblique';
+            break;
+    }
+
+    $('#update_question_font option[value='+font_family+']').prop("selected", true);
+
+    $('#update_question_font_style option[value='+font_style+']').prop("selected", true);
+
+    $('#update_question_font_color_picker div').attr('style', 'background-color: '+color);
+
+    var survey_has_question_style = checkIfSurveyHasQuestionsStyle();
+
+    if(survey_has_question_style){
+        $('#apply_design_to_all_questions_update').prop('disabled', true);
+    }
+
+}
+
+
+
 
 function rgb2hex(rgb){
  rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
@@ -1089,4 +1459,72 @@ function checkIfExistsCurrentOperation(){
             }
         });
     }
+}
+
+function buildSurveyStyle(){
+    var survey_style,
+        border_color,
+        border_style,
+        border_width,
+        background_color,
+        box_shadow = '0px 0px 5px #cecece';
+
+    if($('#survey_has_border').is(':checked')){
+        border_color = 'rgba(255, 255, 255, 0)';
+        border_style = 'solid';
+        border_width = '0px';
+    } else{
+        border_color = rgb2hex($('#survey_border_color_picker div').css('background-color'));
+        border_style = $('#survey_border_style').val();
+        border_width = $('#survey_border_width').val();
+    }
+
+    if($('#survey_has_background').is(':checked')){
+        background_color = 'rgba(255, 255, 255, 0)';
+    } else {
+        background_color = rgb2hex($('#survey_background_color_picker div').css('background-color'));
+    }
+
+    if($('#survey_has_shadow').is(':checked')){
+        box_shadow = '0px 0px 0px #FFFFFF';
+    }
+
+    survey_style = 'border-color: '+border_color+'; border-style: '+border_style+'; border-width: '+border_width+'; background-color: '+background_color+'; box-shadow: '+box_shadow+';';
+
+    $('#survey_global_content').attr('style', survey_style);
+
+}
+
+function getSurveyStyle(){
+    var border_color = $('#configured_survey_border_color').val(),
+        border_style = $('#configured_survey_border_style').val(),
+        border_width = $('#configured_survey_border_width').val(),
+        background_color = $('#configured_survey_background_color').val(),
+        box_shadow = $('#configured_survey_box_shadow').val();
+
+    if(border_color == 'rgba(255, 255, 255, 0)' & border_style == 'solid' & border_width == '0px'){
+        $('#survey_has_border').attr('checked', true);
+        $('#survey_has_border_icon').addClass('checked');
+    } else {
+        $('#survey_border_color_picker div').css('background-color', border_color);
+        $('#survey_border_style option[value="'+border_style+'"]').prop('selected', true);
+        $('#survey_border_width option[value="'+border_width+'"]').prop('selected', true);
+    }
+
+    if(background_color == 'rgba(255, 255, 255, 0)'){
+        $('#survey_has_background').attr('checked', true);
+        $('#survey_has_background_icon').addClass('checked');
+    } else {
+        $('#survey_background_color_picker div').css('background-color', background_color);
+    }
+
+    if(box_shadow == 'rgb(255, 255, 255) 0px 0px 0px 0px'){
+        $('#survey_has_shadow').attr('checked', true);
+        $('#survey_has_shadow_icon').addClass('checked');
+    }
+
+    var survey_style = 'border-color: '+border_color+'; border-style: '+border_style+'; border-width: '+border_width+'; background-color: '+background_color+'; box-shadow: '+box_shadow+';';
+
+    $('#survey_global_content').attr('style', survey_style);
+
 }

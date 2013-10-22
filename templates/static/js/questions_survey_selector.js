@@ -110,7 +110,8 @@ function saveSurvey() {
                 {
                     'question_content_id': $(this).attr('id'),
                     'db_id': $(this).find('div.db_question_id').attr('id') | '',
-                    'question_survey_id': $(this).find('div.question_id').text()
+                    'question_survey_id': $(this).find('div.question_id').text(),
+                    'question_style': $(this).attr('style')
                 }
             );
         });
@@ -147,6 +148,21 @@ function saveSurvey() {
             $('#survey_blocks_style').val(setStyleToBlock());
         }
     }
+
+    if($('#survey_has_question_style').val() == 'True'){
+        survey_configuration.questions_style = $('#survey_question_style').val();
+    } else if($('#survey_has_question_style').val() == 'False'){
+        if($('#apply_design_to_all_questions').is(':checked')){
+            survey_configuration.questions_style = setStyleToQuestion();
+            $('#survey_question_style').val(setStyleToQuestion());
+        }
+    }
+
+    survey_configuration.block_border_color = rgb2hex($('#survey_global_content').css('border-color'));
+    survey_configuration.block_border_style = $('#survey_global_content').css('border-style');
+    survey_configuration.block_border_width = $('#survey_global_content').css('border-width');
+    survey_configuration.block_background_color = $('#survey_global_content').css('background-color');
+    survey_configuration.block_box_shadow = $('#survey_global_content').css('box-shadow');
 
     var survey_id = $('#survey_id').val();
 

@@ -229,6 +229,8 @@ def save(request, action, next_step, survey_id=False):
 
             setup['attributes'] = []
 
+            setup['question_styles'] = False
+
             user = Xindex_User.objects.get(pk=request.user.id)
 
             for company in user.company_set.all():
@@ -236,11 +238,17 @@ def save(request, action, next_step, survey_id=False):
                     for business_unit in subsidiary.businessunit_set.all():
                         for service in business_unit.service.all():
                             for moment in service.moments.all():
-                                setup['moments'].append(
-                                    {
-                                        'moment': moment
-                                    }
-                                )
+                                current_moment = moment
+                                duplicated = False
+                                for moments in setup['moments']:
+                                    if moments['moment'] == current_moment:
+                                        duplicated = True
+                                if duplicated is False:
+                                    setup['moments'].append(
+                                        {
+                                            'moment': current_moment
+                                        }
+                                    )
 
             attributes = Attributes.objects.all()
 
@@ -295,11 +303,16 @@ def save(request, action, next_step, survey_id=False):
                                                 'option': option
                                             }
                                         )
+                                    if 'question_style' in q:
+                                        style = q['question_style']
+                                    else:
+                                        style = False
                                     questions.append(
                                         {
                                             'question': question,
                                             'moment_title': moment_title,
                                             'attribute_title': attribute_title,
+                                            'question_style': style,
                                             'survey_question_id': q['question_survey_id'],
                                             'question_content_id': q['question_content_id'],
                                             'db_question_id': q['db_id'],
@@ -338,6 +351,18 @@ def save(request, action, next_step, survey_id=False):
                         )
                 if key == 'blocks_style':
                     setup['blocks_style'] = values
+                if key == 'questions_style':
+                    setup['questions_style'] = values
+                if key == 'block_border_color':
+                    setup['block_border_color'] = values
+                if key == 'block_border_style':
+                    setup['block_border_style'] = values
+                if key == 'block_border_width':
+                    setup['block_border_width'] = values
+                if key == 'block_background_color':
+                    setup['block_background_color'] = values
+                if key == 'block_box_shadow':
+                    setup['block_box_shadow'] = values
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -1019,51 +1044,52 @@ def deployment(request, action, next_step, survey_id=False):
 
         #print simplejson.dumps(configuration)
         for key, values in configuration.items():
-            for block in values:
-                questions = []
-                for q in block['questions']:
-                    print 'verificando q exista el campo'
-                    if 'db_id' in q:
+            if key == 'blocks':
+                for block in values:
+                    questions = []
+                    for q in block['questions']:
+                        print 'verificando q exista el campo'
+                        if 'db_id' in q:
 
-                        try:
-                            question = Question.objects.get(pk=q['db_id'])
-                            options = question.option_set.all().order_by('id')
-                            options_o = []
-                            for option in options:
-                                options_o.append(
+                            try:
+                                question = Question.objects.get(pk=q['db_id'])
+                                options = question.option_set.all().order_by('id')
+                                options_o = []
+                                for option in options:
+                                    options_o.append(
+                                        {
+                                            'id_option': option.id,
+                                            'text': option.label,
+                                            'option': option
+                                        }
+                                    )
+                                questions.append(
                                     {
-                                        'id_option': option.id,
-                                        'text': option.label,
-                                        'option': option
+                                        'question': question,
+                                        'survey_question_id': q[
+                                            'question_survey_id'],
+                                        'db_question_id': q['db_id'],
+                                        'question_title': question.title,
+                                        'question_type': question.type.id,
+                                        'question_type_name': question.type.name,
+                                        'question_options': options_o
                                     }
                                 )
-                            questions.append(
-                                {
-                                    'question': question,
-                                    'survey_question_id': q[
-                                        'question_survey_id'],
-                                    'db_question_id': q['db_id'],
-                                    'question_title': question.title,
-                                    'question_type': question.type.id,
-                                    'question_type_name': question.type.name,
-                                    'question_options': options_o
-                                }
-                            )
-                        except Question.DoesNotExist:
-                            question = None
+                            except Question.DoesNotExist:
+                                question = None
 
-                if 'block_description' in block:
-                    block_description = block['block_description']
-                else:
-                    block_description = ''
-                setup['blocks'].append(
-                    {
-                        'block_id': block['block_id'],
-                        'block_default_class': block['class_default'],
-                        'block_description': block_description,
-                        'questions': questions
-                    }
-                )
+                    if 'block_description' in block:
+                        block_description = block['block_description']
+                    else:
+                        block_description = ''
+                    setup['blocks'].append(
+                        {
+                            'block_id': block['block_id'],
+                            'block_default_class': block['class_default'],
+                            'block_description': block_description,
+                            'questions': questions
+                        }
+                    )
 
         for block in setup['blocks']:
             print block
@@ -1442,7 +1468,9 @@ def update_matrix(question, data):
     )
 
     json_response = json.dumps(
-        {'messagesent': "Question edited successfully!"}
+        {
+            'updated': True
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -1547,7 +1575,9 @@ def update_open_question(question, data):
             q_a_m = None
 
     json_response = json.dumps(
-        {'messagesent': "Question edited successfully!"}
+        {
+            'updated': True
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -1640,7 +1670,9 @@ def update_range_question(question, data):
 
 
     json_response = json.dumps(
-        {'messagesent': "Question edited successfully!"}
+        {
+            'updated': True
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
@@ -1682,7 +1714,9 @@ def update_true_and_false(question, data):
             q_a_m = None
 
     json_response = json.dumps(
-        {'messagesent': "Question edited successfully!"}
+        {
+            'updated': True
+        }
     )
     return HttpResponse(json_response, content_type="application/json")
 
