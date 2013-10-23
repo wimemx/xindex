@@ -93,6 +93,15 @@ function saveSurvey() {
         var selector = $(this).attr('id');
         var style = $(this).find('section.question-block').attr('style');
         var class_default = true;
+
+        var block_type = 'questions-block';
+
+        if($(this).hasClass('text-block')){
+            block_type = 'text-block';
+        } else if($(this).hasClass('question-block')){
+            block_type = 'question-block';
+        }
+
         if ($(this).hasClass('row-no-block')) {
             class_default = false;
         }
@@ -123,6 +132,7 @@ function saveSurvey() {
                 'block_description': $(this).find('div.panel-body').html(),
                 'questions': questions,
                 'style': style,
+                'block_type': block_type,
                 'block_moment_associated_id': moment_associated_id
             }
         );

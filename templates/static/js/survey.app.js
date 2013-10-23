@@ -39,7 +39,7 @@ $(document).ready(function () {
 
     });
 
-    /** ELEMENTS TO HIDE WHEN THE DOM I READY **/
+    /** ELEMENTS TO HIDE WHEN THE DOM IS READY **/
     $('.question_actions .actions').hide();
     $('.intro_block_actions').hide();
     //current block editing icon
@@ -140,31 +140,63 @@ $(document).ready(function () {
 
         var parent = $(this).closest('div.row-block');
 
-        var style =($(this).closest('div.row-block').find('section.question-block').attr('style')).split(';');
+        var type_of_operation = 'questions-block';
 
-        setDefaultStyleInDesign(style);
+        if(parent.hasClass('text-block')){
+            var style =($(this).closest('div.row-block').find('section.question-block').attr('style')).split(';');
 
-        if($('#survey_has_blocks_style').val() == 'True'){
-           $('#apply_design_to_all_blocks').prop('disabled', true);
+            setDefaultTextBlockStyleInDesign(style);
+
+            /*
+            if($('#survey_has_blocks_style').val() == 'True'){
+                $('#apply_design_to_all_blocks').prop('disabled', true);
+            }
+            */
+            $('#main-configuration-panel').addClass('hidden');
+            $('#questions-block-configuration-panel').addClass('hidden');
+            $('#add-question-option-panel').addClass('hidden');
+            $('#add-new-question-configuration-panel').addClass('hidden');
+            $('#update-question-configuration-panel').addClass('hidden');
+            $('#update-survey-block').removeClass('hidden');
+
+            $('#survey-main-content div.row-block').each(function () {
+                $(this).find('section.question-block').removeClass('selected-block');
+                $(this).find('div.question-content').removeClass('active-question');
+            });
+
+            parent.find('section.question-block').addClass('selected-block');
+
+            var block_description = parent.find('div.panel-body').html();
+            $('#current-text-block-updated').val(parent.attr('id'));
+            tinymce.get('tinymce-editor-update-block').setContent(block_description);
+        } else if(parent.hasClass('question-block')){
+
+        } else {
+            var style =($(this).closest('div.row-block').find('section.question-block').attr('style')).split(';');
+
+            setDefaultStyleInDesign(style);
+
+            if($('#survey_has_blocks_style').val() == 'True'){
+                $('#apply_design_to_all_blocks').prop('disabled', true);
+            }
+
+            $('#main-configuration-panel').addClass('hidden');
+            $('#add-question-option-panel').addClass('hidden');
+            $('#add-new-question-configuration-panel').addClass('hidden');
+            $('#questions-block-configuration-panel').removeClass('hidden');
+
+            $('#survey-main-content div.row-block').each(function () {
+                $(this).find('section.question-block').removeClass('selected-block');
+                $(this).find('div.question-content').removeClass('active-question');
+            });
+
+            parent.find('section.question-block').addClass('selected-block');
+
+            var block_title = parent.find('header.block-title').text();
+            var block_description = parent.find('div.panel-body').html();
+            $('#current-question-block').val(parent.attr('id'));
+            tinymce.get('tinymce-editor').setContent(block_title + block_description);
         }
-
-        $('#main-configuration-panel').addClass('hidden');
-        $('#add-question-option-panel').addClass('hidden');
-        $('#add-new-question-configuration-panel').addClass('hidden');
-        $('#questions-block-configuration-panel').removeClass('hidden');
-
-        $('#survey-main-content div.row-block').each(function () {
-            $(this).find('section.question-block').removeClass('selected-block');
-            $(this).find('div.question-content').removeClass('active-question');
-        });
-
-        parent.find('section.question-block').addClass('selected-block');
-
-        var block_title = parent.find('header.block-title').text();
-        var block_description = parent.find('div.panel-body').html();
-        $('#current-question-block').val(parent.attr('id'));
-        tinymce.get('tinymce-editor').setContent(block_title + block_description);
-
 
         if (parent.hasClass('row-no-block')) {
             parent.find('section.question-block').removeClass('selected-block');
@@ -179,11 +211,27 @@ $(document).ready(function () {
         e.preventDefault();
         var action = $(this).attr('id')
         if ($(this).hasClass("remove_block")) {
+            var title = '',
+                message = '',
+                operation = '';
+            if($(this).closest('div.row-block').hasClass('text-block')){
+                title = 'Eliminar Bloque de Texto';
+                message = '¿Esta seguro que desea eliminar el bloque de texto?';
+                operation = 'del_text_block';
+            } else if($(this).closest('div.row-block').hasClass('question-block')){
+                title = 'Eliminar Pregunta';
+                message = '¿Esta seguro que desea eliminar la pregunta?';
+                operation = 'del_question_block';
+            } else if($(this).closest('div.row-block').hasClass('questions-block')){
+                title = 'Eliminar bloque de preguntas';
+                message = '¿Esta seguro que desea eliminar el bloque de preguntas?';
+                operation = 'del_questions_block';
+            }
             var self = $(this);
 
             bootbox.dialog({
-                message: "¿Esta seguro de eliminar el bloque y todas sus preguntas?",
-                title: "Eliminar bloque de preguntas",
+                message: message,
+                title: title,
                 buttons: {
                     success: {
                         label: "Cancelar",
@@ -196,41 +244,55 @@ $(document).ready(function () {
                         label: "Eliminar",
                         className: "btn-twitter",
                         callback: function () {
-                            var block_id = self.closest('div.row-block').attr('id');
-                            var question_ids = new Array();
-                            $('#' + block_id + ' div.db_question_id').each(function (index) {
-                                question_ids.push(
-                                    {
-                                        'question_id': $(this).attr('id')
-                                    }
-                                );
-                            });
+                            switch (operation){
+                                case 'del_text_block':
+                                    $(self).closest('li.list-group-item').slideUp('slow', function () {
+                                        $(this).remove();
+                                        enumerateQuestionBlocks();
+                                        enumerateQuestions();
+                                        saveSurvey();
+                                    })
+                                    break;
+                                case 'del_questions_block':
+                                    var block_id = self.closest('div.row-block').attr('id');
+                                    var question_ids = new Array();
+                                    $('#' + block_id + ' div.db_question_id').each(function (index) {
+                                        question_ids.push(
+                                            {
+                                                'question_id': $(this).attr('id')
+                                            }
+                                        );
+                                    });
 
-                            $.ajax({
-                                type: 'POST',
-                                url: '/surveys/delete_questions/',
-                                data: {
-                                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-                                    ids: JSON.stringify(question_ids),
-                                    survey_id: $('#survey_id').val()
-                                },
-                                dataType: 'JSON',
-                                success: function (msg) {
-                                    //alert(msg);
-                                    if (msg.success) {
-                                        $(self).closest('li.list-group-item').slideUp('slow', function () {
-                                            $(this).remove();
-                                            enumerateQuestionBlocks();
-                                            enumerateQuestions();
-                                            saveSurvey();
-                                        })
-                                    }
-                                },
-                                error: function (msg) {
-                                    console.log('msg no enviado')
-                                }
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/surveys/delete_questions/',
+                                        data: {
+                                            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                                            ids: JSON.stringify(question_ids),
+                                            survey_id: $('#survey_id').val()
+                                        },
+                                        dataType: 'JSON',
+                                        success: function (msg) {
+                                            //alert(msg);
+                                            if (msg.success) {
+                                                $(self).closest('li.list-group-item').slideUp('slow', function () {
+                                                    $(this).remove();
+                                                    enumerateQuestionBlocks();
+                                                    enumerateQuestions();
+                                                    saveSurvey();
+                                                })
+                                            }
+                                        },
+                                        error: function (msg) {
+                                            console.log('msg no enviado')
+                                        }
 
-                            });
+                                    });
+                                    break;
+                                case 'del_question_bock':
+                                    break;
+                            }
                         }
                     }
                 }
@@ -285,7 +347,7 @@ $(document).ready(function () {
     });
 
 
-    $('a.actions_question').on('click', function () {
+    $(document).on('click', 'a.actions_question', function () {
         if ($(this).hasClass('update_question')) {
             $('#main-configuration-panel').addClass('hidden');
             $('#add-question-option-panel').addClass('hidden');
@@ -315,7 +377,6 @@ $(document).ready(function () {
             return getQuestionToUpdate(question_id);
 
         } else if ($(this).hasClass('remove_question')) {
-
             var self = $(this);
 
             bootbox.dialog({
@@ -343,8 +404,16 @@ $(document).ready(function () {
                                     'question_id': question_id
                                 }
                             );
-
-                            deleteQuestion(self, question_ids);
+                            if(question_id == undefined){
+                                self.closest('li.list-group-item').slideUp('slow', function(){
+                                    $(this).remove();
+                                    enumerateQuestionBlocks();
+                                    enumerateQuestions();
+                                    saveSurvey();
+                                })
+                            } else {
+                                deleteQuestion(self, question_ids);
+                            }
                         }
                     }
                 }
@@ -542,6 +611,61 @@ $(document).ready(function () {
         }
     );
 
+    //ColorPicker instance for font color when text block is updated
+    $('#update_text_block_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#update_text_block_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                setStyleToTextBlock();
+            }
+        }
+    );
+
+    $('#update_text_block_border_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#update_text_block_border_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                setStyleToTextBlock();
+            }
+        }
+    );
+
+    $('#update_text_block_background_color_picker').ColorPicker(
+        {
+            color: '#FFFFFF',
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(500);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(500);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                $('#update_text_block_background_color_picker div').attr('style', 'background-color: #' + hex + ';');
+                setStyleToTextBlock();
+            }
+        }
+    )
+
     //control to add style to question
     $('#new_question_font_style').change(function(){
         setStyleToQuestion()
@@ -601,6 +725,26 @@ $(document).ready(function () {
             $('#new_block_background_configuration_section').slideDown(200);
         }
         setStyleToBlock();
+    });
+
+    //
+    $('#update_text_block_has_border').change(function(){
+        if($(this).is(':checked')) {
+            $('#border_update_text_block_configuration_section').slideUp(200);
+        } else {
+            $('#border_update_text_block_configuration_section').slideDown(200);
+        }
+        setStyleToTextBlock();
+    });
+
+    //
+    $('#update_text_block_has_background').change(function(){
+        if($(this).is(':checked')) {
+            $('#update_text_block_background_configuration_section').slideUp(200);
+        } else {
+            $('#update_text_block_background_configuration_section').slideDown(200);
+        }
+        setStyleToTextBlock();
     });
 
     //control to select the new block border style
@@ -673,6 +817,25 @@ $(document).ready(function () {
     $('#survey_border_style, #survey_border_width, #survey_has_shadow').change(function(){
         buildSurveyStyle();
     });
+
+    $('#btn-save-text-block').on('click', function(){
+       saveSurvey();
+    });
+
+    //
+    $('#update_text_block_font').change(function(){
+        setStyleToTextBlock();
+    });
+
+    $('#update_text_block_has_border, #update_text_block_has_background').change(function(){
+        setStyleToTextBlock();
+    });
+
+    $('#update_text_block_border_style, #update_text_block_border_width').change(function(){
+        setStyleToTextBlock();
+    });
+
+
 
     getSurveyStyle();
 
@@ -1128,6 +1291,64 @@ function setStyleToQuestion(){
     return attr_style;
 }
 
+function setStyleToTextBlock(){
+    var current_text_block = $('#current-text-block-updated').val();
+
+    var font_family, font_color, border_color, border_style,
+        border_width, background_color;
+
+
+
+    //Determine font selected value
+    switch ($('#update_text_block_font').val()){
+        case 'times_new_roman':
+            font_family = 'Times New Roman';
+            break;
+        case 'lato':
+            font_family = 'Lato';
+            break;
+        case 'arial':
+            font_family = 'Arial';
+            break;
+        case 'helvetica':
+            font_family = 'Helvetica';
+            break;
+        case 'courier_new':
+            font_family = 'Courier New';
+            break;
+        default:
+            break;
+    }
+
+    //Determine font color
+    font_color = rgb2hex($('#update_text_block_color_picker div').css('background-color'));
+
+    //Determine border properties
+    if (!$("#update_text_block_has_border").is(":checked")) {
+        border_color = rgb2hex($('#update_text_block_border_color_picker div').css('background-color'));
+        border_style = $('#update_text_block_border_style').val();
+        border_width = $('#update_text_block_border_width').val();
+    } else {
+        border_color = '#FFFFFF';
+        border_style = 'solid';
+        border_width = '0px';
+    }
+
+    //Determine background properties
+    if (!$("#update_text_block_has_background").is(":checked")) {
+        background_color = rgb2hex($('#update_text_block_background_color_picker div').css('background-color'));
+    } else {
+        background_color = 'rgba(255, 255, 255, 0)';
+    }
+
+    var attr_style = 'border: '+border_width+' '+border_style+' '+border_color+' !important; font-family: '+font_family+'; color: '+font_color+'; background-color: '+background_color+';';
+
+    $('#' + current_text_block+' section.question-block').attr('style', attr_style);
+
+    return attr_style;
+
+}
+
 function updateStyleToBlock(){
     var current_question = $('#current-question-updated').val();
 
@@ -1527,4 +1748,67 @@ function getSurveyStyle(){
 
     $('#survey_global_content').attr('style', survey_style);
 
+}
+
+function setDefaultTextBlockStyleInDesign(default_style){
+    var border = (default_style[0]).split(' '); // border: 1px solid #cecece !important
+    var border_width = $.trim(border[1]),
+        border_style = $.trim(border[2]),
+        border_color = $.trim(border[3]);
+
+    var font = (default_style[1]).split(':'); // font-family: Times New Roman
+    var font_family = $.trim(font[1]);
+
+    var font_color = (default_style[2]).split(':'); // color: #cec4fe
+
+    var color = $.trim(font_color[1]);
+
+    var background_color = (default_style[3]).split(':'); // background-color: #cec6d7
+
+    var background_c = $.trim(background_color[1]);
+
+
+
+
+    switch(font_family){
+        case 'Lato':
+            font_family = 'lato';
+            break;
+        case 'Times New Roman':
+            font_family = 'time_new_roman';
+            break;
+        case 'Arial':
+            font_family = 'arial';
+            break;
+        case 'Helvetica':
+            font_family = 'helvetica';
+            break;
+        case 'Courier New':
+            font_family = 'courier_new';
+            break;
+    }
+
+    $('#update_text_block_font option[value='+font_family+']').prop("selected", true);
+
+
+    $('#update_text_block_color_picker div').attr('style', 'background-color: '+color);
+    if(border_width == '0px' & border_style == 'solid' & border_color == '#FFFFFF'){
+        $('#update_text_block_has_border').prop('checked', true);
+        $('#update_text_block_has_border_icon').addClass('checked');
+        $('#border_update_text_block_configuration_section').slideUp(200);
+    }
+
+    $('#update_text_block_border_color_picker div').attr('style', 'background-color: '+border_color);
+
+    $('#update_text_block_border_style option[value='+border_style+']').prop("selected", true);
+
+    $('#update_text_block_border_width option[value='+border_width+']').prop('selected', true);
+
+    if(background_c == 'rgba(255, 255, 255, 0)'){
+        $('#update_text_block_has_background').attr('checked', true);
+        $('#update_text_block_has_background_icon').addClass('checked');
+        $('#update_text_block_background_configuration_section').slideUp(200);
+    }
+
+    $('#update_text_block_background_color_picker div').attr('style', 'background-color: '+background_c);
 }
