@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Zones{% endblock %}</title>
-<script src="/static/js/js/jquery.js"></script>
+    <title>{% block title %}Detalles de zona{% endblock %}</title>
 </head>
 <body>
 {% block menu %}
@@ -79,49 +78,96 @@
             <div class="row">
                 <div class="headerXINDEX">
                     <div class="row">
-                    <div class="col-lg-8">
+                    <div class="col-lg-12">
                         <div class="header h2">
-                            Mis Zonas
+                            {% for zone in zones.zones %}
+
+                                {{ zone.name }}
+                            {% endfor %}
                         </div>
-                        <div class="footer h4">
-                            <div class="pull-left ">
-                                <div class="m-b-sm">
-                                Ordenar por
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="h5" style="padding-left: 15px;">
+                            {% for zone in zones.zones %}
+
+                                {{ zone.description }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="h4 padding-15-t-l">
+                            Sucursales que pertenecen a esta zona
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row padder">
+                        <div class="col-lg-4 padding-15-t-l">
+                            <div class="m-b-sm">
+                                Filtrar
                                 <div class="btn-group">
-                                    <button class="btn btn-white btn-s-md dropdown-toggle" data-toggle="dropdown">
-                                        Orden Alfabetico
+                                    <button class="btn btn-white dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            style="padding-top: 5px !important;
+                                                    padding-bottom: 5px !important;">
+                                        Estado
                                         {{ order_query }}
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Pais</a></li>
-                                        <li><a href="#">Orden alfabético</a></li>
-                                        <li><a href="#">Fecha de creación</a></li>
+                                        <li><a href="#">eachStateName</a></li>
                                     </ul>
-                                    <a href="/zones/add"
-                                       class="btn btn-success btn-s-md padder btn-group-m-l"
-                                       data-toggle="ajaxModal">
-                                        <i class="icon-plus"></i>
-                                        Agregar zona
-                                    </a>
-                                </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="header" style="padding-top:20px">
-                            <div class="input-group text-sm pull-left padder-v">
-                                <div class="form-search form-inline" style="width: 250px">
-                                    <form action="" method="GET">
+                        <div class="col-lg-4 padding-15-t-l">
+                            <div class="form-search form-inline">
+                                <form action="" method="GET">
                                     <input type="text" id="id_q" name="q"
                                            class="search-query input-sm form-control"
                                            placeholder="Buscar..." value="{{ query_string }}"/>
-                                    </form>
-                                </div>
+                                </form>
                             </div>
-                            <div id="page_navigation" class="pull-right"
-                                         style="padding-top: 10px;"></div>
+                        </div>
+                        <div class="col-lg-4 padding-15-t-l">
+                            <a href="/zones/add_state/{{ id }}"
+                               class="btn btn-success btn-s-md padder btn-group-m-l pull-right"
+                               data-toggle="ajaxModal"
+                               style="margin-left: 0px !important;">
+                                <i class="icon-plus"></i>
+                                Agregar un estado a esta zona
+                            </a>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row" style="padding-left: 30px; padding-right: 30px;">
+                        <table class="table table-striped m-b-none">
+                        {% if zones.zones %}
+                        {% for zone in zones.zones %}
+
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th width="300">Tipo de sucursal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for subsidiary in zone.subsidiaries.subsidiaries %}
+
+                                <tr>
+
+                                    <td>{{ subsidiary.name }}</td>
+                                    <td>{{ subsidiary.state }}</td>
+                                    <td>{{ subsidiary.type }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endfor %}
+
+                        {% else %}
+                        {% endif %}
+                        </table>
                         </div>
                     </div>
                     </div>
@@ -129,128 +175,11 @@
                 <input type="hidden" id="current_page">
                 <input type="hidden" id="show_per_page">
                 <div class="col-lg-12">
-                    <section class="panel">
-                        <ul class="list-group" id="contentList">
-                            {% if found_entries %}
-                                <!-- Busqueda de zonas -->
-                            {% endif %}
-                            {% for each_zone in zones.zones %}
-                                <li class="list-group-item">
-                                    <div class="media">
-                                        <div class="pull-right text-center"
-                                             style="border-left: 1px solid #d3d3d3">
-                                            <div class="h4 text-muted"
-                                                 style="padding-left: 10px; padding-top: 10px; padding-bottom: 10px">
-                                                <a href="/zones/{{ each_zone.id }}/edit"
-                                                   class="text-warning"
-                                                   data-toggle="ajaxModal">
-                                                <i class="icon-edit"></i>
-                                                </a>
-                                                <a href="/zones/{{ each_zone.id }}/remove" class="text-danger">
-                                                <i class="icon-remove"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="pull-right text-center"
-                                             style="border-left: 1px solid #d3d3d3">
-                                            <div class="h4" style="padding-left: 10px;">
-                                                <a class="text-info hov"
-                                                        data-toggle="popover"
-                                                        data-html="true"
-                                                        data-placement="bottom"
-                                                        data-content="
-                                                        <div>
-
-                                                        {% for each_subsidiary in each_zone.subsidiaries.subsidiaries %}
-                                                            {{ each_subsidiary.name }}<br>
-                                                        {% endfor %}
-
-                                                        </div>
-                                                        "
-                                                        title=""
-                                                        data-original-title="Sucursales">
-                                                    {{ each_zone.counter_subsidiaries }}
-                                                </a>
-                                            </div>
-                                            <small class="text-muted"
-                                                   style="padding-left: 10px;">
-                                                Sucursales
-                                            </small>
-                                        </div>
-                                        <div class="pull-right text-center"
-                                             style="border-left: 1px solid #d3d3d3">
-                                            <div class="h4">
-                                                <a class="text-info hov"
-                                                        data-toggle="popover"
-                                                        data-html="true"
-                                                        data-placement="bottom"
-                                                        data-content="
-                                                        {% for each_state in each_zone.states.states %}
-                                                            {{ each_state.name }}<br>
-                                                        {% endfor %}
-                                                        "
-                                                        title=""
-                                                        data-original-title="
-                                                        &lt;button type=&quot;button&quot;
-                                                                   class=&quot;close pull-right&quot;
-                                                                   data-dismiss=&quot;popover&quot;
-                                                                   &gt;×&lt/button&gt;Estados">
-                                                {{ each_zone.counter_states }}
-                                                </a>
-                                            </div>
-                                            <small class="text-muted"
-                                                   style="padding-left: 10px;">
-                                                Estados
-                                            </small>
-                                        </div>
-                                        <div class="media-body">
-                                            <div class="h4" style="padding-top: 10px;">
-                                                <a href="/zones/{{ each_zone.id }}/">
-                                                    {{ each_zone.name }}
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </section>
                 </div>
             </div>
         </section>
     </section>
     </section>
 {% endblock %}
-
-    <script src="/static/js/bootbox/bootbox.min.js"></script>
-    <script src="/static/js/app.forms.xindex.js"></script>
-    <!-- App -->
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/app.plugin.js"></script>
-    <script src="/static/js/app.data.js"></script>
-    <script src="/static/js/app.grids.data.js"></script>
-    <!-- fuelux -->
-    <script src="/static/js/fuelux/fuelux.js"></script>
-    <!-- datatables -->
-    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
-    <!-- Sparkline Chart -->
-    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
-    <!-- Easy Pie Chart -->
-    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
-
-    <script src="/static/js/datepicker/bootstrap-datepicker.js"></script>
-    <!-- slider -->
-    <script src="/static/js/slider/bootstrap-slider.js"></script>
-    <!-- file input -->
-    <script src="/static/js/file-input/bootstrap.file-input.js"></script>
-    <!-- combodate -->
-    <script src="/static/js/libs/moment.min.js"></script>
-    <script src="/static/js/combodate/combodate.js"></script>
-    <!-- parsley -->
-    <script src="/static/js/parsley/parsley.min.js"></script>
-    <!-- select2 -->
-    <script src="/static/js/select2/select2.min.js"></script>
-
-    <script src="/static/js/app.grids.xindex.js"></script>
 </body>
 </html>

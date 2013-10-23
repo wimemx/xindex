@@ -2808,3 +2808,8 @@ a:hover{
 	background: #5dcff3;
 	color:white !important;
 }
+
+.padding-15-t-l{
+    padding-left: 15px;
+    padding-top: 15px;
+}
