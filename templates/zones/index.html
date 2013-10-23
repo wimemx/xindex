@@ -3,6 +3,9 @@
 <html>
 <head>
     <title>{% block title %}Zones{% endblock %}</title>
+    <!--
+    <script src="/static/js/js/jquery.js"></script>
+    -->
 </head>
 <body>
 {% block menu %}
@@ -20,7 +23,7 @@
                     <i class="icon-building"></i>
                     <span>Mi Empresa</span>
                 </a>
-                <ul id="collapseOne" class="nav accordion-body out collapse">
+                <ul id="collapseOne" class="nav accordion-body in collapse">
                     <li>
                         <a href="buttons.html">Informaci&oacute;n General</a>
                     </li>
@@ -30,7 +33,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/zones/">Zonas</a>
+                        <a href="/zones/" class="blue-xindex">
+                            Zonas
+                        </a>
                     </li>
                     <li>
                         <a href="/business_units/">
@@ -52,7 +57,7 @@
                 </a>
             </li>
             <li>
-                <a href="/surveys/" class="blue-xindex">
+                <a href="/surveys/">
                     <i class="icon-file-text-alt"></i>
                     <span>Mis Encuestas</span>
                 </a>
@@ -107,7 +112,7 @@
                         </div>
                     </div>
                     <div class="col-lg-4">
-                        <div class="header" style="padding-top:38px">
+                        <div class="header" style="padding-top:20px">
                             <div class="input-group text-sm pull-left padder-v">
                                 <div class="form-search form-inline" style="width: 250px">
                                     <form action="" method="GET">
@@ -117,13 +122,17 @@
                                     </form>
                                 </div>
                             </div>
+                            <div id="page_navigation" class="pull-right"
+                                         style="padding-top: 10px;"></div>
                         </div>
                     </div>
                     </div>
                 </div>
+                <input type="hidden" id="current_page">
+                <input type="hidden" id="show_per_page">
                 <div class="col-lg-12">
                     <section class="panel">
-                        <ul class="list-group">
+                        <ul class="list-group" id="contentList">
                             {% if found_entries %}
                                 <!-- Busqueda de zonas -->
                             {% endif %}
@@ -134,10 +143,12 @@
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4 text-muted"
                                                  style="padding-left: 10px; padding-top: 10px; padding-bottom: 10px">
-                                                <a href="#" class="text-warning">
+                                                <a href="/zones/{{ each_zone.id }}/edit"
+                                                   class="text-warning"
+                                                   data-toggle="ajaxModal">
                                                 <i class="icon-edit"></i>
                                                 </a>
-                                                <a href="#" class="text-danger">
+                                                <a href="/zones/{{ each_zone.id }}/remove" class="text-danger">
                                                 <i class="icon-remove"></i>
                                                 </a>
                                             </div>
@@ -153,9 +164,10 @@
                                                         <div>
 
                                                         {% for each_subsidiary in each_zone.subsidiaries.subsidiaries %}
-                                                            {{ each_subsidiary.name }}<br>
-                                                        {% endfor %}
 
+                                                            {{ each_subsidiary.name }}
+                                                            <br>
+                                                        {% endfor %}
                                                         </div>
                                                         "
                                                         title=""
@@ -166,27 +178,6 @@
                                             <small class="text-muted"
                                                    style="padding-left: 10px;">
                                                 Sucursales
-                                            </small>
-                                        </div>
-                                        <div class="pull-right text-center"
-                                             style="border-left: 1px solid #d3d3d3">
-                                            <div class="h4">
-                                                <a class="text-info hov"
-                                                        data-toggle="popover"
-                                                        data-html="true"
-                                                        data-placement="bottom"
-                                                        data-content="
-                                                        {% for each_city in each_zone.cities.cities %}
-                                                            {{ each_city.name }}<br>
-                                                        {% endfor %}"
-                                                        title=""
-                                                        data-original-title="Ciudades">
-                                                {{ each_zone.counter_cities }}
-                                                </a>
-                                            </div>
-                                            <small class="text-muted"
-                                                   style="padding-left: 10px;">
-                                                Ciudades
                                             </small>
                                         </div>
                                         <div class="pull-right text-center"
@@ -242,6 +233,7 @@
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.data.js"></script>
     <script src="/static/js/app.grids.data.js"></script>
+
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
     <!-- datatables -->
@@ -265,7 +257,39 @@
     <script src="/static/js/select2/select2.min.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
+    <script>
+        $(document).on('submit', '#formulario', function(e){
+        e.preventDefault();
 
-{% endblock %}
+        country = $('#country_select').val();
+        state = $('#state_select').val();
+        serialize = $(this).serializeArray();
+        console.log(country);
+        console.log(state);
+        serialize.push({name: 'id_country', value: country});
+
+
+        $.each(state, function(index, value){
+            console.log(value);
+            serialize.push({name: 'id_state', value: value});
+         });
+        console.log(serialize);
+
+        $.ajax({
+            type: 'POST',
+            url: $('#formulario').attr('action'),
+            data: serialize,
+            success: function(){
+                setTimeout(function () {
+                    window.location.reload()
+                },0);
+            },
+            error: function(){
+
+            }
+        });
+    });
+    </script>
+{% endblock%}
 </body>
 </html>

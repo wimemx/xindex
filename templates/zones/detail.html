@@ -1,48 +1,185 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zone {{ zone.name }} Detail</title>
+    <title>{% block title %}Detalles de zona{% endblock %}</title>
 </head>
 <body>
-{% if zone %}
-    <ul>
-        <li><a href="javascript:history.go(-1)">Back</a></li>
-        <li><a href="remove/">Remove zone</a></li>
-        <li><a href="edit/">Edit zone</a></li>
-        <li>Name: {{ zone.name }}</li>
-        <li>Countries:
-            <ul>
-            {% for country in zone.countries.all %}
-            <li>{{ country.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>States:
-            <ul>
-            {% for state in zone.states.all %}
-            <li>{{ state.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>Cities:
-            <ul>
-            {% for city in zone.cities.all %}
-            <li>{{ city.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>Description: {{ zone.description }}</li>
-        <li>Parent:
-            {% if zone.parent_zone == None %}
-                ---------
-            {% else %}
-                {{ zone.parent_zone }}
-            {% endif %}
-        </li>
-        <li>Status: {{ status }}</li>
-    </ul>
-{% else %}
-    <p>No information available for that zone.</p>
-{% endif %}
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body in collapse">
+                    <li>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/" class="blue-xindex">
+                            Zonas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Zones</p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row">
+                    <div class="col-lg-12">
+                        <div class="header h2">
+                            {% for zone in zones.zones %}
+
+                                {{ zone.name }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="h5" style="padding-left: 15px;">
+                            {% for zone in zones.zones %}
+
+                                {{ zone.description }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="h4 padding-15-t-l">
+                            Sucursales que pertenecen a esta zona
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row padder">
+                        <div class="col-lg-4 padding-15-t-l">
+                            <div class="m-b-sm">
+                                Filtrar
+                                <div class="btn-group">
+                                    <button class="btn btn-white dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            style="padding-top: 5px !important;
+                                                    padding-bottom: 5px !important;">
+                                        Estado
+                                        {{ order_query }}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">eachStateName</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 padding-15-t-l">
+                            <div class="form-search form-inline">
+                                <form action="" method="GET">
+                                    <input type="text" id="id_q" name="q"
+                                           class="search-query input-sm form-control"
+                                           placeholder="Buscar..." value="{{ query_string }}"/>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 padding-15-t-l">
+                            <a href="/zones/add_state/{{ id }}"
+                               class="btn btn-success btn-s-md padder btn-group-m-l pull-right"
+                               data-toggle="ajaxModal"
+                               style="margin-left: 0px !important;">
+                                <i class="icon-plus"></i>
+                                Agregar un estado a esta zona
+                            </a>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row" style="padding-left: 30px; padding-right: 30px;">
+                        <table class="table table-striped m-b-none">
+                        {% if zones.zones %}
+                        {% for zone in zones.zones %}
+
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th width="300">Tipo de sucursal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for subsidiary in zone.subsidiaries.subsidiaries %}
+
+                                <tr>
+
+                                    <td>{{ subsidiary.name }}</td>
+                                    <td>{{ subsidiary.state }}</td>
+                                    <td>{{ subsidiary.type }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endfor %}
+
+                        {% else %}
+                        {% endif %}
+                        </table>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <input type="hidden" id="current_page">
+                <input type="hidden" id="show_per_page">
+                <div class="col-lg-12">
+                </div>
+            </div>
+        </section>
+    </section>
+    </section>
+{% endblock %}
 </body>
 </html>

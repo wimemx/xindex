@@ -2796,3 +2796,20 @@ div.input-close:before {
 a:hover{
     cursor: pointer;
 }
+
+#page_navigation a{
+    padding:3px;
+	border:none;
+	margin:2px;
+	color:#d3d3d3;
+	text-decoration:none
+}
+.active_page{
+	background: #5dcff3;
+	color:white !important;
+}
+
+.padding-15-t-l{
+    padding-left: 15px;
+    padding-top: 15px;
+}

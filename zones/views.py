@@ -1,10 +1,11 @@
+import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from xindex.forms import ZoneForm
-from xindex.models import Zone
+from xindex.forms import ZoneForm, StateListForm
+from xindex.models import Zone, BusinessUnit, Country, State, City
 
 
 def index(request):
@@ -55,12 +56,32 @@ def index(request):
 
 
 def add(request):
+    countries = Country.objects.filter(active=True)
+
+    listform = StateListForm()
+    listform.fields['countries'].choices = [(x.id, x) for x in
+                                            Country.objects.filter(active=True)]
+
+    states = request.POST.getlist('id_state')
+
     if request.POST:
         formulario = ZoneForm(request.POST or None)
+
         if formulario.is_valid():
-            formulario.save()
-            if formulario.save():
-                return HttpResponseRedirect('/zones')
+            idZone = formulario.save()
+            zoneAfterSave = Zone.objects.get(pk=idZone.id)
+
+            countryToAdd = request.POST.getlist('id_country')
+
+            for eachCountry in countryToAdd:
+                countrySelected = Country.objects.get(pk=eachCountry)
+                zoneAfterSave.countries.add(countrySelected)
+
+            for eachState in states:
+                stateSelected = State.objects.get(pk=eachState)
+                zoneAfterSave.states.add(stateSelected)
+
+            return HttpResponseRedirect('/zones')
         else:
             template_vars = {
                 "formulario": formulario
@@ -70,14 +91,16 @@ def add(request):
     else:
         formulario = ZoneForm()
         request_context = RequestContext(request)
-        return render_to_response("zones/new_zone.html", {"formulario": formulario},
+        return render_to_response("zones/new_zone.html",
+                                  {"formulario": formulario,
+                                   'countries': countries,
+                                   'listform': listform},
                                   request_context)
 
 
 def edit(request, zone_id):
-    #return HttpResponse("You're editing zone %s." % zone_id)
     zona = Zone.objects.get(pk=zone_id)
-    if request.method=='POST':
+    if request.method == 'POST':
         formulario = ZoneForm(request.POST, instance=zona)
         if formulario.is_valid():
             formulario.save()
@@ -86,7 +109,7 @@ def edit(request, zone_id):
         formulario = ZoneForm(instance=zona)
 
     request_context = RequestContext(request)
-    return render_to_response("zones/new_zone.html",
+    return render_to_response("zones/edit_zone.html",
                               {"formulario": formulario,
                                "Add": "Save",
                                "reset": "button",
@@ -96,20 +119,49 @@ def edit(request, zone_id):
 
 def remove(request, zone_id):
     zone = Zone.objects.get(pk=zone_id)
-    #zone.delete()
     zone.active = False
     zone.save()
     return HttpResponseRedirect('/zones')
 
 
 def detail(request, zone_id):
+    zones = {'zones': []}
+    subsidiaries = {'subsidiaries': []}
+    business_units = {'business_units': []}
+    counter_business_units = 0
+
+    business_units_all = BusinessUnit.objects.filter(active=True)
     try:
         zone = Zone.objects.get(pk=zone_id)
         status = str(zone.active)
+
+        for each_subsidiary in zone.subsidiary_set.all():
+            for each_business_unit in each_subsidiary.businessunit_set.all():
+                counter_business_units += 1
+
+            subsidiaries['subsidiaries'].append({
+                'id': each_subsidiary.id,
+                'name': each_subsidiary.name,
+                'type': 'TIPO',
+                'city': each_subsidiary.city_id.name,
+                'state': each_subsidiary.state_id.name,
+                'business_units': business_units,
+                'counter_business_units': counter_business_units
+
+            })
+        zones['zones'].append({
+            'id': zone.id,
+            'name': zone.name,
+            'description': zone.description,
+            'date': zone.date,
+            'subsidiaries': subsidiaries
+        })
+
     except Zone.DoesNotExist:
         raise Http404
     return render_to_response('zones/detail.html',
-                              {'zone': zone, 'status': status})
+                              {'zones': zones,
+                               'id': zone.id})
 
 
 def getZonesInJson(request):
@@ -125,3 +177,32 @@ def getZonesInJson(request):
             }
         )
     return HttpResponse(simplejson.dumps(zonesToJson))
+
+
+def country(request, country_id):
+    state_list = State.objects.filter(country_id=country_id)
+
+    statesToJson = {'states': []}
+
+    if state_list:
+        for eachState in state_list:
+            statesToJson['states'].append(
+                {
+                    "name": eachState.name,
+                    "id": eachState.id
+                }
+            )
+
+    return HttpResponse(simplejson.dumps(statesToJson))
+
+
+def add_state(request, zone_id):
+    zone = Zone.objects.get(pk=zone_id)
+
+    for i in zone.countries.all():
+        states = State.objects.filter(country_id=i)
+        print states
+        request_context = RequestContext(request)
+        return render_to_response("zones/add_state.html",
+                                  {"name": i.name, "id": i.id, 'states':states},
+                              request_context)
