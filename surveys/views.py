@@ -338,6 +338,10 @@ def save(request, action, next_step, survey_id=False):
                             print block_moment_associated_id
                         else:
                             block_moment_associated_id = False
+                        if 'block_type' in block:
+                            block_type = block['block_type']
+                        else:
+                            block_type = 'questions_block'
 
                         setup['blocks'].append(
                             {
@@ -346,7 +350,8 @@ def save(request, action, next_step, survey_id=False):
                                 'block_description': block_description,
                                 'style': style,
                                 'questions': questions,
-                                'block_moment_associated_id': block_moment_associated_id
+                                'block_moment_associated_id': block_moment_associated_id,
+                                'block_type': block_type
                             }
                         )
                 if key == 'blocks_style':
@@ -1082,12 +1087,18 @@ def deployment(request, action, next_step, survey_id=False):
                         block_description = block['block_description']
                     else:
                         block_description = ''
+
+                    if 'block_type' in block:
+                        block_type = block['block_type']
+                    else:
+                        block_type = 'questions-block'
                     setup['blocks'].append(
                         {
                             'block_id': block['block_id'],
                             'block_default_class': block['class_default'],
                             'block_description': block_description,
-                            'questions': questions
+                            'questions': questions,
+                            'block_type': block_type
                         }
                     )
 
