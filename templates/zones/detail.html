@@ -79,15 +79,25 @@
                 <div class="headerXINDEX">
                     <div class="row">
                     <div class="col-lg-12">
-                        <div class="header h2">
+                        <div class="row">
+                        <div class="header h2 col-lg-10" style="padding-left: 30px;">
                             {% for zone in zones.zones %}
 
                                 {{ zone.name }}
                             {% endfor %}
                         </div>
+                        <div class="col-lg-2">
+                            <a href="/zones/{{ id }}/edit"
+                               class="text-warning"
+                               id="edit-information"
+                               data-toggle="ajaxModal">
+                                <i class="icon-edit icon-2x"></i>Editar
+                            </a>
+                        </div>
+                        </div>
                     </div>
                     <div class="col-lg-12">
-                        <div class="h5" style="padding-left: 15px;">
+                        <div class="h5" style="padding-left: 15px; padding-right: 15px;">
                             {% for zone in zones.zones %}
 
                                 {{ zone.description }}
@@ -182,4 +192,5 @@
     </section>
 {% endblock %}
 </body>
+
 </html>
