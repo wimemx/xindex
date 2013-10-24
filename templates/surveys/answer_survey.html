@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Encuesta {{ company_name }}</title>
+    <meta charset="utf-8">
+    <title>Agregar Encuesta</title>
+    <meta name="description"
+          content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/js/fuelux/fuelux.css">
+    <link rel="stylesheet" href="/static/js/select2/select2.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/font.css" cache="false">
+    <link rel="stylesheet" href="/static/css/plugin.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+    <section class="vbox stretch bg-white">
+        <section class="scrollable wrapper">
+            <div class="row">
+                <div style="width: 80%; margin: auto; max-width: 900px;">
+                    <section class="panel" id="survey_global_content" style="background-color: {{ setup.block_background_color }}; border: {{ setup.block_border_width }} {{ setup.block_border_style }} {{ setup.block_border_color }}; box-shadow: {{ setup.block_box_shadow }}">
+                        <div class="panel-body">
+                            <section class="header text-center panel visible-lg">
+                            </section>
+                            <section class="panel wrapper drop" id="survey-main-content" style="background-color: rgba(255, 255, 255, 0); border: none; box-shadow: none">
+                                {% for block in setup.blocks %}
+                                    <div class="row row-block wrapper {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
+                                        <div class="col-lg-12">
+                                            <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }} border-radius: 6px;"{% endif %}>
+                                                {% if block.block_description%}
+                                                    {{ block.block_description|safe }}
+                                                {% endif %}
+                                                {% if block.questions %}
+                                                    {% for question in block.questions %}
+                                                        <div class="wrapper question-content padder" {% if question.question_style %} style="{{ question.question_style }}" {% endif %} id="{{ question.question_content_id }}">
+                                                            <div class="question_id" style="float: left; width: 3.5%; margin-right: 0.5%;">
+                                                                {{ question.survey_question_id }}
+                                                            </div>
+                                                            <div class="question-text" style="float: left; width: 96%;">
+                                                                <p>
+                                                                    {{ question.question_title }}
+                                                                </p>
+                                                            </div>
+                                                            <div class="optional-content" style="margin-top: 15px; clear: both;">
+                                                                {% if question.question.type.name == "Multiple Choice" %}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                                    {% for option in question.question_options %}
+                                                                        {% if option.option.active %}
+                                                                            {% if option.option.label != "" %}
+                                                                                <div class="checkbox">
+                                                                                    <label class="checkbox-custom">
+                                                                                        <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                        <i class="icon-unchecked"></i>
+                                                                                        {{ option.option.label }}
+                                                                                    </label>
+                                                                                </div>
+                                                                            {% else %}
+                                                                                <div class="checkbox">
+                                                                                    <label class="checkbox-custom">
+                                                                                        <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                        <i class="icon-unchecked"></i>
+                                                                                        {{ option.option.label }}
+                                                                                    </label>
+                                                                                </div><br>
+                                                                            {% endif %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                    </div>
+                                                                {% elif question.question.type.name == "False and True" %}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                                        {% for option in question.question.option_set.all %}
+                                                                            <div class="radio">
+                                                                                <label class="radio-custom">
+                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.value }}">
+                                                                                    <i class="icon-circle-blank"></i>
+                                                                                    {{ option.label }}
+                                                                                </label>
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                {% elif question.question.type.name == 'Matrix'%}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                                        <table border="0">
+                                                                            {% for row in question.question.question_set.all|slice:":1" %}
+                                                                                {% if forloop.first %}
+                                                                                    <tr>
+                                                                                        {% if row.active %}
+                                                                                            <td class="padder" style="border-right: 1px solid #d3d3d3"></td>
+                                                                                        {% endif %}
+                                                                                        {% for option in row.option_set.all %}
+                                                                                                {% if option.active %}
+                                                                                                    <td class="padder">
+                                                                                                        {{ option.label }}
+                                                                                                    </td>
+                                                                                                {% endif %}
+                                                                                        {% endfor %}
+                                                                                    </tr>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                            {% for row in question.question.question_set.all %}
+                                                                                <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
+                                                                                    {% if row.active %}
+                                                                                        <td style="padding-bottom: 5px !important;
+                                                                                                   padding-top: 5px !important;
+                                                                                                   padding-left: 10px !important;
+                                                                                                   padding-right: 10px !important;
+                                                                                                   border-right: 1px solid #d3d3d3">
+                                                                                            {{ row.title }}
+                                                                                        </td>
+                                                                                    {% endif %}
+                                                                                    {% for option in row.option_set.all %}
+                                                                                        {% if option.active %}
+                                                                                            <td style=" text-align: center;">
+                                                                                                <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                                                    <input type="radio" name="{{ row.id }}" value="{{ option.value }}">
+                                                                                                    <i class="icon-circle-blank"></i>
+                                                                                                </label>
+                                                                                            </td>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+                                                                                </tr>
+                                                                            {% endfor %}
+                                                                        </table>
+                                                                    </div>
+                                                                    <br>
+                                                                {% elif question.question.type.name == "Open Question" %}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;
+                                                                                                  padding-right: 35px !important;
+                                                                                                  padding-top: 10px;
+                                                                                                  padding-bottom: 20px">
+                                                                        <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                                    </div>
+                                                                {% elif question.question.type.name == "Range" %}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;
+                                                                                                  padding-right: 35px !important;
+                                                                                                  padding-top: 10px;
+                                                                                                  padding-bottom: 20px">
+                                                                        <table border="0">
+                                                                            <tr>
+                                                                                <!-- TABLE HEADER -->
+                                                                                {% for option in question.question_options %}
+                                                                                    {% if option.option.active %}
+                                                                                        {% if forloop.first %}
+                                                                                            <td></td>
+                                                                                        {% endif %}
+                                                                                            {% if option.option.label != "" %}
+                                                                                                <td style=" text-align: center !important;">
+                                                                                                    <small class="text-muted">
+                                                                                                        {{ option.option.get_value }}
+                                                                                                    </small>
+                                                                                                </td>
+                                                                                            {% else %}
+                                                                                                <td style="text-align: center !important;">
+                                                                                                    <small class="text-muted">
+                                                                                                        {{ option.option.get_value }}
+                                                                                                    </small>
+                                                                                                </td>
+                                                                                                <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
+                                                                                            {% endif %}
+                                                                                        {% if forloop.last %}
+                                                                                            <td></td>
+                                                                                        {% endif %}
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </tr>
+                                                                            <tr>
+                                                                            {% for option in question.question_options %}
+                                                                                {% if option.option.active %}
+                                                                                    {% if forloop.first %}
+                                                                                        <td style="padding-bottom: 5px !important;
+                                                                                               padding-top: 5px !important;
+                                                                                               padding-left: 10px !important;
+                                                                                               padding-right: 10px !important;
+                                                                                               width: 100px !important;">
+                                                                                            {{ option.option.label }}
+                                                                                        </td>
+                                                                                    {% endif %}
+                                                                                        {% if option.option.label != "" %}
+                                                                                            <td style=" text-align: center !important;">
+                                                                                                <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                                    <i class="icon-circle-blank"></i>
+                                                                                                </label>
+                                                                                            </td>
+                                                                                        {% else %}
+                                                                                            <td style=" text-align: center !important;">
+                                                                                                <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                                    <i class="icon-circle-blank"></i>
+                                                                                                </label>
+                                                                                            </td>
+                                                                                            <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
+                                                                                        {% endif %}
+                                                                                    {% if forloop.last %}
+                                                                                        <td style="padding-bottom: 5px !important;
+                                                                                               padding-top: 5px !important;
+                                                                                               padding-left: 10px !important;
+                                                                                               padding-right: 10px !important;
+                                                                                               width: 100px !important;">
+                                                                                            {{ option.option.label }}</td>
+                                                                                    {% endif %}
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                            </tr>
+                                                                        </table>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="db_question_id" id="{{ question.db_question_id }}"></div>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </section>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </section>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </section>
+    <script src="/static/js/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="/static/js/bootstrap.js"></script>
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+</body>
+</html>

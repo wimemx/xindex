@@ -207,7 +207,7 @@
                     {% else %}
                         <input type="hidden" id="configured_survey_box_shadow" value="rgb(206, 206, 206) 0px 0px 5px 0px"/>
                     {% endif %}
-                    <ul class="list-group no-bg no-borders gutter list-group-lg list-group-sp sortable" id="sortable_block_list">
+                    <ul class="list-group no-bg no-borders gutter list-group-lg list-group-sp sortable connected" id="sortable_block_list">
                     {% if setup.blocks|length == 0 %}
                         <li class="list-group-item">
                             <div class="row row-block text-block animated fadeInDown" id="block-1">
@@ -888,6 +888,31 @@
                         </div>
                     </section>
                 </div>
+                <!--
+                <div class="col-lg-4">
+                    <div class="" id="panel-items">
+                        <ul class="list-group" id="pane1">
+                            <li class="list-group-item">
+                                <a class="btn btn-twitter">Bloque de preguntas</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a class="btn btn-twitter">Pregunta</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="" id="panel-items2">
+                        <ul class="list-group connected" id="pane2">
+                            <li class="list-group-item">
+                                <a class="btn btn-twitter">Bloque de preguntas 2</a>
+                            </li>
+                            <li class="list-group-item connected">
+                                <a class="btn btn-twitter">Pregunta 2</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>-->
             </div>
             <div id="global_design_pane" class="tab-pane">
                 <section class="panel-heading">
