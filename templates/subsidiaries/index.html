@@ -23,7 +23,7 @@
                            data-toggle="ajaxModal"
                            style="width: 100%">
                             <i class="icon-plus"></i>
-                            Crear un nuevo servicio
+                            Crear nueva sucursal
                         </a>
                     </div>
                     <div class="col-lg-1"></div>
@@ -76,13 +76,17 @@
                     <tbody>
                     {% for eachSubsidiary in all_subsidiaries %}
                         <tr>
-                        <td>{{ eachSubsidiary.name }}</td>
+                        <td>
+                            <a href="/subsidiaries/details/{{ eachSubsidiary.id }}">
+                                {{ eachSubsidiary.name }}
+                            </a>
+                        </td>
                         <td>{{ eachSubsidiary.subsidiary_types.name }} Type</td>
                         <td>{{ eachSubsidiary.zone.name }}</td>
                         <td>{{ eachSubsidiary.state_id.name }}</td>
                         <td>
-                            <a href=""><i class="icon-edit"></i></a>|
-                            <a href=""><i class="icon-remove"></i></a>
+                            <a href="#"><i class="icon-edit"></i></a>|
+                            <a href="/subsidiaries/remove/{{ eachSubsidiary.id }}" id="remove-subsidiary"><i class="icon-remove"></i></a>
                         </td>
                         </tr>
                     {% endfor %}
@@ -99,8 +103,8 @@
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.grids.data.js"></script>
 
-
-
+    <!--Bootbox-->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
     <script src="/static/js/libs/underscore-min.js"></script>
@@ -112,7 +116,49 @@
     <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
-{% endblock %}
 
+<script>
+    $(document).on('click', '#remove-subsidiary', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message: "La sucursal tiene X unidades de sercio que quedarán " +
+                    "inhabilitas si se realiza esta acción. " +
+                    "¿Esta seguro que desea eliminar la sucursal NOMBRE? ",
+            title: "Deshabilitar una sucursal",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    alert(msg);
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
 </body>
 </html>

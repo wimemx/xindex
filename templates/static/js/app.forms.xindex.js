@@ -278,7 +278,7 @@ $(document).ready(function () {
 
     //--- Función corregir problema modal  Services---//
     $('#mySGrid').on('click', 'a.update_service', function (e) {
-        alert('entra');
+        //alert('entra');
         e.preventDefault();
         var url = $(this).attr('href');
         if (url.indexOf('#') == 0) {

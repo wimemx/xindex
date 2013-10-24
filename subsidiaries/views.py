@@ -6,9 +6,7 @@ from subsidiaries.forms import SubsidiaryForm, UpdateForm
 from django.template.context import RequestContext
 from django.core import serializers
 from django.utils import simplejson
-from xindex.models import Company
-from xindex.models import Zone
-from xindex.models import City
+from xindex.models import Company, State, Zone, BusinessUnit
 
 
 def index(request, message=''):
@@ -23,17 +21,31 @@ def index(request, message=''):
 
 
 def details(request, subsidiary_id):
+
+    business_units = BusinessUnit.objects.filter(subsidiary=subsidiary_id)
+
+    services = {'services': []}
+    for eachBusinessUnit in business_units:
+        for eachService in eachBusinessUnit.service.all():
+            services['services'].append({
+                'service_name': eachService.name,
+                'business_name': eachBusinessUnit.name
+            })
+
+
     template_vars = {
         'titulo': 'Detalles'
     }
     try:
         sub = Subsidiary.objects.get(id=subsidiary_id)
 
-        sub = False if sub.active==False else sub
+        sub = False if sub.active == False else sub
     except Subsidiary.DoesNotExist:
         sub = False
 
     template_vars['sub'] = sub
+    template_vars['business_units'] = business_units
+    template_vars['services'] = services
     request_context = RequestContext(request, template_vars)
     return render_to_response('subsidiaries/details.html', request_context)
 
@@ -43,7 +55,16 @@ def add(request):
         formulario = SubsidiaryForm(request.POST or None)
         if formulario.is_valid():
             print "Formulario valido"
-            formulario.save()
+            form = formulario.save()
+
+            state = State.objects.get(pk=request.POST['state_id'])
+            zones = Zone.objects.filter(active=True)
+
+            for eachZone in zones:
+                for eachState in eachZone.states.all():
+                    if eachState == state:
+                        form.zone = eachZone
+                        form.save()
 
             template_vars = {
                 "titulo": "Subsidiarias",
@@ -91,7 +112,7 @@ def edit(request, subsidiary_id):
                     "message": "Se ha modificado la subsidiaria"
                 }
                 request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/subsidiaries/')
+                return HttpResponseRedirect('/subsidiaries/details/'+subsidiary_id)
             else:
                 template_vars = {
                     "titulo": "Editar subsidiaria",
@@ -106,7 +127,8 @@ def edit(request, subsidiary_id):
             template_vars = {
                 "titulo": "Editar subsidiaria",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "subsidiary_id": subsidiary_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("subsidiaries/update.html",
@@ -124,15 +146,20 @@ def remove(request, subsidiary_id):
 
     if sub:
         try:
+            businessUnit = BusinessUnit.objects.filter(subsidiary=sub)
+
+            for eachBusinessUnit in businessUnit:
+                eachBusinessUnit.active = False
+                eachBusinessUnit.save()
+
             sub.active = False
             sub.save()
-            message = "Se ha eliminado la subsidiaria"
             template_vars = {
                 "titulo": "Subsidiarias",
                 "message": "Se ha eliminado la subsidiaria"
             }
             request_context = RequestContext(request, template_vars)
-            return HttpResponseRedirect('/subsidiaries')
+            return HttpResponse('Si')
 
         except:
             message = "No se pudo eliminar"

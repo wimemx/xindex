@@ -2,111 +2,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Modificar Sucursal{% endblock %}</title>
+    <title>{% block title %}Detalles Sucursal{% endblock %}</title>
 </head>
 <body>
 {% block mainContent %}
     <section id="content">
         <section class="vbox">
             <header class="header b-b bg-white">
-                <p class="h4 animated bounceInDown">Detalles</p>
+                <p class="h4 animated bounceInDown">Ver una sucursal</p>
             </header>
-            <section class="wrapper animated fadeInRightBig" id="basic">
-                {% if sub %}
-                    <section class="bg-white nav hidden-xs">
-                        <section class="wrapper text-center stretch b-b">
-                            <div class="h3 m-t-xs m-b-xs">{{ sub.name }}</div>
-                            <small class="text-muted"><i class="icon-group"></i> {{ sub.company }}</small>
-                        </section>
-                        <section class="scrollable wrapper">
+            <section class="wrapper animated fadeInDown" id="basic">
+                <div class="col-lg-12">
+                    <div class="row">
+                    <div class="col-lg-10">
+
+                        <small class="h2">{{ sub.name }}</small>
+                        &nbsp;&nbsp;
+                        <small class="text-muted h5">
+                            {{ sub.state_id.name }},
+                            {{ sub.city_id.name }},
+                            {{ sub.zone.name }}
+                        </small>
+                    </div>
+                    <div class="col-lg-2">
+                        <a href="/subsidiaries/edit/{{ sub.id }}/"
+                           class="text-muted"
+                           id="edit-information-sub"
+                           data-toggle="ajaxModal">
+                            <i class="icon-edit icon-2x"></i>Editar
+                        </a>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 padder-v">
+                    Dirección: &nbsp;&nbsp; {{ sub.address }}<br>
+                    Pais: &nbsp;&nbsp;{{ sub.country_id }}<br>
+                    Estado: &nbsp;&nbsp; {{ sub.state_id }}<br>
+                    Ciudad: &nbsp;&nbsp; {{ sub.city_id }}<br>
+                    Telefono: &nbsp;&nbsp; {{ sub.phone }}
+                </div>
+                <div class="col-lg-12 padder-v h3">
+                    Servicios de esta sucursal
+                </div>
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-6">
                             <div class="row">
-                                <div class="col-lg-8">
-                                    <div class="row">
-                                        <div class="col-lg-6 col-sm-6">
-                                            <section class="panel">
-                                                <div class="panel-body">
-                                                    <header class="h4 header bg-info wrapper text-center">
-                                                        Tipos de sucursales
-                                                    </header>
-                                                    <div class="list-group list-group-alt no-radius no-borders">
-                                                        {% for s in sub.subsidiary_types.all %}
-                                                            <a class="list-group-item">
-                                                                <i class="icon-circle text-primary text-xs"></i>
-                                                                <span>{{ s.name }}</span>
-                                                            </a>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </div>
-                                        <div class="col-lg-6 col-sm-6">
-                                            <section class="panel">
-                                                <div class="panel-body">
-                                                    <header class="h4 header bg-info wrapper text-center">
-                                                        Unidades de servicio
-                                                    </header>
-                                                    <div class="list-group list-group-alt no-radius no-borders">
-                                                        {% for s in sub.business_unit.all %}
-                                                            <a class="list-group-item">
-                                                                <i class="icon-circle text-primary text-xs"></i>
-                                                                <span>{{ s.name }}</span>
-                                                            </a>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </div>
+                                <div class="col-lg-1">Filtrar:</div>
+                                <div class="col-lg-5">
+                                    <select class="form-control">
+                                        <option>Subsidiary List</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="form-search form-inline">
+                                        <form action="" method="GET">
+                                            <input type="text" id="id_q" name="q"
+                                                   class="search-query input-sm form-control"
+                                                   placeholder="Buscar..." value="{{ query_string }}"/>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                            <div class="timeline">
-                                <article class="timeline-item active">
-                                    <div class="timeline-caption">
-                                        <div class="panel col-lg-6">
-                                            <div class="panel-body">
-                                                <header class="h4 header bg-info wrapper text-center">
-                                                    Zonas
-                                                </header>
-                                                <div class="list-group list-group-alt no-radius no-borders">
-                                                    {% for s in sub.zone.all %}
-                                                        <a class="list-group-item">
-                                                            <i class="icon-circle text-primary text-xs"></i>
-                                                            <span>{{ s.name }}</span>
-                                                        </a>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="row">
-                                <a class="pull-right btn btn-white btn-sm" href="/subsidiaries">
-                                    <i class="icon-backward"></i>
-                                    Regresar
-                                </a>
-                            </div>
-                        </section>
-                    </section>
-                {% else %}
-                    <section class="bg-white wrapper-lg text-center">
-                        <div class="">
-                            <span class="icon-stack">
-                                <i class="icon-circle text-white icon-stack-base"></i>
-                                <i class="icon-warning-sign icon-light icon-xlarge text-warning"></i>
-                            </span>
                         </div>
-                        <span class="h4">
-                            No se encontro la sucursal
-                        </span>
-                    </section>
-                    <div class="row wrapper">
-                        <a class="pull-right btn btn-white btn-sm" href="/subsidiaries">
-                            <i class="icon-backward"></i>
-                            Regresar
-                        </a>
+                        <div class="col-lg-6"></div>
                     </div>
-                {% endif %}
+                </div>
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <table class="table table-striped m-b-none">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre del servicio</th>
+                                            <th>Unidad del servicio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for eachService in services.services%}
+                                        <tr>
+                                            <td>{{ eachService.service_name }}</td>
+                                            <td>{{ eachService.business_name }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                        <div class="col-lg-6"></div>
+                    </div>
+                </div>
             </section>
         </section>
     </section>
