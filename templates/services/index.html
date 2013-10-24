@@ -94,7 +94,8 @@
                                                    data-toggle="ajaxModal">
                                                 <i class="icon-edit"></i>
                                                 </a>
-                                                <a href="#" class="text-danger">
+                                                <a href="/services/remove/{{ each_service.id }}/{{ each_service.business_unit_id }}/"
+                                                   class="text-danger">
                                                 <i class="icon-remove"></i>
                                                 </a>
                                             </div>
@@ -256,6 +257,48 @@
     <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
+
+<script>
+    $(document).on('click', '#remove-service', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar el servicio? ",
+            title: "Eliminar servicio",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    alert(msg);
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
 
 </body>

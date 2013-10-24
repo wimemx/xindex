@@ -468,8 +468,8 @@ function businessUnitsDatagrid() {
                                 +
                                 '<label>|</label>'
                                 +
-                            '<a href="/business_units/' + item.subsidiary_id + '/' + item.business_unit_id + '/remove" class="remove-business-unit"><i class="icon-remove"></i></a>';
-                        //c = (item.active == true) ? "checked" : ""
+                            '<a href="/business_units/' + item.business_unit_id + '/remove" class="remove-business-unit"><i class="icon-remove"></i></a>';
+                        //c = (item.active == true) ? "checked" : ""    ARRIBA + item.subsidiary_id + '/'
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
 
                     });

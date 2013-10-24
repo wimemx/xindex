@@ -146,6 +146,12 @@ def remove(request, subsidiary_id):
 
     if sub:
         try:
+            businessUnit = BusinessUnit.objects.filter(subsidiary=sub)
+
+            for eachBusinessUnit in businessUnit:
+                eachBusinessUnit.active = False
+                eachBusinessUnit.save()
+
             sub.active = False
             sub.save()
             template_vars = {

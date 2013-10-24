@@ -137,7 +137,7 @@ def getBUInJson(request):
                 "subsidiary": eachBusinessUnit.subsidiary.name,
                 "zone": eachBusinessUnit.subsidiary.zone.name or '',
                 "business_unit_id": eachBusinessUnit.id,
-                "subsidiary_id": 'eachBusinessUnit.subsidiary'
+                "subsidiary_id": eachBusinessUnit.subsidiary.id
             }
         )
 
