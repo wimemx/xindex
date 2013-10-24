@@ -18,20 +18,26 @@ class SubsidiaryForm(forms.ModelForm):
         }
 
         self.fields['company'].widget.attrs.update({'class' : 'form-control'})
-        self.fields['name'].widget.attrs.update({'class': 'bg-focus form-control', 'placeholder': 'Sucursal'})
+        self.fields['name'].widget.attrs.update({'class': 'bg-focus form-control', 'placeholder': 'Nombre'})
+        self.fields['phone'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Telefono'})
+        self.fields['rfc'].widget.attrs.update({'class': 'form-control', 'placeholder': 'RFC'})
         self.fields['subsidiary_types'].widget.attrs.update({'class': 'form-control'})
-        #self.fields['business_unit'].widget.attrs.update({'class': 'form-control'})
-        self.fields['zone'].widget.attrs.update({'class': 'form-control'})
-
+        self.fields['address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Direccion'})
+        self.fields['country_id'].widget.attrs.update({'class': 'form-control'})
+        self.fields['state_id'].widget.attrs.update({'class': 'form-control'})
+        self.fields['city_id'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Subsidiary
-        fields = ('company', 'name', 'subsidiary_types', 'zone')
+        fields = ('company', 'name', 'phone', 'rfc', 'subsidiary_types',
+                  'address', 'country_id', 'state_id', 'city_id')
+
 
 class UpdateForm(forms.ModelForm):
     class Meta:
         model = Subsidiary
         fields = ('company', 'name', 'subsidiary_types', 'zone')
+
 
 class AddSubsidiaryType(forms.ModelForm):
     class Meta:
