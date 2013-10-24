@@ -25,11 +25,38 @@ def index(request, business_unit_id=False):
         subsidiaries = False
         company = False
 
-    all_services = Service.objects.all().order_by('-name')
-    print all_services
+    services = {'services': []}
+    for service in business_unit.service.all():
+        if service.active:
+            indicator_counter = 0
+            touchPoint_counter = 0
+
+            serviceToCount = Service.objects.get(pk=service.id)
+            for eachMoment in serviceToCount.moments.all():
+                touchPoint_counter += 1
+
+            for eachMoment in serviceToCount.moments.all():
+                eachMomentToAtt = Moment.objects.get(pk=eachMoment.id)
+                for eachAttribute in eachMomentToAtt.attributes.all():
+                    indicator_counter += 1
+
+            services['services'].append(
+                {
+                    "name": service.name,
+                    "business_unit": business_unit.name,
+                    "business_unit_id": business_unit.id,
+                    "subsidiary": business_unit.subsidiary.name,
+                    "subsidiary_id": business_unit.subsidiary.id,
+                    "zone": business_unit.subsidiary.address,
+                    "id": service.id,
+                    "indicator_counter": indicator_counter,
+                    "touchPoint_counter": touchPoint_counter
+                }
+            )
+
     template_vars = {
         "titulo": "Servicios",
-        "all_services": all_services,
+        "all_services": services,
         "business_unit": business_unit,
         "company": company
     }

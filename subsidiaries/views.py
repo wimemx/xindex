@@ -12,9 +12,7 @@ from xindex.models import City
 
 
 def index(request, message=''):
-    print "Entrando a vista subsidiarias"
     all_subsidiaries = Subsidiary.objects.filter(active='True')
-    print all_subsidiaries
     return render_to_response(
         'subsidiaries/index.html',
         {

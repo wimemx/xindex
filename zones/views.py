@@ -104,16 +104,14 @@ def edit(request, zone_id):
         formulario = ZoneForm(request.POST, instance=zona)
         if formulario.is_valid():
             formulario.save()
-            return HttpResponseRedirect('/zones')
+            return HttpResponseRedirect('/zones/'+zone_id)
     else:
         formulario = ZoneForm(instance=zona)
 
     request_context = RequestContext(request)
     return render_to_response("zones/edit_zone.html",
                               {"formulario": formulario,
-                               "Add": "Save",
-                               "reset": "button",
-                               "onclick": "javascript:history.go(-1)"},
+                               "zone_id": zone_id},
                               request_context)
 
 
@@ -199,10 +197,23 @@ def country(request, country_id):
 def add_state(request, zone_id):
     zone = Zone.objects.get(pk=zone_id)
 
-    for i in zone.countries.all():
-        states = State.objects.filter(country_id=i)
-        print states
-        request_context = RequestContext(request)
-        return render_to_response("zones/add_state.html",
-                                  {"name": i.name, "id": i.id, 'states':states},
-                              request_context)
+    if request.method == 'POST':
+        states = request.POST.getlist('id_state')
+
+        for eachState in states:
+            stateSelected = State.objects.get(pk=eachState)
+
+            zone.states.add(stateSelected)
+
+        return HttpResponseRedirect('/zones/'+zone_id)
+    else:
+        for i in zone.countries.all():
+            states = State.objects.filter(country_id=i)
+            request_context = RequestContext(request)
+
+            return render_to_response("zones/add_state.html",
+                                      {"name": i.name,
+                                       "id": i.id,
+                                       'states': states,
+                                       'id_zone': zone_id},
+                                  request_context)

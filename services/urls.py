@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('services.views',
 
     #Services
-    url(r'^$', 'index'),
+    #url(r'^$', 'index'),
     url(r'^(?P<business_unit_id>\d+)', 'index'),
     url(r'^add/(?P<business_unit_id>\d+)', 'add'),
     #url(r'^(?P<question_id>\d+)/$', 'detail'),
