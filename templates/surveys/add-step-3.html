@@ -342,14 +342,14 @@
                                                         {% elif question.question.type.name == 'Matrix'%}
                                                             <div class="col-sm-12" style="padding-left: 35px !important;">
                                                                 <table border="0">
-                                                                    {% for row in question.question.question_set.all|slice:":1" %}
+                                                                    {% for row in question.sub_questions|slice:":1" %}
                                                                         {% if forloop.first %}
                                                                             <tr>
                                                                                 {% if row.active %}
                                                                                     <td class="padder" style="border-right: 1px solid #d3d3d3"></td>
                                                                                 {% endif %}
 
-                                                                                {% for option in row.option_set.all %}
+                                                                                {% for option in row.option_set.all|dictsort:"id" %}
 
                                                                                     {% if option.active %}
                                                                                         <td class="padder">
@@ -361,14 +361,14 @@
                                                                             </tr>
                                                                         {% endif %}
                                                                     {% endfor %}
-                                                                    {% for row in question.question.question_set.all %}
+                                                                    {% for row in question.sub_questions %}
                                                                         <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
                                                                             {% if row.active %}
                                                                                 <td style="padding-bottom: 5px !important;
-                                                                                   padding-top: 5px !important;
-                                                                                   padding-left: 10px !important;
-                                                                                   padding-right: 10px !important;
-                                                                                   border-right: 1px solid #d3d3d3">
+                                                                               padding-top: 5px !important;
+                                                                               padding-left: 10px !important;
+                                                                               padding-right: 10px !important;
+                                                                               border-right: 1px solid #d3d3d3">
                                                                                     {{ row.title }}</td>
                                                                             {% endif %}
 
@@ -388,12 +388,25 @@
                                                             </div>
                                                             <br>
                                                         {% elif question.question.type.name == "Open Question" %}
-                                                            <div class="col-sm-12" style="padding-left: 35px !important;
+                                                            {% for option in question.question_options %}
+                                                                {% if option.value == 1 %}
+                                                                    <div class="checkbox">
+                                                                        <label class="checkbox-custom">
+                                                                            <input type="checkbox" name="not_apply" id="{{ option.id }}">
+                                                                            <i class="icon-unchecked"></i>
+                                                                            No aplica
+                                                                        </label>
+                                                                    </div>
+                                                                {% endif %}
+                                                                {% if option.value == 2 %}
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;
                                                                                               padding-right: 35px !important;
                                                                                               padding-top: 10px;
                                                                                               padding-bottom: 20px">
-                                                                <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
-                                                            </div>
+                                                                        <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endfor %}
                                                         {% elif question.question.type.name == "Range" %}
                                                             <div class="col-sm-12" style="padding-left: 35px !important;
                                                                                               padding-right: 35px !important;
@@ -598,14 +611,14 @@
                                                         {% elif question.question.type.name == 'Matrix'%}
                                                             <div class="col-sm-12" style="padding-left: 35px !important;">
                                                             <table border="0">
-                                                            {% for row in question.question.question_set.all|slice:":1" %}
+                                                            {% for row in question.sub_questions|slice:":1" %}
                                                                 {% if forloop.first %}
                                                                 <tr>
                                                                 {% if row.active %}
                                                                     <td class="padder" style="border-right: 1px solid #d3d3d3"></td>
                                                                 {% endif %}
 
-                                                                {% for option in row.option_set.all %}
+                                                                {% for option in row.option_set.all|dictsort:"id" %}
 
                                                                         {% if option.active %}
                                                                         <td class="padder">
@@ -617,7 +630,7 @@
                                                                 </tr>
                                                                 {% endif %}
                                                             {% endfor %}
-                                                            {% for row in question.question.question_set.all %}
+                                                            {% for row in question.sub_questions %}
                                                                 <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
                                                                 {% if row.active %}
                                                                     <td style="padding-bottom: 5px !important;
@@ -644,25 +657,43 @@
                                                             </div>
                                                             <br>
                                                         {% elif question.question.type.name == "Open Question" %}
-                                                            <div class="col-sm-12" style="padding-left: 35px !important;
-                                                                                          padding-right: 35px !important;
-                                                                                          padding-top: 10px;
-                                                                                          padding-bottom: 20px">
-                                                                <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                            <div class="col-sm-12" style="padding-left: 35px !important;padding-right: 35px !important;padding-top: 10px;padding-bottom: 20px">
+                                                                {% for option in question.question_options %}
+                                                                    {% if option.option.value == 1 %}
+                                                                        <div class="checkbox">
+                                                                            <label class="checkbox-custom">
+                                                                                <input type="checkbox" name="not_apply" id="{{ option.id }}">
+                                                                                <i class="icon-unchecked"></i>
+                                                                                No aplica
+                                                                            </label>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                    {% if option.option.value == 2 %}
+                                                                        <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                                    {% endif %}
+                                                                {% endfor %}
                                                             </div>
                                                         {% elif question.question.type.name == "Range" %}
                                                             <div class="col-sm-12" style="padding-left: 35px !important;
                                                                                           padding-right: 35px !important;
                                                                                           padding-top: 10px;
                                                                                           padding-bottom: 20px">
+                                                            {% for option in question.question_options %}
+                                                                {% if forloop.last %}
+                                                                    <div class="checkbox">
+                                                                    <label class="checkbox-custom">
+                                                                        <input type="checkbox" name="" id="">
+                                                                        <i class="icon-unchecked"></i>
+                                                                        No aplica
+                                                                        </label>
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endfor %}
                                                             <table border="0">
                                                             <tr>
                                                             <!-- TABLE HEADER -->
                                                             {% for option in question.question_options %}
-                                                                {% if option.option.active %}
-
-
-
+                                                                {% if option.option.active and option.option.meta == None  %}
                                                                     {% if forloop.first %}
                                                                         <td></td>
                                                                     {% endif %}
@@ -685,11 +716,6 @@
                                                                     {% if forloop.last %}
                                                                         <td></td>
                                                                     {% endif %}
-
-
-
-
-
                                                                 {% endif %}
                                                             {% endfor %}
 
@@ -697,10 +723,7 @@
                                                             <tr>
 
                                                             {% for option in question.question_options %}
-                                                                {% if option.option.active %}
-
-
-
+                                                                {% if option.option.active and option.option.meta == None %}
                                                                     {% if forloop.first %}
                                                                         <td style="padding-bottom: 5px !important;
                                                                                padding-top: 5px !important;
@@ -726,20 +749,15 @@
                                                                             </td>
                                                                             <!--<input type="radio" name=" question.question.id " value=" option.option.value ">-->
                                                                         {% endif %}
-
-                                                                    {% if forloop.last %}
+                                                                    {% ifequal forloop.revcounter 2 %}
                                                                         <td style="padding-bottom: 5px !important;
                                                                                padding-top: 5px !important;
                                                                                padding-left: 10px !important;
                                                                                padding-right: 10px !important;
                                                                                width: 100px !important;">
                                                                             {{ option.option.label }}</td>
-                                                                    {% endif %}
-
-
-
-
-
+                                                                    {% else %}
+                                                                    {% endifequal %}
                                                                 {% endif %}
                                                             {% endfor %}
                                                             </tr>

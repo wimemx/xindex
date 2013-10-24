@@ -207,11 +207,19 @@ function addQuestionOptions(from) {
 
         $('#' + current_question_id + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
 
+        var inputs_added = $('div.multiple_choice input.option_added').length
+        var counter_added = 0;
         $('div.multiple_choice input.option_added').each(function () {
+            counter_added ++;
             var list_value = $(this).val();
             $('#' + current_question_id + ' div.question_options').append(
                 '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
+            if(counter_added == inputs_added){
+                $('#' + current_question_id + ' div.question_options').append(
+                    '<input type="checkbox"/>&nbsp;&nbsp;' + 'No aplica' + '</br>'
+                );
+            }
         })
     } else if (from=='matrix'){
 
@@ -228,12 +236,23 @@ function addQuestionOptions(from) {
             '</table>' +
             '</div>');
 
+        var total_cols_length = $('div.matrix div.matrix_cols input.option_added').length;
+        var counter_index = 0;
+
         $('div.matrix div.matrix_cols input.option_added').each(function () {
+            counter_index ++;
             var col_value = $(this).val();
             $('#' + current_question_id + ' tr.tr-cols').append(
                 '<td class="padder">' + col_value + '</td>'
             );
             counter_td ++;
+            if(counter_index == total_cols_length){
+                var col_value = 'No aplica';
+                $('#' + current_question_id + ' tr.tr-cols').append(
+                    '<td class="padder">' + col_value + '</td>'
+                );
+                counter_td ++;
+            }
         });
 
         for (i=0; i < parseInt(counter_td); i ++){
@@ -299,6 +318,13 @@ function addQuestionOptions(from) {
                 'padding-top: 10px;' +
                 'padding-bottom: 20px;' +
                 'clear: both;">' +
+            '<div class="checkbox">'+
+                '<label class="checkbox-custom">'+
+                    '<input type="checkbox" name="" id="">'+
+                    '<i class="icon-unchecked"></i>'+
+                    'No aplica'+
+                '</label>'+
+            '</div>'+
             '<table border=0 class="question_options">' +
                  '<tr>'+ header_value +'</tr>' +
                 '<tr class="tr-options">' +
@@ -331,6 +357,13 @@ function addQuestionOptions(from) {
             'padding-right: 35px !important;' +
             'padding-top: 10px;' +
             'padding-bottom: 20px">' +
+            '<div class="checkbox">'+
+                '<label class="checkbox-custom">'+
+                    '<input type="checkbox" name="" id="">'+
+                    '<i class="icon-unchecked"></i>'+
+                    'No aplica'+
+                '</label>'+
+            '</div>'+
             '<textarea class="form-control" name="comment" cols="30" rows="5"  ' +
             'maxlength="100"' +
             'placeholder="Vista previa de pregunta abierta"></textarea>' +
@@ -340,18 +373,24 @@ function addQuestionOptions(from) {
 
         $('#' + current_question_id + ' div.optional-content').html('' +
             '<div class="col-sm-12" style="padding-left: 35px !important;">' +
-            '<div class="radio">' +
-            '<br> <label class="radio-custom">' +
-            '<input type="radio">' +
-            '<i class="icon-circle-blank"></i>' +
-            'Verdadero' +
-            '</label> <br>' +
-            '<label class="radio-custom">' +
-            '<input type="radio">' +
-            '<i class="icon-circle-blank"></i>' +
-            'Falso' +
-            '</label>' +
-            '</div>' +
+                '<div class="radio">' +
+                    '<br>'+
+                        '<label class="radio-custom">' +
+                            '<input type="radio">' +
+                            '<i class="icon-circle-blank"></i>' +
+                            'Verdadero' +
+                        '</label> <br>' +
+                        '<label class="radio-custom">' +
+                            '<input type="radio">' +
+                            '<i class="icon-circle-blank"></i>' +
+                            'Falso' +
+                        '</label> <br>' +
+                        '<label class="radio-custom">' +
+                            '<input type="radio">' +
+                            '<i class="icon-circle-blank"></i>' +
+                            'No aplica' +
+                        '</label>' +
+                '</div>' +
             '</div>'
         );
     }

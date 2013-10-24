@@ -372,6 +372,8 @@ $(document).ready(function () {
 
             var style = $(this).closest('div.question-content').attr('style');
 
+            //alert(style);
+
             setDefaultStyleInQuestionDesignUpdate((style).split(';'));
 
             return getQuestionToUpdate(question_id);
