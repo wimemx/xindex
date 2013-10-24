@@ -18,14 +18,125 @@
         </header>
         <section class="panel padder padder-v animated fadeInRight">
             {% if business_unit %}
-                <input type="hidden" id="business_unit_id" value="{{ business_unit.id }}">
-            <div class="wrapper">
-                <p class="h3">Servicio de <a class="h3 text-success"
-                                             href="/services/{{ business_unit.id }}">
-                                            {{ business_unit.name }}</a>
-                    <small class="padder" style="font-style: italic">{{ company }}</small></p>
+            <div class="col-lg-12 col-sm-12">
+                <div class="row">
+                    <div class="col-lg-10">
+                        <input type="hidden" id="business_unit_id" value="{{ business_unit.id }}">
+                            <p><a class="h2 text-success"
+                                  href="/services/{{ business_unit.id }}">
+                                {{ business_unit.name }}</a>
+                        <small class="text-muted h5">{{ company }}</small></p>
+                    </div>
+                    <div class="col-lg-2">
+                        <a href="/business_units/update/{{ business_unit.id }}"
+                           class="text-warning"
+                           id="edit-information"
+                           data-toggle="ajaxModal">
+                        <i class="icon-edit icon-2x"></i>Editar
+                        </a>
+                    </div>
+                </div>
             </div>
             {% endif %}
+            <div class="col-lg-12 col-sm-12">
+                {{ business_unit.description }}
+            </div>
+            <div class="col-lg-12 h3 padder-v">
+                Servicios de ésta unidad de servicio
+            </div>
+            <div class="col-lg-12 col-sm-12 padder-v">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="input-group search datagrid-search"
+                             style="width: 100% !important;">
+                            <input type="text"
+                                   class="input-sm form-control"
+                                   placeholder="Buscar">
+
+                            <div class="input-group-btn">
+                                <button class="btn btn-white btn-sm">
+                                    <i class="icon-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <a class="btn bg-success btn-modal-xindex"
+                           href="/services/add/{{ business_unit.id }}"
+                           data-toggle="ajaxModal"
+                           style="width: 100%">
+                            <i class="icon-plus icon-2x"></i>
+                            Crear un nuevo servicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <input type="hidden" id="current_page">
+                <input type="hidden" id="show_per_page">
+                <div class="col-lg-12">
+                    <section class="panel">
+                        <ul class="list-group" id="contentList">
+                            {% if found_entries %}
+                                <!-- Busqueda de servicios -->
+                            {% endif %}
+                            {% for each_service in all_services.services %}
+                                <li class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-right text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4 text-muted"
+                                                 style="padding-left: 10px; padding-top: 10px; padding-bottom: 10px">
+                                                <a href="#"
+                                                   class="text-warning"
+                                                   data-toggle="ajaxModal">
+                                                <i class="icon-edit"></i>
+                                                </a>
+                                                <a href="#" class="text-danger">
+                                                <i class="icon-remove"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="pull-right text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4" style="padding-left: 10px;">
+                                                    {{ each_service.indicator_counter }}
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Indicadores
+                                            </small>
+                                        </div>
+                                        <div class="pull-right text-center"
+                                             style="border-left: 1px solid #d3d3d3">
+                                            <div class="h4">
+                                                {{ each_service.touchPoint_counter }}
+                                            </div>
+                                            <small class="text-muted"
+                                                   style="padding-left: 10px;">
+                                                Puntos de contacto
+                                            </small>
+                                        </div>
+                                        <div class="media-body">
+                                            <div class="h4" style="padding-top: 10px;">
+                                                <a href="/services/details/{{ each_service.id }}/{{ business_unit.id }}">
+                                                    {{ each_service.name }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+
+
+
+
+        <!--
             <div id="datagrid">
                 <section class="panel">
                     <div class="table-responsive">
@@ -118,6 +229,10 @@
                     </div>
                 </section>
             </div>
+        -->
+
+
+
         </section>
     </section>
     </section>
