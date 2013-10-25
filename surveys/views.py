@@ -272,7 +272,12 @@ def save(request, action, next_step, survey_id=False):
                                 try:
                                     question = Question.objects.get(pk=q['db_id'])
                                     options = question.option_set.filter(active=True).order_by('id')
-
+                                    print '----------'
+                                    print 'Question: '
+                                    print question
+                                    print 'Options: '
+                                    print options
+                                    print '----------'
                                     #Check if question is associated to a moment
                                     try:
                                         association = Question_Attributes.objects.get(question_id=question)
@@ -291,8 +296,7 @@ def save(request, action, next_step, survey_id=False):
                                         attribute_title = False
                                     #end check
 
-                                    print moment_title
-                                    print attribute_title
+
 
                                     options_o = []
                                     for option in options:
@@ -307,9 +311,23 @@ def save(request, action, next_step, survey_id=False):
                                         style = q['question_style']
                                     else:
                                         style = False
+
+                                    if question.type.name == 'Matrix':
+                                        sub_questions = question.question_set.filter(active=True).order_by('id')
+                                        """
+                                        print '.s.s.s.s.s.s.s.'
+                                        for sub in sub_questions:
+                                            for option in  sub.option_set.filter(active=True).order_by('id'):
+                                                print 'this is my id: ' + str(option.id)
+                                                print option.label
+                                        print '.s.s.s.s.s.s.s.'
+                                        """
+                                    else:
+                                        sub_questions = False
                                     questions.append(
                                         {
                                             'question': question,
+                                            'sub_questions': sub_questions,
                                             'moment_title': moment_title,
                                             'attribute_title': attribute_title,
                                             'question_style': style,
@@ -662,16 +680,25 @@ def create_matrix(request, data):
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     for subquestion in rows:
-        q = Question(user=Xindex_User.objects.get(pk=1),
+        q = Question(user=Xindex_User.objects.get(pk=request.user.id),
                      title=subquestion.label,
                      type=Question_Type.objects.get(pk=type),
                      parent_question=question)
         q.save()
         i = 1
+
+        col_len = len(cols)
+
         for option in cols:
             new_option = Option(question=q, label=option.label,
                             value = i, order = i)
             new_option.save()
+
+            if col_len == i:
+                not_apply_option = Option(question=q, label='No aplica',
+                                          value=i+1, order=i+1, meta='not editable')
+                not_apply_option.save()
+
             i += 1
 
 
@@ -750,9 +777,12 @@ def create_multiple_choice(request, data):
     i = 1
     for option in options:
         new_option = Option(question=question, label=option.label,
-                        value = i, order = i)
+                            value=i, order=i)
         new_option.save()
         i += 1
+    not_apply_option = Option(question=question, label='No aplica',
+                              value=i+1, order=i+1, meta='not editable')
+    not_apply_option.save()
 
     json_response = json.dumps(
         {
@@ -790,6 +820,14 @@ def create_open_question(request, data):
 
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
+    not_apply_option = Option(question=question, label='No aplica',
+                              value=1, order=1)
+    not_apply_option.save()
+
+    answer_option = Option(question=question, label='Respuesta',
+                           value=2, order=2)
+    answer_option.save()
+
     try:
         survey = Survey.objects.get(pk=survey_id)
     except Survey.DoesNotExist:
@@ -808,7 +846,6 @@ def create_open_question(request, data):
 
 
 def create_range_question(request, data):
-    print "Entra a funciona crear pregunta de rango"
 
     type = int(data.type)
     title = data.title
@@ -862,19 +899,23 @@ def create_range_question(request, data):
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     new_option = Option(question=question, label=data.options.start_label,
-                        value = start_number, order = start_number)
+                        value=start_number, order=start_number)
     new_option.save()
 
     start_number += 1
 
     for i in range(start_number, end_number):
         new_option = Option(question=question, label="",
-                    value = i, order = i)
+                            value=i, order=i)
         new_option.save()
 
     new_option = Option(question=question, label=data.options.end_label,
-                        value = end_number, order = end_number)
+                        value=end_number, order=end_number)
     new_option.save()
+
+    not_apply_option = Option(question=question, label='No aplica',
+                              value=end_number+1, order=end_number+1, meta='not editable')
+    not_apply_option.save()
 
 
     try:
@@ -897,7 +938,7 @@ def create_range_question(request, data):
 def create_true_and_false(request, data):
     type = int(data.type)
     title = data.title
-    options = ['False', 'True']
+    options = ['Falso', 'Verdadero', 'No aplica']
     survey_id = int(data.survey_id)
     add_catalog = data.add_catalog
 
@@ -1186,7 +1227,8 @@ def edit(request, question_id):
                     )
 
             for option in options:
-                if option.active:
+                print option.meta
+                if option.active and option.meta is None:
                     question_json['question_options'].append(
                         {
                             'option_id': option.id,
@@ -1208,12 +1250,9 @@ def edit(request, question_id):
         #Editar una pregunta tipo 'Opcion multiple'
         elif question.type.name == "Multiple Choice":
             options = question.option_set.all().order_by('id')
-            """
-            return render_to_response('questions/edit.html',
-                                      {'question': question,
-                                       'question_types': question_types,
-                                       'options': options})
-            """
+            print 'ññññññññññññ'
+            print options
+            print 'ññññññññññññ'
             question_json = {}
             question_json['question_type_id'] = question.type.id
             question_json['question_type_name'] = question.type.name
@@ -1249,7 +1288,8 @@ def edit(request, question_id):
             question_json['question_attribute_name'] = attribute_name
 
             for option in options:
-                if option.active:
+                print option.label
+                if option.active and option.meta is None:
                     question_json['question_options'].append(
                         {
                             'option_id': option.id,
@@ -1314,7 +1354,7 @@ def edit(request, question_id):
         #Editar una pregunta tipo 'Rango'
         elif question.type.name == "Range":
             options = question.option_set.filter(active=True).order_by('id')
-            first, last = options[0], options.reverse()[0]
+            first, last = options[0], options.reverse()[1]
 
             '''
             return render_to_response('questions/edit.html',
@@ -1385,7 +1425,16 @@ def update_matrix(question, data):
     cols = data.cols
     rows = data.rows
 
+    print 'cols: '
+    print cols
+    print 'rows'
+    print rows
+
+    #get all sub questions
     questions = Question.objects.filter(parent_question=question).order_by('id')
+
+    print 'SubQuestions: '
+    print questions
 
     #Set all subquestions to innactive
     Question.objects.filter(parent_question=question).update(active=False)
@@ -1402,7 +1451,11 @@ def update_matrix(question, data):
             q.active = True
             q.save()
 
-            options = q.option_set.all().order_by('id')
+            options = q.option_set.filter(meta=None).order_by('id')
+
+            print 'Those are the options for subquestions existent: '
+            print options
+
             #assuming both objects are in order
             i = 0
             for option in cols:
@@ -1418,6 +1471,10 @@ def update_matrix(question, data):
                     new_option = Option(question=q, label=option.label,
                             value = i, order = i)
                     new_option.save()
+            #Add 'not apply' option
+            new_option = Option(question=q, label='No aplica',
+                                value=i+1, order=i+1, meta='not editable')
+            new_option.save()
         else:
             #The subquestion is new
             q = Question(user=Xindex_User.objects.get(pk=1),
@@ -1426,12 +1483,17 @@ def update_matrix(question, data):
                          parent_question=question)
             q.save()
 
-            #There must be at leat one
-            cols = questions[0].option_set.filter(active=True).order_by('id')
+            #There must be at least one
+            cols = questions[0].option_set.filter(active=True, meta=None).order_by('id')
+            number_cols = len(cols)
             for option in cols:
                 new_option = Option(question=q, label=option.label,
                                     value=option.value, order=option.order)
                 new_option.save()
+
+            new_option = Option(question=q, label='No aplica',
+                                value=number_cols+1, order=number_cols+1)
+            new_option.save()
 
         #At the end, for each question that has been 'removed' (active = False)
         #We should also delete its options
@@ -1493,6 +1555,10 @@ def update_multiple_choice(question, data):
     Option.objects.filter(question=question).update(active=False)
     current_options = question.option_set.all().order_by('id')
 
+    print 'jsdoa'
+    print current_options
+    print 'jsdoa'
+
     #Assuming the order in data is correct
     i = 0
     for option in options:
@@ -1506,8 +1572,12 @@ def update_multiple_choice(question, data):
         else:
             #It is a new Option
             new_option = Option(question=question, label=option.label,
-                    value = i, order = i)
+                                value=i, order=i)
             new_option.save()
+
+    not_apply_option = Option(question=question, label='No aplica',
+                              value=i+1, order=i+1, meta='not editable')
+    not_apply_option.save()
 
     if data.moment_id or data.attribute_id:
         try:
@@ -1606,7 +1676,7 @@ def update_range_question(question, data):
 
     #Set all options to innactive
     Option.objects.filter(question=question).update(active=False)
-    current_options = question.option_set.all().order_by('id')
+    current_options = question.option_set.filter(meta=None).order_by('id')
 
     #Setting the first value
     first_option = current_options[start_number]
@@ -1646,6 +1716,10 @@ def update_range_question(question, data):
         lastOption = Option(question=question, label=data.options.end_label,
                             value=end_number, order=end_number)
         lastOption.save()
+
+    not_apply_option = Option(question=question, label='No aplica',
+                              value=end_number+1, order=end_number+1, meta='not editable')
+    not_apply_option.save()
 
     if data.moment_id or data.attribute_id:
         try:
@@ -1904,9 +1978,15 @@ def answer_survey(request, survey_id, hash_code):
                                         style = q['question_style']
                                     else:
                                         style = False
+
+                                    if question.type.name == 'Matrix':
+                                        sub_questions = question.question_set.filter(active=True).order_by('id')
+                                    else:
+                                        sub_questions = False
                                     questions.append(
                                         {
                                             'question': question,
+                                            'sub_questions': sub_questions,
                                             'moment_title': moment_title,
                                             'attribute_title': attribute_title,
                                             'question_style': style,

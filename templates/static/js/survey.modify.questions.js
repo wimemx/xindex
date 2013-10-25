@@ -25,22 +25,32 @@ $(document).ready(function(){
     });*/
 
     /*Mostrar en tiempo real una nueva opción (Multiple Choice - Modificando)*/
-    $(document).on('keyup', '.multiple_choice_options_set_u', function () {
+    $(document).on('keyup change', '.multiple_choice_options_set_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
 
         console.log('keyup event: '+current_question_updated);
 
         $('#' + current_question_updated + ' div.optional-content').html('<div style="clear: both;"><div class="question_options"></div></div>');
+        var options_added = $('div.multiple_choice_u input.option_added_u').length;
+        var counter_options = 0;
         $('div.multiple_choice_u input.option_added_u').each(function () {
+            counter_options ++;
             var list_value = $(this).val();
             $('#' + current_question_updated + ' div.question_options').append(
                 '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
+
+            if (counter_options == options_added){
+                $('#' + current_question_updated + ' div.question_options').append(
+                    '<input type="checkbox"/>&nbsp;&nbsp;' + 'No aplica' + '</br>'
+                );
+            }
+
         })
     });
 
-    $(document).on('change', '.multiple_choice_options_set_u', function () {
+    /*$(document).on('change', '.multiple_choice_options_set_u', function () {
 
         var current_question_updated = $('#current-question-updated').val();
 
@@ -53,7 +63,7 @@ $(document).ready(function(){
                 '<input type="checkbox"/>&nbsp;&nbsp;' + list_value + '</br>'
             );
         })
-    });
+    });*/
 
     /*Mostrar en tiempo real la matriz (Matrix - Modificando)*/
     $(document).on('keyup', '#question_type_1_form', function () {
@@ -72,12 +82,24 @@ $(document).ready(function(){
             '</table>' +
             '</div>');
 
+        var total_cols_length = $('div.matrix_cols_u input.option_added_u').length;
+        var counter_index = 0;
         $('div.matrix_cols_u input.option_added_u').each(function () {
+            counter_index ++;
             var col_value = $(this).val();
             $('#' + current_question_updated + ' tr.tr-cols').append(
                 '<td class="padder">' + col_value + '</td>'
             );
+
             counter_td ++;
+
+            if(counter_index == total_cols_length){
+                var col_value = 'No aplica';
+                $('#' + current_question_updated + ' tr.tr-cols').append(
+                    '<td class="padder">' + col_value + '</td>'
+                );
+                counter_td ++;
+            }
         });
 
         for (i=0; i < parseInt(counter_td); i ++){
@@ -148,6 +170,13 @@ $(document).ready(function(){
                 'padding-top: 10px;' +
                 'padding-bottom: 20px;' +
                 'clear: both;">' +
+            '<div class="checkbox">'+
+                '<label class="checkbox-custom">'+
+                    '<input type="checkbox" name="" id="">'+
+                    '<i class="icon-unchecked"></i>'+
+                    'No aplica'+
+                '</label>'+
+            '</div>'+
             '<table border=0 class="question_options">' +
                  '<tr>'+ header_value +'</tr>' +
                 '<tr class="tr-options">' +
