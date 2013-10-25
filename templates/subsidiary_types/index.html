@@ -11,24 +11,32 @@
             <p class="h4 animated bounceInDown">Tipos de Subsidiarias</p>
         </header>
         <section class="panel padder padder-v animated fadeInRight">
+            <div class="col-lg-12 h2">
+                Tipos de sucursales
+            </div>
             <div id="datagrid">
-                <section class="panel">
+                <section class="panel"
+                         style="border: none !important; box-shadow: none !important;">
                     <div class="table-responsive">
                         <table id="mySTGrid" class="table table-striped datagrid m-b-sm">
                             <thead>
                             <tr>
-                                <th>
+                                <th style="background-color: transparent">
+                                    <div class="col-lg-12">
                                     <div class="row">
-                                        <div class="col-sm-8 m-t-xs m-b-xs">
-                                            <div>
-                                                <a class="btn btn-white btn-sm" href="/subsidiary_types/add">
-                                                    <i class="icon-plus-sign"></i>
-                                                    Agregar
+                                        <div class="col-lg-4" style="padding-left: 0px">
+                                                <a class="btn btn-success btn-modal-xindex"
+                                                   href="/subsidiary_types/add"
+                                                   style="width: 100%"
+                                                   data-toggle="ajaxModal">
+                                                    <i class="icon-plus"></i>
+                                                    Crear un tipo de sucursal
                                                 </a>
-                                            </div>
                                         </div>
-                                        <div class="col-sm-4 m-t-xs m-b-xs">
-                                            <div class="input-group search datagrid-search">
+                                        <div class="col-lg-4"></div>
+                                        <div class="col-lg-4">
+                                            <div class="input-group search datagrid-search"
+                                                 style="width: 100%">
                                                 <input type="text" class="input-sm form-control" placeholder="Buscar">
 
                                                 <div class="input-group-btn">
@@ -37,6 +45,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     </div>
                                 </th>
                             </tr>
@@ -62,10 +71,8 @@
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li data-value="5"><a href="#">5</a></li>
-                                                    <li data-value="10"><a href="#">10</a></li>
-                                                    <li data-value="20" data-selected="true"><a href="#">20</a></li>
-                                                    <li data-value="50"><a href="#">50</a></li>
-                                                    <li data-value="100"><a href="#">100</a></li>
+                                                    <li data-value="10" data-selected="true"><a href="#">10</a></li>
+                                                    <li data-value="20"><a href="#">20</a></li>
                                                 </ul>
                                             </div>
                                             <span>Por p&aacute;gina</span>
@@ -110,9 +117,11 @@
     <script src="/static/js/app.js"></script>
     <script src="/static/js/app.plugin.js"></script>
     <script src="/static/js/app.grids.data.js"></script>
+    <script src="/static/js/app.forms.xindex.js"></script>
 
 
-
+    <!--Bootbox-->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
     <script src="/static/js/libs/underscore-min.js"></script>
@@ -124,6 +133,7 @@
     <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
+
 {% endblock %}
 
 </body>

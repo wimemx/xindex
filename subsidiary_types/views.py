@@ -88,7 +88,8 @@ def update(request, subsidiary_type_id):
             template_vars = {
                 "titulo": "Editar tipo de subsidiaria",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "subsidiary_type_id": subsidiary_type_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("subsidiary_types/update.html",
@@ -114,8 +115,9 @@ def remove(request, subsidiary_type_id):
                 "titulo": "Tipos de subsidiarias",
                 "message": message
             }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponseRedirect('/subsidiary_types')
+            #request_context = RequestContext(request, template_vars)
+            #return HttpResponseRedirect('/subsidiary_types')
+            return HttpResponse("Si")
 
         except:
             message = "No se pudo eliminar el tipo de subsidiaria"

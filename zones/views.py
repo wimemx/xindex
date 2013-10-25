@@ -119,7 +119,8 @@ def remove(request, zone_id):
     zone = Zone.objects.get(pk=zone_id)
     zone.active = False
     zone.save()
-    return HttpResponseRedirect('/zones')
+    return HttpResponse('Si')
+    #return HttpResponseRedirect('/zones')
 
 
 def detail(request, zone_id):

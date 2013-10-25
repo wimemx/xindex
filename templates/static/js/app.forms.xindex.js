@@ -294,6 +294,104 @@ $(document).ready(function () {
 
     });
 
+    //--- Función corregir problema modal  Subsidiary Types---//
+    $('#mySTGrid').on('click', 'a.edit-subType', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        if (url.indexOf('#') == 0) {
+            $(url).modal('open');
+        } else {
+            $.get(url,function (data) {
+                $('<div class="modal" id="edit-subType">' + data + '</div>').modal();
+            }).success(function () {
+                    $('input:text:visible:first').focus();
+                });
+        }
+
+
+    });
+
+    //--- Función para elimar registro de Subsidiary Types---//
+    $("#mySTGrid").on('click', '.remove-subsidiaryType', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar éste tipo de sucursal? ",
+            title: "Eliminar una Tipo sucursal",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+
+
+    //--- Función para elimar registro de Zona---//
+    $(document).on('click', '.remove-zone', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar ésta zona ",
+            title: "Eliminar una zona",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
 
 
 })

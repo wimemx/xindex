@@ -113,13 +113,6 @@ function subsidiariesDatagrid() {
                         label: 'Detalles',
                         sortable: false
                     },
-                    /*
-                     {
-                     property: 'active',
-                     label: '¿Activa?',
-                     sortable: true
-                     },
-                     */
                     {
                         property: 'subsidiaryId',
                         label: 'Editar',
@@ -252,37 +245,18 @@ function subsidiaryTypesDatagrid() {
                         label: 'Descripción',
                         sortable: false
                     },
-                    /*
-                     {
-                     property: 'active',
-                     label: '¿Activa?',
-                     sortable: true
-                     },
-                     */
-                    {
-                        property: 'st_det',
-                        label: 'Detalles',
-                        sortable: false
-                    },
-                    {
-                        property: 'st_up',
-                        label: 'Editar',
-                        sortable: false
-                    },
                     {
                         property: 'st_del',
-                        label: 'Eliminar'
+                        label: 'Acciones'
                     }
                 ],
 
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.st_det = '<a href="/subsidiary_types/details/' + item.st_det + '"><i class="icon-eye-open"></i></a>';
-                        item.st_up = '<a href="/subsidiary_types/update/' + item.st_up + '"><i class="icon-edit-sign"></i></a>';
-                        item.st_del = '<a href="/subsidiary_types/remove/' + item.st_del + '"><i class="icon-remove-sign"></i></a>';
-                        //c = (item.active == true) ? "checked" : ""
-                        //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
+                        item.name = '<a href="/subsidiary_types/details/' + item.st_det + '">' + item.name + '</a>';
+                        item.st_del = '<a href="/subsidiary_types/update/' + item.st_up + '" class="edit-subType" data-toggle="ajaxModal"><i class="icon-edit"></i></a>' +
+                            '<a href="/subsidiary_types/remove/' + item.st_del + '" class="remove-subsidiaryType"><i class="icon-remove"></i></a>';
                     });
                 }
             })

@@ -50,8 +50,8 @@ class Subsidiary_Type(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = "Types"
-        verbose_name = "Type"
+        verbose_name_plural = "Subsidiary_Types"
+        verbose_name = "Subsidiary_Type"
 
 
 class Country(models.Model):
