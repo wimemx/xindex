@@ -199,6 +199,7 @@ function saveSurvey() {
         success: function (data) {
             if (data.answer) {
                 //window.location.href = '';
+                showDefaultButtons();
                 set_current_operation_inactive();
                 console.log('The survey has been saved!')
             }

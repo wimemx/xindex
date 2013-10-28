@@ -428,7 +428,7 @@ function insertQuestionsBlock() {
     $('#main-configuration-panel').addClass('hidden');
     $('#questions-block-configuration-panel').removeClass('hidden');
 
-    $('div.default-buttons').fadeOut(300);
+    hideDefaultButtons();
 
     //Determine next block id
 
@@ -484,7 +484,7 @@ function insertQuestionsBlock() {
         '</div>' +
         '<ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">'+
         '</ul>'+
-        '<footer class="wrapper text-center">' +
+        '<footer class="wrapper text-center" style="display: none;">' +
         '<a class="btn btn-info wrapper add-question-to-block">' +
         '<i class="icon-plus-sign-alt"></i>' +
         'Da click aquí para añadir una pregunta' +
@@ -659,7 +659,7 @@ $(document).ready(function () {
         $('#questions-block-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').removeClass('hidden');
 
-        $(this).closest('footer').fadeOut(400);
+        hideDefaultButtons();
         var question_info_moment = 'Sin asignar';
         if($(this).closest('section.question-block').find('input.block_moment_associated_id').hasClass('true')){
             var moment_associated_id = $(this).closest('section.question-block').find('input.block_moment_associated_id').val();

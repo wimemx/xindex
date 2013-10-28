@@ -17,6 +17,7 @@ from xindex.models import Option
 from xindex.models import Catalog
 from xindex.models import Moment
 from xindex.models import Service
+from xindex.models import Answer
 from xindex.models import Attributes
 
 
@@ -677,6 +678,7 @@ def create_matrix(request, data):
     question.title = title
     question.save()
 
+    #TODO: Fix this, the parent question does not need the association, the sub questions do
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     for subquestion in rows:
@@ -2060,3 +2062,54 @@ def answer_survey(request, survey_id, hash_code):
         except Survey.DoesNotExist:
             raise Http404
 
+
+#TODO: Fix this; DO NOT use in production
+@csrf_exempt
+def save_answers_ajax(request):
+    if request.is_ajax():
+        try:
+            data = json.loads(request.body)
+
+            print data
+            for key, values in data.items():
+                for question in values:
+                    print '---------'
+                    print question['question_id']
+                    print question['option_id']
+                    print '---------'
+                    try:
+                        question_db = Question.objects.get(pk=int(question['question_id']))
+                    except Question.DoesNotExist:
+                        question_db = False
+                    try:
+                        option_db = Option.objects.get(pk=int(question['option_id']))
+                    except Question.DoesNotExist:
+                        option_db = False
+                    answer = Answer()
+                    answer.question = question_db
+                    if question['question_type'] == 'open_question':
+                        answer.value = option_db.value
+                        answer.meta = question['option_value']
+                    else:
+                        answer.value = option_db.value
+                    answer.order = option_db.order
+                    answer.active = True
+                    answer.save()
+
+            json_response = json.dumps(
+                {
+                    'response': True
+                }
+            )
+            return HttpResponse(json_response, content_type="application/json")
+
+        except ValueError:
+            json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+            return HttpResponse(json_response, content_type="application/json")
+    else:
+        json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+        return HttpResponse(json_response, content_type="application/json")

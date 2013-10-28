@@ -1814,3 +1814,17 @@ function setDefaultTextBlockStyleInDesign(default_style){
 
     $('#update_text_block_background_color_picker div').attr('style', 'background-color: '+background_c);
 }
+
+function showDefaultButtons(){
+    $('div.default-buttons').slideDown(300);
+    $('#survey-main-content a.add-question-to-block').each(function () {
+        $(this).closest('footer').slideDown(300);
+    });
+}
+
+function hideDefaultButtons(){
+    $('div.default-buttons').slideUp(300);
+    $('#survey-main-content a.add-question-to-block').each(function () {
+        $(this).closest('footer').slideUp(300);
+    });
+}
