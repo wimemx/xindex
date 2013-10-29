@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -72,4 +74,6 @@ urlpatterns = patterns('',
 
     #Logout
     url(r'^logout/$', 'xindex.views.log_out'),
+
+
 )

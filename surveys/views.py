@@ -222,6 +222,9 @@ def save(request, action, next_step, survey_id=False):
 
             configuration = json.loads(survey.configuration)
 
+            #check if survey has an image
+            picture = survey.picture
+
             setup = {}
             setup['intro_block'] = []
             setup['blocks'] = []
@@ -387,6 +390,8 @@ def save(request, action, next_step, survey_id=False):
                     setup['block_background_color'] = values
                 if key == 'block_box_shadow':
                     setup['block_box_shadow'] = values
+                if picture:
+                    setup['survey_picture'] = picture
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -451,7 +456,7 @@ def media_upload(request, survey_id):
 
     path = os.path.join(
         os.path.dirname(__file__), '..',
-        'templates/media/pictures/').replace('\\', '/')
+        'templates/static/images/').replace('\\', '/')
 
     path += str(survey.id) + str(request.FILES['file'])
     file = request.FILES['file']
@@ -2047,6 +2052,8 @@ def answer_survey(request, survey_id, hash_code):
                     setup['block_background_color'] = values
                 if key == 'block_box_shadow':
                     setup['block_box_shadow'] = values
+                if survey.picture:
+                    setup['survey_picture'] = survey.picture
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -2073,10 +2080,6 @@ def save_answers_ajax(request):
             print data
             for key, values in data.items():
                 for question in values:
-                    print '---------'
-                    print question['question_id']
-                    print question['option_id']
-                    print '---------'
                     try:
                         question_db = Question.objects.get(pk=int(question['question_id']))
                     except Question.DoesNotExist:

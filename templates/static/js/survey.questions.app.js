@@ -786,7 +786,7 @@ $(document).ready(function () {
         var new_questions_block_content =
             '<div class="row row-block row-no-block question-block animated" id="' + new_block_id + '">' +
                 '<div class="col-lg-12">' +
-                    '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="'+questions_style+'">' +
+                    '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="border: 0px solid #FFFFFF !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);">' +
                         '<input type="hidden" class="block_moment_associated_id false">'+
                         '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
                             '<div class="question_actions">'+
@@ -805,7 +805,7 @@ $(document).ready(function () {
                         /*
                          '<div class="wrapper question-blocks-content">' +
                          '</div>' +*/
-                        '<div class="wrapper question-content block-question active-question" style="display: table; min-width: 100%; min-heigth: 50px;">'+
+                        '<div class="wrapper question-content block-question active-question" style="'+questions_style+'">'+
                             '<div class="question_id" style="float:left;"></div>'+
                             '<div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div>'+
                             '<div class="optional-content" style="margin-top: 15px;"></div>'+

@@ -55,7 +55,7 @@
 
         #holder.hover {
             border: 1px dashed #0c0;
-        }
+        }*
 
         #holder img {
             display: block;
@@ -88,6 +88,7 @@
             border: 1px dashed transparent;
             border-radius: 5px;
         }
+        
         .question-content:hover {
             border: 1px dashed #243a69;
         }
@@ -142,7 +143,13 @@
                 <form id="picture" class="dropzone" action="/surveys/media_upload/{{ survey_id }}">
                     {% csrf_token %}
                     <input type="hidden" name="picture" value="1"/>
-                        <div class="preview grid-5 fright no-margin dropzone-previews">
+                    <div class="preview grid-5 fright no-margin dropzone-previews">
+                        {% if setup %}
+                            {% if setup.survey_picture %}
+                                <img src="{{ STATIC_URL }}images/{{ setup.survey_picture }}" alt="image" style="width: 100px; float: left;" />
+                            {% else %}
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </form>
                 <!--
@@ -286,10 +293,10 @@
                                                                 </a>
                                                             </strong>
                                                             {% if question.attribute_title %}
-                                                                <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
+                                                                <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
                                                             {% endif %}
                                                             {% if question.moment_title %}
-                                                                <small class="pull-right text-dark"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                                <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
                                                             {% endif %}
 
                                                         </div>
@@ -555,10 +562,10 @@
                                                                     </a>
                                                                 </strong>
                                                                 {% if question.attribute_title %}
-                                                                    <small class="pull-right padder text-dark"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
+                                                                    <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
                                                                 {% endif %}
                                                                 {% if question.moment_title %}
-                                                                    <small class="pull-right text-dark"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                                    <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
                                                                 {% endif %}
 
                                                             </div>
@@ -827,8 +834,8 @@
                 </div>
             </section>-->
         </div>
-        <section class="text-left panel-footer" style="border: none !important;">
-            <section class="text-left">
+        <section class="text-left panel-footer" style="border: none !important; background-color: transparent !important;">
+            <section class="text-center">
                 <div class="wrapper border-edit-survey padder">
                     <label class="h5"><strong>{{ company_name }}</strong></label><br>
                     <label class="h5">{{ company_address }}</label><br>
@@ -1574,8 +1581,8 @@
                         <div class="">
                             <p class="h4">Texto de la pregunta</p>
                         </div>
-                        <textarea id="tinymce-editor-update-question"
-                                  name="tinymce-editor-update-question">
+                        <textarea id="update-question-title"
+                                  name="update-question-title" class="form-control">
 
                         </textarea>
 
@@ -1694,12 +1701,6 @@
                                             <option value="{{ attribute.attribute.id }}">{{ attribute.attribute.name }}</option>
                                         {% endfor %}
                                     </select>
-                                </div>
-                            </div>
-
-                            <div class="footer wrapper">
-                                <div class="">
-                                    <button type="submit" class="btn btn-info pull-left" id="">Guardar y Continuar</button>
                                 </div>
                             </div>
                         </form>
@@ -1899,7 +1900,7 @@
 <!-- Survey Questions App -->
 <script src="/static/js/survey.questions.app.js"></script>
 
-<!-- Sortable -->
+<!-- Sortable-->
 <script src="/static/js/sortable/jquery.sortable.js"></script>
 
 <!-- Dropzone -->
@@ -1929,7 +1930,7 @@
 
 <!-- BootBox -->
 <script src="/static/js/bootbox/bootbox.min.js"></script>
-<!--
+<!-- Jquery UI
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 -->
 <script>

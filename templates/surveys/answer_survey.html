@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/static/css/app.css">
     <style>
         .wime-disclaimer{width: 80%; max-width: 900px; margin: 25px auto; text-align: center; font-size: 11px;}
+        .error_question{background-color: #ffe4d6; color: #ff525b; border: 1px solid #ff4450; font-size: 11px; padding: 5px; border-radius: 3px; clear: both; display: none;}
     </style>
 </head>
 <body>
@@ -28,6 +29,12 @@
                     <section class="panel" id="survey_global_content" style="background-color: {{ setup.block_background_color }}; border: {{ setup.block_border_width }} {{ setup.block_border_style }} {{ setup.block_border_color }}; box-shadow: {{ setup.block_box_shadow }}">
                         <div class="panel-body">
                             <section class="header text-center panel visible-lg">
+                                {% if setup %}
+                                    {% if setup.survey_picture %}
+                                        <img src="{{ STATIC_URL }}images/{{ setup.survey_picture }}" alt="image" style="width: 60px;" />
+                                    {% else %}
+                                    {% endif %}
+                                {% endif %}
                             </section>
                             <section class="panel wrapper drop" id="survey-main-content" style="background-color: rgba(255, 255, 255, 0); border: none; box-shadow: none">
                                 {% for block in setup.blocks %}
@@ -48,7 +55,8 @@
                                                                     {{ question.question_title }}
                                                                 </p>
                                                             </div>
-                                                            <div class="error_question" style="display: none;"></div>
+                                                            <div class="error_question">
+                                                            </div>
                                                             <div class="options-content" style="margin-top: 15px; clear: both;">
                                                                 {% if question.question.type.name == "Multiple Choice" %}
                                                                     <div class="col-sm-12" style="padding-left: 35px !important;">
