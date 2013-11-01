@@ -403,7 +403,7 @@ class Catalog(models.Model):
     user = models.ForeignKey(Xindex_User)
     question = models.ForeignKey(Question)
 
-"""
+
 class Cumulative_Report:
     id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
     id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
@@ -412,4 +412,4 @@ class Cumulative_Report:
     id_attribute = models.ForeignKey(Attributes, blank=True, null=True)
     grade = models.DecimalField(max_digits=8, decimal_places=5)
     date = models.DateField(default=datetime.now, blank=True, null=True)
-"""
+
