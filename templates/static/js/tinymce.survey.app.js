@@ -81,40 +81,4 @@ $(document).ready(function () {
         }
     });
 
-    //TODO: Delete this, now its implemented with text area
-    //tiny mce instance to update question text
-    tinymce.init({
-        selector: "textarea#tinymce-editor-update-question",
-        theme: "modern",
-        width: '100%',
-        height: 50,
-        autoresize_min_height: 50,
-        autoresize_max_height: 50,
-        entities: "160,nbsp,38,amp,34,quot,162,cent,8364,euro,163,pound,165,yen,169,copy,174,reg,8482,trade,8240,permil,60,lt,62,gt,8804,le,8805,ge,176,deg,8722,minus",
-        entity_encoding: "raw",
-        plugins: [
-            "autoresize paste textcolor"
-        ],
-        setup: function (ed) {
-            ed.on('keyup', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question-updated').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-
-                $('.question_title_updated').val(content);
-            })
-            ed.on('change', function (e) {
-                var con = ed.getContent();
-                var content = con.replace(/(<([^>]+)>)/ig, "");
-                var current_question = $('#current-question-updated').val();
-                $('#' + current_question + ' div.question-text').html('');
-                $('#' + current_question + ' div.question-text').html(content);
-
-                $('.question_title_updated').val(content);
-            })
-        }
-    });
-
 })

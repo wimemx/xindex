@@ -42,6 +42,9 @@ class Xindex_User(models.Model):
         return self.user.username + "-" + self.user.first_name + " " + self \
             .user.last_name
 
+    class Meta:
+        verbose_name_plural = "Users"
+        verbose_name = "User"
 
 class Subsidiary_Type(models.Model):
     name = models.CharField(max_length=50, null=False)
@@ -418,3 +421,16 @@ class Client(models.Model):
 
     def __unicode__(self):
         return self.name
+    
+
+class Cumulative_Report:
+    id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
+    id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
+    id_service = models.ForeignKey(Service, blank=True, null=True)
+    id_moment = models.ForeignKey(Moment, blank=True, null=True)
+    id_attribute = models.ForeignKey(Attributes, blank=True, null=True)
+    grade = models.DecimalField(max_digits=8, decimal_places=5)
+    date = models.DateField(default=datetime.now, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.grade

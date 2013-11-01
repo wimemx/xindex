@@ -428,7 +428,7 @@ function insertQuestionsBlock() {
     $('#main-configuration-panel').addClass('hidden');
     $('#questions-block-configuration-panel').removeClass('hidden');
 
-    $('div.default-buttons').fadeOut(300);
+    hideDefaultButtons();
 
     //Determine next block id
 
@@ -484,7 +484,7 @@ function insertQuestionsBlock() {
         '</div>' +
         '<ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">'+
         '</ul>'+
-        '<footer class="wrapper text-center">' +
+        '<footer class="wrapper text-center" style="display: none;">' +
         '<a class="btn btn-info wrapper add-question-to-block">' +
         '<i class="icon-plus-sign-alt"></i>' +
         'Da click aquí para añadir una pregunta' +
@@ -659,7 +659,7 @@ $(document).ready(function () {
         $('#questions-block-configuration-panel').addClass('hidden');
         $('#add-question-option-panel').removeClass('hidden');
 
-        $(this).closest('footer').fadeOut(400);
+        hideDefaultButtons();
         var question_info_moment = 'Sin asignar';
         if($(this).closest('section.question-block').find('input.block_moment_associated_id').hasClass('true')){
             var moment_associated_id = $(this).closest('section.question-block').find('input.block_moment_associated_id').val();
@@ -786,7 +786,7 @@ $(document).ready(function () {
         var new_questions_block_content =
             '<div class="row row-block row-no-block question-block animated" id="' + new_block_id + '">' +
                 '<div class="col-lg-12">' +
-                    '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="'+questions_style+'">' +
+                    '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="border: 0px solid #FFFFFF !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);">' +
                         '<input type="hidden" class="block_moment_associated_id false">'+
                         '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
                             '<div class="question_actions">'+
@@ -805,7 +805,7 @@ $(document).ready(function () {
                         /*
                          '<div class="wrapper question-blocks-content">' +
                          '</div>' +*/
-                        '<div class="wrapper question-content block-question active-question" style="display: table; min-width: 100%; min-heigth: 50px;">'+
+                        '<div class="wrapper question-content block-question active-question" style="'+questions_style+'">'+
                             '<div class="question_id" style="float:left;"></div>'+
                             '<div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div>'+
                             '<div class="optional-content" style="margin-top: 15px;"></div>'+

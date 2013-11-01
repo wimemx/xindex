@@ -17,6 +17,7 @@ from xindex.models import Option
 from xindex.models import Catalog
 from xindex.models import Moment
 from xindex.models import Service
+from xindex.models import Answer
 from xindex.models import Attributes
 
 
@@ -221,6 +222,9 @@ def save(request, action, next_step, survey_id=False):
 
             configuration = json.loads(survey.configuration)
 
+            #check if survey has an image
+            picture = survey.picture
+
             setup = {}
             setup['intro_block'] = []
             setup['blocks'] = []
@@ -386,6 +390,10 @@ def save(request, action, next_step, survey_id=False):
                     setup['block_background_color'] = values
                 if key == 'block_box_shadow':
                     setup['block_box_shadow'] = values
+                if picture == 'No image':
+                    setup['survey_picture'] = False
+                else:
+                    setup['survey_picture'] = picture
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -450,7 +458,7 @@ def media_upload(request, survey_id):
 
     path = os.path.join(
         os.path.dirname(__file__), '..',
-        'templates/media/pictures/').replace('\\', '/')
+        'templates/static/images/').replace('\\', '/')
 
     path += str(survey.id) + str(request.FILES['file'])
     file = request.FILES['file']
@@ -677,6 +685,7 @@ def create_matrix(request, data):
     question.title = title
     question.save()
 
+    #TODO: Fix this, the parent question does not need the association, the sub questions do
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     for subquestion in rows:
@@ -2045,6 +2054,8 @@ def answer_survey(request, survey_id, hash_code):
                     setup['block_background_color'] = values
                 if key == 'block_box_shadow':
                     setup['block_box_shadow'] = values
+                if survey.picture:
+                    setup['survey_picture'] = survey.picture
             template_vars = {
                 'survey_title': survey.name,
                 'survey_id': survey.id,
@@ -2060,3 +2071,50 @@ def answer_survey(request, survey_id, hash_code):
         except Survey.DoesNotExist:
             raise Http404
 
+
+#TODO: Fix this; DO NOT use in production
+@csrf_exempt
+def save_answers_ajax(request):
+    if request.is_ajax():
+        try:
+            data = json.loads(request.body)
+
+            print data
+            for key, values in data.items():
+                for question in values:
+                    try:
+                        question_db = Question.objects.get(pk=int(question['question_id']))
+                    except Question.DoesNotExist:
+                        question_db = False
+                    try:
+                        option_db = Option.objects.get(pk=int(question['option_id']))
+                    except Question.DoesNotExist:
+                        option_db = False
+                    answer = Answer()
+                    answer.question = question_db
+                    if question['question_type'] == 'open_question':
+                        answer.value = option_db.value
+                        answer.meta = question['option_value']
+                    else:
+                        answer.value = option_db.value
+                    answer.order = option_db.order
+                    answer.active = True
+                    answer.save()
+
+            json_response = json.dumps(
+                {
+                    'response': True
+                }
+            )
+            return HttpResponse(json_response, content_type="application/json")
+
+        except ValueError:
+            json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+            return HttpResponse(json_response, content_type="application/json")
+    else:
+        json_response = json.dumps(
+                    {'messagesent': "Error - Invalid json"}
+            )
+        return HttpResponse(json_response, content_type="application/json")

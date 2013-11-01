@@ -443,6 +443,48 @@ $(document).ready(function(){
         }
     });
 
+    $('#update-question-title').on('change keyup keypress', function(){
+        var title_updated = $(this).val();
+        $('input.question_title_updated').val(title_updated);
+        var current_question_updated = $('#current-question-updated').val();
+        $('#'+current_question_updated+' div.question-text').html('');
+        $('#'+current_question_updated+' div.question-text').html(title_updated);
+    });
+
+    $('#add_attribute_association').change(function(){
+        var current_text = $('#add_attribute_association option:selected').text();
+        var current_question = $('#current-question').val();
+
+        if(current_text == 'No asociar'){
+            current_text = 'Sin asignar'
+        }
+
+        $('#'+current_question).find('.attribute_info').html('<strong class="text-black">Atributo: </strong>" '+ current_text +' "');
+    });
+
+    $('#update_moment_association').change(function(){
+        var current_text = $('#update_moment_association option:selected').text();
+        var current_question_updated = $('#current-question-updated').val();
+
+        if(current_text == 'No asociar'){
+            current_text = 'Sin asignar'
+        }
+
+        $('#'+current_question_updated).find('.moment_info').html('<strong class="text-black">Momento: </strong>" '+ current_text +' "');
+    });
+
+    $('#update_attribute_association').change(function(){
+        var current_text = $('#update_attribute_association option:selected').text();
+        var current_question_updated = $('#current-question-updated').val();
+
+        if(current_text == 'No asociar'){
+            current_text = 'Sin asignar'
+        }
+
+        $('#'+current_question_updated).find('.attribute_info').html('<strong class="text-black">Atributo: </strong>" '+ current_text +' "');
+    });
+
+
 });
 
 /* ---/Manage

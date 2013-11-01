@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="/static/css/font.css" cache="false">
     <link rel="stylesheet" href="/static/css/plugin.css">
     <link rel="stylesheet" href="/static/css/app.css">
+    <style>
+        .wime-disclaimer{width: 80%; max-width: 900px; margin: 25px auto; text-align: center; font-size: 11px;}
+        .error_question{background-color: #ffe4d6; color: #ff525b; border: 1px solid #ff4450; font-size: 11px; padding: 5px; border-radius: 3px; clear: both; display: none;}
+    </style>
 </head>
 <body>
     <section class="vbox stretch bg-white">
@@ -25,18 +29,24 @@
                     <section class="panel" id="survey_global_content" style="background-color: {{ setup.block_background_color }}; border: {{ setup.block_border_width }} {{ setup.block_border_style }} {{ setup.block_border_color }}; box-shadow: {{ setup.block_box_shadow }}">
                         <div class="panel-body">
                             <section class="header text-center panel visible-lg">
+                                {% if setup %}
+                                    {% if setup.survey_picture %}
+                                        <img src="{{ STATIC_URL }}images/{{ setup.survey_picture }}" alt="image" style="width: 60px;" />
+                                    {% else %}
+                                    {% endif %}
+                                {% endif %}
                             </section>
                             <section class="panel wrapper drop" id="survey-main-content" style="background-color: rgba(255, 255, 255, 0); border: none; box-shadow: none">
                                 {% for block in setup.blocks %}
                                     <div class="row row-block wrapper {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
                                         <div class="col-lg-12">
                                             <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }} border-radius: 6px;"{% endif %}>
-                                                {% if block.block_description%}
+                                                {% if block.block_description %}
                                                     {{ block.block_description|safe }}
                                                 {% endif %}
                                                 {% if block.questions %}
                                                     {% for question in block.questions %}
-                                                        <div class="wrapper question-content padder" {% if question.question_style %} style="{{ question.question_style }}" {% endif %} id="{{ question.question_content_id }}">
+                                                        <div class="wrapper question-content padder {{ question.question.type.name }}" {% if question.question_style %} style="{{ question.question_style }}" {% endif %} id="{{ question.question_content_id }}">
                                                             <div class="question_id" style="float: left; width: 3.5%; margin-right: 0.5%;">
                                                                 {{ question.survey_question_id }}
                                                             </div>
@@ -45,15 +55,17 @@
                                                                     {{ question.question_title }}
                                                                 </p>
                                                             </div>
-                                                            <div class="optional-content" style="margin-top: 15px; clear: both;">
+                                                            <div class="error_question">
+                                                            </div>
+                                                            <div class="options-content" style="margin-top: 15px; clear: both;">
                                                                 {% if question.question.type.name == "Multiple Choice" %}
-                                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;" class="text-center">
                                                                     {% for option in question.question_options %}
                                                                         {% if option.option.active %}
                                                                             {% if option.option.label != "" %}
                                                                                 <div class="checkbox">
                                                                                     <label class="checkbox-custom">
-                                                                                        <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                        <input type="checkbox" class="multiple_choice_option" name="{{ question.question.id }}[]" value="{{ option.option.value }}" id="{{ option.option.id }}">
                                                                                         <i class="icon-unchecked"></i>
                                                                                         {{ option.option.label }}
                                                                                     </label>
@@ -61,7 +73,7 @@
                                                                             {% else %}
                                                                                 <div class="checkbox">
                                                                                     <label class="checkbox-custom">
-                                                                                        <input type="checkbox" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                        <input type="checkbox" class="multiple_choice_option" name="{{ question.question.id }}[]" value="{{ option.option.value }}" id="{{ option.option.id }}">
                                                                                         <i class="icon-unchecked"></i>
                                                                                         {{ option.option.label }}
                                                                                     </label>
@@ -75,7 +87,7 @@
                                                                         {% for option in question.question.option_set.all %}
                                                                             <div class="radio">
                                                                                 <label class="radio-custom">
-                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.value }}">
+                                                                                    <input type="radio" class="false_and_true_option" name="{{ question.question.id }}" value="{{ option.id }}" id="{{ option.id }}">
                                                                                     <i class="icon-circle-blank"></i>
                                                                                     {{ option.label }}
                                                                                 </label>
@@ -102,13 +114,14 @@
                                                                                 {% endif %}
                                                                             {% endfor %}
                                                                             {% for row in question.sub_questions %}
-                                                                                <tr style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
+                                                                                <tr class="sub_question" style="border-bottom: 1px solid #d3d3d3; border-top: 1px solid #d3d3d3;">
                                                                                     {% if row.active %}
                                                                                         <td style="padding-bottom: 5px !important;
                                                                                                    padding-top: 5px !important;
                                                                                                    padding-left: 10px !important;
                                                                                                    padding-right: 10px !important;
                                                                                                    border-right: 1px solid #d3d3d3">
+                                                                                            <input type="hidden" class="sub_question_id" value="{{ row.id }}">
                                                                                             {{ row.title }}
                                                                                         </td>
                                                                                     {% endif %}
@@ -116,7 +129,7 @@
                                                                                         {% if option.active %}
                                                                                             <td style=" text-align: center;">
                                                                                                 <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                                                    <input type="radio" name="{{ row.id }}" value="{{ option.value }}">
+                                                                                                    <input type="radio" class="sub_question_option" name="{{ row.id }}" value="{{ option.id }}">
                                                                                                     <i class="icon-circle-blank"></i>
                                                                                                 </label>
                                                                                             </td>
@@ -133,14 +146,14 @@
                                                                             {% if option.option.value == 1 %}
                                                                                 <div class="checkbox">
                                                                                     <label class="checkbox-custom">
-                                                                                        <input type="checkbox" name="not_apply" id="{{ option.id }}">
+                                                                                        <input type="checkbox" class="not_apply_option open_question_option" id="{{ option.option.id }}">
                                                                                         <i class="icon-unchecked"></i>
                                                                                         No aplica
                                                                                     </label>
                                                                                 </div>
                                                                             {% endif %}
                                                                             {% if option.option.value == 2 %}
-                                                                                <textarea class="form-control" name="comment" cols="30" rows="5"  maxlength="100"></textarea>
+                                                                                <textarea class="form-control open_question_option" name="comment" cols="30" rows="5"  maxlength="100" id="{{ option.option.id }}"></textarea>
                                                                             {% endif %}
                                                                         {% endfor %}
                                                                     </div>
@@ -148,19 +161,18 @@
                                                                     <div class="col-sm-12" style="padding-left: 35px !important;
                                                                                           padding-right: 35px !important;
                                                                                           padding-top: 10px;
-                                                                                          padding-bottom: 20px">
+                                                                                          padding-bottom: 20px; text-align: center;">
                                                                         {% for option in question.question_options %}
                                                                             {% if forloop.last %}
                                                                                 <div class="checkbox">
-                                                                                    <label class="checkbox-custom">
-                                                                                        <input type="checkbox" name="" id="">
-                                                                                        <i class="icon-unchecked"></i>
-                                                                                        No aplica
+                                                                                    <label class="radio-custom" style="margin-left: 0px !important;">
+                                                                                        <input type="radio" class="range_value_option" name="{{ question.question.id }}" id="{{ option.option.id }}">
+                                                                                        <i class="icon-circle-blank"></i>{{ option.option.label }}
                                                                                     </label>
                                                                                 </div>
                                                                             {% endif %}
                                                                         {% endfor %}
-                                                                        <table border="0">
+                                                                        <table border="0" style="margin: 10px auto;">
                                                                             <tr>
                                                                                 <!-- TABLE HEADER -->
                                                                                 {% for option in question.question_options %}
@@ -207,14 +219,14 @@
                                                                                         {% if option.option.label != "" %}
                                                                                             <td style=" text-align: center !important;">
                                                                                                 <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                                    <input type="radio" class="range_value_option" name="{{ question.question.id }}" id="{{ option.option.id }}">
                                                                                                     <i class="icon-circle-blank"></i>
                                                                                                 </label>
                                                                                             </td>
                                                                                         {% else %}
                                                                                             <td style=" text-align: center !important;">
                                                                                                 <label class="radio-custom" style="margin-left: 0px !important;">
-                                                                                                    <input type="radio" name="{{ question.question.id }}" value="{{ option.option.value }}">
+                                                                                                    <input type="radio" class="range_value_option" name="{{ question.question.id }}" id="{{ option.option.id }}">
                                                                                                     <i class="icon-circle-blank"></i>
                                                                                                 </label>
                                                                                             </td>
@@ -244,10 +256,33 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                            <section class="footer text-center">
+                                <a class="btn btn-info" id="btn_send_data">
+                                    Terminar
+                                </a>
+                            </section>
+                            </section>
+                            <section class="text-left panel-footer" style="border: none !important; background-color: transparent !important;">
+                                <section class="text-center">
+                                    <div class="wrapper border-edit-survey padder">
+                                        <label class="h5"><strong>{{ company_name }}</strong></label><br>
+                                        <label class="h5">{{ company_address }}</label><br>
+                                        <label class="h5">{{ company_email }}</label><br>
+                                        <label class="h5">{{ company_phone }}</label>
+                                    </div>
+                                </section>
                             </section>
                         </div>
                     </section>
                 </div>
+            </div>
+            <div class="row">
+                <section class="footer wime-disclaimer">
+                    The information contained in this website is for confidential purposes.
+                    The information is provided by <a href="#"><strong>Wime</strong></a>.
+                    Any reliance you place on such information is therefore strictly at your own risk.
+                    - See more at: http://www.nibusinessinfo.co.uk/content/sample-website-disclaimer
+                </section>
             </div>
         </section>
     </section>
@@ -259,5 +294,7 @@
     <script src="/static/js/app.plugin.js"></script>
     <!-- fuelux -->
     <script src="/static/js/fuelux/fuelux.js"></script>
+    <!-- Answer survey app -->
+    <script src="/static/js/answer.survey.app.js"></script>
 </body>
 </html>

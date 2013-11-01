@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -56,7 +58,7 @@ urlpatterns = patterns('',
     url(r'^company_types/', include('company_types.urls')),
 
     #Surveys
-    url(r'^surveys/', include('clients.urls')),
+    url(r'^surveys/', include('surveys.urls')),
 
     #Clients
     url(r'^clients/', include('clients.urls')),
@@ -99,5 +101,10 @@ urlpatterns = patterns('',
 
     #Delete User
     url(r'^user/delete/(?P<user_id>\d+)$', 'rbacx.views.delete_user'),
+
+
+    #Reports
+    url(r'^reports/', include('reports.urls')),
+
 
 )
