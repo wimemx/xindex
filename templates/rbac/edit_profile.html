@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<div class="modal-dialog" id="editProfileModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+            <input type="hidden" id="action" value="{{ action_id }}">
+                <h4 class="modal-title">Editar {{ action_content }}</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl">
+                <form class="form-horizontal animated fadeInRight"
+                      data-validate="parsley"
+                      id="edit-profile-form"
+                      method="post"
+                      action="/profile/edit/0"
+                      enctype="multipart/form-data">{% csrf_token %}
+
+                    {% if action_id == "1" %}
+                        <div class="form-group m-t-lg">
+                            {{ action_content }}:
+                            <input type="text"
+                                   class="form-control"
+                                   id="input-text-name"
+                                   value="{{ content }}">
+                        </div>
+                        <div class="form-group m-t-lg">
+                            {{ action_exclusive_content }}:
+                            <input type="text"
+                                   class="form-control"
+                                   id="input-text-surname"
+                                   value="{{ exclusive_content }}">
+                        </div>
+                    {% elif action_id == "3"%}
+                        <div class="form-group m-t-lg">
+                            Nuevo Password:
+                            <input type="password"
+                                   class="form-control"
+                                   id="input-text-new-password"
+                                   value="{{ content }}">
+                        </div>
+                        <div class="form-group m-t-lg">
+                            Repite nuevo password:
+                            <input type="password"
+                                   class="form-control"
+                                   id="input-text-new-again"
+                                   value="{{ content }}">
+                        </div>
+                    {% else %}
+                        <div class="form-group m-t-lg">
+                            {{ action_content }}:
+                            <input type="text"
+                                   class="form-control"
+                                   id="input-text"
+                                   value="{{ content }}">
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group m-t-lg">
+                        <input type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right"
+                                value="Guardar" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    });
+
+    $(document).on('submit', '#edit-profile-form', function (e) {
+        e.preventDefault();
+
+        content_name = $('#input-text-name').val();
+        content_surname = $('#input-text-surname').val();
+        content = $('#input-text').val();
+
+        content_password = $('#input-text-password').val();
+        content_new = $('#input-text-new-password').val();
+        content_again = $('#input-text-new-again').val();
+
+        content_id = $('#action').val();
+        serialize = $(this).serializeArray();
+
+        if (content_id=="1"){
+            serialize.push({name: 'content-to-change', value: content_name});
+            serialize.push({name: 'content-to-change-2', value: content_surname});
+        }
+
+        if (content_id=="2"){
+            serialize.push({name: 'content-to-change', value: content});
+        }
+
+        if (content_id=="3"){
+            serialize.push({name: 'content-to-change', value: content_new});
+            serialize.push({name: 'content-to-change-2', value: content_again});
+        }
+
+        if (content_id=="4"){
+            serialize.push({name: 'content-to-change', value: content});
+        }
+
+        serialize.push({name: 'content-id', value: content_id});
+
+        $.ajax({
+            type: 'POST',
+            url: $('#edit-profile-form').attr('action'),
+            data: serialize,
+            success: function () {
+                setTimeout(function () {
+                    window.location.reload()
+                }, 0);
+            },
+            error: function () {
+                alert('Fallo');
+            }
+        });
+    });
+</script>
+</body>
+</html>

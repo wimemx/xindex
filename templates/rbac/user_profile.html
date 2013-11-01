@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Perfil de un usuario{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Perfil</p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row padder">
+                        <div class="col-lg-12 h2">
+                            Perfil de un usuario
+                        </div>
+                        <div class="col-lg-12 padder-v">
+                            <table class="normal-table">
+                                <tr>
+                                    <td>
+                                        <i class="icon-user icon-4x"></i>
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    </td>
+                                    <td>
+                                        <a href="/profile/edit/1"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Email: {{ user.email }}</td>
+                                    <td>
+                                        <a href="/profile/edit/2"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Password: **************</td>
+                                    <td>
+                                        <a href="/profile/edit/3"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Telefono: {{ extendedInfo.phone }}</td>
+                                    <td><a href="/profile/edit/4"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a></td>
+                                </tr>
+                                <tr>
+                                    <td>Rol: Rol del usuario</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App to show Modal-->
+    <script src="/static/js/app.js"></script>
+{% endblock%}
+</body>
+</html>

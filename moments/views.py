@@ -24,22 +24,15 @@ def detail(request, moment_id):
 
 
 def add(request, service_id):
-    """
-
-    :param request:
-    :param service_id:
-    :return:
-    """
     print("Entrando al metodo")
     if request.method=='POST':
-        print "Si se envio por post"
         form = MomentForm(request.POST)
+
         if form.is_valid():
             id_return = form.save()
-            print id_return.id
             service = Service.objects.get(id=service_id)
             service.moments.add(id_return)
-            #return HttpResponse("Si")
+
             return HttpResponseRedirect('/services/details/'+service_id)
         else:
             return HttpResponse("No")
@@ -51,13 +44,10 @@ def add(request, service_id):
 
 def edit(request, moment_id):
     moment = Moment.objects.get(pk=moment_id)
-    if request.method=='POST':
-        print("POST")
+    if request.POST:
         form = MomentForm(request.POST, instance=moment)
         if form.is_valid():
-            print("formulario valido")
             form.save()
-            #return HttpResponse("el momento de ha editado")
             return HttpResponse('Si')
     else:
         form = MomentForm(instance=moment)

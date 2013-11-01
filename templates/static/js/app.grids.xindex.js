@@ -18,5 +18,9 @@ $(document).ready(function () {
         surveysDatagrid();
     } else if ($('#myZonesGrid')[0]) {
         zonesDatagrid();
+    } else if ($('#myULGrid')[0]) {
+        userListDatagrid();
+    } else if ($('#myCGrid')[0]) {
+        clientListDatagrid();
     }
 });

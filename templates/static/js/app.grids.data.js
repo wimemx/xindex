@@ -1251,3 +1251,228 @@ function zonesDatagrid() {
         });
     });
 }
+
+
+function userListDatagrid() {
+    var DataGridDataSource = function (options) {
+        this._formatter = options.formatter;
+        this._columns = options.columns;
+        this._delay = options.delay;
+    };
+
+    DataGridDataSource.prototype = {
+
+        columns: function () {
+            return this._columns;
+        },
+
+        data: function (options, callback) {
+            var url = '/user_list/json'
+            var self = this;
+
+
+            setTimeout(function () {
+
+                var data = $.extend(true, [], self._data);
+
+                $.ajax(url, {
+                    dataType: 'json',
+                    async: false,
+                    type: 'GET'
+                }).done(function (response) {
+                        data = response.users;
+                        // SEARCHING
+                        if (options.search) {
+                            data = _.filter(data, function (item) {
+                                var match = false;
+
+                                _.each(item, function (prop) {
+                                    if (_.isString(prop) || _.isFinite(prop)) {
+                                        if (prop.toString().toLowerCase().indexOf(options.search.toLowerCase()) !== -1) match = true;
+                                    }
+                                });
+
+                                return match;
+                            });
+                        }
+
+                        var count = data.length;
+
+                        // SORTING
+                        if (options.sortProperty) {
+                            data = _.sortBy(data, options.sortProperty);
+                            if (options.sortDirection === 'desc') data.reverse();
+                        }
+
+                        // PAGING
+                        var startIndex = options.pageIndex * options.pageSize;
+                        var endIndex = startIndex + options.pageSize;
+                        var end = (endIndex > count) ? count : endIndex;
+                        var pages = Math.ceil(count / options.pageSize);
+                        var page = options.pageIndex + 1;
+                        var start = startIndex + 1;
+
+                        data = data.slice(startIndex, endIndex);
+
+                        if (self._formatter) self._formatter(data);
+
+                        callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+                    }).fail(function (e) {
+                        alert('¡No se pueden consultar los usuarios, intente mas tarde!')
+                    });
+            }, self._delay);
+        }
+    };
+
+    $('#myULGrid').each(function () {
+        $(this).datagrid({
+            dataSource: new DataGridDataSource({
+                columns: [
+                    {
+                        property: 'name',
+                        label: 'Nombre',
+                        sortable: true
+                    },
+                    {
+                        property: 'surname',
+                        label: 'Apellido',
+                        sortable: false
+                    },
+                    {
+                        property: 'email',
+                        label: 'Email',
+                        sortable: false
+                    },
+                    {
+                        property: 'role',
+                        label: 'Rol',
+                        sortable: false
+                    },
+                    {
+                        property: 'actions',
+                        label: 'Acciones'
+                    }
+                ],
+
+                // Create IMG tag for each returned image
+                formatter: function (items) {
+                    $.each(items, function (index, item) {
+                        item.name = '<a href="#">' + item.name + '</a>';
+                        item.actions = '<a href="/user/edit/'+ item.actions +'" class="edit-user" data-toggle="ajaxModal"><i class="icon-edit"></i></a>' +
+                            '<a href="/user/delete/'+ item.actions +'"  class="remove-user"><i class="icon-remove"></i></a>';
+                    });
+                }
+            })
+        });
+    });
+}
+
+
+function clientListDatagrid() {
+    var DataGridDataSource = function (options) {
+        this._formatter = options.formatter;
+        this._columns = options.columns;
+        this._delay = options.delay;
+    };
+
+    DataGridDataSource.prototype = {
+
+        columns: function () {
+            return this._columns;
+        },
+
+        data: function (options, callback) {
+            var url = '/clients/json'
+            var self = this;
+
+
+            setTimeout(function () {
+
+                var data = $.extend(true, [], self._data);
+
+                $.ajax(url, {
+                    dataType: 'json',
+                    async: false,
+                    type: 'GET'
+                }).done(function (response) {
+                        data = response.clients;
+                        // SEARCHING
+                        if (options.search) {
+                            data = _.filter(data, function (item) {
+                                var match = false;
+
+                                _.each(item, function (prop) {
+                                    if (_.isString(prop) || _.isFinite(prop)) {
+                                        if (prop.toString().toLowerCase().indexOf(options.search.toLowerCase()) !== -1) match = true;
+                                    }
+                                });
+
+                                return match;
+                            });
+                        }
+
+                        var count = data.length;
+
+                        // SORTING
+                        if (options.sortProperty) {
+                            data = _.sortBy(data, options.sortProperty);
+                            if (options.sortDirection === 'desc') data.reverse();
+                        }
+
+                        // PAGING
+                        var startIndex = options.pageIndex * options.pageSize;
+                        var endIndex = startIndex + options.pageSize;
+                        var end = (endIndex > count) ? count : endIndex;
+                        var pages = Math.ceil(count / options.pageSize);
+                        var page = options.pageIndex + 1;
+                        var start = startIndex + 1;
+
+                        data = data.slice(startIndex, endIndex);
+
+                        if (self._formatter) self._formatter(data);
+
+                        callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+                    }).fail(function (e) {
+                        alert('¡No se pueden consultar los usuarios, intente mas tarde!')
+                    });
+            }, self._delay);
+        }
+    };
+
+    $('#myCGrid').each(function () {
+        $(this).datagrid({
+            dataSource: new DataGridDataSource({
+                columns: [
+                    {
+                        property: 'first_name',
+                        label: 'Nombre',
+                        sortable: true
+                    },
+                    {
+                        property: 'last_name',
+                        label: 'Apellido',
+                        sortable: false
+                    },
+                    {
+                        property: 'email',
+                        label: 'Email',
+                        sortable: false
+                    },
+                    {
+                        property: 'actions',
+                        label: 'Acciones'
+                    }
+                ],
+
+                // Create IMG tag for each returned image
+                formatter: function (items) {
+                    $.each(items, function (index, item) {
+                        item.name = '<a href="#">' + item.name + '</a>';
+                        item.actions = '<a href="/clients/edit/'+ item.actions +'" class="edit-client" data-toggle="ajaxModal"><i class="icon-edit"></i></a>' +
+                            '<a href="/clients/remove/'+ item.actions +'"  class="remove-client"><i class="icon-remove"></i></a>';
+                    });
+                }
+            })
+        });
+    });
+}

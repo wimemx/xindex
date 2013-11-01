@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Perfil{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Perfil</p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row padder">
+                        <div class="col-lg-12 h2">
+                            Panel de control
+                        </div>
+                        <div class="col-lg-12 padder-v">
+                            <div class="row padder-v">
+                                <a href="/user_list/" class="wrapper">
+                                <div class="col-lg-1 text-center">
+                                    <i class="icon-group icon-3x"></i><br>
+                                    Usuarios
+
+                                </div>
+                                </a>
+                                <a href="/profile/" class="wrapper">
+                                <div class="col-lg-1 text-center">
+                                    <i class="icon-user icon-3x"></i><br>
+                                    Mi perfil
+
+                                </div>
+                                </a>
+                                <a href="#" class="wrapper">
+                                <div class="col-lg-1 text-center">
+                                    <i class="icon-home icon-3x"></i><br>
+                                    Mi cuenta
+
+                                </div>
+                                </a>
+                                <a href="/subsidiary_types/" class="wrapper">
+                                <div class="col-lg-1 text-center">
+                                    <i class="icon-building icon-3x"></i><br>
+                                    Tipos de sucursales
+
+                                </div>
+                                </a>
+                                <a href="#" class="wrapper">
+                                <div class="col-lg-1 text-center">
+                                    <i class="icon-archive icon-3x"></i><br>
+                                    Elementos eliminados
+
+                                </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+{% endblock%}
+</body>
+</html>

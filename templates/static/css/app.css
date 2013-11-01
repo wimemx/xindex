@@ -2813,3 +2813,8 @@ a:hover{
     padding-left: 15px;
     padding-top: 15px;
 }
+
+.normal-table td{
+    padding-top: 10px;
+    padding-left: 10px;
+}

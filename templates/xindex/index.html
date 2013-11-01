@@ -1,8 +1,26 @@
 {% extends "base.html" %}
 {% block mainContent %}
+    <section id="content">
     <section class="vbox">
         <header class="header b-b">
-            <p class="h4 animated bounceInDown">Bienvenido a xindex</p>
+            <p class="h4 animated bounceInDown">XINDEX</p>
         </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row">
+
+                        <p>Usuario: {{ user.username }}</p>
+                        <p>Password: {{ user.password }}</p>
+                        <p>Email: {{ user.email }}</p>
+                        <p>Nombre: {{ user.first_name }}</p>
+                        <p>Apellido: {{ user.last_name }}</p>
+                        <p>Id: {{ user.id }}</p>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
     </section>
 {% endblock %}

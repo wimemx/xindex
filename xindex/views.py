@@ -10,8 +10,9 @@ from models import Survey, Question_Attributes
 
 @login_required(login_url='/signin/')
 def index(request):
+    user = request.user
     template_vars = {
-        #vars
+        'user': user
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("xindex/index.html", request_context)
@@ -35,9 +36,10 @@ def signup(request):
 
 def login(request):
     error = username = password = ''
-
     if request.user.is_authenticated():
-        return HttpResponseRedirect("/xindex/")
+        variables = dict(username=username, password=password, error=error)
+        variables_template = RequestContext(request, variables)
+        return render_to_response("access/index.html", variables_template)
 
     if request.method == "POST":
         username = request.POST['username']

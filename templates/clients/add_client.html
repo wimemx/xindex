@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <style>
+.datepicker{z-index:1151;}
+</style>
+</head>
+<body>
+<div class="modal-dialog" id="addClientModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Crear un nuevo cliente</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl">
+                <form class="form-horizontal animated fadeInRight"
+                      data-validate="parsley"
+                      id="add-user-form"
+                      method="post"
+                      action="/clients/add/"
+                      enctype="multipart/form-data">{% csrf_token %}
+                    <div class="form-group m-t-lg">
+                        Nombre:
+                        <input type="text"
+                               class="form-control"
+                               name="client_name"
+                               id="id_client_name">
+                        </div>
+                    <div class="form-group m-t-lg">
+                        Apellido:
+                        <input type="text"
+                               class="form-control"
+                               name="client_surname"
+                               id="id_client_surname">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Email:
+                        <input type="email"
+                               class="form-control"
+                               name="client_email"
+                               id="id_client_email">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Sexo:
+                        <select class="form-control"
+                                name="client_sex"
+                                id="id_client_sex">
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenido</option>
+                        </select>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Fecha de nacimiento:
+                        <input class="input-sm input-s datepicker form-control"
+                               type="text"
+                               value="{{ date }}"
+                               data-date-format="dd-mm-yyyy"
+                               name="client_date"
+                               id="id_client_date">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Telefono:
+                        <input type="text"
+                               class="form-control"
+                               name="client_phone"
+                               id="id_client_phone">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Company:
+                        <select class="form-control"
+                                name="client_company"
+                                id="id_client_company">
+                            {% for eachCompany in companies %}
+                                <option value="{{ eachCompany.id }}">
+                                    {{ eachCompany.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group m-t-lg">
+                        <input type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right"
+                                value="Guardar" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+
+    $('#id_client_date').datepicker();
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    });
+</script>
+</body>
+</html>

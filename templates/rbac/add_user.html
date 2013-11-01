@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<div class="modal-dialog" id="addUserModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Crear un nuevo usuario</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl">
+                <form class="form-horizontal animated fadeInRight"
+                      data-validate="parsley"
+                      id="add-user-form"
+                      method="post"
+                      action="/user/add/"
+                      enctype="multipart/form-data">{% csrf_token %}
+                    <div class="form-group m-t-lg">
+                        Nombre:
+                        <input type="text"
+                               class="form-control"
+                               name="user_name"
+                               id="id_user_name">
+                        </div>
+                    <div class="form-group m-t-lg">
+                        Apellido:
+                        <input type="text"
+                               class="form-control"
+                               name="user_surname"
+                               id="id_user_surname">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Email:
+                        <input type="email"
+                               class="form-control"
+                               name="user_email"
+                               id="id_user_email">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Telefono:
+                        <input type="text"
+                               class="form-control"
+                               name="user_phone"
+                               id="id_user_phone">
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Rol:
+                        <select class="form-controlr">
+                            <option>Gerente</option>
+                            <option>Roles</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group m-t-lg">
+                        <input type="submit"
+                                class="btn btn-modal-xindex blue-xindex pull-right"
+                                value="Guardar" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    });
+</script>
+</body>
+</html>

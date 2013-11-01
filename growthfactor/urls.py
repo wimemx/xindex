@@ -56,7 +56,10 @@ urlpatterns = patterns('',
     url(r'^company_types/', include('company_types.urls')),
 
     #Surveys
-    url(r'^surveys/', include('surveys.urls')),
+    url(r'^surveys/', include('clients.urls')),
+
+    #Clients
+    url(r'^clients/', include('clients.urls')),
 
     #Surveys_search
     url(r'^search/$', 'xindex.views.search'),
@@ -72,4 +75,29 @@ urlpatterns = patterns('',
 
     #Logout
     url(r'^logout/$', 'xindex.views.log_out'),
+
+    #Profile
+    url(r'^profile/$', include('rbacx.urls')),
+
+    #Profile Edit
+    url(r'^profile/edit/(?P<action>\d+)$', 'rbacx.views.edit_profile'),
+
+    #Control Panel
+    url(r'^control_panel/$', 'rbacx.views.control_panel'),
+
+    #User List
+    url(r'^user_list/$', 'rbacx.views.user_list'),
+
+    #User List
+    url(r'^user_list/json/$', 'rbacx.views.getUsersInJson'),
+
+    #Add User
+    url(r'^user/add/$', 'rbacx.views.create_user'),
+
+    #Edit User
+    url(r'^user/edit/(?P<user_id>\d+)$', 'rbacx.views.edit_user'),
+
+    #Delete User
+    url(r'^user/delete/(?P<user_id>\d+)$', 'rbacx.views.delete_user'),
+
 )

@@ -20,27 +20,31 @@ class Company_Type(models.Model):
 
 
 class Xindex_User(models.Model):
+    """
+    (User or Xindex User)
+    Informacion de perfil
+
+    """
     user = models.OneToOneField(User, on_delete=models.PROTECT)
-    phone = models.CharField(max_length=15, null=False)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=40, blank=True, null=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    #Status         |
+    #Username       |-->
+    #Password       |
 
     def __unicode__(self):
-        return self.user.first_name
-
-    class Meta:
-        verbose_name_plural = "Users"
-        verbose_name = "User"
-
-
-#class Manage(models.Model):
+        return self.user.username + "-" + self.user.first_name + " " + self \
+            .user.last_name
 
 
 class Subsidiary_Type(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
     name = models.CharField(max_length=50, null=False)
-    email = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField()
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -62,11 +66,10 @@ class Country(models.Model):
                  ('OCEANIA', 'Oceania'),
                  ('AFRICA', 'Africa'))
 
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
     code = models.CharField(max_length=20, null=False)
     name = models.CharField(max_length=20, null=False)
-    continent = models.CharField(choices=CONTINENT, default=AMERICA, max_length=7)
+    continent = models.CharField(choices=CONTINENT, default=AMERICA,
+                                 max_length=7)
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -79,8 +82,6 @@ class Country(models.Model):
 
 class State(models.Model):
 
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
     country_id = models.ForeignKey(Country)
     name = models.CharField(max_length=20, null=False)
     active = models.BooleanField(default=True)
@@ -94,8 +95,7 @@ class State(models.Model):
 
 
 class City(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     state = models.ForeignKey(State)
     name = models.CharField(max_length=20, null=False)
     lat = models.DecimalField(max_digits=20, decimal_places=10)
@@ -109,9 +109,10 @@ class City(models.Model):
         verbose_name_plural = "Cities"
         verbose_name = "Cities"
 
+
 class Zone(models.Model):
     countries = models.ManyToManyField(Country, blank=True, null=True)
-    states= models.ManyToManyField(State, blank=True, null=True)
+    states = models.ManyToManyField(State, blank=True, null=True)
     cities = models.ManyToManyField(City, blank=True, null=True)
     name = models.CharField(max_length=20, null=False)
     description = models.TextField()
@@ -129,8 +130,7 @@ class Zone(models.Model):
 
 
 class Company(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     name = models.CharField(max_length=50, null=False)
     types = models.ManyToManyField(Company_Type, blank=True, null=True)
     parent_company = models.ForeignKey('Company', blank=True, null=True)
@@ -159,8 +159,7 @@ class Company(models.Model):
 
 
 class Question_Type(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     name = models.CharField(max_length=20, null=False)
     help_text = models.TextField()
     description = models.TextField()
@@ -177,8 +176,7 @@ class Question_Type(models.Model):
 
 
 class Question(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     user = models.ForeignKey(Xindex_User)
     title = models.CharField(max_length=150)
     description = models.TextField()
@@ -196,10 +194,8 @@ class Question(models.Model):
         verbose_name = "Question"
 
 
-
 class Option(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     question = models.ForeignKey(Question)
     label = models.CharField(max_length=50)
     value = models.DecimalField(max_digits=5, decimal_places=2)
@@ -222,12 +218,12 @@ class Option(models.Model):
 
 
 class Answer(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     question = models.ForeignKey(Question)
     value = models.DecimalField(max_digits=5, decimal_places=2)
     order = models.IntegerField()
     options = models.ManyToManyField(Option, null=True, blank=True)
+    client = models.ForeignKey('Client', null=True, blank=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -241,8 +237,7 @@ class Answer(models.Model):
 
 
 class Survey(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     user = models.ForeignKey(Xindex_User)
     name = models.CharField(max_length=50, null=False)
     description = models.TextField(null=True, blank=True)
@@ -336,8 +331,7 @@ class BusinessUnit(models.Model):
 
 
 class Subsidiary(models.Model):
-    #id = models.AutoField(primary_key=True, null=False, unique=True, \
-    #                      blank=True)
+
     company = models.ForeignKey(Company)
     name = models.CharField(max_length=50, null=False)
     address = models.CharField(max_length=50, null=False)
@@ -400,5 +394,27 @@ class Moment(models.Model):
 
 
 class Catalog(models.Model):
-    user = models.ForeignKey(Xindex_User);
-    question = models.ForeignKey(Question);
+    user = models.ForeignKey('Xindex_User')
+    question = models.ForeignKey(Question)
+
+
+class Client(models.Model):
+    SEX = (('M', 'Masculino'), ('F', 'Femenino'))
+
+    name = models.CharField(max_length=50, blank=True, null=True)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
+    sex = models.CharField(choices=SEX, default='M', max_length=1)
+    date_of_birth = models.CharField(max_length=40, blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=40, blank=True, null=True)
+    state = models.CharField(max_length=40, blank=True, null=True)
+    city = models.CharField(max_length=40, blank=True, null=True)
+    company = models.ForeignKey(Company)
+
+    date = models.DateField(default=datetime.now, blank=True, null=True)
+    meta = models.TextField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name

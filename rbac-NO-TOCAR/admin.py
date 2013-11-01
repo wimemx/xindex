@@ -9,6 +9,7 @@ admin.site.register(rbac.models.Role)
 admin.site.register(rbac.models.PermissionAsigment)
 admin.site.register(rbac.models.UserRole)
 
+
 class DataContextPermissionAdmin(admin.ModelAdmin):
     list_display = ['user_role', 'cluster', 'company', 'building',
                     'part_of_building']

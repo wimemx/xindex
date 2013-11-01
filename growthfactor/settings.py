@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'services',
     'companies',
     'surveys',
+    'rbacx',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -159,3 +160,10 @@ LOGGING = {
         },
     }
 }
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'andrade.dev33@gmail.com'
+EMAIL_HOST_PASSWORD = '00000123789654'
+EMAIL_PORT = 587

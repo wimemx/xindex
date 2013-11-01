@@ -154,13 +154,14 @@ class DataContextPermission(models.Model):
             s += " - " + self.building.building_name
         if self.part_of_building:
             s += " - " + self.part_of_building.part_of_building_name
-        return  s
+        return s
 
 # ! ! ! NOTA: Los siguientes modelos solo son de referencia para el llenado
 # de formularios,
 # para gestion de permisos se usaran los modelos especificados originalmente
 # (arriba de esta
 # nota)
+
 
 class Group(models.Model):
     """ Agrupacion de objetos de permisos

@@ -134,10 +134,10 @@ def getBUInJson(request):
         b_u['business_u'].append(
             {
                 "name": eachBusinessUnit.name,
-                "subsidiary": eachBusinessUnit.subsidiary.name,
-                "zone": eachBusinessUnit.subsidiary.zone.name or '',
+                "subsidiary": eachBusinessUnit.subsidiary.name or 'default',
+                "zone": eachBusinessUnit.subsidiary.zone.name or 'default',
                 "business_unit_id": eachBusinessUnit.id,
-                "subsidiary_id": eachBusinessUnit.subsidiary.id
+                "subsidiary_id": eachBusinessUnit.subsidiary.id or 'default'
             }
         )
 

@@ -71,8 +71,7 @@ class AttributesForm(ModelForm):
                                                         'required': 'required'})
         self.fields['threshold'].widget.attrs.update({'class': 'form-control',
                                                       'required': 'required'})
-        self.fields['moments'].widget.attrs.update({'class': 'form-control',
-                                                    'required': 'required'})
+        self.fields['moments'].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Attributes

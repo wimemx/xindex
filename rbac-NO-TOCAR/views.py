@@ -3,7 +3,7 @@ import re
 import urllib
 from datetime import date
 
-import variety
+#import variety
 
 from django.views.generic.simple import direct_to_template
 from django.shortcuts import render_to_response, HttpResponse, \
@@ -28,7 +28,7 @@ from rbac.rbac_functions import has_permission, get_buildings_context, \
     save_perm, validate_role, update_role_privs, validate_user, \
     add_permission_to_parts, add_permission_to_buildings, \
     add_permission_to_companies
-from variety import is_valid_email, random_string_generator
+#from variety import is_valid_email, random_string_generator
 
 VIEW = Operation.objects.get(operation_name="Ver")
 CREATE = Operation.objects.get(operation_name="Crear")

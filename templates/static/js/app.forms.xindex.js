@@ -394,4 +394,120 @@ $(document).ready(function () {
     });
 
 
+    //--- Función para elimar registro de usario del sistema---//
+    $(document).on('click', '.remove-user', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar éste usuario ",
+            title: "Eliminar usuario",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+    //--- Función corregir problema modal  Edit User---//
+    $('#myULGrid').on('click', 'a.edit-user', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        if (url.indexOf('#') == 0) {
+            $(url).modal('open');
+        } else {
+            $.get(url,function (data) {
+                $('<div class="modal" id="edit-user">' + data + '</div>').modal();
+            }).success(function () {
+                    $('input:text:visible:first').focus();
+                });
+        }
+
+
+    });
+
+
+    //--- Función para elimar registro de cliente del sistema---//
+    $(document).on('click', '.remove-client', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar éste cliente ",
+            title: "Eliminar cliente",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+    //--- Función corregir problema modal  Edit User---//
+    $('#myCGrid').on('click', 'a.edit-client', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        if (url.indexOf('#') == 0) {
+            $(url).modal('open');
+        } else {
+            $.get(url,function (data) {
+                $('<div class="modal" id="edit-client">' + data + '</div>').modal();
+            }).success(function () {
+                    $('input:text:visible:first').focus();
+                });
+        }
+
+
+    });
+
+
 })
