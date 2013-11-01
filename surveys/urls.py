@@ -44,6 +44,7 @@ urlpatterns = patterns('surveys.views',
     #url to show a survey
     url(r'^answer/(?P<survey_id>\d+)/(?P<hash_code>\w+)/$', 'answer_survey'),
 
+    #url to save the answers
     url(r'^save_answers/$', 'save_answers_ajax'),
 
 )

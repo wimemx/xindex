@@ -75,5 +75,8 @@ urlpatterns = patterns('',
     #Logout
     url(r'^logout/$', 'xindex.views.log_out'),
 
+    #Reports
+    url(r'^reports/', include('reports.urls')),
+
 
 )

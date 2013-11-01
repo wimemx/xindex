@@ -144,7 +144,6 @@ $(document).ready(function(){
 
             }
         });
-        console.log(errors);
         if(errors > 0){
             $('div.error_question').each(function(){
                 if($(this).hasClass('active')){

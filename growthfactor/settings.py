@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'services',
     'companies',
     'surveys',
+    'reports',
 )
 
 # A sample logging configuration. The only tangible logging

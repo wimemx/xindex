@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
 from django.utils import simplejson
+import json
 
 
 @login_required(login_url='/signin/')
@@ -292,3 +293,27 @@ def details(request, service_id, business_unit_id):
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)
+
+def get_moments(request):
+    service_id = int(request.POST['select_service'])
+    service = Service.objects.get(pk=service_id)
+
+    moments = []
+
+    for moment in service.moments.all():
+        if moment.active:
+            moments.append(
+                {
+                    'moment_name': moment.name,
+                    'moment_id': moment.id
+                }
+            )
+
+    json_response = json.dumps(
+        {
+            'answer': True,
+            'moments': moments
+        }
+    )
+
+    return HttpResponse(json_response, content_type="application/json")

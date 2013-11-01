@@ -59,7 +59,7 @@
                                                             </div>
                                                             <div class="options-content" style="margin-top: 15px; clear: both;">
                                                                 {% if question.question.type.name == "Multiple Choice" %}
-                                                                    <div class="col-sm-12" style="padding-left: 35px !important;">
+                                                                    <div class="col-sm-12" style="padding-left: 35px !important;" class="text-center">
                                                                     {% for option in question.question_options %}
                                                                         {% if option.option.active %}
                                                                             {% if option.option.label != "" %}
@@ -161,7 +161,7 @@
                                                                     <div class="col-sm-12" style="padding-left: 35px !important;
                                                                                           padding-right: 35px !important;
                                                                                           padding-top: 10px;
-                                                                                          padding-bottom: 20px">
+                                                                                          padding-bottom: 20px; text-align: center;">
                                                                         {% for option in question.question_options %}
                                                                             {% if forloop.last %}
                                                                                 <div class="checkbox">
@@ -172,7 +172,7 @@
                                                                                 </div>
                                                                             {% endif %}
                                                                         {% endfor %}
-                                                                        <table border="0">
+                                                                        <table border="0" style="margin: 10px auto;">
                                                                             <tr>
                                                                                 <!-- TABLE HEADER -->
                                                                                 {% for option in question.question_options %}
@@ -256,11 +256,21 @@
                                         </div>
                                     </div>
                                 {% endfor %}
-                            </section>
-                            <section class="footer">
-                                <a class="btn btn-success" id="btn_send_data">
+                            <section class="footer text-center">
+                                <a class="btn btn-info" id="btn_send_data">
                                     Terminar
                                 </a>
+                            </section>
+                            </section>
+                            <section class="text-left panel-footer" style="border: none !important; background-color: transparent !important;">
+                                <section class="text-center">
+                                    <div class="wrapper border-edit-survey padder">
+                                        <label class="h5"><strong>{{ company_name }}</strong></label><br>
+                                        <label class="h5">{{ company_address }}</label><br>
+                                        <label class="h5">{{ company_email }}</label><br>
+                                        <label class="h5">{{ company_phone }}</label>
+                                    </div>
+                                </section>
                             </section>
                         </div>
                     </section>

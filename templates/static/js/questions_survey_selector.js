@@ -7,21 +7,22 @@
  */
 $(document).ready(function () {
 
-    $("#survey-main-content ul").sortable({ connectWith: '.connected' });
-
+    $("#survey-main-content ul").sortable();
+    /*
     var helper = '<div><a class="btn btn-success">Hello</a></div>';
+
 
     $('#pane1, #pane2').sortable(
         {
             connectWith: ".connected",
             helper: 'clone'
-            /*
+            --
             helper: function() {
                 return $('<div>hsjkdhskdhaksdja</div>');
-            }*/
+            }--
         }
     );
-
+    */
     //TODO: Fix this! I can't tell why is not working
     //for now I'm using the funcion deleteOption
     $('.delete_option').on('click', function (event) {

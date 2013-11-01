@@ -390,7 +390,9 @@ def save(request, action, next_step, survey_id=False):
                     setup['block_background_color'] = values
                 if key == 'block_box_shadow':
                     setup['block_box_shadow'] = values
-                if picture:
+                if picture == 'No image':
+                    setup['survey_picture'] = False
+                else:
                     setup['survey_picture'] = picture
             template_vars = {
                 'survey_title': survey.name,
