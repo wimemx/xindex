@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 import re
 from django.db.models import Q
-from models import Survey, Question_Attributes
+from models import Survey
 
 @login_required(login_url='/signin/')
 def index(request):

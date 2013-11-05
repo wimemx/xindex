@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.models import Company
 from xindex.models import Xindex_User
 from xindex.models import Service
-from xindex.models import Question_Attributes
+
 from xindex.models import Question
 from xindex.models import Option
 from xindex.models import Moment
@@ -59,8 +59,11 @@ def report_by_moment(request):
         service = Service.objects.get(pk=int(request.POST['service']))
         moment = Moment.objects.get(pk=int(request.POST['select_touch_point']))
     else:
-        service = services[1]
+        service = services[0]
         moment = service.moments.all()[:1].get()
+
+    print service
+    print moment
 
     #Get the relations of the moment
     relations_maq = Question_Attributes.objects.filter(moment_id=moment.id)
@@ -76,34 +79,42 @@ def report_by_moment(request):
     total_detractors = 0
     total_answers = 0
     for relation in relations_maq.all():
-        total_surveyed = len(relation.question_id.answer_set.all())
-        attribute = relation.attribute_id
-        promoters_9 = 0
-        promoters_10 = 0
-        passives = 0
-        detractors = 0
-        for answer in relation.question_id.answer_set.all():
-            total_answers += 1
-            if answer.value == 10:
-                promoters_10 += 1
-                total_promoters += 1
-            elif answer.value == 9:
-                promoters_9 += 1
-                total_promoters += 1
-            elif answer.value == 8 or answer.value == 7:
-                passives += 1
-                total_passives +=1
-            elif 1 <= answer.value <= 6:
-                detractors += 1
-                total_detractors += 1
+        print relation.active
+        if relation.active is True:
+            total_surveyed = len(relation.question_id.answer_set.all())
+            attribute = relation.attribute_id
+            promoters_9 = 0
+            promoters_10 = 0
+            passives = 0
+            detractors = 0
+            for answer in relation.question_id.answer_set.all():
+                total_answers += 1
+                if answer.value == 10:
+                    promoters_10 += 1
+                    total_promoters += 1
+                elif answer.value == 9:
+                    promoters_9 += 1
+                    total_promoters += 1
+                elif answer.value == 8 or answer.value == 7:
+                    passives += 1
+                    total_passives +=1
+                elif 1 <= answer.value <= 6:
+                    detractors += 1
+                    total_detractors += 1
 
-        getcontext().prec = 5
+            getcontext().prec = 5
 
-        promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
-        promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
-        passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
-        detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
-        xindex_percent = Decimal(promoters_10_percent+promoters_9_percent)-Decimal(detractors_percent)
+
+        print promoters_10
+        print promoters_9
+        if promoters_9 == 0 or promoters_10 == 0:
+            promoters_10_percent = 0
+        else:
+            promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
+            promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
+            passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+            detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+            xindex_percent = Decimal(promoters_10_percent+promoters_9_percent)-Decimal(detractors_percent)
 
         #round all the percents to 1 decimal
         promoters_10_percent = round(promoters_10_percent, 5)

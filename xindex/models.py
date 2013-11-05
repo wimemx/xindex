@@ -281,10 +281,9 @@ class Attributes(models.Model):
         verbose_name = "Attribute"
 
 
-class Question_Attributes(models.Model):
+class Question_sbu_s_m_a(models.Model):
     question_id = models.ForeignKey(Question)
-    attribute_id = models.ForeignKey(Attributes, null=True)
-    moment_id = models.ForeignKey('Moment', null=True)
+    sbu_s_m_a_id = models.ForeignKey('sbu_service_moment_attribute', null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -302,7 +301,6 @@ class Service(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
     #picture = models.ImageField(upload_to="pictures/")
-    moments = models.ManyToManyField('Moment', blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -318,8 +316,6 @@ class Service(models.Model):
 class BusinessUnit(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
-    service = models.ManyToManyField(Service, blank=True, null=True)
-    subsidiary = models.ForeignKey('Subsidiary', null=False)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -422,7 +418,7 @@ class Client(models.Model):
         return self.name
     
 
-class Cumulative_Report:
+class Cumulative_Report(models.Model):
     id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
     id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
     id_service = models.ForeignKey(Service, blank=True, null=True)
@@ -433,3 +429,56 @@ class Cumulative_Report:
 
     def __unicode__(self):
         return self.grade
+
+
+class SubsidiaryBusinessUnit(models.Model):
+    id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
+    id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
+    alias = models.CharField(max_length=50, blank=True, null=True)
+    date = models.DateField(default=datetime.now, blank=True, null=True)
+    meta = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+        return self.id_subsidiary.name+'-'+self.id_business_unit.name+'-'+self.alias
+
+    class Meta:
+        verbose_name_plural = "Subsidiarias-UnidadesServicio"
+        verbose_name = "Subsidiaria-UnidadServicio"
+
+
+class sbu_service(models.Model):
+    id_subsidiaryBU = models.ForeignKey(SubsidiaryBusinessUnit, blank=True, null=True)
+    id_service = models.ForeignKey(Service, blank=True, null=True)
+    alias = models.CharField(max_length=50, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.id_subsidiaryBU+'-'+self.id_service.name+'-'+self.alias
+
+    class Meta:
+        verbose_name_plural = "SBU-Services"
+        verbose_name = "SBU-Service"
+
+
+class sbu_service_moment(models.Model):
+    id_sbu_service = models.ForeignKey(sbu_service, blank=True, null=True)
+    id_moment = models.ForeignKey(Moment, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.id_sbu_service+'-'+self.id_moment.name
+
+    class Meta:
+        verbose_name_plural = "SBU-Services-Moments"
+        verbose_name = "SBU-Service-Moment"
+
+
+class sbu_service_moment_attribute(models.Model):
+    id_sbu_service_moment = models.ForeignKey(sbu_service_moment, blank=True, null=True)
+    id_attribute = models.ForeignKey(Attributes, blank=True, null=True)
+    alias = models.CharField(max_length=50, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.id_sbu_service_moment+'-'+self.id_attribute.name
+
+    class Meta:
+        verbose_name_plural = "SBU-Services-Moments-Attributes"
+        verbose_name = "SBU-Service-Moment-Attribute"

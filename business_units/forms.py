@@ -28,11 +28,9 @@ class AddBusinessUnit(forms.ModelForm):
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
         self.fields['description'].widget.attrs.update(
             {'class': 'form-control'})
-        self.fields['service'].widget.attrs.update({'class': 'form-control'})
-        self.fields['subsidiary'].widget.attrs.update({'class': 'form-control'})
         #self.fields['subsidiaries'].widget.attrs.update(
         #    {'class': 'form-control'})
 
     class Meta:
         model = BusinessUnit
-        fields = ('name', 'description', 'service', 'subsidiary')
+        fields = ('name', 'description')

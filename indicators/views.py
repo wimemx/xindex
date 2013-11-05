@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xindex.models import Attributes,Question_Attributes, Question
+from xindex.models import Attributes, Question
 from xindex.forms import AttributesForm
 from django.utils import simplejson
 from xindex.models import Moment
@@ -47,7 +47,7 @@ def add(request):
 
 def update(request, indicator_id):
     attribute = Attributes.objects.get(pk=indicator_id)
-    print 'entro'
+
     if request.POST:
         form = AttributesForm(request.POST, instance=attribute)
         if form.is_valid():
