@@ -22,7 +22,6 @@ admin.site.register(xindex.models.Question)
 admin.site.register(xindex.models.Subsidiary_Type)
 admin.site.register(xindex.models.BusinessUnit)
 admin.site.register(xindex.models.Owner)
-admin.site.register(xindex.models.Question_Attributes)
 
 
 class SubsidiaryMe(admin.ModelAdmin):
@@ -50,3 +49,9 @@ admin.site.register(xindex.models.Moment, MomentMe)
 admin.site.register(xindex.models.Subsidiary, SubsidiaryMe)
 admin.site.register(xindex.models.Survey, SurveyMe)
 admin.site.register(xindex.models.Client)
+
+admin.site.register(xindex.models.SubsidiaryBusinessUnit)
+admin.site.register(xindex.models.sbu_service)
+admin.site.register(xindex.models.sbu_service_moment)
+admin.site.register(xindex.models.sbu_service_moment_attribute)
+admin.site.register(xindex.models.Question_sbu_s_m_a)

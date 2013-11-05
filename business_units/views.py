@@ -7,7 +7,7 @@ from business_units.forms import AddBusinessUnit
 from django.utils import simplejson
 
 
-def index(request, message = ''):
+def index(request):
     all_business_units = BusinessUnit.objects.all().order_by('-name')
     template_vars = {
         "titulo": "Unidades de negocio",
