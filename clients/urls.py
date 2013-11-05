@@ -7,4 +7,6 @@ urlpatterns = patterns('clients.views',
                        url(r'^remove/(?P<client_id>\d+)$', views.remove_client),
                        url(r'^edit/(?P<client_id>\d+)$', views.edit_client),
                        url(r'^json/$', views.getClientsInJson),
+                       url(r'^csv/$', views.csv_read),
+                       #url(r'^csvv/$', views.csv_read_prueba),
                        )

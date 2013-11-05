@@ -1,9 +1,11 @@
+import csv, os, short_url
 from django.shortcuts import render_to_response, HttpResponse, \
     HttpResponseRedirect, get_object_or_404
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+
 
 from xindex.models import Client, Company
 
@@ -106,6 +108,88 @@ def edit_client(request, client_id):
                          'sex': client.sex,
                          'company': client.company,
                          'companies': companies}
-        print template_vars
+
         request_context = RequestContext(request, template_vars)
         return render_to_response("clients/edit_client.html", request_context)
+
+
+@login_required(login_url='/signin/')
+def csv_read_prueba(request):
+
+    fileToAdd = open("/home/osvaldomg/Documentos/clients.csv")
+
+    reader = csv.reader(fileToAdd, delimiter=',', quotechar='|')
+    for eachRow in reader:
+
+        clientData = Client.objects.create(
+            name=eachRow[1],
+            first_name=eachRow[2],
+            last_name=eachRow[3],
+            sex=eachRow[4],
+            date_of_birth=eachRow[5],
+            email=eachRow[6],
+            phone=eachRow[7],
+            state=eachRow[8],
+            city=eachRow[9],
+            company=Company.objects.get(name=eachRow[10])
+        )
+
+        clientData.save()
+    return HttpResponseRedirect('/clients/')
+
+@login_required(login_url='/signin/')
+def csv_read(request):
+
+    if request.POST:
+
+        path = os.path.join(
+            os.path.dirname(__file__), '..',
+            'templates/static/csv/').replace('\\', '/')
+
+        path += str(request.FILES['client_csv'])
+
+        fileToUp = request.FILES['client_csv']
+        handle_uploaded_file(path, fileToUp)
+
+        fileToAdd = open(path)
+
+        reader = csv.reader(fileToAdd, delimiter=',', quotechar='|')
+
+        print reader
+        for eachRow in reader:
+
+            clientData = Client.objects.create(
+                name=eachRow[1],
+                first_name=eachRow[2],
+                last_name=eachRow[3],
+                sex=eachRow[4],
+                date_of_birth=eachRow[5],
+                email=eachRow[6],
+                phone=eachRow[7],
+                state=eachRow[8],
+                city=eachRow[9],
+                company=Company.objects.get(name=eachRow[10])
+            )
+
+            clientData.save()
+
+            url = short_url.encode_url(clientData.id)
+            print url
+
+        fileToAdd.close()
+        if fileToAdd.closed:
+            os.remove(path)
+
+        return HttpResponseRedirect('/clients/')
+
+    else:
+
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("clients/add_csv.html", request_context)
+
+
+def handle_uploaded_file(destination, f):
+    with open(destination, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
