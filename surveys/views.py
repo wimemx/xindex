@@ -461,8 +461,8 @@ def media_upload(request, survey_id):
         'templates/static/images/').replace('\\', '/')
 
     path += str(survey.id) + str(request.FILES['file'])
-    file = request.FILES['file']
-    handle_uploaded_file(path, file)
+    fileToUp = request.FILES['file']
+    handle_uploaded_file(path, fileToUp)
     context = {}
     context = simplejson.dumps(context)
     return HttpResponse(context, mimetype='application/json')
