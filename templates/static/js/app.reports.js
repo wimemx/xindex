@@ -6,6 +6,38 @@
  * To change this template use File | Settings | File Templates.
  */
 $(document).ready(function(){
+
+    //Filtrado a nivel Business Unit
+    $('#id_select_businessUnit').on('click', function(){
+        var businessUnit_id = $('#id_select_businessUnit').val();
+        var dataForm = $('#form_select_businessUnit');
+
+        $('#id_businessUnit').val(businessUnit_id);
+        $.ajax({
+            url: dataForm.attr('action'),
+            method: 'POST',
+            data: dataForm.serialize(),
+            dataType: 'Json',
+            success: function(msg){
+                if(msg.answer == true){
+                    $('#id_select_service').html('');
+                    $.each(msg.services,function(index, object){
+                        $('#id_select_service').append(
+                            '<option value="'+object.service_id+'">'
+                                +
+                                object.service_name
+                                +
+                                '</option>'
+                        );
+                    })
+                }
+            },
+            error: function(){
+                console.log('---Can´t get DA business unit---')
+            }
+        });
+    });
+
     //Control to set the moments of current selected service
     $('#id_select_service').on('click', function(){
         var service_id = $('#id_select_service').val();

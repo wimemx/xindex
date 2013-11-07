@@ -112,9 +112,9 @@
                     <div class="footer">
                         <div class="col-lg-2">
                             <p>Zona</p>
-                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            <form id="form_select_zone" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                <select class="form-control text-primary header" name="select_zone" id="id_select_zone">
                                     {% for zone in zones %}
                                         {% if zone.id == current_zone.id %}
                                             <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
@@ -127,9 +127,9 @@
                         </div>
                         <div class="col-lg-2">
                             <p>Sucursal</p>
-                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            <form id="form_select_subsidiary" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                <select class="form-control text-primary header" name="select_subsidiary" id="id_select_subsidiary">
                                     {% for subsidiary in subsidiaries %}
                                         {% if subsidiary.id == current_subsidiary.id %}
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
@@ -142,9 +142,9 @@
                         </div>
                         <div class="col-lg-3">
                             <p>Unidad de servicio</p>
-                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            <form id="form_select_businessUnit" action="/services/get_services/" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                <select class="form-control text-primary header" name="select_businessUnit" id="id_select_businessUnit">
                                     {% for businessUnit in businessUnits %}
                                         {% if businessUnit.id == current_businessUnit.id %}
                                             <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
@@ -160,6 +160,7 @@
                             <p>Servicio</p>
                             <form id="form_select_service" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
+                                <input type="hidden" name="businessUnit" id="id_businessUnit" value="{{ current_businessUnit.id }}">
                                 <select class="form-control text-primary header" name="select_service" id="id_select_service">
                                     {% for service in services %}
                                         {% if service.id == current_service.id %}
