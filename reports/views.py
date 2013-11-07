@@ -2,14 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from xindex.models import Company
-from xindex.models import Xindex_User
-from xindex.models import Service
-
-from xindex.models import Question
-from xindex.models import Option
-from xindex.models import Moment
-from xindex.models import Attributes
+from xindex.models import Company, Xindex_User
+from xindex.models import Question, Option, Moment, Attributes
+from xindex.models import Zone, Subsidiary, BusinessUnit, Service
+from xindex.models import SubsidiaryBusinessUnit, sbu_service, sbu_service_moment
+from xindex.models import sbu_service_moment_attribute
 from decimal import *
 
 
@@ -24,16 +21,20 @@ def index(request):
 
 def report_by_moment(request):
     moment_xindex = Decimal(0)
+    zones = []
+    subsidiaries = []
+    businessUnits = []
     services = []
     moments = []
     data_attribute = []
     xindex_user = Xindex_User.objects.get(pk=request.user.id)
     companies = xindex_user.company_set.all()
 
+    '''
     #Get services
     for company in companies:
         for subsidiary in company.subsidiary_set.all():
-            for business_unit in subsidiary.businessunit_set.all():
+            for business_unit in subsidiary:
                 for service in business_unit.service.all():
                     coincidences = 0
                     for s in services:
@@ -54,17 +55,80 @@ def report_by_moment(request):
                                 coincidences += 1
                         if coincidences == 0:
                             moments.append(moment)
+    '''
+
+    #Get Zones
+    myZones = Zone.objects.filter(active=True)
+    for eachZone in myZones:
+        zones.append(eachZone)
+
+    #Get Subsidiaries
+    mySubsidiaries = Subsidiary.objects.filter(active=True)
+    for eachSubsidiary in mySubsidiaries:
+        subsidiaries.append(eachSubsidiary)
+
+    #Get Business Units
+    #myBusinessUnits = BusinessUnit.objects.filter(active=True)
+
+    #Get Services
+    #myServices = Service.objects.filter(active=True)
+
+    #Get Moments
+    #myMoments = Moment.objects.filter(active=True)
+    #for eachMoment in myMoments:
+        #moments.append(eachMoment)
 
     if request.POST:
         service = Service.objects.get(pk=int(request.POST['service']))
         moment = Moment.objects.get(pk=int(request.POST['select_touch_point']))
     else:
+        zone = zones[0]
+        subsidiary = Subsidiary.objects.filter(zone_id=zone.id)[0]
+
+        #Adding to businessUnit list
+        mySUB = SubsidiaryBusinessUnit.objects.filter(
+            id_subsidiary=subsidiary.id
+        )
+
+        #Get Business Units
+        myBUIdList = []
+        for eachSubsidiaryBusinessUnit in mySUB:
+            myBUIdList.append(eachSubsidiaryBusinessUnit.id_business_unit.id)
+
+        print '======================'
+        print myBUIdList
+
+        for eachBUId in myBUIdList:
+            myBusinessUnits = BusinessUnit.objects.get(pk=eachBUId)
+            if myBusinessUnits.active:
+                businessUnits.append(myBusinessUnits)
+
+        businessUnit = businessUnits[0]
+
+
+        #Adding to services list
+        mySUBS = sbu_service.objects.filter(id_subsidiaryBU=businessUnit.id)
+
+        #Get Services
+        mySId = []
+        for eachSBUService in mySUBS:
+            mySId.append(eachSBUService.id_service.id)
+
+        print '======================'
+        print mySId
+
+        for eachIdService in mySId:
+            myServices = Service.objects.get(pk=eachIdService)
+            services.append(myServices)
+
+
         service = services[0]
-        moment = service.moments.all()[:1].get()
+        moment = moments[:1]
 
     print service
     print moment
 
+    '''
     #Get the relations of the moment
     relations_maq = Question_Attributes.objects.filter(moment_id=moment.id)
     for relation in relations_maq.all():
@@ -157,18 +221,21 @@ def report_by_moment(request):
         diff_type = 'positive'
         xindex_diff = current_data['value'] - last_month['value']
 
-
+    '''
 
     template_vars = {
         'title': '',
         'moment_xindex': moment_xindex,
+        'zones': zones,
+        'subsidiaries': subsidiaries,
+        'businessUnits': businessUnits,
         'moments': moments,
         'services': services,
         'current_service': service,
         'current_moment': moment,
-        'historical_months': historical_months,
-        'current_data': current_data,
-        'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
+        'historical_months': 'historical_months',
+        'current_data': 'current_data',
+        'comparison': {'xindex_diff': 'xindex_diff', 'diff_type': 'diff_type'},
         'data_attribute': data_attribute
     }
     request_context = RequestContext(request, template_vars)

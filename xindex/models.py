@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-
 from datetime import datetime
 
 
@@ -45,6 +44,7 @@ class Xindex_User(models.Model):
     class Meta:
         verbose_name_plural = "Users"
         verbose_name = "User"
+
 
 class Subsidiary_Type(models.Model):
     name = models.CharField(max_length=50, null=False)
@@ -443,7 +443,7 @@ class SubsidiaryBusinessUnit(models.Model):
     meta = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_subsidiary.name+'-'+self.id_business_unit.name+'-'+self.alias
+        return self.alias
 
     class Meta:
         verbose_name_plural = "Subsidiarias-UnidadesServicio"
@@ -456,7 +456,7 @@ class sbu_service(models.Model):
     alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_subsidiaryBU.__unicode__()+'-'+self.id_service.name+'-'+self.alias
+        return self.alias
 
     class Meta:
         verbose_name_plural = "SBU-Services"

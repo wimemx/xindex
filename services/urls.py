@@ -13,7 +13,7 @@ urlpatterns = patterns('services.views',
     #test
     url(r'^json/$', 'getSInJson'),
     url(r'^json/(?P<business_unit_id>\d+)$', 'getSByBUInJson'),
-    url(r'details/(?P<service_id>\d+)/(?P<business_unit_id>\d+)',  'details'),
+    url(r'details/(?P<service_id>\d+)$',  'details'),
 
     #Url to get the moments
     url(r'^get_moments/$', 'get_moments'),
