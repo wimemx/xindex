@@ -175,6 +175,9 @@
                             <p>Punto de contacto</p>
                             <form id="form_select_moment" action="/reports/moment/" method="POST">
                                 {% csrf_token %}
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_business_unit.id }}">
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
                                 <select class="form-control text-primary header" name="select_touch_point" id="id_select_touch_point">
                                     {% for moment in moments %}

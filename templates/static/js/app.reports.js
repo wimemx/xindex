@@ -31,6 +31,8 @@ $(document).ready(function(){
         });
     });
 
+    $('#')
+
     $('#id_select_touch_point').on('change', function(){
         $('#form_select_moment').submit();
     });

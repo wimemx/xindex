@@ -232,7 +232,7 @@ class Answer(models.Model):
     meta = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return self.order
+        return str(self.order)
 
     class Meta:
         verbose_name_plural = "Answers"
