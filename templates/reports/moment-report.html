@@ -110,8 +110,54 @@
                 <div class="col-lg-12">
                     <div class="h2 header">Reporte de satisfacci&oacute;n por punto de contacto</div>
                     <div class="footer">
-                        <div class="col-lg-2-4">
-                            <p>Servicio de</p>
+                        <div class="col-lg-2">
+                            <p>Zona</p>
+                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            {% csrf_token %}
+                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                    {% for zone in zones %}
+                                        {% if zone.id == current_zone.id %}
+                                            <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
+                                        {% else %}
+                                            <option value="{{ zone.id }}">{{ zone.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        <div class="col-lg-2">
+                            <p>Sucursal</p>
+                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            {% csrf_token %}
+                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                    {% for subsidiary in subsidiaries %}
+                                        {% if subsidiary.id == current_subsidiary.id %}
+                                            <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
+                                        {% else %}
+                                            <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        <div class="col-lg-2">
+                            <p>Unidad de servicio</p>
+                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            {% csrf_token %}
+                                <select class="form-control text-primary header" name="select_service" id="id_select_service">
+                                    {% for businessUnit in businessUnits %}
+                                        {% if businessUnit.id == current_businessUnit.id %}
+                                            <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
+                                        {% else %}
+                                            <option value="{{ businessUnit.id }}">{{ businessUnit.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        <!-- De aqui pa' arriba-->
+                        <div class="col-lg-2">
+                            <p>Servicio</p>
                             <form id="form_select_service" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
                                 <select class="form-control text-primary header" name="select_service" id="id_select_service">
@@ -125,13 +171,13 @@
                                 </select>
                             </form>
                         </div>
-                        <div class="col-lg-2-4">
+                        <div class="col-lg-2">
                             <p>Punto de contacto</p>
                             <form id="form_select_moment" action="/reports/moment/" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
                                 <select class="form-control text-primary header" name="select_touch_point" id="id_select_touch_point">
-                                    {% for moment in current_service.moments.all %}
+                                    {% for moment in moments %}
                                         {% if moment.id == current_moment.id %}
                                             <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
                                         {% else %}

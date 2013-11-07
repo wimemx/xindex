@@ -1,8 +1,7 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-import services
-from xindex.models import Service, BusinessUnit, Subsidiary, Moment
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service, SubsidiaryBusinessUnit, sbu_service_moment
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
@@ -11,55 +10,82 @@ import json
 
 
 @login_required(login_url='/signin/')
+@login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
+    global service_list
     if business_unit_id:
         try:
             business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+            service_list = sbu_service.objects.filter(
+                id_subsidiaryBU__id_business_unit=business_unit_id)
         except BusinessUnit.DoesNotExist:
             business_unit = False
+            service_list = False
     else:
         business_unit = False
 
-    if business_unit:
-        company = business_unit.subsidiary
-    else:
-        subsidiaries = False
-        company = False
+    services = {'services': [],
+                'business_units': []}
 
-    services = {'services': []}
-    for service in business_unit.service.all():
-        if service.active:
-            indicator_counter = 0
-            touchPoint_counter = 0
+    myServiceList = []
+    mySubsidiaryList = []
 
-            serviceToCount = Service.objects.get(pk=service.id)
-            for eachMoment in serviceToCount.moments.all():
-                touchPoint_counter += 1
+    for eachAssignment in service_list:
 
-            for eachMoment in serviceToCount.moments.all():
-                eachMomentToAtt = Moment.objects.get(pk=eachMoment.id)
-                for eachAttribute in eachMomentToAtt.attributes.all():
-                    indicator_counter += 1
+        myServiceList.append(eachAssignment.id_service.id)
+        myServiceList = list(set(myServiceList))
 
-            services['services'].append(
-                {
-                    "name": service.name,
-                    "business_unit": business_unit.name,
-                    "business_unit_id": business_unit.id,
-                    "subsidiary": business_unit.subsidiary.name,
-                    "subsidiary_id": business_unit.subsidiary.id,
-                    "zone": business_unit.subsidiary.address,
-                    "id": service.id,
-                    "indicator_counter": indicator_counter,
-                    "touchPoint_counter": touchPoint_counter
-                }
-            )
+        mySubsidiaryList.append(eachAssignment.id_subsidiaryBU.id)
+        mySubsidiaryList = list(set(mySubsidiaryList))
+
+    for eachSubsidiaryBusinessUnit in mySubsidiaryList:
+
+        mySubsidiaryBusinessUnit = SubsidiaryBusinessUnit.objects.get(
+            pk=eachSubsidiaryBusinessUnit
+        )
+
+        mySubsidiary = Subsidiary.objects.get(
+            pk=mySubsidiaryBusinessUnit.id_subsidiary.id
+        )
+
+        services['business_units'].append(
+            {
+                "name": mySubsidiary.name,
+                "type": mySubsidiary.subsidiary_types,
+                "zone": mySubsidiary.zone.name,
+                "location": mySubsidiary.city_id.name,
+                "id": mySubsidiary.id,
+            }
+        )
+
+    for eachService in myServiceList:
+
+        myServices = Service.objects.get(pk=eachService)
+
+        '''
+        for eachMoment in myServices.moments.all():
+            touchPoint_counter += 1
+
+        for eachMoment in serviceToCount.moments.all():
+            eachMomentToAtt = Moment.objects.get(pk=eachMoment.id)
+
+        for eachAttribute in eachMomentToAtt.attributes.all():
+            indicator_counter += 1
+        '''
+
+        services['services'].append(
+            {
+                "name": myServices.name,
+                "id": myServices.id,
+                "indicator_counter": 'indicator_count',
+                "touchPoint_counter": 'touch_count'
+            }
+        )
 
     template_vars = {
         "titulo": "Servicios",
         "all_services": services,
         "business_unit": business_unit,
-        "company": company
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("services/index.html", request_context)
@@ -72,15 +98,24 @@ def add(request, business_unit_id):
         formulario = AddService(request.POST or None)
         if formulario.is_valid():
             formToSave = formulario.save()
-            business_unit.service.add(formToSave)
-            business_unit.save()
-            template_vars = {
-                "titulo": "Servicios",
-                "message": "Se ha dado de alta el servicio",
-                "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
+
+            allSubdidiaryBU = SubsidiaryBusinessUnit.objects.filter(
+                id_business_unit=business_unit_id
+            )
+
+            for eachSubsidiaryBU in allSubdidiaryBU:
+
+                alias = str(formToSave.name) \
+                        + ', ' \
+                        + str(eachSubsidiaryBU.alias)
+
+                newSBU_service = sbu_service.objects.create(
+                    id_subsidiaryBU=eachSubsidiaryBU,
+                    id_service=formToSave,
+                    alias=alias
+                )
+                newSBU_service.save()
+
             return HttpResponseRedirect('/services/'+str(business_unit_id))
         else:
             template_vars = {
@@ -265,14 +300,34 @@ def details(request, service_id):
 
 
 @login_required(login_url='/signin/')
-def details(request, service_id, business_unit_id):
+def details(request, service_id):
     try:
-        moments = Service.objects.get(pk=service_id)
-        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-        status = str(moments.active)
+        all_sbuServiceMoment = sbu_service_moment.objects.filter(
+            id_sbu_service__id_service=service_id
+        )
+        status = 'STATUS'
     except Service.DoesNotExist:
         raise Http404
 
+    momentsInService = {'moments': []}
+    myMomentList = []
+
+    for eachSbuServiceMoment in all_sbuServiceMoment:
+        myMomentList.append(eachSbuServiceMoment.id_moment.id)
+
+    myMomentList = list(set(myMomentList))
+
+    for eachMoment in myMomentList:
+        myMoment = Moment.objects.get(pk=eachMoment)
+        momentsInService['moments'].append(
+            {
+                "id": myMoment.id,
+                "name": myMoment.name,
+                "description": myMoment.description
+            }
+        )
+
+    '''
     counter_moments = 0
     for a in moments.moments.all():
         counter_moments += 1
@@ -282,17 +337,18 @@ def details(request, service_id, business_unit_id):
         each_moment_to_compare = Moment.objects.get(pk=each_moment.id)
         for attribute in each_moment_to_compare.attributes.all():
             counter_attributes_ += 1
-
+    '''
     template_vars = {
         'titulo': 'Detalles',
-        'service': moments,
+        'service': momentsInService,
         'service_id': service_id,
-        'counter_moments': counter_moments,
-        'counter_attributes': counter_attributes_,
-        'business_unit': business_unit
+        'counter_moments': 'counter_moments',
+        'counter_attributes': 'counter_attributes_',
+        'business_unit': 'business_unit'
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)
+
 
 def get_moments(request):
     service_id = int(request.POST['select_service'])

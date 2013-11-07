@@ -44,7 +44,8 @@
             <div class="col-lg-12 h3 padder-v">
                 Servicios de ésta unidad de servicio
             </div>
-            <div class="col-lg-12 col-sm-12 padder-v">
+            <div class="col-lg-12 col-sm-12"
+                 style="padding-bottom: 10px">
                 <div class="row">
                     <div class="col-lg-4">
                         <div class="input-group search datagrid-search"
@@ -66,7 +67,7 @@
                            href="/services/add/{{ business_unit.id }}"
                            data-toggle="ajaxModal"
                            style="width: 100%">
-                            <i class="icon-plus icon-2x"></i>
+                            <i class="icon-plus"></i>
                             Crear un nuevo servicio
                         </a>
                     </div>
@@ -122,7 +123,7 @@
                                         </div>
                                         <div class="media-body">
                                             <div class="h4" style="padding-top: 10px;">
-                                                <a href="/services/details/{{ each_service.id }}/{{ business_unit.id }}">
+                                                <a href="/services/details/{{ each_service.id }}">
                                                     {{ each_service.name }}
                                                 </a>
                                             </div>
@@ -133,6 +134,66 @@
                         </ul>
                     </section>
                 </div>
+
+            <div class="col-lg-12 h3 padder-v">
+                Sucursales que tienen esta unidad de servicio
+            </div>
+            <div class="col-lg-12 col-sm-12"
+                 style="padding-bottom: 10px">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="input-group search datagrid-search"
+                             style="width: 100% !important;">
+                            <input type="text"
+                                   class="input-sm form-control"
+                                   placeholder="Buscar">
+
+                            <div class="input-group-btn">
+                                <button class="btn btn-white btn-sm">
+                                    <i class="icon-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <a class="btn bg-success btn-modal-xindex"
+                           href="/services/add/{{ business_unit.id }}"
+                           data-toggle="ajaxModal"
+                           style="width: 100%">
+                            <i class="icon-plus"></i>
+                            Asignar una unidad servicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <table class="table table-striped datagrid m-b-sm">
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo de sucursal</th>
+                        <th>Zona</th>
+                        <th>Ubicación</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for eachSubsidiary in all_services.business_units %}
+                        <tr>
+                            <td>
+                                <a href="#">
+                                    {{ eachSubsidiary.name }}
+                                </a>
+                            </td>
+                            <td>{{ eachSubsidiary.type }}</td>
+                            <td>{{ eachSubsidiary.zone }}</td>
+                            <td>{{ eachSubsidiary.location }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
 
 

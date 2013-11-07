@@ -2,9 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xindex.models import Moment
+from xindex.models import Moment, Service, sbu_service, sbu_service_moment
 from xindex.forms import MomentForm
-from xindex.models import Service
 
 
 def index(request):
@@ -30,8 +29,14 @@ def add(request, service_id):
 
         if form.is_valid():
             id_return = form.save()
-            service = Service.objects.get(id=service_id)
-            service.moments.add(id_return)
+            sbuService = sbu_service.objects.filter(id_service=service_id)
+
+            for each_sbuService in sbuService:
+                newSbuServiceMoment = sbu_service_moment.objects.create(
+                    id_sbu_service=each_sbuService,
+                    id_moment=id_return
+                )
+                newSbuServiceMoment.save()
 
             return HttpResponseRedirect('/services/details/'+service_id)
         else:

@@ -1,10 +1,10 @@
 # Create your views here.
 from django.shortcuts import render_to_response
-from xindex.models import BusinessUnit, Subsidiary
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from business_units.forms import AddBusinessUnit
 from django.utils import simplejson
+from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit, Service, sbu_service
 
 
 def index(request):
@@ -23,27 +23,40 @@ def add(request):
 
         if formulario.is_valid():
 
-            formulario.save()
+            newBusinessUnit = formulario.save()
 
-            '''
-            subSelected = formulario.cleaned_data['subsidiaries']
+            subSelected = request.POST.getlist('bu-sub')
+            serSelected = request.POST.getlist('bu-ser')
 
             for eachSub in subSelected:
-                #formToSave.save()
-                subToAdd = Subsidiary.objects.get(pk=eachSub.id)
-                subToAdd.business_unit.add(formToSave.save())
-                formToSave.pk = None
+                subToAssign = Subsidiary.objects.get(pk=eachSub)
+                alias = str(newBusinessUnit) + ', ' + str(subToAssign.name)
 
-            template_vars = {
-                "titulo": "Agregar unidad de negocio",
-                "message": "Se ha dado de alta la unidad de negocio",
-                "formulario": formulario
-            }'''
-            #request_context = RequestContext(request, template_vars)
-            return HttpResponse('Si')
+                bu_assignment = SubsidiaryBusinessUnit.objects.create(
+                    id_subsidiary=subToAssign,
+                    id_business_unit=newBusinessUnit,
+                    alias=alias
+                )
+
+                bu_assignment.save()
+
+                for eachService in serSelected:
+                    serToAssign = Service.objects.get(pk=eachService)
+                    alias = str(serToAssign.name) + ', ' \
+                            + str(bu_assignment.alias)
+
+                    service_assignment = sbu_service.objects.create(
+                        id_subsidiaryBU=bu_assignment,
+                        id_service=serToAssign,
+                        alias=alias
+                    )
+
+                    service_assignment.save()
+
+            return HttpResponseRedirect('/business_units/')
+            #return HttpResponse('Si')
         else:
 
-            print 'FORMULARIO INVALIDO'
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "",
@@ -52,11 +65,16 @@ def add(request):
             request_context = RequestContext(request, template_vars)
             return HttpResponse('No')
     else:
+        subsidiaries = Subsidiary.objects.filter(active=True)
+        services = Service.objects.filter(active=True)
+
         formulario = AddBusinessUnit()
         template_vars = {
             "titulo": "Agregar unidad de negocio",
             "message": "",
-            "formulario": formulario
+            "formulario": formulario,
+            "subsidiaries": subsidiaries,
+            "services": services
         }
         request_context = RequestContext(request, template_vars)
         return render_to_response("business_units/add.html", request_context)
@@ -134,10 +152,10 @@ def getBUInJson(request):
         b_u['business_u'].append(
             {
                 "name": eachBusinessUnit.name,
-                "subsidiary": eachBusinessUnit.subsidiary.name or 'default',
-                "zone": eachBusinessUnit.subsidiary.zone.name or 'default',
+                "subsidiary": 'default',
+                "zone": 'default',
                 "business_unit_id": eachBusinessUnit.id,
-                "subsidiary_id": eachBusinessUnit.subsidiary.id or 'default'
+                "subsidiary_id": 'default'
             }
         )
 

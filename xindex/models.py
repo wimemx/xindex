@@ -45,6 +45,7 @@ class Xindex_User(models.Model):
         verbose_name_plural = "Users"
         verbose_name = "User"
 
+
 class Subsidiary_Type(models.Model):
     name = models.CharField(max_length=50, null=False)
     description = models.TextField()
@@ -439,7 +440,7 @@ class SubsidiaryBusinessUnit(models.Model):
     meta = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_subsidiary.name+'-'+self.id_business_unit.name+'-'+self.alias
+        return self.alias
 
     class Meta:
         verbose_name_plural = "Subsidiarias-UnidadesServicio"
@@ -452,7 +453,7 @@ class sbu_service(models.Model):
     alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_subsidiaryBU+'-'+self.id_service.name+'-'+self.alias
+        return self.alias
 
     class Meta:
         verbose_name_plural = "SBU-Services"
@@ -464,7 +465,7 @@ class sbu_service_moment(models.Model):
     id_moment = models.ForeignKey(Moment, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service+'-'+self.id_moment.name
+        return self.id_sbu_service.__unicode__()+'-'+self.id_moment.name
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments"
@@ -477,7 +478,7 @@ class sbu_service_moment_attribute(models.Model):
     alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service_moment+'-'+self.id_attribute.name
+        return self.id_sbu_service_moment.__unicode__()+'-'+self.id_attribute.name
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments-Attributes"

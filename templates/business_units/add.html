@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/static/chosen_v1.0.0/chosen.css">
+</head>
+<body>
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
@@ -26,9 +33,34 @@
                         {{ formulario.service.errors }}
                     </div>
                     <div class="form-group m-t-lg">
-                        Sucursal:
-                        {{ formulario.subsidiary }}
-                        {{ formulario.subsidiary.errors }}
+                        Servicios de esta unidad:
+                        <select multiple
+                                class="form-control chosen-select"
+                                name="bu-ser"
+                                id="id_bu-ser"
+                                data-placeholder="Ninguno">
+                            {% for eachService in services %}
+
+                                <option value="{{ eachService.id }}">
+                                    {{ eachService.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group m-t-lg">
+                        Sucursales de esta unidad:
+                        <select multiple
+                                class="form-control chosen-select"
+                                name="bu-sub"
+                                id="id_bu-sub"
+                                data-placeholder="Ninguno">
+                            {% for eachSubsidiary in subsidiaries %}
+
+                                <option value="{{ eachSubsidiary.id }}">
+                                    {{ eachSubsidiary.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group m-t-lg">
                         <button type="submit"
@@ -46,7 +78,31 @@
     </div>
     <!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
+
+<script src="/static/chosen_v1.0.0/chosen.jquery.js" type="text/javascript"></script>
+<script src="/static/chosen_v1.0.0/docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+
 <script type="text/javascript">
+
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'Sin resultados'},
+        '.chosen-select-width'     : {width:"100%"}
+    }
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#ajaxModal').remove();
+    });
+
+    /**
     $('#business_unit_form').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
@@ -83,5 +139,7 @@
                 $('#ajaxModal').modal('hide');
             }
         });
-    });
+    });**/
 </script>
+</body>
+</html>
