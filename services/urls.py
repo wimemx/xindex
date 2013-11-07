@@ -17,4 +17,7 @@ urlpatterns = patterns('services.views',
 
     #Url to get the moments
     url(r'^get_moments/$', 'get_moments'),
+
+    #Url to get the services
+    url(r'^get_services/$', 'get_services'),
 )

@@ -385,3 +385,55 @@ def get_moments(request):
     )
 
     return HttpResponse(json_response, content_type="application/json")
+
+
+def get_services(request):
+    businessUnit_id = int(request.POST['select_businessUnit'])
+    try:
+        all_sbuService = sbu_service.objects.filter(
+            id_subsidiaryBU__id_business_unit=businessUnit_id
+        )
+    except BusinessUnit.DoesNotExist:
+        raise Http404
+
+    servicesInBU = []
+    myServiceList = []
+
+    momentsInService = []
+    myMomentList = []
+
+    for eachSbuService in all_sbuService:
+        myServiceList.append(eachSbuService.id_service.id)
+
+    myServiceList = list(set(myServiceList))
+    myMomentList = list(set(myMomentList))
+
+    for eachService in myServiceList:
+        myService = Service.objects.get(pk=eachService)
+        if myService.active:
+            servicesInBU.append(
+                {
+                    'service_id': myService.id,
+                    'service_name': myService.name
+                }
+            )
+
+    '''
+    for eachMoment in myMomentList:
+        myMoment = Moment.objects.get(pk=eachMoment)
+        if myMoment.active:
+            momentsInService.append(
+                {
+                    "moment_id": myMoment.id,
+                    "moment_name": myMoment.name
+                }
+            )
+    '''
+    json_response = json.dumps(
+        {
+            'answer': True,
+            'services': servicesInBU
+        }
+    )
+
+    return HttpResponse(json_response, content_type="application/json")

@@ -142,7 +142,7 @@
                         </div>
                         <div class="col-lg-3">
                             <p>Unidad de servicio</p>
-                            <form id="form_select_businessUnit" action="/services/get_moments/" method="POST">
+                            <form id="form_select_businessUnit" action="/services/get_services/" method="POST">
                             {% csrf_token %}
                                 <select class="form-control text-primary header" name="select_businessUnit" id="id_select_businessUnit">
                                     {% for businessUnit in businessUnits %}
@@ -160,6 +160,7 @@
                             <p>Servicio</p>
                             <form id="form_select_service" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
+                                <input type="hidden" name="businessUnit" id="id_businessUnit" value="{{ current_businessUnit.id }}">
                                 <select class="form-control text-primary header" name="select_service" id="id_select_service">
                                     {% for service in services %}
                                         {% if service.id == current_service.id %}
