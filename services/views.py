@@ -352,23 +352,35 @@ def details(request, service_id):
 
 def get_moments(request):
     service_id = int(request.POST['select_service'])
-    service = Service.objects.get(pk=service_id)
+    try:
+        all_sbuServiceMoment = sbu_service_moment.objects.filter(
+            id_sbu_service__id_service=service_id
+        )
+    except Service.DoesNotExist:
+        raise Http404
 
-    moments = []
+    momentsInService = []
+    myMomentList = []
 
-    for moment in service.moments.all():
-        if moment.active:
-            moments.append(
+    for eachSbuServiceMoment in all_sbuServiceMoment:
+        myMomentList.append(eachSbuServiceMoment.id_moment.id)
+
+    myMomentList = list(set(myMomentList))
+
+    for eachMoment in myMomentList:
+        myMoment = Moment.objects.get(pk=eachMoment)
+        if myMoment.active:
+            momentsInService.append(
                 {
-                    'moment_name': moment.name,
-                    'moment_id': moment.id
+                    "moment_id": myMoment.id,
+                    "moment_name": myMoment.name
                 }
             )
 
     json_response = json.dumps(
         {
             'answer': True,
-            'moments': moments
+            'moments': momentsInService
         }
     )
 
