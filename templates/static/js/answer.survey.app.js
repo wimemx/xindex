@@ -36,7 +36,8 @@ $(document).ready(function(){
                             'question_id': question_id,
                             'question_type': question_type,
                             'option_id': option_id,
-                            'option_value': option_value
+                            'option_value': option_value,
+                            'client_id': $('#id_client').val()
                         }
                     );
                     hideErrorContainer(parent_container);
@@ -56,7 +57,8 @@ $(document).ready(function(){
                             'question_id': question_id,
                             'question_type': question_type,
                             'option_id': option_id,
-                            'option_value': option_value
+                            'option_value': option_value,
+                            'client_id': $('#id_client').val()
                         }
                     );
                     hideErrorContainer(parent_container);
@@ -82,7 +84,8 @@ $(document).ready(function(){
                                 'question_id': question_id,
                                 'question_type': question_type,
                                 'option_id': option_id,
-                                'option_value': option_value
+                                'option_value': option_value,
+                                'client_id': $('#id_client').val()
                             }
                         );
                         sub_in_matrix --;
@@ -107,7 +110,8 @@ $(document).ready(function(){
                             'question_id': question_id,
                             'question_type': question_type,
                             'option_id': option_id,
-                            'option_value': option_value
+                            'option_value': option_value,
+                            'client_id': $('#id_client').val()
                         }
                     );
                     hideErrorContainer(parent_container);
@@ -134,7 +138,8 @@ $(document).ready(function(){
                             'question_id': question_id,
                             'question_type': question_type,
                             'option_id': option_id,
-                            'option_value': option_value
+                            'option_value': option_value,
+                            'client_id': $('#id_client').val()
                         }
                     );
                     hideErrorContainer(parent_container);

@@ -26,6 +26,7 @@ from xindex.models import sbu_service_moment
 from xindex.models import sbu_service_moment_attribute
 from xindex.models import BusinessUnit
 from xindex.models import Service
+from xindex.models import Client
 
 
 @login_required(login_url='/signin/')
@@ -2270,6 +2271,7 @@ def answer_survey(request, survey_id, hash_code, client_id):
                 'company_address': company_address,
                 'company_email': company_email,
                 'company_phone': company_phone,
+                'client_id': client_id,
                 'setup': setup
             }
             request_context = RequestContext(request, template_vars)
@@ -2305,6 +2307,7 @@ def save_answers_ajax(request):
                     else:
                         answer.value = option_db.value
                     answer.order = option_db.order
+                    answer.client = Client.objects.get(pk=int(question['client_id']))
                     answer.active = True
                     answer.save()
 
