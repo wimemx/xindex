@@ -20,6 +20,7 @@ def index(request):
 
 
 def report_by_moment(request):
+    global zone, subsidiary, businessUnit
     moment_xindex = Decimal(0)
     zones = []
     subsidiaries = []
@@ -87,7 +88,7 @@ def report_by_moment(request):
 
         #Adding to businessUnit list
         mySUB = SubsidiaryBusinessUnit.objects.filter(
-            id_subsidiary=subsidiary.id
+            id_subsidiary__id=subsidiary.id
         )
 
         #Get Business Units
@@ -95,9 +96,7 @@ def report_by_moment(request):
         for eachSubsidiaryBusinessUnit in mySUB:
             myBUIdList.append(eachSubsidiaryBusinessUnit.id_business_unit.id)
 
-        print '======================'
-        print myBUIdList
-
+        myBUIdList = list(set(myBUIdList))
         for eachBUId in myBUIdList:
             myBusinessUnits = BusinessUnit.objects.get(pk=eachBUId)
             if myBusinessUnits.active:
@@ -107,26 +106,38 @@ def report_by_moment(request):
 
 
         #Adding to services list
-        mySUBS = sbu_service.objects.filter(id_subsidiaryBU=businessUnit.id)
+        mySUBS = sbu_service.objects.filter(
+            id_subsidiaryBU__id_business_unit=businessUnit.id
+        )
 
         #Get Services
-        mySId = []
+        mySIdList = []
         for eachSBUService in mySUBS:
-            mySId.append(eachSBUService.id_service.id)
+            mySIdList.append(eachSBUService.id_service.id)
 
-        print '======================'
-        print mySId
-
-        for eachIdService in mySId:
+        mySIdList = list(set(mySIdList))
+        for eachIdService in mySIdList:
             myServices = Service.objects.get(pk=eachIdService)
             services.append(myServices)
 
-
         service = services[0]
+
+        #Adding to moment list
+        mySUBSMIdList = []
+        mySUBSM = sbu_service_moment.objects.filter(
+            id_sbu_service__id_service=service.id
+        )
+        for eachSBUSMoment in mySUBSM:
+            mySUBSMIdList.append(eachSBUSMoment.id_moment.id)
+
+        #Get Moments
+        mySUBSMIdList = list(set(mySUBSMIdList))
+        for eachMoment in mySUBSMIdList:
+            myMoments = Moment.objects.get(pk=eachMoment)
+            moments.append(myMoments)
+
         moment = moments[:1]
 
-    print service
-    print moment
 
     '''
     #Get the relations of the moment
@@ -231,6 +242,9 @@ def report_by_moment(request):
         'businessUnits': businessUnits,
         'moments': moments,
         'services': services,
+        'current_zone': zone,
+        'current_subsidiary': subsidiary,
+        'current_businessUnit': businessUnit,
         'current_service': service,
         'current_moment': moment,
         'historical_months': 'historical_months',
