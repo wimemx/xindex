@@ -195,6 +195,9 @@ function get_question_object() {
     } else {
         question.attribute_id = attribute_id;
     }
+
+    question.survey_id = $('#survey_id').val();
+
     return question;
 };
 

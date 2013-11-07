@@ -5,6 +5,7 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from xindex.models import Subsidiary
 
 
 from xindex.models import Client, Company
@@ -43,7 +44,7 @@ def getClientsInJson(request):
 def add_client(request):
 
     if request.POST:
-        company = Company.objects.get(pk=request.POST['client_company'])
+        company = Subsidiary.objects.get(pk=request.POST['client_company'])
 
         new_client = Client.objects.create(
             name=request.POST['client_name'],
@@ -53,13 +54,13 @@ def add_client(request):
             date_of_birth=request.POST['client_date'],
             email=request.POST['client_email'],
             phone=request.POST['client_phone'],
-            company=company,)
+            subsidiary=company,)
 
         new_client.save()
         return HttpResponseRedirect('/clients/')
 
     else:
-        companies = Company.objects.filter(active=True)
+        companies = Subsidiary.objects.filter(active=True)
 
         template_vars = {'companies': companies}
         request_context = RequestContext(request, template_vars)
@@ -168,7 +169,7 @@ def csv_read(request):
                 phone=eachRow[7],
                 state=eachRow[8],
                 city=eachRow[9],
-                company=Company.objects.get(name=eachRow[10])
+                subsidiary=Subsidiary.objects.get(name=eachRow[10])
             )
 
             clientData.save()

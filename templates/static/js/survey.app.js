@@ -1161,7 +1161,8 @@ function saveBlockConfiguration(){
                 data: {
                     csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
                     ids: JSON.stringify(question_ids),
-                    'moment_id': moment_id
+                    'moment_id': moment_id,
+                    'survey_id': $('#survey_id').val()
                 },
                 dataType: 'JSON',
                 success: function (msg) {

@@ -250,6 +250,8 @@ class Survey(models.Model):
                                default="No image")
     available = models.BooleanField(default=True)
     configuration = models.TextField()
+    business_unit_id = models.ForeignKey('BusinessUnit', blank=True, null=False)
+    service_id = models.ForeignKey('Service', blank=True, null=False)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -284,7 +286,8 @@ class Attributes(models.Model):
 
 class Question_sbu_s_m_a(models.Model):
     question_id = models.ForeignKey(Question)
-    sbu_s_m_a_id = models.ForeignKey('sbu_service_moment_attribute', null=True)
+    #sbu_s_m_a_id = models.ForeignKey('sbu_service_moment_attribute', null=True)
+    sbu_s_m_a_id = models.ManyToManyField('sbu_service_moment_attribute', null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     active = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -409,7 +412,7 @@ class Client(models.Model):
     phone = models.CharField(max_length=40, blank=True, null=True)
     state = models.CharField(max_length=40, blank=True, null=True)
     city = models.CharField(max_length=40, blank=True, null=True)
-    company = models.ForeignKey(Company)
+    subsidiary = models.ForeignKey(Subsidiary)
 
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -453,7 +456,7 @@ class sbu_service(models.Model):
     alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_subsidiaryBU+'-'+self.id_service.name+'-'+self.alias
+        return self.id_subsidiaryBU.__unicode__()+'-'+self.id_service.name+'-'+self.alias
 
     class Meta:
         verbose_name_plural = "SBU-Services"
@@ -463,9 +466,10 @@ class sbu_service(models.Model):
 class sbu_service_moment(models.Model):
     id_sbu_service = models.ForeignKey(sbu_service, blank=True, null=True)
     id_moment = models.ForeignKey(Moment, blank=True, null=True)
+    alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service+'-'+self.id_moment.name
+        return self.id_sbu_service.__unicode__()+'-'+self.id_moment.name
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments"
@@ -478,7 +482,7 @@ class sbu_service_moment_attribute(models.Model):
     alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service_moment+'-'+self.id_attribute.name
+        return self.id_sbu_service_moment.__unicode__()+'-'+self.id_attribute.name
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments-Attributes"
