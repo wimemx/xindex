@@ -140,13 +140,20 @@ def add(request, business_unit_id):
 
 @login_required(login_url='/signin/')
 def update(request, service_id, business_unit_id):
+
+    print '==ENTRA=='
+
     try:
         service = Service.objects.get(id=service_id)
     except Service.DoesNotExist:
         service = False
 
     if service:
+        print '==SERVICE=='
+        print '==REQUEST=='
+        print request
         if request.POST:
+            print '==POST=='
             formulario = AddService(request.POST or None, request.FILES,
                                     instance=service)
             if formulario.is_valid():
@@ -156,7 +163,7 @@ def update(request, service_id, business_unit_id):
                     "message": "Servicios"
                 }
                 request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/services/'+business_unit_id)
+                return HttpResponseRedirect('/services/'+ business_unit_id)
             else:
                 template_vars = {
                     "titulo": "Editar servicio",
@@ -171,62 +178,47 @@ def update(request, service_id, business_unit_id):
             template_vars = {
                 "titulo": "Editar servicio",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "service_id": service_id
             }
             request_context = RequestContext(request, template_vars)
             return render_to_response("services/update.html", request_context)
     else:
         message = "No se ha podido encontrar el servicio"
         #return HttpResponse(message+"%s." % service_id)
-        return HttpResponseRedirect('/services/'+business_unit_id)
+        return HttpResponseRedirect('/services/'+ business_unit_id)
 
 
 @login_required(login_url='/signin/')
 def remove(request, service_id, business_unit_id):
     try:
-        service = Service.objects.get(pk=service_id)
-        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-    except Service.DoesNotExist:
-        service = False
+        mySbuService = sbu_service.objects.filter(
+            id_subsidiaryBU__id_business_unit__id=business_unit_id,
+            id_service__id=service_id
+        )
 
-    try:
-        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-    except BusinessUnit.DoesNotExist:
-        business_unit = False
+        for each_serviceRelation in mySbuService:
+            each_serviceRelation.delete()
 
-    if service and business_unit:
-        try:
-            business_unit.service.remove(service)
-            business_unit.save()
-            service.active = False
-            service.save()
-            message = "Se ha eliminado el servicio"
-            template_vars = {
-                "titulo": "Servicios",
-                "message": "Se ha eliminado el servicio"
-            }
-            request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/services/'+str(business_unit_id))
+        message = "Se ha eliminado el servicio"
+        template_vars = {
+            "titulo": "Servicios",
+            "message": "Se ha eliminado el servicio"
+        }
+        request_context = RequestContext(request, template_vars)
+        #return render_to_response("services/index.html", request_context)
+        return HttpResponseRedirect('/services/' + str(business_unit_id))
 
-        except:
-            message = "No se pudo eliminar"
-            template_vars = {
-                "titulo": "Servicios",
-                "message": message
-            }
-            request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
-            return HttpResponseRedirect('/services/'+str(business_unit_id))
-    else:
-        message = "No se ha encontrado el servicio "
+    except:
+        message = "No se pudo eliminar"
         template_vars = {
             "titulo": "Servicios",
             "message": message
         }
         request_context = RequestContext(request, template_vars)
         #return render_to_response("services/index.html", request_context)
-        return HttpResponseRedirect('/services/'+str(business_unit_id))
+        return HttpResponseRedirect('/services/' + str(business_unit_id))
+
 
 
 @login_required(login_url='/signin/')

@@ -74,8 +74,18 @@ def remove(request, service_id, moment_id):
         service = False
 
     if moment and service:
-        service.moments.remove(moment)
-        service.save()
+        moment.active = False
+        moment.save()
+
+        mySbuServiceMoment = sbu_service_moment.objects.filter(
+            id_moment_id=moment
+        )
+
+        for eachSBSM in mySbuServiceMoment:
+
+            print '========================'
+            print eachSBSM.id
+
         return HttpResponse('Si')
     else:
         return HttpResponse('No')
