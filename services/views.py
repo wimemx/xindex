@@ -51,7 +51,7 @@ def index(request, business_unit_id=False):
         services['business_units'].append(
             {
                 "name": mySubsidiary.name,
-                "type": mySubsidiary.subsidiary_types,
+                "type": mySubsidiary.subsidiary_types.name,
                 "zone": mySubsidiary.zone.name,
                 "location": mySubsidiary.city_id.name,
                 "id": mySubsidiary.id,

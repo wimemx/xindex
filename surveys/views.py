@@ -174,7 +174,7 @@ def save(request, action, next_step, survey_id=False):
                                 name=form.cleaned_data['name'],
                                 step=step,
                                 configuration=configuration,
-                                business_unit_id=BusinessUnit.objects.get(pk=2),
+                                business_unit_id=BusinessUnit.objects.get(pk=1),
                                 service_id=Service.objects.get(pk=1)
                                 )
                 survey.save()
@@ -205,7 +205,7 @@ def save(request, action, next_step, survey_id=False):
         if company:
             company_name = company.name
             company_address = company.address
-            company_email = 'atencion@hollidayinn.com'
+            company_email = company.email
             company_phone = company.phone
         else:
             company_name = 'Default company NAME'
