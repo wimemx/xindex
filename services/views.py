@@ -1,7 +1,8 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service, SubsidiaryBusinessUnit, sbu_service_moment
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service
+from xindex.models import sbu_service_moment_attribute, SubsidiaryBusinessUnit, sbu_service_moment
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
@@ -61,24 +62,43 @@ def index(request, business_unit_id=False):
     for eachService in myServiceList:
 
         myServices = Service.objects.get(pk=eachService)
+        myMoments = sbu_service_moment.objects.filter(
+            id_sbu_service__id_service__id=myServices.id
+        )
 
-        '''
-        for eachMoment in myServices.moments.all():
-            touchPoint_counter += 1
+        #Counters!
+        myMomentCounter = []
+        myAttributeCounter = []
+        for eachMoment in myMoments:
+            myMomentCounter.append(eachMoment.id_moment.id)
 
-        for eachMoment in serviceToCount.moments.all():
-            eachMomentToAtt = Moment.objects.get(pk=eachMoment.id)
+        myMomentCounter = list(set(myMomentCounter))
 
-        for eachAttribute in eachMomentToAtt.attributes.all():
-            indicator_counter += 1
-        '''
+        touch_count = 0
+        indicator_count = 0
+        for eachSetMoment in myMomentCounter:
+            touch_count += 1
+
+            myAtributtes = sbu_service_moment_attribute.objects.filter(
+                id_sbu_service_moment__id_moment__id=eachSetMoment
+            )
+
+            print '========== C O N S U L T A ==========='
+            print myAtributtes
+
+            for eachAttribute in myAtributtes:
+                print '====================='
+                print eachAttribute.alias
+                indicator_count += 1
+
+
 
         services['services'].append(
             {
                 "name": myServices.name,
                 "id": myServices.id,
-                "indicator_counter": 'indicator_count',
-                "touchPoint_counter": 'touch_count'
+                "indicator_counter": indicator_count,
+                "touchPoint_counter": touch_count
             }
         )
 

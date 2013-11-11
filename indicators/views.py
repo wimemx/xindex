@@ -149,17 +149,14 @@ def details(request, indicator_id):
 
 
 def getSInJson(request):
-    attribute = {'attributes': []}
+    attributes = {'attributes': []}
     attribute_query = Attributes.objects.filter(active=True).order_by('-date')
-    question_attribute_query = Question_Attributes.objects.filter(active=True)
+    question_attribute_query = [1]
+        #Question_Attributes.objects.filter(active=True)
 
     for each_attribute in attribute_query:
-        counter_question = 0
-        for each_question_attribute in question_attribute_query:
-            if each_attribute == each_question_attribute.attribute_id:
-                counter_question += 1
 
-        attribute['attributes'].append(
+        attributes['attributes'].append(
             {
                 "name": each_attribute.name,
                 "description": each_attribute.description,
@@ -168,8 +165,8 @@ def getSInJson(request):
                 #"max_value": each_attribute.max_value,
                 "threshold": each_attribute.threshold,
                 #"weight": each_attribute.weight,
-                "questions": counter_question,
+                #"questions": counter_question,
                 "attribute_id": each_attribute.id
             }
         )
-    return HttpResponse(simplejson.dumps(attribute))
+    return HttpResponse(simplejson.dumps(attributes))

@@ -149,13 +149,21 @@ def getBUInJson(request):
 
     business_unit = BusinessUnit.objects.filter(active=True)
     for eachBusinessUnit in business_unit:
+
+        subsidiaries = SubsidiaryBusinessUnit.objects.filter(
+            id_business_unit__id=eachBusinessUnit.id
+        )
+
+        counter_subsidiaries = 0
+        for eachSubsidiary in subsidiaries:
+            counter_subsidiaries += 1
+
+
         b_u['business_u'].append(
             {
                 "name": eachBusinessUnit.name,
-                "subsidiary": 'default',
-                "zone": 'default',
-                "business_unit_id": eachBusinessUnit.id,
-                "subsidiary_id": 'default'
+                "subsidiary": counter_subsidiaries,
+                "business_unit_id": eachBusinessUnit.id
             }
         )
 
@@ -167,7 +175,7 @@ def details(request, business_unit_id):
     try:
         bus_u = BusinessUnit.objects.get(id=business_unit_id)
 
-        bus_u = False if bus_u.active==False else bus_u
+        bus_u = False if bus_u.active == False else bus_u
     except BusinessUnit.DoesNotExist:
         bus_u = False
 

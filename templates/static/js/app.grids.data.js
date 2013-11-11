@@ -405,19 +405,7 @@ function businessUnitsDatagrid() {
                     },
                     {
                         property: 'subsidiary',
-                        label: 'Sucursal',
-                        sortable: false
-                    },
-                    /*
-                     {
-                     property: 'active',
-                     label: '¿Activa?',
-                     sortable: true
-                     },
-                     */
-                    {
-                        property: 'zone',
-                        label: 'Zona',
+                        label: 'Sucursales',
                         sortable: false
                     },
                     {
@@ -434,10 +422,6 @@ function businessUnitsDatagrid() {
                         var subid = item.subsidiary_id;
                         item.name = '<a href="/services/' + buid + '">' + item.name + '</a>';
                         item.business_unit_id =
-                            //'<a href="/business_units/details/' + item.business_unit_id + '"><i class="icon-eye-open"></i></a>'
-                            //    +
-                            //    '<label>|</label>'
-                            //    +
                             '<a href="/business_units/update/' + item.business_unit_id + '" class="update_bu" data-toggle="ajaxModal"><i class="icon-edit"></i></a>'
                                 +
                                 '<label>|</label>'
