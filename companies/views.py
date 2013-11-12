@@ -104,7 +104,7 @@ def getCInJson(request):
         companies['companies'].append(
             {
                 "name": c.name,
-                "address":c.address,
+                "address": c.address,
                 "rfc": c.rfc,
                 "c_det": c.id,
                 "c_up": c.id,

@@ -32,9 +32,11 @@ def add(request, service_id):
             sbuService = sbu_service.objects.filter(id_service=service_id)
 
             for each_sbuService in sbuService:
+                alias = id_return.name + ',' + each_sbuService.alias
                 newSbuServiceMoment = sbu_service_moment.objects.create(
                     id_sbu_service=each_sbuService,
-                    id_moment=id_return
+                    id_moment=id_return,
+                    alias=alias
                 )
                 newSbuServiceMoment.save()
 
@@ -74,8 +76,16 @@ def remove(request, service_id, moment_id):
         service = False
 
     if moment and service:
-        service.moments.remove(moment)
-        service.save()
+        moment.active = False
+        moment.save()
+
+        mySbuServiceMoment = sbu_service_moment.objects.filter(
+            id_moment_id=moment
+        )
+
+        for eachSBSM in mySbuServiceMoment:
+            eachSBSM.delete()
+
         return HttpResponse('Si')
     else:
         return HttpResponse('No')

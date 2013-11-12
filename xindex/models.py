@@ -135,7 +135,7 @@ class Zone(models.Model):
 class Company(models.Model):
 
     name = models.CharField(max_length=50, null=False)
-    types = models.ManyToManyField(Company_Type, blank=True, null=True)
+    types = models.ForeignKey(Company_Type, blank=True, null=True)
     parent_company = models.ForeignKey('Company', blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=50, null=False)
@@ -342,7 +342,7 @@ class Subsidiary(models.Model):
     country_id = models.ForeignKey(Country)
     state_id = models.ForeignKey(State)
     city_id = models.ForeignKey(City, null=True, blank=True)
-    subsidiary_types = models.ManyToManyField(Subsidiary_Type, blank=True, null=True)
+    subsidiary_types = models.ForeignKey(Subsidiary_Type, blank=True, null=True)
     zone = models.ForeignKey(Zone, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)

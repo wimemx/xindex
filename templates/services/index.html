@@ -6,6 +6,7 @@
 </head>
 <body>
 {% block mainContent %}
+    <input type="hidden" value="{{ business_unit.id }}" id="idbunit">
     <section id="content">
     <section class="vbox">
         <header class="header b-b blue-xindex">
@@ -90,12 +91,12 @@
                                              style="border-left: 1px solid #d3d3d3">
                                             <div class="h4 text-muted"
                                                  style="padding-left: 10px; padding-top: 10px; padding-bottom: 10px">
-                                                <a href="#"
+                                                <a href="/services/update/{{ each_service.id }}/{{ business_unit.id }}"
                                                    class="text-warning"
                                                    data-toggle="ajaxModal">
                                                 <i class="icon-edit"></i>
                                                 </a>
-                                                <a href="/services/remove/{{ each_service.id }}/{{ each_service.business_unit_id }}/"
+                                                <a href="/services/remove/{{ each_service.id }}/{{ business_unit.id }}"
                                                    class="text-danger">
                                                 <i class="icon-remove"></i>
                                                 </a>
@@ -108,7 +109,7 @@
                                             </div>
                                             <small class="text-muted"
                                                    style="padding-left: 10px;">
-                                                Indicadores
+                                                Indicadores {{ each_service.indicator_counters }}
                                             </small>
                                         </div>
                                         <div class="pull-right text-center"

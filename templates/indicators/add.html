@@ -9,80 +9,20 @@
             <form class="form-horizontal" id="add_indicator_form" method="POST"
                   action="/indicators/add/">{% csrf_token %}
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Nombre:</label>
-
-                    <div class=" col-md-7">
+                    Nombre:
                         {{ formulario.name }}
                         {{ formulario.name.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
-
-                    <div class=" col-md-7">
+                    Descripci&oacute;n:
                         {{ formulario.description }}
                         {{ formulario.description.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Limite:</label>
-
-                    <div class=" col-md-7">
+                    Limite:
                         {{ formulario.threshold }}
                         {{ formulario.threshold.errors }}
-                    </div>
                 </div>
-                <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Momentos:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.moments }}
-                        {{ formulario.moments.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <!--
-                    <div class="form-group m-t-lg">
-                        <label class="col-sm-8 control-label">¿En que sucursales
-                            deseas aplicar este indicador?:</label>
-                    </div>
-                    <div class="form-group m-t-lg">
-                        <div class="col-md-7 padder">
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           checked="checked">
-                                    <i class="icon-circle-blank"></i>
-                                    Todas mis sucursales
-                                </label>
-                            </div>
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           id="by_type">
-                                    <i class="icon-circle-blank"></i>
-                                    Por tipo
-                                </label>
-                            </div>
-                            <div class="radio">
-                                <label class="radio-custom">
-                                    <input type="radio" name="radio"
-                                           id="choose_manual">
-                                    <i class="icon-circle-blank"></i>
-                                    Seleccionar Manualmente
-                                </label>
-                            </div>
-                        </div>
-                        <div class="line line-dashed m-t-xs"></div>
-                    </div>
-                    <div class="form-group" id="optionalField">
-                        <label class="col-sm-3 control-label"
-                               id="optionalFieldLabel"></label>
-
-                        <div class=" col-md-7" id="optionalFieldGroup">
-
-                        </div>
-                    </div>-->
                     <div class="modal-footer">
                         <a href="/services/details/{{ service_id }}"
                            class="btn btn-white"
