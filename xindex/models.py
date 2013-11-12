@@ -466,7 +466,7 @@ class sbu_service(models.Model):
 class sbu_service_moment(models.Model):
     id_sbu_service = models.ForeignKey(sbu_service, blank=True, null=True)
     id_moment = models.ForeignKey(Moment, blank=True, null=True)
-    #alias = models.CharField(max_length=50, blank=True, null=True)
+    alias = models.CharField(max_length=50, blank=True, null=True)
 
     def __unicode__(self):
         return self.id_sbu_service.__unicode__()+'-'+self.id_moment.name

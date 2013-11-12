@@ -4,7 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from business_units.forms import AddBusinessUnit
 from django.utils import simplejson
-from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit, Service, sbu_service
+from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit, Service, sbu_service, Zone, sbu_service_moment
+import json
 
 
 def index(request):
@@ -174,3 +175,31 @@ def details(request, business_unit_id):
     template_vars['bus_u'] = bus_u
     request_context = RequestContext(request, template_vars)
     return render_to_response('business_units/details.html', request_context)
+
+def get_services(request):
+    servicesList = []
+    if request.POST:
+        if 'zone' in request.POST and 'subsidiary' in request.POST and 'business_unit' in request.POST:
+            try:
+                zone = Zone.objects.get(pk=int(request.POST['zone']))
+                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=int(request.POST['business_unit'])):
+                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                        servicesList.append(
+                            {
+                                'service_id': s_bu_s.id_service.id,
+                                'service_name': s_bu_s.id_service.name + ' - ' + s_bu_s.alias
+                            }
+                        )
+                if len(servicesList) == 0:
+                    pass
+                else:
+                    json_response = {
+                        'answer': True,
+                        'services': servicesList
+                    }
+                    return HttpResponse(json.dumps(json_response))
+            except Zone.DoesNotExist:
+                pass
+        else:
+            pass

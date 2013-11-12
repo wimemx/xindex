@@ -18,4 +18,7 @@ urlpatterns = patterns('subsidiaries.views',
     url(r'^json/$', 'getSubsidiariesInJson'),
     url(r'details/(?P<subsidiary_id>\d+)', 'details'),
     url(r'sub_by_city/$', 'getSubsidiariesByCity'),
+
+    #Url to get subsidiaries
+    url(r'^get_business_units/$', 'get_business_units'),
 )

@@ -1,7 +1,7 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service, SubsidiaryBusinessUnit, sbu_service_moment
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service, SubsidiaryBusinessUnit, sbu_service_moment, Zone
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
@@ -351,40 +351,33 @@ def details(request, service_id):
 
 
 def get_moments(request):
-    service_id = int(request.POST['select_service'])
-    try:
-        all_sbuServiceMoment = sbu_service_moment.objects.filter(
-            id_sbu_service__id_service=service_id
-        )
-    except Service.DoesNotExist:
-        raise Http404
-
-    momentsInService = []
-    myMomentList = []
-
-    for eachSbuServiceMoment in all_sbuServiceMoment:
-        myMomentList.append(eachSbuServiceMoment.id_moment.id)
-
-    myMomentList = list(set(myMomentList))
-
-    for eachMoment in myMomentList:
-        myMoment = Moment.objects.get(pk=eachMoment)
-        if myMoment.active:
-            momentsInService.append(
-                {
-                    "moment_id": myMoment.id,
-                    "moment_name": myMoment.name
-                }
-            )
-
-    json_response = json.dumps(
-        {
-            'answer': True,
-            'moments': momentsInService
-        }
-    )
-
-    return HttpResponse(json_response, content_type="application/json")
+    momentList = []
+    if request.POST:
+        if 'zone' in request.POST and 'subsidiary' in request.POST and 'business_unit' in request.POST and 'service' in request.POST:
+            try:
+                zone = Zone.objects.get(pk=int(request.POST['zone']))
+                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=int(request.POST['business_unit'])):
+                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=int(request.POST['service'])):
+                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                            momentList.append(
+                                {
+                                    'moment_id': s_bu_s_m.id_moment.id,
+                                    'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                }
+                            )
+                if len(momentList) == 0:
+                    pass
+                else:
+                    json_response = {
+                        'answer': True,
+                        'moments': momentList
+                    }
+                    return HttpResponse(json.dumps(json_response))
+            except Zone.DoesNotExist:
+                pass
+        else:
+            pass
 
 
 def get_services(request):

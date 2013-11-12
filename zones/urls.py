@@ -13,4 +13,6 @@ urlpatterns = patterns('zones.views',
     url(r'^json/$', 'getZonesInJson'),
     url(r'^country/(?P<country_id>\d+)/$', 'country'),
     #url(r'^city/(?P<state_id>\d+)/$', 'city'),
+    #Url to get subsidiaries
+    url(r'^get_subsidiaries/$', 'get_subsidiaries'),
 )
