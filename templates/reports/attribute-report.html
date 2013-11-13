@@ -48,7 +48,7 @@
                 </a>
             </li>
             <li>
-                <a href="/clients/">
+                <a href="#">
                     <i class="icon-group"></i>
                     <span>Mis Clientes</span>
                 </a>
@@ -82,10 +82,10 @@
                         <a href="/reports/service">Servicio</a>
                     </li>
                     <li>
-                        <a class="blue-xindex" href="/reports/moment">Punto de contacto</a>
+                        <a href="/reports/moment">Punto de contacto</a>
                     </li>
                     <li>
-                        <a href="/reports/attribute">Atributo</a>
+                        <a class="blue-xindex" href="/reports/attribute">Atributo</a>
                     </li>
                 </ul>
             </li>
@@ -108,7 +108,7 @@
         <section class="panel animated fadeInRight scrollable wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="h2 header">Reporte de satisfacci&oacute;n por punto de contacto</div>
+                    <div class="h2 header">Reporte de satisfacci&oacute;n por atributo</div>
                     <div class="footer">
                         <div class="col-lg-2">
                             <p>Zona</p>
@@ -141,7 +141,7 @@
                                 </select>
                             </form>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <p>Unidad de servicio</p>
                             <form id="form_select_business_unit" action="/business_units/get_services/" method="POST">
                             {% csrf_token %}
@@ -177,7 +177,7 @@
                                 </select>
                             </form>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <p>Punto de contacto</p>
                             <form id="form_select_moment" action="/reports/moment/" method="POST">
                                 {% csrf_token %}
@@ -196,10 +196,30 @@
                                 </select>
                             </form>
                         </div>
+                        <div class="col-lg-2">
+                            <p>Atributo</p>
+                            <form id="form_select_attribute" action="/reports/attribute/" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
+                                <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
+                                <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
+                                <select class="form-control text-primary header" name="attribute" id="id_attribute">
+                                    {% for moment in moments %}
+                                        {% if moment.id == current_moment.id %}
+                                            <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
+                                        {% else %}
+                                            <option value="{{ moment.id }}">{{ moment.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        {% if survey_is_designed %}
+        {% if not survey_is_designed %}
             <div class="row wrapper">
                 <section class="panel no-borders hbox">
                     <aside class="lter r-l text-center v-middle">
@@ -211,6 +231,7 @@
                                 <div class="col-lg-4 text-center">
                                     <i class="icon-circle text-success"></i>
                                     Promotores
+                                    <i class="icon icon-question-sign" data-toggle="popover" data-html="true" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." title="" data-original-title="&lt;button type=&quot;button&quot; class=&quot;close pull-right&quot; data-dismiss=&quot;popover&quot;&gt;×&lt;/button&gt;Popover on top"></i>
                                 </div>
                                 <div class="col-lg-4 text-center">
                                     <i class="icon-circle text-warning"></i>
@@ -255,118 +276,6 @@
                     </aside>
                 </section>
             </div>
-            <!--
-            <div class="row wrapper">
-                <div class="col-lg-12">
-                    <div class="col-lg-6 panel wrapper">
-                        <div class="graph" id="prom_pass_det_graph">
-
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-success"></i>
-                                Promotores
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-warning"></i>
-                                Pasivos
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-danger"></i>
-                                Detractores
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 panel wrapper">
-                        <div class="header h4 text-muted text-center">
-                            &Eacute;ste servicio tiene un nivel de satisfacci&oacute;n de:
-                        </div>
-                        <div class="col-sm-6 r-r text-center v-middle">
-                            <div class="h1 icon-5x">
-                                {{ moment_xindex }}%
-                            </div>
-                        </div>
-                        <div class="col-sm-6 r-r text-center v-middle wrapper">
-                            <div class="text-center v-middle pull-left">
-                                {% if comparison.diff_type == 'negative' %}
-                                    <p class="h4 text-danger"><i class="icon-arrow-down "></i>{{ comparison.xindex_diff }}%</p>
-                                {% else %}
-                                    <p class="h4 text-success"><i class="icon-arrow-up "></i>{{ comparison.xindex_diff }}%</p>
-                                {% endif %}
-                                <p>Con respecto al mes pasado</p>
-                            </div>
-                        </div>
-                        <div class="header h4 text-muted text-center">
-                            Nivel de satisfacci&oacute;n en los ultimos meses:
-                        </div>
-                        <div class="graph" id="historical-graph">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            -->
-            <div class="row wrapper">
-                <div class="header text-muted">
-                    <p class="h4">Indicadores del punto de contacto</p>
-                </div>
-                <section class="panel-body">
-                    <div class="col-lg-12">
-                        <div class="col-lg-2"></div>
-                        <div class="col-lg-8">
-                            <div class="col-lg-2-4 text-center">
-                                <i class="icon-circle text-danger"></i>
-                                De 0 a 6
-                            </div>
-                            <div class="col-lg-2-4 text-center">
-                                <i class="icon-circle text-warning"></i>
-                                7 y 8
-                            </div>
-                            <div class="col-lg-2-4 text-center">
-                                <i class="icon-circle text-info"></i>
-                                9
-                            </div>
-                            <div class="col-lg-2-4 text-center">
-                                <i class="icon-circle text-success"></i>
-                                10
-                            </div>
-                            <div class="col-lg-2-4 text-center">
-
-                            </div>
-                        </div>
-                        <div class="col-lg-2 text-left"><strong>Xindex</strong></div>
-                    </div>
-                    {% for attribute in data_attribute %}
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="col-lg-2">
-                                <div class="panel-body text-center">
-                                    {{ attribute.attribute_name }}
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="panel-body">
-                                    <div class="progress ">
-                                        <div class="progress-bar progress-bar-danger" data-toggle="tooltip" data-original-title="{{ attribute.detractors_percent }}%" style="width: {{ attribute.detractors_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-warning" data-toggle="tooltip" data-original-title="{{ attribute.passives_percent }}%" style="width: {{ attribute.passives_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-info" data-toggle="tooltip" data-original-title="{{ attribute.promoters_9_percent }}%" style="width: {{ attribute.promoters_9_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-success" data-toggle="tooltip" data-original-title="{{ attribute.promoters_10_percent }}%" style="width: {{ attribute.promoters_10_percent }}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-2">
-                                <div class="panel-body text-center">Detalles</div>
-                            </div>
-                            <div class="col-lg-2 text-center">
-                                <div class="panel-body text-left">
-                                    <strong>{{ attribute.xindex_percent }}%</strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </section>
-            </div>
             {% else %}
             <section class="panel-body wrapper padder">
                 <div class="alert alert-danger text-center">
@@ -374,7 +283,6 @@
                 </div>
             </section>
         {% endif %}
-
         </section>
     </section>
     </section>

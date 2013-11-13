@@ -177,7 +177,7 @@ class SurveyForm(ModelForm):
 
         self.fields['name'].widget.attrs.update(
             {'class': 'form-control text-center',
-             'placeholder': 'Un nombre genial para mi encuesta'})
+             'placeholder': 'Un nombre para mi encuesta'})
 
     """
     description = forms.CharField(

@@ -840,7 +840,6 @@ $(document).ready(function () {
 
 
     getSurveyStyle();
-
 })
 
 

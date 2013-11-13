@@ -218,3 +218,32 @@ def add_state(request, zone_id):
                                        'states': states,
                                        'id_zone': zone_id},
                                   request_context)
+
+
+def get_subsidiaries(request):
+    subsidiariesList = []
+    if request.POST:
+        if 'zone' in request.POST:
+            try:
+                zone = Zone.objects.get(pk=int(request.POST['zone']))
+                subsidiaries = zone.subsidiary_set.all()
+                if len(subsidiaries) == 0:
+                    pass
+                else:
+                    for subsidiary in subsidiaries:
+                        subsidiariesList.append(
+                            {
+                                'subsidiary_id': subsidiary.id,
+                                'subsidiary_name': subsidiary.name
+
+                            }
+                        )
+                    json_response = {
+                        'answer': True,
+                        'subsidiaries': subsidiariesList
+                    }
+                    return HttpResponse(json.dumps(json_response))
+            except Zone.DoesNotExist:
+                pass
+        else:
+            pass

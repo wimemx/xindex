@@ -55,6 +55,28 @@
                 <div class="" style="width: 50%; margin: auto">
                     {{ form.name }}
                 </div>
+                <div class="panel-body wrapper-lg">
+                    <div>
+                        <p class="h3">Selecciona la unidad de servicio y el servicio que mediran esta encuesta:</p>
+                        <small>Se aplicara en todas las sucursales de tu compañia</small>
+                    </div>
+                    <div class="wrapper">
+                        <div class="h4 text-info wrapper">Unidad de Servicio</div>
+                        <div style="width: 40%; margin: auto;">
+                            <select class="form-control" name="business_unit" id="id_business_unit">
+                                {% for business_unit in business_units %}
+                                <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="h4 text-info wrapper">Servicio</div>
+                        <div style="width: 40%; margin: auto;">
+                            <select class="form-control" name="service" id="id_service">
+                                <option>Selecciona antes una unidad de servicio</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="wrapper-xl">
                     <a href="#" class="btn-success text-center h4"
                        id="step-one-next"
@@ -77,39 +99,66 @@
 <script src="/static/js/app.js"></script>
 <script src="/static/js/app.plugin.js"></script>
 
-<!-- Survey App -->
-<script src="/static/js/survey.app.js"></script>
+<!-- Survey App
+<script src="/static/js/survey.app.js"></script>-->
 
 <script language="javascript">
 
-document.onkeypress=function(e){
-    var esIE=(document.all);
-    var esNS=(document.layers);
-    var tecla;
-    tecla=(esIE) ? event.keyCode : e.which;
-    if(tecla==13){
-        e.preventDefault();
-        if ($('#id_name').val().length > 1) {
-            $.ajax({
-                url: '/surveys/save/next/2/empty',
-                type: 'POST',
-                data: $('#new-survey-form').serialize(),
-                dataType: 'Json',
-                success: function (msg) {
-                    if (msg.save) {
-                        window.location.href = msg.url;
-                    }
-                },
-                error: function (msg_error) {
-                    alert(msg_error.error);
+    //get the services to apply the survey
+    $('#id_business_unit').on('click', function(){
+        var business_unit_id = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: '/business_units/get_services_to_apply/',
+            data: {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                'business_unit_id': business_unit_id
+            },
+            dataType: 'json',
+            success: function(msg){
+                if(msg.answer == true){
+                    $('#id_service').html('');
+                    $.each(msg.services, function(index, object){
+                        $('#id_service').append(
+                                '<option value="'+object.id+'">'+object.name+'</option>'
+                        );
+                    });
                 }
-            });
-        } else {
+            },
+            error: function(){
+                console.log('ha ocurrido un problema');
+            }
+        });
+    });
+
+    document.onkeypress=function(e){
+        var esIE=(document.all);
+        var esNS=(document.layers);
+        var tecla;
+        tecla=(esIE) ? event.keyCode : e.which;
+        if(tecla==13){
+            e.preventDefault();
+            if ($('#id_name').val().length > 1) {
+                $.ajax({
+                    url: '/surveys/save/next/2/empty',
+                    type: 'POST',
+                    data: $('#new-survey-form').serialize(),
+                    dataType: 'Json',
+                    success: function (msg) {
+                        if (msg.save) {
+                            window.location.href = msg.url;
+                        }
+                    },
+                    error: function (msg_error) {
+                        alert(msg_error.error);
+                    }
+                });
+            } else {
+                return false;
+            }
             return false;
         }
-        return false;
-      }
-}
+    }
 </script>
 
 </body>
