@@ -37,6 +37,10 @@
                                 {% endif %}
                             </section>
                             <input type="hidden" id="id_client" value="{{ client_id }}">
+                            <input type="hidden" id="id_survey" value="{{ survey_id }}">
+                            <div class="text-center text-info">
+                                {{ client_name }}
+                            </div>
                             <section class="panel wrapper drop" id="survey-main-content" style="background-color: rgba(255, 255, 255, 0); border: none; box-shadow: none">
                                 {% for block in setup.blocks %}
                                     <div class="row row-block wrapper {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">

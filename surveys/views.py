@@ -2136,141 +2136,156 @@ def get_survey_blocks_style(request):
 
 
 def answer_survey(request, survey_id, hash_code, client_id):
-    #function to validate hash or cookie
-    #TODO: find the best way to implement this
-
-    if hash_code == 'a6dt3j4kd90':
+    try:
+        client = Client.objects.get(pk=int(client_id))
+        survey = Survey.objects.get(pk=int(survey_id))
+        business_unit = survey.business_unit_id
+        service = survey.service_id
         try:
-            survey = Survey.objects.get(pk=survey_id)
-            configuration = json.loads(survey.configuration)
+            activity = client.clientactivity_set.get(business_unit=business_unit, service=service)
+            if not activity.status == 'A':
+                #function to validate hash or cookie
+                #TODO: find the best way to implement this
 
-            #get the company name
-            companies = survey.user.company_set.all();
+                if hash_code == 'a6dt3j4kd90':
+                    try:
+                        survey = Survey.objects.get(pk=survey_id)
+                        configuration = json.loads(survey.configuration)
 
-            for company in companies:
-                company_name = company.name
-                company_address = company.address
-                company_email = company.email
-                company_phone = company.phone
+                        #get the company name
+                        companies = survey.user.company_set.all();
 
-            setup = {}
+                        for company in companies:
+                            company_name = company.name
+                            company_address = company.address
+                            company_email = company.email
+                            company_phone = company.phone
 
-            setup['blocks'] = []
+                        setup = {}
 
-            setup['question_styles'] = False
+                        setup['blocks'] = []
 
-            for key, values in configuration.items():
-                if key == 'blocks':
-                    for block in values:
-                        questions = []
-                        for q in block['questions']:
-                            if 'db_id' in q:
+                        setup['question_styles'] = False
 
-                                try:
-                                    question = Question.objects.get(pk=q['db_id'])
-                                    options = question.option_set.filter(active=True).order_by('id')
+                        for key, values in configuration.items():
+                            if key == 'blocks':
+                                for block in values:
+                                    questions = []
+                                    for q in block['questions']:
+                                        if 'db_id' in q:
 
-                                    moment_title = False
-                                    attribute_title = False
-                                    #end check
+                                            try:
+                                                question = Question.objects.get(pk=q['db_id'])
+                                                options = question.option_set.filter(active=True).order_by('id')
 
-                                    options_o = []
-                                    for option in options:
-                                        options_o.append(
-                                            {
-                                                'id_option': option.id,
-                                                'text': option.label,
-                                                'option': option
-                                            }
-                                        )
-                                    if 'question_style' in q:
-                                        style = q['question_style']
+                                                moment_title = False
+                                                attribute_title = False
+                                                #end check
+
+                                                options_o = []
+                                                for option in options:
+                                                    options_o.append(
+                                                        {
+                                                            'id_option': option.id,
+                                                            'text': option.label,
+                                                            'option': option
+                                                        }
+                                                    )
+                                                if 'question_style' in q:
+                                                    style = q['question_style']
+                                                else:
+                                                    style = False
+
+                                                if question.type.name == 'Matrix':
+                                                    sub_questions = question.question_set.filter(active=True).order_by('id')
+                                                else:
+                                                    sub_questions = False
+                                                questions.append(
+                                                    {
+                                                        'question': question,
+                                                        'sub_questions': sub_questions,
+                                                        'moment_title': moment_title,
+                                                        'attribute_title': attribute_title,
+                                                        'question_style': style,
+                                                        'survey_question_id': q['question_survey_id'],
+                                                        'question_content_id': q['question_content_id'],
+                                                        'db_question_id': q['db_id'],
+                                                        'question_title': question.title,
+                                                        'question_type': question.type.id,
+                                                        'question_type_name': question.type.name,
+                                                        'question_options': options_o
+                                                    }
+                                                )
+                                            except Question.DoesNotExist:
+                                                question = None
+
+                                    if 'block_description' in block:
+                                        block_description = block['block_description']
                                     else:
-                                        style = False
-
-                                    if question.type.name == 'Matrix':
-                                        sub_questions = question.question_set.filter(active=True).order_by('id')
+                                        block_description = ''
+                                    if 'style' in block:
+                                        style = block['style']
                                     else:
-                                        sub_questions = False
-                                    questions.append(
+                                        style = ''
+                                    if 'block_moment_associated_id' in block:
+                                        block_moment_associated_id = block['block_moment_associated_id']
+                                        print block_moment_associated_id
+                                    else:
+                                        block_moment_associated_id = False
+                                    if 'block_type' in block:
+                                        block_type = block['block_type']
+                                    else:
+                                        block_type = 'questions_block'
+
+                                    setup['blocks'].append(
                                         {
-                                            'question': question,
-                                            'sub_questions': sub_questions,
-                                            'moment_title': moment_title,
-                                            'attribute_title': attribute_title,
-                                            'question_style': style,
-                                            'survey_question_id': q['question_survey_id'],
-                                            'question_content_id': q['question_content_id'],
-                                            'db_question_id': q['db_id'],
-                                            'question_title': question.title,
-                                            'question_type': question.type.id,
-                                            'question_type_name': question.type.name,
-                                            'question_options': options_o
+                                            'block_id': block['block_id'],
+                                            'block_default_class': block['class_default'],
+                                            'block_description': block_description,
+                                            'style': style,
+                                            'questions': questions,
+                                            'block_moment_associated_id': block_moment_associated_id,
+                                            'block_type': block_type
                                         }
                                     )
-                                except Question.DoesNotExist:
-                                    question = None
-
-                        if 'block_description' in block:
-                            block_description = block['block_description']
-                        else:
-                            block_description = ''
-                        if 'style' in block:
-                            style = block['style']
-                        else:
-                            style = ''
-                        if 'block_moment_associated_id' in block:
-                            block_moment_associated_id = block['block_moment_associated_id']
-                            print block_moment_associated_id
-                        else:
-                            block_moment_associated_id = False
-                        if 'block_type' in block:
-                            block_type = block['block_type']
-                        else:
-                            block_type = 'questions_block'
-
-                        setup['blocks'].append(
-                            {
-                                'block_id': block['block_id'],
-                                'block_default_class': block['class_default'],
-                                'block_description': block_description,
-                                'style': style,
-                                'questions': questions,
-                                'block_moment_associated_id': block_moment_associated_id,
-                                'block_type': block_type
-                            }
-                        )
-                if key == 'blocks_style':
-                    setup['blocks_style'] = values
-                if key == 'questions_style':
-                    setup['questions_style'] = values
-                if key == 'block_border_color':
-                    setup['block_border_color'] = values
-                if key == 'block_border_style':
-                    setup['block_border_style'] = values
-                if key == 'block_border_width':
-                    setup['block_border_width'] = values
-                if key == 'block_background_color':
-                    setup['block_background_color'] = values
-                if key == 'block_box_shadow':
-                    setup['block_box_shadow'] = values
-                if survey.picture:
-                    setup['survey_picture'] = survey.picture
-            template_vars = {
-                'survey_title': survey.name,
-                'survey_id': survey.id,
-                'company_name': company_name,
-                'company_address': company_address,
-                'company_email': company_email,
-                'company_phone': company_phone,
-                'client_id': client_id,
-                'setup': setup
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response('surveys/answer_survey.html',
-                                      request_context)
-        except Survey.DoesNotExist:
-            raise Http404
+                            if key == 'blocks_style':
+                                setup['blocks_style'] = values
+                            if key == 'questions_style':
+                                setup['questions_style'] = values
+                            if key == 'block_border_color':
+                                setup['block_border_color'] = values
+                            if key == 'block_border_style':
+                                setup['block_border_style'] = values
+                            if key == 'block_border_width':
+                                setup['block_border_width'] = values
+                            if key == 'block_background_color':
+                                setup['block_background_color'] = values
+                            if key == 'block_box_shadow':
+                                setup['block_box_shadow'] = values
+                            if survey.picture:
+                                setup['survey_picture'] = survey.picture
+                        template_vars = {
+                            'survey_title': survey.name,
+                            'survey_id': survey.id,
+                            'company_name': company_name,
+                            'company_address': company_address,
+                            'company_email': company_email,
+                            'company_phone': company_phone,
+                            'client_id': client_id,
+                            'client_name': client.first_name+' '+client.last_name,
+                            'setup': setup
+                        }
+                        request_context = RequestContext(request, template_vars)
+                        return render_to_response('surveys/answer_survey.html',
+                                                  request_context)
+                    except Survey.DoesNotExist:
+                        raise Http404
+            else:
+                return HttpResponse('Esta encuesta ya ha sido contestada')
+        except activity.DoesNotExist:
+            return HttpResponse('La encuesta no ha sido asociada a este cliente')
+    except Client.DoesNotExist:
+        return HttpResponse('Este cliente no existe!')
 
 
 #TODO: Fix this; DO NOT use in production
@@ -2280,28 +2295,50 @@ def save_answers_ajax(request):
         try:
             data = json.loads(request.body)
 
-            print data
             for key, values in data.items():
-                for question in values:
-                    try:
-                        question_db = Question.objects.get(pk=int(question['question_id']))
-                    except Question.DoesNotExist:
-                        question_db = False
-                    try:
-                        option_db = Option.objects.get(pk=int(question['option_id']))
-                    except Question.DoesNotExist:
-                        option_db = False
-                    answer = Answer()
-                    answer.question = question_db
-                    if question['question_type'] == 'open_question':
-                        answer.value = option_db.value
-                        answer.meta = question['option_value']
+                        if key == 'survey_id':
+                            try:
+                                survey = Survey.objects.get(pk=int(values))
+                            except Survey.DoesNotExist:
+                                survey = False
+                        if key == 'client_id':
+                            try:
+                                client = Client.objects.get(pk=int(values))
+                            except Client.DoesNotExist:
+                                client = False
+
+            for key, values in data.items():
+                if key == 'question':
+
+                    total_questions = len(survey.questions.all())
+                    if total_questions == len(values):
+                        print 'Es el total de respuestas'
+                        activity = client.clientactivity_set.get(business_unit=survey.business_unit_id, service=survey.service_id)
+                        activity.status = 'A'
+                        activity.save()
                     else:
-                        answer.value = option_db.value
-                    answer.order = option_db.order
-                    answer.client = Client.objects.get(pk=int(question['client_id']))
-                    answer.active = True
-                    answer.save()
+                        print 'No es el total de respuestas'
+
+                    for question in values:
+                        try:
+                            question_db = Question.objects.get(pk=int(question['question_id']))
+                        except Question.DoesNotExist:
+                            question_db = False
+                        try:
+                            option_db = Option.objects.get(pk=int(question['option_id']))
+                        except Question.DoesNotExist:
+                            option_db = False
+                        answer = Answer()
+                        answer.question = question_db
+                        if question['question_type'] == 'open_question':
+                            answer.value = option_db.value
+                            answer.meta = question['option_value']
+                        else:
+                            answer.value = option_db.value
+                        answer.order = option_db.order
+                        answer.client = Client.objects.get(pk=int(question['client_id']))
+                        answer.active = True
+                        answer.save()
 
             json_response = json.dumps(
                 {
