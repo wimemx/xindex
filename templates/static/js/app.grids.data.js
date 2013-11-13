@@ -259,6 +259,10 @@ function subsidiaryDetailsDatagrid(id) {
                                     switch (options.filter.value){
                                         case businessUnits[i]:
                                             if (item.business_name == businessUnits[i]) return true;
+                                            if (options.filter.value == 'default'){
+                                                data = response.services;
+                                                return true;
+                                            }
                                             break;
                                         //default :
                                           //  return true;
@@ -332,7 +336,6 @@ function subsidiaryDetailsDatagrid(id) {
                         if (coincidencias == 0) {
                             var bu = item.business_name;
                             businessUnits.push(bu);
-                            alert(businessUnits);
                             //$('#second-filter-details').children().remove();
                             for (i = 0; i < businessUnits.length; i++) {
                                 $('#second-filter-details').append("<li data-value='" + businessUnits[i] + "' data-selected='true'><a href='#'>" + businessUnits[i] + "</a></li>");
