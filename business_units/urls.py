@@ -13,4 +13,5 @@ urlpatterns = patterns('business_units.views',
 
     #Url to get services
     url(r'^get_services/$', 'get_services'),
+    url(r'^get_services_to_apply/$', 'get_services_to_apply'),
 )

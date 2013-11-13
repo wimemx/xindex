@@ -212,72 +212,82 @@ def report_by_moment(request):
                             promoters_10 = 0
                             passives = 0
                             detractors = 0
-                            for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
-                                print answer.value
-                                total_answers += 1
-                                if answer.value == 10:
-                                    promoters_10 += 1
-                                    total_promoters += 1
-                                    print 'Respuesta: '+str(answer.value)+' is Promoter 10'
-                                elif answer.value == 9:
-                                    promoters_9 += 1
-                                    total_promoters += 1
-                                    print 'Respuesta: '+str(answer.value)+' is Promoter 9'
-                                elif answer.value == 8 or answer.value == 7:
-                                    passives += 1
-                                    total_passives += 1
-                                    print 'Respuesta: '+str(answer.value)+' is Passive'
-                                elif 1 <= answer.value <= 6:
-                                    detractors += 1
-                                    total_detractors += 1
-                                    print 'Respuesta: '+str(answer.value)+' is Detractor'
+                            if total_surveyed > 0:
 
-                            getcontext().prec = 5
+                                for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
+                                    print answer.value
+                                    total_answers += 1
+                                    if answer.value == 10:
+                                        promoters_10 += 1
+                                        total_promoters += 1
+                                        print 'Respuesta: '+str(answer.value)+' is Promoter 10'
+                                    elif answer.value == 9:
+                                        promoters_9 += 1
+                                        total_promoters += 1
+                                        print 'Respuesta: '+str(answer.value)+' is Promoter 9'
+                                    elif answer.value == 8 or answer.value == 7:
+                                        passives += 1
+                                        total_passives += 1
+                                        print 'Respuesta: '+str(answer.value)+' is Passive'
+                                    elif 1 <= answer.value <= 6:
+                                        detractors += 1
+                                        total_detractors += 1
+                                        print 'Respuesta: '+str(answer.value)+' is Detractor'
 
-                            if promoters_10 == 0:
-                                promoters_10_percent = 0
+                                getcontext().prec = 5
+
+                                if promoters_10 == 0:
+                                    promoters_10_percent = 0
+                                else:
+                                    promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
+
+                                if promoters_9 == 0:
+                                    promoters_9_percent = 0
+                                else:
+                                    promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
+
+                                if passives == 0:
+                                    passives_percent = 0
+                                else:
+                                    passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+
+                                if detractors == 0:
+                                    detractors_percent = 0
+                                else:
+                                    detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+
+                                xindex_percent = Decimal(promoters_10_percent+promoters_9_percent)-Decimal(detractors_percent)
+
+                                #round all the percents to 1 decimal
+                                promoters_10_percent = round(promoters_10_percent, 5)
+                                promoters_9_percent = round(promoters_9_percent, 5)
+                                passives_percent = round(passives_percent, 5)
+                                detractors_percent = round(detractors_percent, 5)
+                                xindex_percent = round(xindex_percent, 5)
+
+                                data_attribute.append(
+                                    {
+                                        'attribute_id': attribute.id,
+                                        'attribute_name': attribute.name,
+                                        'promoters_10_percent': promoters_10_percent,
+                                        'promoters_9_percent': promoters_9_percent,
+                                        'passives_percent': passives_percent,
+                                        'detractors_percent': detractors_percent,
+                                        'xindex_percent': xindex_percent
+                                    }
+                                )
                             else:
-                                promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
-
-                            if promoters_9 == 0:
-                                promoters_9_percent = 0
-                            else:
-                                promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
-
-                            if passives == 0:
-                                passives_percent = 0
-                            else:
-                                passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
-
-                            if detractors == 0:
-                                detractors_percent = 0
-                            else:
-                                detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
-
-                            xindex_percent = Decimal(promoters_10_percent+promoters_9_percent)-Decimal(detractors_percent)
-
-                            #round all the percents to 1 decimal
-                            promoters_10_percent = round(promoters_10_percent, 5)
-                            promoters_9_percent = round(promoters_9_percent, 5)
-                            passives_percent = round(passives_percent, 5)
-                            detractors_percent = round(detractors_percent, 5)
-                            xindex_percent = round(xindex_percent, 5)
-
-                            data_attribute.append(
-                                {
-                                    'attribute_id': attribute.id,
-                                    'attribute_name': attribute.name,
-                                    'promoters_10_percent': promoters_10_percent,
-                                    'promoters_9_percent': promoters_9_percent,
-                                    'passives_percent': passives_percent,
-                                    'detractors_percent': detractors_percent,
-                                    'xindex_percent': xindex_percent
-                                }
-                            )
-                            print '---------------------'
-                            print data_attribute
-                            print '---------------------'
-
+                                data_attribute.append(
+                                    {
+                                        'attribute_id': attribute.id,
+                                        'attribute_name': attribute.name,
+                                        'promoters_10_percent': 0,
+                                        'promoters_9_percent': 0,
+                                        'passives_percent': 0,
+                                        'detractors_percent': 0,
+                                        'xindex_percent': 0
+                                    }
+                                )
                 else:
                     survey_is_designed = False
     if survey_is_designed is True:
@@ -289,7 +299,16 @@ def report_by_moment(request):
         ]
 
         getcontext().prec = 5
-        moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+        print '____________'
+        print total_promoters
+        print total_detractors
+        print total_passives
+        print total_answers
+        print '____________'
+        if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
+            moment_xindex = 0
+        else:
+            moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
 
         #current data
         current_data = {'month': '2013-10', 'value': moment_xindex}
@@ -306,11 +325,6 @@ def report_by_moment(request):
         moment_data = {'promoters': 0, 'passives': 0, 'detractors': 0}
     else:
         moment_data = {'promoters': Decimal((Decimal(total_promoters)/total_answers)*100), 'passives': Decimal((Decimal(total_passives)/total_answers)*100), 'detractors': Decimal((Decimal(total_detractors)/total_answers)*100)}
-    print total_promoters
-    print total_answers
-    print '+++++++++++++++++++'
-    print moment_data
-    print '+++++++++++++++++++'
 
     template_vars = {
         'title': '',
@@ -334,3 +348,16 @@ def report_by_moment(request):
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/moment-report.html', request_context)
+
+
+def report_by_attribute(request):
+    if request.POST:
+        pass
+    else:
+        pass
+
+    template_vars = {}
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/attribute-report.html', request_context)
+
+    return HttpResponse('This is the report by attribute')

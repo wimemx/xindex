@@ -5,6 +5,7 @@ from django.template.context import RequestContext
 from business_units.forms import AddBusinessUnit
 from django.utils import simplejson
 from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit, Service, sbu_service, Zone, sbu_service_moment
+from xindex.models import Xindex_User
 import json
 
 
@@ -184,6 +185,7 @@ def details(request, business_unit_id):
     request_context = RequestContext(request, template_vars)
     return render_to_response('business_units/details.html', request_context)
 
+
 def get_services(request):
     servicesList = []
     if request.POST:
@@ -211,3 +213,43 @@ def get_services(request):
                 pass
         else:
             pass
+
+
+def get_services_to_apply(request):
+    if request.POST:
+        if 'business_unit_id' in request.POST:
+            try:
+                business_unit = BusinessUnit.objects.get(pk=request.POST['business_unit_id'])
+                user = Xindex_User.objects.get(user__id=request.user.id)
+                services = []
+                for company in user.company_set.all():
+                    for subsidiary in Subsidiary.objects.filter(company=company):
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                                if len(services) > 0:
+                                    coincidences_s_bu_s = 0
+                                    for service in services:
+                                        if service['id'] == s_bu_s.id_service.id:
+                                            coincidences_s_bu_s += 1
+                                    if coincidences_s_bu_s == 0:
+                                        services.append(
+                                            {
+                                                'id': s_bu_s.id_service.id,
+                                                'name': s_bu_s.id_service.name
+                                            }
+                                        )
+                                else:
+                                    services.append(
+                                            {
+                                                'id': s_bu_s.id_service.id,
+                                                'name': s_bu_s.id_service.name
+                                            }
+                                        )
+
+                json_response = {
+                    'answer': True,
+                    'services': services
+                }
+                return HttpResponse(json.dumps(json_response))
+            except BusinessUnit.DoesNotExist:
+                pass

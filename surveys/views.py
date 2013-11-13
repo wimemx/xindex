@@ -27,6 +27,7 @@ from xindex.models import sbu_service_moment_attribute
 from xindex.models import BusinessUnit
 from xindex.models import Service
 from xindex.models import Client
+from xindex.models import Subsidiary
 
 
 @login_required(login_url='/signin/')
@@ -120,15 +121,33 @@ def getJson(request):
         )
     return HttpResponse(simplejson.dumps(survey))
 
-
+@login_required(login_url='/signin/')
 def addSurvey(request):
     if request.POST:
         a= "paso"
     else:
+        business_units = []
+
+        user = Xindex_User.objects.get(user__id=request.user.id)
+
+        for company in user.company_set.all():
+            for subsidiary in Subsidiary.objects.filter(company=company):
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                    if len(business_units) > 0:
+                        coincidences_bu = 0
+                        for business_unit in business_units:
+                            if business_unit == s_bu.id_business_unit:
+                                coincidences_bu += 1
+                        if coincidences_bu == 0:
+                            business_units.append(s_bu.id_business_unit)
+                    else:
+                        business_units.append(s_bu.id_business_unit)
+
         form = SurveyForm()
         template_vars = {
             'title': 'Agregar Encuesta',
-            "form": form
+            "form": form,
+            'business_units': business_units
         }
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/add.html', request_context)
@@ -174,8 +193,8 @@ def save(request, action, next_step, survey_id=False):
                                 name=form.cleaned_data['name'],
                                 step=step,
                                 configuration=configuration,
-                                business_unit_id=BusinessUnit.objects.get(pk=1),
-                                service_id=Service.objects.get(pk=1)
+                                business_unit_id=BusinessUnit.objects.get(pk=int(request.POST['business_unit'])),
+                                service_id=Service.objects.get(pk=int(request.POST['service']))
                                 )
                 survey.save()
 
@@ -559,7 +578,7 @@ def save_ajax(request, survey_id):
                 survey.configuration = request.body
                 survey.save()
                 json_response = json.dumps(
-                    {'answer' : True}
+                    {'answer': True}
                 )
             else:
                 json_response = json.dumps(
@@ -746,8 +765,7 @@ def create_matrix(request, data):
         col_len = len(cols)
 
         for option in cols:
-            new_option = Option(question=q, label=option.label,
-                            value = i, order = i)
+            new_option = Option(question=q, label=option.label, value=i, order=i)
             new_option.save()
 
             if col_len == i:
@@ -1647,42 +1665,16 @@ def update_matrix(question, data):
             d_question.option_set.all().update(active=False)
 
     if data.moment_id or data.attribute_id:
-        """
+
         try:
             q_a_m = Question_sbu_s_m_a.objects.get(question_id=question)
 
             survey = question.survey_set.all()[0]
             user = Xindex_User.objects.get(pk=survey.user_id)
-            s_bu_s_m_a_array = []
 
-            if not len(q_a_m.sbu_s_m_a_id.all()) == 0:
-                if data.moment_id:
-                    for company in user.company_set.all():
-                            for subsidiary in company.subsidiary_set.all():
-                                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                                    for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
-                                        for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
-                                            for s_bu_s_m_a_object in q_a_m.sbu_s_m_a_id.all():
-
-            if data.moment_id:
-                for company in user.company_set.all():
-                        for subsidiary in company.subsidiary_set.all():
-                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
-                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
-                                        s_bu_s_m_a = sbu_service_moment_attribute()
-                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
-                                        if data.attribute_id:
-                                            s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=attribute_id)
-                                        s_bu_s_m_a.save()
-                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
-
-                qsbusma = Question_sbu_s_m_a()
-                qsbusma.question_id = question
-                qsbusma.weight = 10
-                qsbusma.save()
-                for sbusma in s_bu_s_m_a_array:
-                    qsbusma.sbu_s_m_a_id.add(sbusma)
+            for s_bu_s_m_a in q_a_m.sbu_s_m_a_id.all():
+                #TODO: Fix this for every question
+                pass
 
         except Question_sbu_s_m_a.DoesNotExist:
             q_a_m = Question_sbu_s_m_a()
@@ -1712,7 +1704,7 @@ def update_matrix(question, data):
                 qsbusma.save()
                 for sbusma in s_bu_s_m_a_array:
                     qsbusma.sbu_s_m_a_id.add(sbusma)
-                    """
+
 
         try:
             q_a_m = Question_Attributes.objects.get(question_id=question)
@@ -2109,6 +2101,7 @@ def createAssociationQAM(question, moment_id, attribute_id):
         q_a_m.save()
         """
 
+
 def get_survey_blocks_style(request):
     if request.is_ajax():
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
@@ -2134,7 +2127,6 @@ def get_survey_blocks_style(request):
             )
         return HttpResponse(json_response, content_type='application/json')
     else:
-        print 'La peticion no se realiza via ajax'
         json_response = json.dumps(
             {
                 'answer': False,
