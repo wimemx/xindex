@@ -22,5 +22,10 @@ $(document).ready(function () {
         userListDatagrid();
     } else if ($('#myCGrid')[0]) {
         clientListDatagrid();
+    } else if ($('#mySubsidiaryGrid')[0]) {
+        subsidiariesDatagrid();
+    } else if ($('#mySubsidiaryDetailsGrid')[0]) {
+        var id = $('#id-subsidiary-grid').val();
+        subsidiaryDetailsDatagrid(id);
     }
 });

@@ -6,6 +6,7 @@
             <h4 class="modal-title">Agregar Indicador</h4>
         </div>
         <div class="modal-body">
+            <div class="padder-xl">
             <form class="form-horizontal" id="add_indicator_form" method="POST"
                   action="/indicators/add/">{% csrf_token %}
                 <div class="form-group m-t-lg">
@@ -23,18 +24,19 @@
                         {{ formulario.threshold }}
                         {{ formulario.threshold.errors }}
                 </div>
-                    <div class="modal-footer">
-                        <a href="/services/details/{{ service_id }}"
-                           class="btn btn-white"
-                           data-dismiss="modal">Cancelar</a>
+                <div class="form-group m-t-lg">
                         <button type="submit"
-                                class="btn btn-twitter">Agregar
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
                         </button>
+                        <a href="/services/details/{{ service_id }}"
+                           class="btn btn-modal-xindex btn-white pull-right"
+                           data-dismiss="modal">Cancelar</a>
                         <input type="hidden" value="{{ service_id }}"
                                id="service_id"/>
-                    </div>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 </div>

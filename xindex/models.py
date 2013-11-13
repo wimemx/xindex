@@ -403,23 +403,36 @@ class Catalog(models.Model):
 class Client(models.Model):
     SEX = (('M', 'Masculino'), ('F', 'Femenino'))
 
-    name = models.CharField(max_length=50, blank=True, null=True)
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True, null=True)
-    sex = models.CharField(choices=SEX, default='M', max_length=1)
-    date_of_birth = models.CharField(max_length=40, blank=True, null=True)
-    email = models.EmailField(max_length=100, blank=True, null=True)
-    phone = models.CharField(max_length=40, blank=True, null=True)
-    state = models.CharField(max_length=40, blank=True, null=True)
-    city = models.CharField(max_length=40, blank=True, null=True)
-    subsidiary = models.ForeignKey(Subsidiary)
-
-    date = models.DateField(default=datetime.now, blank=True, null=True)
-    meta = models.TextField(blank=True, null=True)
+    sex = models.CharField(choices=SEX, default='M', max_length=1,
+                           blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=False, null=False)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    country = models.CharField(max_length=50, blank=True, null=True)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    company = models.ForeignKey('Company', blank=True, null=True)
+    rating = models.DecimalField(max_digits=5, decimal_places=2,
+                                 blank=True, null=True)
     active = models.BooleanField(default=True)
+    date = models.DateField(default=datetime.now, blank=True, null=True)
 
     def __unicode__(self):
-        return self.name
+        return self.first_name
+
+
+class ClientActivity(models.Model):
+    STATUS = (('A', 'Answered'), ('NA', 'Not Answered'))
+
+    date = models.DateField(default=datetime.now, blank=True, null=True)
+    client = models.ForeignKey('Client', null=True, blank=True)
+    subsidiary = models.ForeignKey('Subsidiary', null=True, blank=True)
+    business_unit = models.ForeignKey('BusinessUnit', null=True, blank=True)
+    service = models.ForeignKey('Service', null=True, blank=True)
+    survey = models.ForeignKey('Survey', null=True, blank=True)
+    status = models.CharField(choices=STATUS, default='M', max_length=1,
+                              blank=True, null=True)
     
 
 class Cumulative_Report(models.Model):
@@ -438,7 +451,7 @@ class Cumulative_Report(models.Model):
 class SubsidiaryBusinessUnit(models.Model):
     id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
     id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
-    alias = models.CharField(max_length=50, blank=True, null=True)
+    alias = models.CharField(max_length=260, blank=True, null=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
 
@@ -453,7 +466,7 @@ class SubsidiaryBusinessUnit(models.Model):
 class sbu_service(models.Model):
     id_subsidiaryBU = models.ForeignKey(SubsidiaryBusinessUnit, blank=True, null=True)
     id_service = models.ForeignKey(Service, blank=True, null=True)
-    alias = models.CharField(max_length=50, blank=True, null=True)
+    alias = models.CharField(max_length=260, blank=True, null=True)
 
     def __unicode__(self):
         return self.alias
@@ -466,7 +479,7 @@ class sbu_service(models.Model):
 class sbu_service_moment(models.Model):
     id_sbu_service = models.ForeignKey(sbu_service, blank=True, null=True)
     id_moment = models.ForeignKey(Moment, blank=True, null=True)
-    alias = models.CharField(max_length=50, blank=True, null=True)
+    alias = models.CharField(max_length=260, blank=True, null=True)
 
     def __unicode__(self):
         return self.id_sbu_service.__unicode__()+'-'+self.id_moment.name
@@ -479,7 +492,7 @@ class sbu_service_moment(models.Model):
 class sbu_service_moment_attribute(models.Model):
     id_sbu_service_moment = models.ForeignKey(sbu_service_moment, blank=True, null=True)
     id_attribute = models.ForeignKey(Attributes, blank=True, null=True)
-    alias = models.CharField(max_length=50, blank=True, null=True)
+    alias = models.CharField(max_length=260, blank=True, null=True)
 
     def __unicode__(self):
         return self.id_sbu_service_moment.__unicode__()+'-'+self.id_attribute.name

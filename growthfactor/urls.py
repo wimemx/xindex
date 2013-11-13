@@ -8,7 +8,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'growthfactor.views.home', name='home'),
     # url(r'^growthfactor/', include('growthfactor.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -16,6 +15,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    #Xindex
+    url(r'^$', 'xindex.views.index', name='home'),
 
     #Moments
     url(r'^moments/', include('moments.urls')),

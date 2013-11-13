@@ -6,8 +6,10 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var sucursales = [], zonas = [], types = [], businessUnits = [];
+
 function subsidiariesDatagrid() {
-    // fuelux subsidiaries datagrid
+
     var DataGridDataSource = function (options) {
         this._formatter = options.formatter;
         this._columns = options.columns;
@@ -21,10 +23,7 @@ function subsidiariesDatagrid() {
         },
 
         data: function (options, callback) {
-            //var url = '/static/js/data/datagrid.json';
-            //Inician pruebas
             var url = '/subsidiaries/json'
-            //terminan pruebas
             var self = this;
 
 
@@ -37,7 +36,7 @@ function subsidiariesDatagrid() {
                     async: false,
                     type: 'GET'
                 }).done(function (response) {
-                        data = response.subsidiarias;
+                        data = response.subsidiaries;
                         // SEARCHING
                         if (options.search) {
                             data = _.filter(data, function (item) {
@@ -53,30 +52,47 @@ function subsidiariesDatagrid() {
                             });
                         }
 
+
+                        $(".dropdown-menu.mainM li a").click(function () {
+                            var selText = $(this).text();
+                            switch (selText) {
+                                case 'Tipo':
+                                    $('#second-filter-subsidiary').children().remove();
+                                    for (i = 0; i < types.length; i++) {
+                                        $('#second-filter-subsidiary').append("<li data-value='" + types[i] + "' data-selected='true'><a href='#'>" + types[i] + "</a></li>")
+                                    }
+                                    break;
+                                case 'Zona':
+                                    $('#second-filter-subsidiary').children().remove();
+                                    for (i = 0; i < zonas.length; i++) {
+                                        $('#second-filter-subsidiary').append("<li data-value='" + zonas[i] + "' data-selected='true'><a href='#'>" + zonas[i] + "</a></li>")
+                                    }
+                                    break;
+                            }
+
+                        });
+
                         // FILTERING
                         if (options.filter) {
                             data = _.filter(data, function (item) {
-                                switch (options.filter.value) {
-                                    case 'lt5m':
-                                        if (item.population < 5000000) return true;
-                                        break;
-                                    case 'gte5m':
-                                        if (item.population >= 5000000) return true;
-                                        break;
-                                    default:
-                                        return true;
-                                        break;
+                                for (i = 0; i < types.length; i++) {
+                                    switch (options.filter.value){
+                                        case types[i]:
+                                            if (item.type == types[i]) return true;
+                                            break;
+                                    }
+                                }
+                                for (i = 0; i < zonas.length; i++) {
+                                    switch (options.filter.value){
+                                        case zonas[i]:
+                                            if (item.zone == zonas[i]) return true;
+                                            break;
+                                    }
                                 }
                             });
                         }
 
                         var count = data.length;
-
-                        // SORTING
-                        if (options.sortProperty) {
-                            data = _.sortBy(data, options.sortProperty);
-                            if (options.sortDirection === 'desc') data.reverse();
-                        }
 
                         // PAGING
                         var startIndex = options.pageIndex * options.pageSize;
@@ -98,7 +114,7 @@ function subsidiariesDatagrid() {
         }
     };
 
-    $('#MyStretchGrid').each(function () {
+    $('#mySubsidiaryGrid').each(function () {
         $(this).datagrid({
             dataSource: new DataGridDataSource({
                 // Column definitions for Datagrid
@@ -109,18 +125,23 @@ function subsidiariesDatagrid() {
                         sortable: true
                     },
                     {
-                        property: 'detalles',
-                        label: 'Detalles',
+                        property: 'type',
+                        label: 'Tipo de sucursal',
+                        sortable: false
+                    },
+                    {
+                        property: 'zone',
+                        label: 'Zona',
+                        sortable: false
+                    },
+                    {
+                        property: 'location',
+                        label: 'Ubicación',
                         sortable: false
                     },
                     {
                         property: 'subsidiaryId',
-                        label: 'Editar',
-                        sortable: false
-                    },
-                    {
-                        property: 'subsidiaryIds',
-                        label: 'Eliminar',
+                        label: 'Acciones',
                         sortable: false
                     }
                 ],
@@ -128,17 +149,209 @@ function subsidiariesDatagrid() {
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.subsidiaryId = '<a href="/subsidiaries/edit/' + item.subsidiaryId + '"><i class="icon-edit-sign"></i></a>';
-                        item.subsidiaryIds = '<a href="/subsidiaries/remove/' + item.subsidiaryIds + '"><i class="icon-remove-sign"></i></a>';
+                        item.name = '<a href="/subsidiaries/details/'+ item.subsidiaryId +'">' + item.name + '</a>';
+                        item.subsidiaryId = '<a href="/subsidiaries/edit/' + item.subsidiaryId + '"><i class="icon-edit"></i></a>' +
+                                            '<a href="/subsidiaries/remove/' + item.subsidiaryId + '" class="remove-subsidiary"><i class="icon-remove"></i></a>';
                         item.detalles = '<a href="/subsidiaries/details/' + item.detalles + '"><i class="icon-eye-open"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (types.length == 0) {
+                            var type = item.type;
+                            types.push(type);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < types.length; i++) {
+                            if (types[i] == item.type) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var type = item.types;
+                            types.push(type)
+                        }
+
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (zonas.length == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona);
+                        }
+                        var coincidencias = 0
+
+                        for (var i = 0; i < zonas.length; i++) {
+                            if (zonas[i] == item.zone) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var zona = item.zone;
+                            zonas.push(zona)
+                        }
+
                     });
                 }
             })
         });
     });
 }
+
+
+
+
+function subsidiaryDetailsDatagrid(id) {
+
+    var DataGridDataSource = function (options) {
+        this._formatter = options.formatter;
+        this._columns = options.columns;
+        this._delay = options.delay;
+    };
+
+    DataGridDataSource.prototype = {
+
+        columns: function () {
+            return this._columns;
+        },
+
+        data: function (options, callback) {
+            var url = '/subsidiaries/details/json/'+id
+            var self = this;
+
+            setTimeout(function () {
+
+                var data = $.extend(true, [], self._data);
+
+                $.ajax(url, {
+                    dataType: 'json',
+                    async: false,
+                    type: 'GET'
+                }).done(function (response) {
+                        data = response.services;
+                        // SEARCHING
+                        if (options.search) {
+                            data = _.filter(data, function (item) {
+                                var match = false;
+
+                                _.each(item, function (prop) {
+                                    if (_.isString(prop) || _.isFinite(prop)) {
+                                        if (prop.toString().toLowerCase().indexOf(options.search.toLowerCase()) !== -1) match = true;
+                                    }
+                                });
+
+                                return match;
+                            });
+                        }
+
+
+
+                        // FILTERING
+                        if (options.filter) {
+                            data = _.filter(data, function (item) {
+                                for (i = 0; i < businessUnits.length; i++) {
+                                    switch (options.filter.value){
+                                        case businessUnits[i]:
+                                            if (item.business_name == businessUnits[i]) return true;
+                                            break;
+                                        //default :
+                                          //  return true;
+                                          //  break;
+
+                                    }
+                                }
+                            });
+                        }
+
+                        var count = data.length;
+
+                        // PAGING
+                        var startIndex = options.pageIndex * options.pageSize;
+                        var endIndex = startIndex + options.pageSize;
+                        var end = (endIndex > count) ? count : endIndex;
+                        var pages = Math.ceil(count / options.pageSize);
+                        var page = options.pageIndex + 1;
+                        var start = startIndex + 1;
+
+                        data = data.slice(startIndex, endIndex);
+
+                        if (self._formatter) self._formatter(data);
+
+                        callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+                    }).fail(function (e) {
+                        alert('¡No se pueden consultar los detalles de la sucursal, intente mas tarde!')
+                    });
+            }, self._delay);
+        }
+    };
+
+    $('#mySubsidiaryDetailsGrid').each(function () {
+        $(this).datagrid({
+            dataSource: new DataGridDataSource({
+                // Column definitions for Datagrid
+                columns: [
+                    {
+                        property: 'service_name',
+                        label: 'Servicio',
+                        sortable: true
+                    },
+                    {
+                        property: 'business_name',
+                        label: 'Unidad de servicio',
+                        sortable: false
+                    }
+                ],
+
+                // Create IMG tag for each returned image
+                formatter: function (items) {
+
+                    $.each(items, function (index, item) {
+                        item.business_name = item.business_name + '';
+                    });
+
+                    $.each(items, function (index, item) {
+
+                        if (businessUnits.length == 0) {
+                            var bu = item.business_name;
+                            businessUnits.push(bu);
+                        }
+                        var coincidencias = 0;
+
+                        for (var i = 0; i < businessUnits.length; i++) {
+                            if (businessUnits[i] == item.business_name) {
+                                coincidencias++;
+                            }
+                        }
+
+                        if (coincidencias == 0) {
+                            var bu = item.business_name;
+                            businessUnits.push(bu);
+                            alert(businessUnits);
+                            //$('#second-filter-details').children().remove();
+                            for (i = 0; i < businessUnits.length; i++) {
+                                $('#second-filter-details').append("<li data-value='" + businessUnits[i] + "' data-selected='true'><a href='#'>" + businessUnits[i] + "</a></li>");
+
+
+                            }
+
+                        }
+
+                    });
+                }
+            })
+        });
+    });
+}
+
+
+
+
 
 
 function subsidiaryTypesDatagrid() {
@@ -263,8 +476,6 @@ function subsidiaryTypesDatagrid() {
         });
     });
 }
-
-var sucursales = [], zonas = [];
 
 function businessUnitsDatagrid() {
     // fuelux subsidiaries datagrid

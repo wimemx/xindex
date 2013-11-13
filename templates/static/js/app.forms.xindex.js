@@ -276,7 +276,49 @@ $(document).ready(function () {
 
     });
 
-    //--- Función corregir problema modal  Services---//
+
+    //--- Función para elimar registro de SERVICIO del sistema---//
+    $(document).on('click', '.remove-service', function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        bootbox.dialog({
+            message:
+                    "¿Esta seguro que desea eliminar éste servicio ",
+            title: "Eliminarservicio",
+            buttons: {
+                success: {
+                    label: "Cancelar",
+                    className: "bg-danger btn-modal-xindex",
+                    callback: function () {
+                    }
+                },
+                main: {
+                    label: "Aceptar",
+                    className: "bg-success btn-modal-xindex",
+                    callback: function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: href,
+                            success: function (msg) {
+                                if (msg == 'Si') {
+                                    setTimeout(function () {
+                                        window.location.reload(true);
+                                    }, 0);
+                                    return true;
+                                }
+                            },
+                            error: function (msg) {
+                            }
+
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+
+    //--- Función corregir problema modal Services (SERVICIOS)---//
     $('#mySGrid').on('click', 'a.update_service', function (e) {
         //alert('entra');
         e.preventDefault();

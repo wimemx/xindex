@@ -6,6 +6,8 @@
 </head>
 <body>
 {% block mainContent %}
+    <input type="hidden"  id="id-subsidiary-grid"
+           value="{{ sub.id }}">
     <section id="content">
         <section class="vbox">
             <header class="header b-b bg-white">
@@ -46,55 +48,173 @@
                 </div>
                 <div class="col-lg-12">
                     <div class="row">
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-1">Filtrar:</div>
-                                <div class="col-lg-5">
-                                    <select class="form-control">
-                                        <option>Subsidiary List</option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-5">
-                                    <div class="form-search form-inline">
-                                        <form action="" method="GET">
-                                            <input type="text" id="id_q" name="q"
-                                                   class="search-query input-sm form-control"
-                                                   placeholder="Buscar..." value="{{ query_string }}"/>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6"></div>
-                    </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <table class="table table-striped m-b-none">
 
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre del servicio</th>
-                                            <th>Unidad del servicio</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for eachService in services.services%}
-                                        <tr>
-                                            <td>{{ eachService.service_name }}</td>
-                                            <td>{{ eachService.business_name }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                        </div>
-                        <div class="col-lg-6"></div>
+                        <div class="col-lg-6">
+
+
+                            <div id="datagrid">
+                <section class="panel">
+                    <div class="table-responsive">
+                        <table id="mySubsidiaryDetailsGrid"
+                               class="table table-striped datagrid m-b-sm">
+                            <thead>
+                            <tr style="background-color: transparent; border:none !important;">
+                                <th style="background-color: transparent; border: none !important;">
+                                    <div class="row">
+                                        <div id=news_section></div>
+                                        <div class="col-sm-12 col-lg-12">
+                                            <div class=" row">
+
+                                                <div class="col-sm-6 col-lg-6" style="padding-top: 18px">
+                                                    <div class="row">
+                                                    <div class="col-sm-2 col-lg-2 text-center">
+                                                        <span>Filtrar:</span>
+                                                    </div>
+                                                    <div class="col-sm-10 col-lg-10">
+                                                        <div class="select filter"
+                                                             data-resize="auto"
+                                                             style="width: 100% !important;">
+                                                            <button data-toggle="dropdown"
+                                                                    class="btn btn-sm btn-white dropdown-toggle"
+                                                                    style="width: 100% !important;">
+                                                                <span class="dropdown-label"></span>
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" id="second-filter-details">
+                                                                <li data-value="default" data-selected="true">
+                                                                    <a href="#">Todas</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-lg-6" style="padding-top: 18px">
+                                                    <div class="input-group search datagrid-search"
+                                                         style="width: 100% !important;">
+                                                        <input type="text"
+                                                               class="input-sm form-control"
+                                                               placeholder="Buscar">
+
+                                                        <div class="input-group-btn">
+                                                            <button class="btn btn-white btn-sm">
+                                                                <i class="icon-search"></i>
+                                                            </button>
+                                                        </div>
+                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+
+                            <tfoot class="">
+                            <tr>
+                                <th class="row">
+                                    <div class="datagrid-footer-left col-sm-6 text-center-xs m-l-n"
+                                         style="display:none;">
+                                        <div class="grid-controls m-t-sm">
+                              <span>
+                                <span class="grid-start"></span> -
+                                <span class="grid-end"></span> de
+                                <span class="grid-count"></span>
+                              </span>
+
+                                            <div class="select grid-pagesize dropup"
+                                                 data-resize="auto">
+                                                <button data-toggle="dropdown"
+                                                        class="btn btn-sm btn-white dropdown-toggle">
+                                                    <span class="dropdown-label"></span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li data-value="5"><a
+                                                            href="#">5</a></li>
+                                                    <li data-value="10"><a
+                                                            href="#">10</a></li>
+                                                    <li data-value="20"
+                                                        data-selected="true"><a
+                                                            href="#">20</a></li>
+                                                    <li data-value="50"><a
+                                                            href="#">50</a></li>
+                                                    <li data-value="100"><a
+                                                            href="#">100</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <span>Por p&aacute;gina</span>
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-footer-right col-sm-6 text-right text-center-xs"
+                                         style="display:none;">
+                                        <div class="grid-pager m-r-n">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-prevpage">
+                                                <i class="icon-chevron-left"></i>
+                                            </button>
+                                            <span>P&aacute;gina</span>
+
+                                            <div class="inline">
+                                                <div class="input-group dropdown combobox">
+                                                    <input class="input-sm form-control"
+                                                           type="text">
+
+                                                    <div class="input-group-btn dropup">
+                                                        <button class="btn btn-sm btn-white"
+                                                                data-toggle="dropdown">
+                                                            <i class="caret"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu pull-right"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span>de <span
+                                                    class="grid-pages"></span></span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-white grid-nextpage">
+                                                <i class="icon-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+                    <div class="col-lg-6"></div>
+                    </div>
                     </div>
                 </div>
             </section>
         </section>
     </section>
+{% endblock %}
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+
+    <!--Bootbox-->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <script src="/static/js/libs/underscore-min.js"></script>
+    <!-- datatables -->
+    <script src="/static/js/datatables/jquery.dataTables.min.js"></script>
+    <!-- Sparkline Chart -->
+    <script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+    <!-- Easy Pie Chart -->
+    <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
+
+    <script src="/static/js/app.grids.xindex.js"></script>
 {% endblock %}
 </body>
 </html>

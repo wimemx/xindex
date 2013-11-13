@@ -8,7 +8,7 @@
 {% block mainContent %}
     <input type="hidden" value="{{ business_unit.id }}" id="idbunit">
     <section id="content">
-    <section class="vbox">
+    <section class="vbox wrapper-lg">
         <header class="header b-b blue-xindex">
             <p class="h5 animated bounceInDown">
                 <a href="/xindex/">Inicio</a><i class="icon-chevron-right"></i>
@@ -97,7 +97,7 @@
                                                 <i class="icon-edit"></i>
                                                 </a>
                                                 <a href="/services/remove/{{ each_service.id }}/{{ business_unit.id }}"
-                                                   class="text-danger">
+                                                   class="text-danger remove-service">
                                                 <i class="icon-remove"></i>
                                                 </a>
                                             </div>
@@ -320,47 +320,8 @@
 
     <script src="/static/js/app.grids.xindex.js"></script>
 
-<script>
-    $(document).on('click', '#remove-service', function (e) {
-        e.preventDefault();
-        var href = $(this).attr('href');
-        bootbox.dialog({
-            message:
-                    "¿Esta seguro que desea eliminar el servicio? ",
-            title: "Eliminar servicio",
-            buttons: {
-                success: {
-                    label: "Cancelar",
-                    className: "bg-danger btn-modal-xindex",
-                    callback: function () {
-                    }
-                },
-                main: {
-                    label: "Aceptar",
-                    className: "bg-success btn-modal-xindex",
-                    callback: function () {
-                        $.ajax({
-                            type: 'GET',
-                            url: href,
-                            success: function (msg) {
-                                if (msg == 'Si') {
-                                    alert(msg);
-                                    setTimeout(function () {
-                                        window.location.reload(true);
-                                    }, 0);
-                                    return true;
-                                }
-                            },
-                            error: function (msg) {
-                            }
-
-                        });
-                    }
-                }
-            }
-        });
-    });
-</script>
+    <!-- Bootbox -->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
 {% endblock %}
 
 </body>

@@ -1,4 +1,6 @@
 # Create your views here.
+import re
+from django.db.models import Q
 from django.shortcuts import render_to_response
 from xindex.models import Subsidiary
 from django.http import HttpResponseRedirect, HttpResponse
@@ -6,7 +8,8 @@ from subsidiaries.forms import SubsidiaryForm, UpdateForm
 from django.template.context import RequestContext
 from django.core import serializers
 from django.utils import simplejson
-from xindex.models import Company, State, Zone, BusinessUnit
+from xindex.models import Company, State, Zone, BusinessUnit, Service
+from xindex.models import SubsidiaryBusinessUnit, sbu_service
 
 
 def index(request, message=''):
@@ -22,15 +25,33 @@ def index(request, message=''):
 
 def details(request, subsidiary_id):
 
-    business_units = BusinessUnit.objects.filter(subsidiary=subsidiary_id)
+    business_units = SubsidiaryBusinessUnit.objects.filter(
+        id_subsidiary__id=subsidiary_id
+    )
 
-    services = {'services': []}
+    myBusinessUnitList = []
+    myServiceList = []
     for eachBusinessUnit in business_units:
-        for eachService in eachBusinessUnit.service.all():
+        myBusinessUnitList.append(eachBusinessUnit.id_business_unit.id)
+
+    myBusinessUnitList = list(set(myBusinessUnitList))
+
+    for eachSetBusinessUnit in myBusinessUnitList:
+        myBusinessUnit = BusinessUnit.objects.get(pk=eachSetBusinessUnit)
+
+        mySBUSS = sbu_service.objects.filter(
+            id_subsidiaryBU__id_subsidiary__id=subsidiary_id
+        )
+
+        services = {'services': []}
+        for eachSBUS in mySBUSS:
+            myServiceList.append(eachSBUS.id_service.id)
             services['services'].append({
-                'service_name': eachService.name,
-                'business_name': eachBusinessUnit.name
+                'service_name': eachSBUS.id_service.name,
+                'business_name': eachSBUS.id_subsidiaryBU.id_business_unit.name
             })
+
+        myServiceList = list(set(myServiceList))
 
 
     template_vars = {
@@ -181,61 +202,34 @@ def remove(request, subsidiary_id):
 
 
 def getSubsidiariesInJson(request):
-    subsidiaries = {}
-    subsidiaries['subsidiarias'] = []
+    subsidiaries = {'subsidiaries': []}
 
     for s in Subsidiary.objects.filter(active=True).order_by('-date'):
-        print s.name
-        subsidiaries['subsidiarias'].append(
-            {
-                "subsidiaryId": s.id,
-                "subsidiaryIds": s.id,
-                "name": s.name,
-                "active": s.active,
-                "detalles": s.id
-            }
-        )
-
-    return HttpResponse(simplejson.dumps(subsidiaries))
-
-
-def getSubsidiariesByCity(request):
-    subsidiaries = {}
-    subsidiaries['subsidiaries'] = []
-
-    user = request.user.id
-
-    companies = Company.objects.all()
-
-    for c in companies:
-        for u in c.staff.all():
-            if user == u.user.id:
-                company_id = c.id
-
-
-
-    subsidiarias = Subsidiary.objects.filter(company_id=company_id)
-
-    for subsidiary in subsidiarias:
         subsidiaries['subsidiaries'].append(
             {
-                'id': subsidiary.id,
-                'name': subsidiary.name,
-                'city': subsidiary.city_id.name
+                "subsidiaryId": s.id,
+                "name": s.name,
+                "type": s.subsidiary_types.name,
+                "zone": s.zone.name,
+                "location": s.state_id.name
             }
         )
 
-    """
-    for subsidiary in subsidiarias:
-        for city in subsidiary.zone.cities.all():
-            subsidiaries['subsidiaries'].append(
-                {
-                    'id': subsidiary.id,
-                    'name': subsidiary.name,
-                    'zone': subsidiary.zone.name,
-                    'city': city.name
-                }
-            )
-    """
-
     return HttpResponse(simplejson.dumps(subsidiaries))
+
+
+def getSubsidiaryDetailsInJson(request, subsidiary_id):
+
+    mySBUSS = sbu_service.objects.filter(
+        id_subsidiaryBU__id_subsidiary__id=subsidiary_id
+    )
+
+    services = {'services': []}
+    for eachSBUS in mySBUSS:
+        services['services'].append({
+            'service_name': eachSBUS.id_service.name,
+            'business_name': eachSBUS.id_subsidiaryBU.id_business_unit.name
+        })
+
+    return HttpResponse(simplejson.dumps(services))
+

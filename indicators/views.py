@@ -7,6 +7,7 @@ from xindex.forms import AttributesForm
 from django.utils import simplejson
 from xindex.models import Moment
 
+
 def index(request):
     indicators = Attributes.objects.all().order_by('-date')
     template_vars = {"title": "Indicators",

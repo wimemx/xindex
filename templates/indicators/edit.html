@@ -6,51 +6,37 @@
             <h4 class="modal-title">Modificar Indicador</h4>
         </div>
         <div class="modal-body">
+            <div class="padder-xl">
             <form class="form-horizontal" id="edit_indicator_form" method="POST"
                   action="/indicators/update/{{ attribute_id }}">{% csrf_token %}
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Nombre:</label>
-
-                    <div class=" col-md-7">
+                    Nombre:
                         {{ formulario.name }}
                         {{ formulario.name.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Descripci&oacute;n:</label>
-
-                    <div class=" col-md-7">
+                    Descripci&oacute;n:
                         {{ formulario.description }}
                         {{ formulario.description.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Limite:</label>
-
-                    <div class=" col-md-7">
+                    Limite:
                         {{ formulario.threshold }}
                         {{ formulario.threshold.errors }}
-                    </div>
                 </div>
                 <div class="form-group m-t-lg">
-                    <label class="col-sm-3 control-label">Momentos:</label>
-
-                    <div class=" col-md-7">
-                        {{ formulario.moments }}
-                        {{ formulario.moments.errors }}
-                    </div>
-                </div>
-                <div class="form-group m-t-lg">
-                    <div class="modal-footer">
-                        <a href="/indicators/"
-                           class="btn btn-white"
-                           data-dismiss="modal">Cancelar</a>
                         <button type="submit"
-                                class="btn btn-twitter">Modificar
+                                class="btn btn-modal-xindex blue-xindex pull-right">
+                            Guardar
                         </button>
-                    </div>
+                        <a href="/services/details/{{ service_id }}"
+                           class="btn btn-modal-xindex btn-white pull-right"
+                           data-dismiss="modal">Cancelar</a>
+                        <input type="hidden" value="{{ service_id }}"
+                               id="service_id"/>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 </div>
