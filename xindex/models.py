@@ -431,7 +431,7 @@ class ClientActivity(models.Model):
     business_unit = models.ForeignKey('BusinessUnit', null=True, blank=True)
     service = models.ForeignKey('Service', null=True, blank=True)
     survey = models.ForeignKey('Survey', null=True, blank=True)
-    status = models.CharField(choices=STATUS, default='M', max_length=1,
+    status = models.CharField(choices=STATUS, default='NA', max_length=2,
                               blank=True, null=True)
     
 

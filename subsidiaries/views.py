@@ -235,3 +235,30 @@ def getSubsidiaryDetailsInJson(request, subsidiary_id):
 
     return HttpResponse(simplejson.dumps(services))
 
+
+def get_business_units(request):
+    businessUnitsList = []
+    if request.POST:
+        if 'zone' in request.POST and 'subsidiary' in request.POST:
+            try:
+                zone = Zone.objects.get(pk=int(request.POST['zone']))
+                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                    businessUnitsList.append(
+                        {
+                            'business_unit_id': subsidiary_business_unit.id_business_unit.id,
+                            'business_unit_name': subsidiary_business_unit.id_business_unit.name + ' - ' + subsidiary_business_unit.alias
+                        }
+                    )
+                if len(businessUnitsList) == 0:
+                    pass
+                else:
+                    json_response = {
+                        'answer': True,
+                        'business_units': businessUnitsList
+                    }
+                    return HttpResponse(json.dumps(json_response))
+            except Zone.DoesNotExist:
+                pass
+        else:
+            pass

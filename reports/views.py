@@ -8,6 +8,7 @@ from xindex.models import Zone, Subsidiary, BusinessUnit, Service
 from xindex.models import SubsidiaryBusinessUnit, sbu_service, sbu_service_moment
 from xindex.models import sbu_service_moment_attribute
 from xindex.models import Answer
+from xindex.models import Client
 from decimal import *
 
 
@@ -127,7 +128,6 @@ def report_by_moment(request):
 
         subsidiaries = zone.subsidiary_set.all()
 
-
     else:
         zone = zones[0]
         subsidiary = Subsidiary.objects.filter(zone_id=zone.id)[0]
@@ -196,17 +196,27 @@ def report_by_moment(request):
     total_passives = 0
     total_detractors = 0
     total_answers = 0
+    answers_list = []
     for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
         for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
             for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
-                print 'mmmmmmmmmmmmmmmmmmm'
-                print len(sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment))
-                print 'mmmmmmmmmmmmmmmmmmm'
                 if len(sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment)) > 0:
                     survey_is_designed = True
-                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment):
+                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
                         for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
-                            total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
+                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+                            print 'wiwiwiwiwiwi'
+                            print child_sbu_s_m_a.id_attribute
+                            print 'wiwiwiwiwiwi'
+                            for a in question_answers:
+                                client = Client.objects.get(pk=a.client_id)
+                                try:
+                                    client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                                    answers_list.append(a)
+                                except client_activity.DoesNotExist:
+                                    pass
+                            total_surveyed = len(answers_list)
+                            #total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
                             attribute = child_sbu_s_m_a.id_attribute
                             promoters_9 = 0
                             promoters_10 = 0
@@ -214,7 +224,8 @@ def report_by_moment(request):
                             detractors = 0
                             if total_surveyed > 0:
 
-                                for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
+                                #for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
+                                for answer in answers_list:
                                     print answer.value
                                     total_answers += 1
                                     if answer.value == 10:
@@ -352,10 +363,49 @@ def report_by_moment(request):
 
 def report_by_attribute(request):
     if request.POST:
-        pass
+        print request.POST
+        if 'zone' in request.POST:
+            zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            if 'subsidiary' in request.POST:
+                subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                if 'business_unit' in request.POST:
+                    businessUnit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
+                    if 'service' in request.POST:
+                        service = Service.objects.get(active=True, pk=int(request.POST['service']))
+                        if 'moment' in request.POST:
+                            moment = Moment.objects.get(active=True, pk=int(request.POST['moment']))
+                            if 'attribute' in request.POST:
+                                attribute = Attributes.objects.get(pk=int(request.POST['attribute']))
+                        else:
+                            moment = False
+                    else:
+                        service = False
+                else:
+                    businessUnit = False
+            else:
+                subsidiary = False
     else:
         pass
 
+    s_bu = SubsidiaryBusinessUnit.objects.get(id_subsidiary=subsidiary, id_business_unit=businessUnit)
+
+    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                    total_answers = []
+                    for answer in attrib_answers:
+                        client = Client.objects.get(pk=int(answer.client.id))
+                        try:
+                            client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                total_answers.append(answer)
+                        except client_activity.DoesNotExist:
+                            pass
+
+                    for answer in total_answers:
+                        print answer
     template_vars = {}
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/attribute-report.html', request_context)

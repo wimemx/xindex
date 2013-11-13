@@ -12,6 +12,8 @@ $(document).ready(function(){
     $('#btn_send_data').on('click', function(e){
         e.preventDefault();
         var answers_json = {};
+        answers_json.client_id =$('#id_client').val();
+        answers_json.survey_id =$('#id_survey').val();
         answers_json.question = [];
 
         //fields of question json
@@ -199,7 +201,7 @@ function send_answers_ajax(answers_json) {
         data: JSON.stringify(answers_json),
         success: function (data) {
             if(data.response){
-                console.log('La encuesta ha sido guardada con exito');
+                location.reload();
             }
         },
         error: function (xhr, textStatus, errorThrown) {

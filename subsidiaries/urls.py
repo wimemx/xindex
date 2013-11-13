@@ -20,6 +20,6 @@ urlpatterns = patterns('subsidiaries.views',
     url(r'details/(?P<subsidiary_id>\d+)', 'details'),
     
 
-    #Url to get subsidiaries
+    #Url to get business units
     url(r'^get_business_units/$', 'get_business_units'),
 )
