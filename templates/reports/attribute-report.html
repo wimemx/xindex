@@ -115,7 +115,7 @@
                             <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
                             {% csrf_token %}
                                 <select class="form-control text-primary header" name="zone" id="id_zone">
-                                    {% for zone in zones %}
+                                    {% for zone in zones_list %}
                                         {% if zone.id == current_zone.id %}
                                             <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
                                         {% else %}
@@ -131,7 +131,7 @@
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
-                                    {% for subsidiary in subsidiaries %}
+                                    {% for subsidiary in subsidiaries_list %}
                                         {% if subsidiary.id == current_subsidiary.id %}
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
                                         {% else %}
@@ -148,7 +148,7 @@
                             <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                             <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
-                                    {% for businessUnit in businessUnits %}
+                                    {% for businessUnit in business_units_list %}
                                         {% if businessUnit.id == current_businessUnit.id %}
                                             <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
                                         {% else %}
@@ -167,7 +167,7 @@
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
                                 <select class="form-control text-primary header" name="service" id="id_service">
-                                    {% for service in services %}
+                                    {% for service in services_list %}
                                         {% if service.id == current_service.id %}
                                             <option value="{{ service.id }}" selected>{{ service.name }}</option>
                                         {% else %}
@@ -179,14 +179,14 @@
                         </div>
                         <div class="col-lg-2">
                             <p>Punto de contacto</p>
-                            <form id="form_select_moment" action="/reports/moment/" method="POST">
+                            <form id="form_select_moment" action="/moments/get_attributes/" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
                                 <select class="form-control text-primary header" name="moment" id="id_moment">
-                                    {% for moment in moments %}
+                                    {% for moment in moments_list %}
                                         {% if moment.id == current_moment.id %}
                                             <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
                                         {% else %}
@@ -206,11 +206,11 @@
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
                                 <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
                                 <select class="form-control text-primary header" name="attribute" id="id_attribute">
-                                    {% for moment in moments %}
-                                        {% if moment.id == current_moment.id %}
-                                            <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
+                                    {% for attribute in attributes_list %}
+                                        {% if attribute.id == current_attribute.id %}
+                                            <option value="{{ attribute.id }}" selected>{{ attribute.name }}</option>
                                         {% else %}
-                                            <option value="{{ moment.id }}">{{ moment.name }}</option>
+                                            <option value="{{ attribute.id }}">{{ attribute.name }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -252,7 +252,7 @@
                                 </div>
                                 <div class="col-sm-6 r-r text-center v-middle">
                                     <div class="h1 icon-5x">
-                                        {{ moment_xindex }}%
+                                        {{ xindex_attribute }}%
                                     </div>
                                 </div>
                                 <div class="col-sm-6 r-r text-center v-middle wrapper">
@@ -297,11 +297,25 @@
     <!-- Morris Graphs -->
     <script src="/static/js/charts/morris/raphael-min.js"></script>
     <script src="/static/js/charts/morris/morris.min.js"></script>
-    <script src="/static/js/graph.reports.data.js"></script>
+    <!--<script src="/static/js/graph.reports.data.js"></script>-->
 
     <!-- App for reports -->
-    <script src="/static/js/app.reports.js"></script>
+    <script src="/static/js/app.attribute.report.js"></script>
     <script>
+
+        new Morris.Bar({
+            element: 'prom_pass_det_graph',
+            data: [
+                {xlabel: '', promoters: {{ attribute_data.promoters }}, passives: {{ attribute_data.passives }}, detractors: {{ attribute_data.detractors}}}
+            ],
+            xkey: 'xlabel',
+            ykeys: ['promoters', 'passives', 'detractors'],
+            labels: ['Promotores', 'Pasivos', 'Detractores' ],
+            hideHover: 'auto',
+            grid: 'auto',
+            barColors:['#5cb85c', '#f0ad4e', '#d9534f']
+        });
+
         new Morris.Line({
             // ID of the element in which to draw the chart.
             element: 'historical-graph',
@@ -321,19 +335,6 @@
             // chart.
             labels: ['Value'],
             xLabels: 'month'
-        });
-
-        new Morris.Bar({
-            element: 'prom_pass_det_graph',
-            data: [
-                {xlabel: '', promoters: {{ moment_data.promoters }}, passives: {{ moment_data.passives }}, detractors: {{ moment_data.detractors}}}
-            ],
-            xkey: 'xlabel',
-            ykeys: ['promoters', 'passives', 'detractors'],
-            labels: ['Promotores', 'Pasivos', 'Detractores' ],
-            hideHover: 'auto',
-            grid: 'auto',
-            barColors:['#5cb85c', '#f0ad4e', '#d9534f']
         });
 
     </script>
