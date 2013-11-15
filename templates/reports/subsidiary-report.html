@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    {% block externalCss %}
+    {% endblock %}
+</head>
+<body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body out collapse">
+                    <li>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/clients/">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#report-list">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+                <ul id="report-list" class="nav accordion-body in collapse">
+                    <li>
+                        <a href="/reports/xindex">Satisfacci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/reports/zone">Zona</a>
+                    </li>
+                    <li>
+                        <a class="blue-xindex" href="/reports/subsidiary">Sucursal</a>
+                    </li>
+                    <li>
+                        <a href="/reports/business_unit">Unidad de servicio</a>
+                    </li>
+                    <li>
+                        <a  href="/reports/service">Servicio</a>
+                    </li>
+                    <li>
+                        <a href="/reports/moment">Punto de contacto</a>
+                    </li>
+                    <li>
+                        <a href="/reports/attribute">Atributo</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h5 animated bounceInDown">
+                <a href="/reports/">Inicio</a>
+                <i class="icon-chevron-right"></i>
+                <a href="#">Reporte por Sucursal</a>
+            </p>
+            <p class="pull-right">
+                <i class="icon-question-sign icon-xlarge"></i>
+            </p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="h2 header">Reporte de satisfacci&oacute;n por Sucursal</div>
+                    <div class="footer">
+                        <div class="col-lg-2-4">
+                            <p>Zona</p>
+                            <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
+                            {% csrf_token %}
+                                <select class="form-control text-primary header" name="zone" id="id_zone">
+                                    {% for zone in zones %}
+                                        {% if zone.id == current_zone.id %}
+                                            <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
+                                        {% else %}
+                                            <option value="{{ zone.id }}">{{ zone.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        <div class="col-lg-2-4">
+                            <p>Sucursal</p>
+                            <form id="form_select_subsidiary" action="/reports/subsidiary/" method="POST">
+                            {% csrf_token %}
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
+                                    {% for subsidiary in subsidiaries %}
+                                        {% if subsidiary.id == current_subsidiary.id %}
+                                            <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
+                                        {% else %}
+                                            <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% if survey_is_designed %}
+            <div class="row wrapper">
+                <section class="panel no-borders hbox">
+                    <aside class="lter r-l text-center v-middle">
+                        <div class="wrapper">
+                            <div class="header h4 text-muted text-center">
+                                &Eacute;sta sucursal tiene un nivel de satisfacci&oacute;n de:
+                            </div>
+                            <div class="col-sm-6 r-r text-center v-middle">
+                                <div class="h1 icon-5x">
+                                    {{ xindex_subsidiary }}%
+                                </div>
+                            </div>
+                            <div class="col-sm-6 r-r text-center v-middle wrapper">
+                                <div class="text-center v-middle pull-left">
+                                    {% if comparison.diff_type == 'negative' %}
+                                        <p class="h4 text-danger"><i class="icon-arrow-down "></i>{{ comparison.xindex_diff }}%</p>
+                                    {% else %}
+                                        <p class="h4 text-success"><i class="icon-arrow-up "></i>{{ comparison.xindex_diff }}%</p>
+                                    {% endif %}
+                                    <p>Con respecto al mes pasado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+                                <div class="header h4 text-muted text-center">
+                                    Nivel de satisfacci&oacute;n en los ultimos meses:
+                                </div>
+                                <div class="graph" id="historical-graph">
+
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </div>
+            <div class="row wrapper">
+                <div class="header text-muted">
+                    <p class="h4">Nivel de Satisfaccion por Unidad de Servicio</p>
+                </div>
+                <section class="panel no-border hbox">
+                    <aside class="lter r-l text-center v-middle">
+                        <div class="wrapper">
+                            <div id="business_units_graph">
+
+                            </div>
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+                                <div class="header h4 text-muted text-center">
+                                    Nivel de satisfacci&oacute;n en los ultimos meses:
+                                </div>
+                                <div class="media">
+                                    <ul class="list-group alt">
+                                        {% for business_unit in business_units_data %}
+                                            <form method="POST" action="/reports/business_unit/">
+                                            {% csrf_token %}
+                                                <li class="list-group-item no-border btn btn-white btn_send_business_unit">
+                                                    <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                                    <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
+                                                    <input type="hidden" name="business_unit" id="id_business_unit" value="{{ business_unit.business_unit_id }}">
+                                                    <div class="media">
+                                                        <div class="pull-left text-success m-t-sm">
+                                                            <i class="icon-stop icon-xlarge" style="color: {{ business_unit.color }} !important;"></i>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <div><a href="#">{{ business_unit.business_unit_name }}</a></div>
+                                                            <small class="text-muted">Xindex: {{ business_unit.xindex_business_unit }}</small>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </form>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </div>
+            <div class="row wrapper text-center text-muted h1">
+                <section class="panel no-borders hbox">
+                    <aside class="lter r-l text-center v-middle">
+                        <div class="wrapper" id="comparative_service_graph">
+
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </div>
+            {% else %}
+            <section class="panel-body wrapper padder">
+                <div class="alert alert-danger text-center">
+                    <i class="icon-info-sign"></i>No existen datos para esta relaci&oacute;n
+                </div>
+            </section>
+        {% endif %}
+
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.data.js"></script>
+
+    <!-- Morris Graphs -->
+    <script src="/static/js/charts/morris/raphael-min.js"></script>
+    <script src="/static/js/charts/morris/morris.min.js"></script>
+    <!--<script src="/static/js/graph.reports.data.js"></script>-->
+
+    <!-- App for reports -->
+    <script src="/static/js/app.subsidiary.report.js"></script>
+    <script>
+        new Morris.Line({
+            element: 'historical-graph',
+            data: [
+                {% for data in historical_months %}
+                    { month: '{{ data.month }}', value: {{ data.value }} },
+                {% endfor %}
+                { month: '{{ current_data.month }}', value: {{ current_data.value }} }
+            ],
+            xkey: 'month',
+            ykeys: ['value'],
+            labels: ['Value'],
+            xLabels: 'month'
+        });
+
+        new Morris.Bar({
+            element: 'business_units_graph',
+            data: [
+                {
+                {% for business_unit in business_units_data %}
+                    {% if not forloop.last %}
+                        '{{ business_unit.business_unit_name }}': {{ business_unit.xindex_business_unit }},
+                        {% else %}
+                        '{{ business_unit.business_unit_name }}': {{ business_unit.xindex_business_unit }}
+                    {% endif %}
+                {% endfor %}
+                }
+            ],
+            xkey: [
+                {% for business_unit in business_units_data %}
+                    {% if not forloop.last %}
+                        '{{ business_unit.business_unit_name }}',
+                    {% else %}
+                        '{{ business_unit.business_unit_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            ykeys: [
+                {% for business_unit in business_units_data %}
+                    {% if not forloop.last %}
+                        '{{ business_unit.business_unit_name }}',
+                        {% else %}
+                        '{{ business_unit.business_unit_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            labels: [
+                {% for business_unit in business_units_data %}
+                    {% if not forloop.last %}
+                        'xindex',
+                    {% else %}
+                        'xindex'
+                    {% endif %}
+                {% endfor %}
+            ],
+            hideHover: 'auto',
+            grid: 'auto',
+            barColors:[
+                {% for business_unit in business_units_data %}
+                    {% if not forloop.last %}
+                        '{{ business_unit.color }}',
+                    {% else %}
+                        '{{ business_unit.color }}'
+                    {% endif %}
+                {% endfor %}
+            ]
+        });
+
+    </script>
+{% endblock %}
+</body>
+</html>
