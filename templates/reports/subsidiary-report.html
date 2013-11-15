@@ -73,10 +73,10 @@
                         <a href="/reports/zone">Zona</a>
                     </li>
                     <li>
-                        <a href="/reports/subsidiary">Sucursal</a>
+                        <a class="blue-xindex" href="/reports/subsidiary">Sucursal</a>
                     </li>
                     <li>
-                        <a class="blue-xindex" href="/reports/business_unit">Unidad de servicio</a>
+                        <a href="/reports/business_unit">Unidad de servicio</a>
                     </li>
                     <li>
                         <a  href="/reports/service">Servicio</a>
@@ -99,7 +99,7 @@
             <p class="h5 animated bounceInDown">
                 <a href="/reports/">Inicio</a>
                 <i class="icon-chevron-right"></i>
-                <a href="#">Reporte por Unidad de Servicio</a>
+                <a href="#">Reporte por Sucursal</a>
             </p>
             <p class="pull-right">
                 <i class="icon-question-sign icon-xlarge"></i>
@@ -108,7 +108,7 @@
         <section class="panel animated fadeInRight scrollable wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="h2 header">Reporte de satisfacci&oacute;n por unidad de servicio</div>
+                    <div class="h2 header">Reporte de satisfacci&oacute;n por Sucursal</div>
                     <div class="footer">
                         <div class="col-lg-2-4">
                             <p>Zona</p>
@@ -127,7 +127,7 @@
                         </div>
                         <div class="col-lg-2-4">
                             <p>Sucursal</p>
-                            <form id="form_select_subsidiary" action="/subsidiaries/get_business_units/" method="POST">
+                            <form id="form_select_subsidiary" action="/reports/subsidiary/" method="POST">
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
@@ -136,23 +136,6 @@
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
                                         {% else %}
                                             <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </div>
-                        <div class="col-lg-2-4">
-                            <p>Unidad de servicio</p>
-                            <form id="form_select_business_unit" action="/reports/business_unit/" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                            <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
-                                    {% for business_unit in business_units %}
-                                        {% if businessUnit.id == current_business_unit.id %}
-                                            <option value="{{ business_unit.id }}" selected>{{ business_unit.name }}</option>
-                                        {% else %}
-                                            <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -167,11 +150,11 @@
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
                             <div class="header h4 text-muted text-center">
-                                &Eacute;ste servicio tiene un nivel de satisfacci&oacute;n de:
+                                &Eacute;sta sucursal tiene un nivel de satisfacci&oacute;n de:
                             </div>
                             <div class="col-sm-6 r-r text-center v-middle">
                                 <div class="h1 icon-5x">
-                                    {{ xindex_business_unit }}%
+                                    {{ xindex_subsidiary }}%
                                 </div>
                             </div>
                             <div class="col-sm-6 r-r text-center v-middle wrapper">
@@ -202,12 +185,12 @@
             </div>
             <div class="row wrapper">
                 <div class="header text-muted">
-                    <p class="h4">Nivel de Satisfaccion por servicio</p>
+                    <p class="h4">Nivel de Satisfaccion por Unidad de Servicio</p>
                 </div>
                 <section class="panel no-border hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
-                            <div id="services_graph">
+                            <div id="business_units_graph">
 
                             </div>
                         </div>
@@ -220,21 +203,20 @@
                                 </div>
                                 <div class="media">
                                     <ul class="list-group alt">
-                                        {% for service in services_data %}
-                                            <form method="POST" action="/reports/service/">
+                                        {% for business_unit in business_units_data %}
+                                            <form method="POST" action="/reports/business_unit/">
                                             {% csrf_token %}
-                                                <li class="list-group-item no-border btn btn-white btn_send_service">
+                                                <li class="list-group-item no-border btn btn-white btn_send_business_unit">
                                                     <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                                     <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                                    <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_business_unit.id }}">
-                                                    <input type="hidden" name="service" id="id_service" value="{{ service.service_id }}">
+                                                    <input type="hidden" name="business_unit" id="id_business_unit" value="{{ business_unit.business_unit_id }}">
                                                     <div class="media">
                                                         <div class="pull-left text-success m-t-sm">
-                                                            <i class="icon-stop icon-xlarge" style="color: {{ service.color }} !important;"></i>
+                                                            <i class="icon-stop icon-xlarge" style="color: {{ business_unit.color }} !important;"></i>
                                                         </div>
                                                         <div class="media-body">
-                                                            <div><a href="#">{{ service.service_name }}</a></div>
-                                                            <small class="text-muted">Xindex: {{ service.xindex_service }}</small>
+                                                            <div><a href="#">{{ business_unit.business_unit_name }}</a></div>
+                                                            <small class="text-muted">Xindex: {{ business_unit.xindex_business_unit }}</small>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -288,7 +270,7 @@
     <!--<script src="/static/js/graph.reports.data.js"></script>-->
 
     <!-- App for reports -->
-    <script src="/static/js/app.business.unit.report.js"></script>
+    <script src="/static/js/app.subsidiary.report.js"></script>
     <script>
         new Morris.Line({
             element: 'historical-graph',
@@ -305,39 +287,38 @@
         });
 
         new Morris.Bar({
-            element: 'services_graph',
+            element: 'business_units_graph',
             data: [
                 {
-                {% for service in services_data %}
+                {% for business_unit in business_units_data %}
                     {% if not forloop.last %}
-                        '{{ service.service_name }}': {{ service.xindex_service }},
+                        '{{ business_unit.business_unit_name }}': {{ business_unit.xindex_business_unit }},
                         {% else %}
-                        '{{ service.service_name }}': {{ service.xindex_service }}
+                        '{{ business_unit.business_unit_name }}': {{ business_unit.xindex_business_unit }}
                     {% endif %}
-
                 {% endfor %}
                 }
             ],
             xkey: [
-                {% for service in services_data %}
+                {% for business_unit in business_units_data %}
                     {% if not forloop.last %}
-                        '{{ service.service_name }}',
+                        '{{ business_unit.business_unit_name }}',
                     {% else %}
-                        '{{ service.service_name }}'
+                        '{{ business_unit.business_unit_name }}'
                     {% endif %}
                 {% endfor %}
             ],
             ykeys: [
-                {% for service in services_data %}
+                {% for business_unit in business_units_data %}
                     {% if not forloop.last %}
-                        '{{ service.service_name }}',
+                        '{{ business_unit.business_unit_name }}',
                         {% else %}
-                        '{{ service.service_name }}'
+                        '{{ business_unit.business_unit_name }}'
                     {% endif %}
                 {% endfor %}
             ],
             labels: [
-                {% for service in services_data %}
+                {% for business_unit in business_units_data %}
                     {% if not forloop.last %}
                         'xindex',
                     {% else %}
@@ -348,11 +329,11 @@
             hideHover: 'auto',
             grid: 'auto',
             barColors:[
-                {% for service in services_data %}
+                {% for business_unit in business_units_data %}
                     {% if not forloop.last %}
-                        '{{ service.color }}',
+                        '{{ business_unit.color }}',
                     {% else %}
-                        '{{ service.color }}'
+                        '{{ business_unit.color }}'
                     {% endif %}
                 {% endfor %}
             ]

@@ -151,7 +151,6 @@ def report_by_moment(request):
 
         businessUnit = businessUnits[0]
 
-
         #Adding to services list
         mySUBS = sbu_service.objects.filter(
             id_subsidiaryBU__id_business_unit=businessUnit.id
@@ -1013,12 +1012,181 @@ def report_by_business_unit(request):
 
 
 def report_by_subsidiary(request):
-    pass
+    #data for subsidiary
+    xindex_subsidiary = 0
+    promoters_percent = 0
+    passives_percent = 0
+    detractors_percent = 0
+    #lists
+    zones_list = Zone.objects.all()
+    subsidiaries_list = []
+    #business units data
+    business_units_data = []
+    #data for relation?
+    survey_is_designed = True
+    if request.POST:
+        if 'zone' in request.POST:
+            zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            if 'subsidiary' in request.POST:
+                subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+            else:
+                subsidiary = False
+    else:
+        zone = Zone.objects.filter(active=True)[0]
+
+        subsidiary = zone.subsidiary_set.filter(active=True)[0]
+
+    #Get subsidiaries
+    subsidiaries_list = zone.subsidiary_set.all()
+
+    #Get data for subsidiary business units
+    total_promoters = 0
+    total_passives = 0
+    total_detractors = 0
+    total_surveyed = 0
+    #relation between subsidiary and business unit
+    if len(SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary)) == 0:
+        survey_is_designed = False
+    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary).order_by('id_business_unit'):
+        #All business units for subsidiaries
+        total_answers_by_business_unit = []
+        promoters_business_unit = 0
+        promoters_percent_business_unit = 0
+        passives_business_unit = 0
+        passives_percent_business_unit = 0
+        detractors_business_unit = 0
+        detractors_percent_business_unit = 0
+        xindex_business_unit = 0
+
+        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                    for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                        attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                        for answer in attrib_answers:
+                            client = Client.objects.get(pk=int(answer.client.id))
+                            try:
+                                client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
+                                if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
+                                    total_answers_by_business_unit.append(answer)
+                            except IndexError:
+                                pass
+
+        if not len(total_answers_by_business_unit) == 0:
+            for answer_business_unit in total_answers_by_business_unit:
+                #total answers for subsidiary
+                total_surveyed += 1
+                if answer_business_unit.value == 10 or answer_business_unit.value == 9:
+                    promoters_business_unit += 1
+                    #promoters for subsidiary
+                    total_promoters += 1
+                elif answer_business_unit.value == 8 or answer_business_unit.value == 7:
+                    passives_business_unit += 1
+                    #passives for subsidiary
+                    total_passives += 1
+                elif 1 <= answer_business_unit.value <= 6:
+                    detractors_business_unit += 1
+                    #detractors for subsidiary
+                    total_detractors += 1
+
+        getcontext().prec = 5
+
+        if not promoters_business_unit == 0:
+            promoters_percent_business_unit = Decimal(promoters_business_unit*100)/Decimal(len(total_answers_by_business_unit))
+
+        if not passives_business_unit == 0:
+            passives_percent_business_unit = Decimal(passives_business_unit*100)/Decimal(len(total_answers_by_business_unit))
+
+        if not detractors_business_unit == 0:
+            detractors_percent_business_unit  = Decimal(detractors_business_unit*100)/Decimal(len(total_answers_by_business_unit))
+
+        if promoters_percent_business_unit != 0 and passives_percent_business_unit != 0 and detractors_percent_business_unit != 0:
+            #check this operation
+            xindex_business_unit = Decimal(promoters_percent_business_unit-detractors_percent_business_unit)
+
+        r = lambda: random.randint(0, 255)
+        print()
+
+        business_units_data.append(
+            {
+                #xindex for business unit
+                'xindex_business_unit': xindex_business_unit,
+                #info
+                'business_unit_id': s_bu.id_business_unit.id,
+                'business_unit_name': s_bu.id_business_unit.name,
+                #data
+                'promoters': promoters_percent_business_unit,
+                'passives': passives_percent_business_unit,
+                'detractors': detractors_percent_business_unit,
+                #extra
+                'color': ('#%02X%02X%02X' % (r(), r(), r()))
+            }
+        )
+
+    #Calculate the subsidiary data
+    getcontext().prec = 5
+
+    if total_promoters != 0 and total_surveyed != 0:
+        promoters_percent = Decimal(total_promoters*100)/Decimal(total_surveyed)
+
+    if total_passives != 0 and total_surveyed != 0:
+        passives_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
+
+    if total_detractors != 0 and total_surveyed != 0:
+        detractors_percent = Decimal(total_detractors*100)/Decimal(total_surveyed)
+
+    if promoters_percent != 0 and passives_percent != 0 and detractors_percent != 0:
+        #xindex_service = ((Decimal(promoters_percent-detractors_percent))/(Decimal(promoters_percent+passives_percent+detractors_percent)))*Decimal(100)
+        xindex_subsidiary = Decimal(promoters_percent-detractors_percent)
+
+    ##############
+    historical_months = [
+        {'month': '2013-07', 'value': Decimal(21.67)},
+        {'month': '2013-08', 'value': Decimal(85.78)},
+        {'month': '2013-09', 'value': Decimal(48.51)}
+    ]
+
+    getcontext().prec = 5
+
+    #current data
+    current_data = {'month': '2013-10', 'value': xindex_subsidiary}
+
+    #compare the xindex last month with the current xindex month
+    last_month = historical_months[2]
+    if last_month['value'] > current_data['value']:
+        xindex_diff = last_month['value'] - current_data['value']
+        diff_type = 'negative'
+    else:
+        diff_type = 'positive'
+        xindex_diff = current_data['value'] - last_month['value']
+
+    ##############
+
+    template_vars = {
+        #data for subsidiary
+        'xindex_subsidiary': xindex_subsidiary,
+        'historical_months': historical_months,
+        'current_data': current_data,
+        'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
+        #data for relation?
+        'survey_is_designed': survey_is_designed,
+        #current list values
+        'current_zone': zone,
+        'current_subsidiary': subsidiary,
+        #services data
+        'business_units_data': business_units_data,
+        #lists
+        'zones': zones_list,
+        'subsidiaries': subsidiaries_list
+    }
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/subsidiary-report.html', request_context)
 
 
 def report_by_zone(request):
-    pass
+    return HttpResponse('zone report')
 
 
 def general_report(request):
-    pass
+    return HttpResponse('general report')
