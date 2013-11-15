@@ -4,14 +4,16 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
-<div class="modal-dialog" id="addClientModal">
+<div class="modal-dialog" id="addClientCSVModal">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close"
                     data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Crear un nuevo cliente</h4>
+                <h4 class="modal-title">Importar lista de clientes</h4>
         </div>
-        <div class="modal-body">
+        <div class="modal-body"
+             id="id_modal_body"
+             style="width: 400px !important; margin: auto">
             <div class="padder-xl">
                 <form class="form-horizontal animated fadeInRight"
                       data-validate="parsley"
@@ -20,12 +22,14 @@
                       action="/clients/csv/"
                       enctype="multipart/form-data">{% csrf_token %}
                     <div class="form-group m-t-lg">
-                        Nombre:
+                        Selecciona un archivo CSV:
                         <input type="file"
                                class="form-control"
                                name="client_csv"
                                id="id_client_csv">
                         </div>
+
+
                     <div class="form-group m-t-lg">
                         <input type="submit"
                                 class="btn btn-modal-xindex blue-xindex pull-right"
@@ -34,16 +38,88 @@
                 </form>
             </div>
         </div>
+
+        <div id="csvimport">
+            <table id="csvToTable"
+                   class="table table-striped datagrid m-b-sm"
+                   style="margin: auto !important; width: 100%">
+            </table>
+        </div>
+
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <script>
 
-    $('#id_client_date').datepicker();
     //// <------ Remove modal with close class ->
     $('.close').on('click', function (e) {
         e.preventDefault();
         $('div.modal').modal('hide');
         $('#ajaxModal').remove();
+    });
+
+    $("#id_client_csv").change(function(e) {
+
+        var fileName = $("input#id_client_csv").val().replace(/C:\\fakepath\\/i, '');
+        var ext = fileName.split(".").pop().toLowerCase();
+
+        if($.inArray(ext, ["csv"]) == -1) {
+            alert('Formato de archivo incorrecto');
+            return false;
+        }
+
+        if (e.target.files != undefined) {
+
+            if ($("#csvToTable").children().length != 0){
+                $('#add-new-csv').removeClass("hidden");
+            }
+            $("#csvToTable").children().remove();
+            $("#addClientCSVModal").css("width","900px");
+            $("#id_modal_body").addClass("hidden");
+            $(".modal-title").html("Vista previa de los datos del archivo: "
+                    + "<label>" + fileName +"&nbsp;&nbsp;&nbsp;</label>"
+                    + "<small><a href='#' id='add-new-csv' class='text-muted'>"
+                    +"<i class='icon-file-text'></i>"
+                    +"Cambiar</a></small>");
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var csvval=e.target.result.split("\n");
+                for(var i=0;i<csvval.length-1;i++){
+
+                    var csvvalue=csvval[i].split(",");
+
+                    if (i==0){
+
+                        $("#csvToTable").append("<thead><tr id='myTH'></tr></thead>");
+
+                        for(var k=0;k<csvvalue.length;k++){
+                            var dataValueHeader=csvvalue[k];
+                            $("tr#myTH").append("<th style='border-right: 1px solid #e0e4e8;'>"
+                                    +dataValueHeader
+                                    +"</th>");
+                        }
+                    }else{
+
+                        $("#csvToTable").append("<tr id='"+i+"'></tr>");
+
+                        for(var j=0;j<csvvalue.length;j++){
+                            var dataValue=csvvalue[j];
+                            $("#"+i).append("<td>"+dataValue+"</td>");
+                        }
+                    }
+
+                }
+            };
+            reader.readAsText(e.target.files.item(0));
+
+        }
+
+        return false;
+
+    });
+
+    $(document).on('click', '#add-new-csv', function () {
+        $("#id_modal_body").removeClass("hidden");
+        $(this).addClass("hidden");
     });
 </script>
 </body>
