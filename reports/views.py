@@ -1011,3 +1011,14 @@ def report_by_business_unit(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/business-unit-report.html', request_context)
 
+
+def report_by_subsidiary(request):
+    pass
+
+
+def report_by_zone(request):
+    pass
+
+
+def general_report(request):
+    pass
