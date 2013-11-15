@@ -24,7 +24,7 @@
                 </a>
                 <ul id="collapseOne" class="nav accordion-body out collapse">
                     <li>
-                        <a href="#">Informaci&oacute;n General</a>
+                        <a href="buttons.html">Informaci&oacute;n General</a>
                     </li>
                     <li>
                         <a href="/subsidiaries/">
@@ -79,10 +79,10 @@
                         <a href="/reports/business_unit">Unidad de servicio</a>
                     </li>
                     <li>
-                        <a href="/reports/service">Servicio</a>
+                        <a class="blue-xindex" href="/reports/service">Servicio</a>
                     </li>
                     <li>
-                        <a class="blue-xindex" href="/reports/moment">Punto de contacto</a>
+                        <a href="/reports/moment">Punto de contacto</a>
                     </li>
                     <li>
                         <a href="/reports/attribute">Atributo</a>
@@ -99,7 +99,7 @@
             <p class="h5 animated bounceInDown">
                 <a href="/reports/">Inicio</a>
                 <i class="icon-chevron-right"></i>
-                <a href="#">Reporte por Punto de Contacto</a>
+                <a href="#">Reporte por Servicio</a>
             </p>
             <p class="pull-right">
                 <i class="icon-question-sign icon-xlarge"></i>
@@ -108,9 +108,9 @@
         <section class="panel animated fadeInRight scrollable wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="h2 header">Reporte de satisfacci&oacute;n por punto de contacto</div>
+                    <div class="h2 header">Reporte de satisfacci&oacute;n por Servicio</div>
                     <div class="footer">
-                        <div class="col-lg-2">
+                        <div class="col-lg-2-4">
                             <p>Zona</p>
                             <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
                             {% csrf_token %}
@@ -125,7 +125,7 @@
                                 </select>
                             </form>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-2-4">
                             <p>Sucursal</p>
                             <form id="form_select_subsidiary" action="/subsidiaries/get_business_units/" method="POST">
                             {% csrf_token %}
@@ -141,56 +141,36 @@
                                 </select>
                             </form>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-2-4">
                             <p>Unidad de servicio</p>
                             <form id="form_select_business_unit" action="/business_units/get_services/" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                             <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
-                                    {% for businessUnit in businessUnits %}
-                                        {% if businessUnit.id == current_businessUnit.id %}
-                                            <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
+                                    {% for business_unit in business_units %}
+                                        {% if businessUnit.id == current_business_unit.id %}
+                                            <option value="{{ business_unit.id }}" selected>{{ business_unit.name }}</option>
                                         {% else %}
-                                            <option value="{{ businessUnit.id }}">{{ businessUnit.name }}</option>
+                                            <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
                             </form>
                         </div>
-                        <!-- De aqui pa' arriba-->
-                        <div class="col-lg-2">
+                        <div class="col-lg-2-4">
                             <p>Servicio</p>
-                            <form id="form_select_service" action="/services/get_moments/" method="POST">
+                            <form id="form_select_service" action="/reports/service/" method="POST">
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_business_unit.id }}">
                                 <select class="form-control text-primary header" name="service" id="id_service">
                                     {% for service in services %}
                                         {% if service.id == current_service.id %}
                                             <option value="{{ service.id }}" selected>{{ service.name }}</option>
                                         {% else %}
                                             <option value="{{ service.id }}">{{ service.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </div>
-                        <div class="col-lg-3">
-                            <p>Punto de contacto</p>
-                            <form id="form_select_moment" action="/reports/moment/" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
-                                <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
-                                <select class="form-control text-primary header" name="moment" id="id_moment">
-                                    {% for moment in moments %}
-                                        {% if moment.id == current_moment.id %}
-                                            <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
-                                        {% else %}
-                                            <option value="{{ moment.id }}">{{ moment.name }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -204,21 +184,22 @@
                 <section class="panel no-borders hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
-                            <div class="graph" id="prom_pass_det_graph">
-
+                            <div class="header h4 text-muted text-center">
+                                &Eacute;ste servicio tiene un nivel de satisfacci&oacute;n de:
                             </div>
-                            <div class="col-lg-12">
-                                <div class="col-lg-4 text-center">
-                                    <i class="icon-circle text-success"></i>
-                                    Promotores
+                            <div class="col-sm-6 r-r text-center v-middle">
+                                <div class="h1 icon-5x">
+                                    {{ xindex_service }}%
                                 </div>
-                                <div class="col-lg-4 text-center">
-                                    <i class="icon-circle text-warning"></i>
-                                    Pasivos
-                                </div>
-                                <div class="col-lg-4 text-center">
-                                    <i class="icon-circle text-danger"></i>
-                                    Detractores
+                            </div>
+                            <div class="col-sm-6 r-r text-center v-middle wrapper">
+                                <div class="text-center v-middle pull-left">
+                                    {% if comparison.diff_type == 'negative' %}
+                                        <p class="h4 text-danger"><i class="icon-arrow-down "></i>{{ comparison.xindex_diff }}%</p>
+                                    {% else %}
+                                        <p class="h4 text-success"><i class="icon-arrow-up "></i>{{ comparison.xindex_diff }}%</p>
+                                    {% endif %}
+                                    <p>Con respecto al mes pasado</p>
                                 </div>
                             </div>
                         </div>
@@ -226,24 +207,6 @@
                     <aside>
                         <div class="pos-rlt">
                             <div class="panel-body">
-                                <div class="header h4 text-muted text-center">
-                                    &Eacute;ste servicio tiene un nivel de satisfacci&oacute;n de:
-                                </div>
-                                <div class="col-sm-6 r-r text-center v-middle">
-                                    <div class="h1 icon-5x">
-                                        {{ moment_xindex }}%
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 r-r text-center v-middle wrapper">
-                                    <div class="text-center v-middle pull-left">
-                                        {% if comparison.diff_type == 'negative' %}
-                                            <p class="h4 text-danger"><i class="icon-arrow-down "></i>{{ comparison.xindex_diff }}%</p>
-                                        {% else %}
-                                            <p class="h4 text-success"><i class="icon-arrow-up "></i>{{ comparison.xindex_diff }}%</p>
-                                        {% endif %}
-                                        <p>Con respecto al mes pasado</p>
-                                    </div>
-                                </div>
                                 <div class="header h4 text-muted text-center">
                                     Nivel de satisfacci&oacute;n en los ultimos meses:
                                 </div>
@@ -255,60 +218,9 @@
                     </aside>
                 </section>
             </div>
-            <!--
-            <div class="row wrapper">
-                <div class="col-lg-12">
-                    <div class="col-lg-6 panel wrapper">
-                        <div class="graph" id="prom_pass_det_graph">
-
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-success"></i>
-                                Promotores
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-warning"></i>
-                                Pasivos
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <i class="icon-circle text-danger"></i>
-                                Detractores
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 panel wrapper">
-                        <div class="header h4 text-muted text-center">
-                            &Eacute;ste servicio tiene un nivel de satisfacci&oacute;n de:
-                        </div>
-                        <div class="col-sm-6 r-r text-center v-middle">
-                            <div class="h1 icon-5x">
-                                {{ moment_xindex }}%
-                            </div>
-                        </div>
-                        <div class="col-sm-6 r-r text-center v-middle wrapper">
-                            <div class="text-center v-middle pull-left">
-                                {% if comparison.diff_type == 'negative' %}
-                                    <p class="h4 text-danger"><i class="icon-arrow-down "></i>{{ comparison.xindex_diff }}%</p>
-                                {% else %}
-                                    <p class="h4 text-success"><i class="icon-arrow-up "></i>{{ comparison.xindex_diff }}%</p>
-                                {% endif %}
-                                <p>Con respecto al mes pasado</p>
-                            </div>
-                        </div>
-                        <div class="header h4 text-muted text-center">
-                            Nivel de satisfacci&oacute;n en los ultimos meses:
-                        </div>
-                        <div class="graph" id="historical-graph">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            -->
             <div class="row wrapper">
                 <div class="header text-muted">
-                    <p class="h4">Indicadores del punto de contacto</p>
+                    <p class="h4">Puntos de Contacto del Servicio</p>
                 </div>
                 <section class="panel-body">
                     <div class="col-lg-12">
@@ -336,34 +248,33 @@
                         </div>
                         <div class="col-lg-2 text-left"><strong>Xindex</strong></div>
                     </div>
-                    {% for attribute in data_attribute %}
+                    {% for moment in moments_data %}
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="col-lg-2">
                                 <div class="panel-body text-center">
-                                    {{ attribute.attribute_name }}
+                                    {{ moment.moment_name }}
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="panel-body">
                                     <div class="progress ">
-                                        <div class="progress-bar progress-bar-danger" data-toggle="tooltip" data-original-title="{{ attribute.detractors_percent }}%" style="width: {{ attribute.detractors_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-warning" data-toggle="tooltip" data-original-title="{{ attribute.passives_percent }}%" style="width: {{ attribute.passives_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-info" data-toggle="tooltip" data-original-title="{{ attribute.promoters_9_percent }}%" style="width: {{ attribute.promoters_9_percent }}%"></div>
-                                        <div class="progress-bar progress-bar-success" data-toggle="tooltip" data-original-title="{{ attribute.promoters_10_percent }}%" style="width: {{ attribute.promoters_10_percent }}%"></div>
+                                        <div class="progress-bar progress-bar-danger" data-toggle="tooltip" data-original-title="{{ moment.detractors }}%" style="width: {{ moment.detractors }}%"></div>
+                                        <div class="progress-bar progress-bar-warning" data-toggle="tooltip" data-original-title="{{ moment.passives }}%" style="width: {{ moment.passives }}%"></div>
+                                        <div class="progress-bar progress-bar-info" data-toggle="tooltip" data-original-title="{{ moment.promoters_9 }}%" style="width: {{ moment.promoters_9 }}%"></div>
+                                        <div class="progress-bar progress-bar-success" data-toggle="tooltip" data-original-title="{{ moment.promoters_10 }}%" style="width: {{ moment.promoters_10 }}%"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="panel-body text-center">
-                                    <form action="/reports/attribute/" method="POST">
+                                    <form action="/reports/moment/" method="POST">
                                         {% csrf_token %}
                                         <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                         <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                        <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
+                                        <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_business_unit.id }}">
                                         <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
-                                        <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
-                                        <input type="hidden" name="attribute" id="id_attribute" value="{{ attribute.attribute_id }}">
+                                        <input type="hidden" name="moment" id="id_moment" value="{{ moment.moment_id }}">
                                         <strong>
                                             <button type="submit" class="btn btn-white">Detalles</button>
                                         </strong>
@@ -372,12 +283,28 @@
                             </div>
                             <div class="col-lg-2 text-center">
                                 <div class="panel-body text-left">
-                                    <strong>{{ attribute.xindex_percent }}%</strong>
+                                    <strong>{{ moment.xindex_moment }}%</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
+                </section>
+            </div>
+            <div class="row wrapper text-center text-muted h1">
+                <section class="panel no-borders hbox">
+                    <aside class="lter r-l text-center v-middle">
+                        <div class="wrapper" id="comparative_service_graph">
+
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+
+                            </div>
+                        </div>
+                    </aside>
                 </section>
             </div>
             {% else %}
@@ -402,10 +329,10 @@
     <!-- Morris Graphs -->
     <script src="/static/js/charts/morris/raphael-min.js"></script>
     <script src="/static/js/charts/morris/morris.min.js"></script>
-    <script src="/static/js/graph.reports.data.js"></script>
+    <!--<script src="/static/js/graph.reports.data.js"></script>-->
 
     <!-- App for reports -->
-    <script src="/static/js/app.reports.js"></script>
+    <script src="/static/js/app.service.report.js"></script>
     <script>
         new Morris.Line({
             element: 'historical-graph',
@@ -422,9 +349,9 @@
         });
 
         new Morris.Bar({
-            element: 'prom_pass_det_graph',
+            element: 'comparative_service_graph',
             data: [
-                {xlabel: '', promoters: {{ moment_data.promoters }}, passives: {{ moment_data.passives }}, detractors: {{ moment_data.detractors}}}
+                {xlabel: '', promoters: 50, passives: 80, detractors: 45}
             ],
             xkey: 'xlabel',
             ykeys: ['promoters', 'passives', 'detractors'],
