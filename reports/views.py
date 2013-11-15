@@ -1201,8 +1201,9 @@ def report_by_zone(request):
 
 def general_report(request):
     print 'generalReport'
+    company = Company.objects.filter(active=True)[0]
     template_vars = {
-
+        "company": company.name
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/general-report.html', request_context)
