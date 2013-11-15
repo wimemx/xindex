@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
@@ -27,12 +28,16 @@ def add(request):
 
             newBusinessUnit = formulario.save()
 
+            newBusinessUnit.save()
             subSelected = request.POST.getlist('bu-sub')
             serSelected = request.POST.getlist('bu-ser')
 
             for eachSub in subSelected:
                 subToAssign = Subsidiary.objects.get(pk=eachSub)
-                alias = str(newBusinessUnit) + ', ' + str(subToAssign.name)
+
+                print '""""""""""""2'
+                print subToAssign.name
+                alias = newBusinessUnit.name + ', ' + subToAssign.name
 
                 bu_assignment = SubsidiaryBusinessUnit.objects.create(
                     id_subsidiary=subToAssign,
@@ -44,8 +49,8 @@ def add(request):
 
                 for eachService in serSelected:
                     serToAssign = Service.objects.get(pk=eachService)
-                    alias = str(serToAssign.name) + ', ' \
-                            + str(bu_assignment.alias)
+                    alias = serToAssign.name + ', ' \
+                            + bu_assignment.alias
 
                     service_assignment = sbu_service.objects.create(
                         id_subsidiaryBU=bu_assignment,

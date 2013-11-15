@@ -37,13 +37,6 @@
                                id="id_client_surname">
                     </div>
                     <div class="form-group m-t-lg">
-                        Email:
-                        <input type="email"
-                               class="form-control"
-                               name="client_email"
-                               id="id_client_email">
-                    </div>
-                    <div class="form-group m-t-lg">
                         Sexo:
                         <select class="form-control"
                                 name="client_sex"
@@ -53,6 +46,14 @@
                         </select>
                     </div>
                     <div class="form-group m-t-lg">
+                        Email:
+                        <input type="email"
+                               class="form-control"
+                               name="client_email"
+                               id="id_client_email">
+                    </div>
+                <!--
+                    <div class="form-group m-t-lg">
                         Fecha de nacimiento:
                         <input class="input-sm input-s datepicker form-control"
                                type="text"
@@ -61,6 +62,7 @@
                                name="client_date"
                                id="id_client_date">
                     </div>
+                -->
                     <div class="form-group m-t-lg">
                         Telefono:
                         <input type="text"
@@ -69,7 +71,7 @@
                                id="id_client_phone">
                     </div>
                     <div class="form-group m-t-lg">
-                        Company:
+                        Compañia:
                         <select class="form-control"
                                 name="client_company"
                                 id="id_client_company">
@@ -92,8 +94,8 @@
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <script>
-
     $('#id_client_date').datepicker();
+
     //// <------ Remove modal with close class ->
     $('.close').on('click', function (e) {
         e.preventDefault();

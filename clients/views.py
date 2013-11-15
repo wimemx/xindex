@@ -7,10 +7,10 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+
 from xindex.models import Subsidiary
-
-
-from xindex.models import Client, Company
+from xindex.models import Client, Company, ClientActivity
+from xindex.models import BusinessUnit, Service
 
 
 @login_required(login_url='/signin/')
@@ -46,23 +46,23 @@ def getClientsInJson(request):
 def add_client(request):
 
     if request.POST:
-        company = Subsidiary.objects.get(pk=request.POST['client_company'])
+        company = Company.objects.get(pk=request.POST['client_company'])
 
         new_client = Client.objects.create(
             name=request.POST['client_name'],
             first_name=request.POST['client_name'],
             last_name=request.POST['client_surname'],
             sex=request.POST['client_sex'],
-            date_of_birth=request.POST['client_date'],
+            #date_of_birth=request.POST['client_date'],
             email=request.POST['client_email'],
             phone=request.POST['client_phone'],
-            subsidiary=company,)
+            company=company,)
 
         new_client.save()
         return HttpResponseRedirect('/clients/')
 
     else:
-        companies = Subsidiary.objects.filter(active=True)
+        companies = Company.objects.filter(active=True)
 
         template_vars = {'companies': companies}
         request_context = RequestContext(request, template_vars)
@@ -92,7 +92,7 @@ def edit_client(request, client_id):
         client.last_name = request.POST['client_surname']
         client.sex = request.POST['client_sex']
         client.email = request.POST['client_email']
-        client.date_of_birth = request.POST['client_date']
+        #client.date_of_birth = request.POST['client_date']
         client.phone = request.POST['client_phone']
         client.company = company
         client.save()
@@ -107,7 +107,7 @@ def edit_client(request, client_id):
                          'surname': client.last_name,
                          'email': client.email,
                          'phone': client.phone,
-                         'date': client.date_of_birth,
+                         #'date': client.date_of_birth,
                          'sex': client.sex,
                          'company': client.company,
                          'companies': companies}
@@ -159,25 +159,67 @@ def csv_read(request):
         reader = csv.reader(fileToAdd, delimiter=',', quotechar='|')
 
         print reader
+        counterLoop = 0
         for eachRow in reader:
+            if counterLoop == 0:
+                counterLoop += 1
+                continue
+            subsidiary = Subsidiary.objects.get(name=eachRow[7], active=True)
 
+            """
             clientData = Client.objects.create(
-                name=eachRow[1],
-                first_name=eachRow[2],
-                last_name=eachRow[3],
-                sex=eachRow[4],
-                date_of_birth=eachRow[5],
-                email=eachRow[6],
-                phone=eachRow[7],
-                state=eachRow[8],
-                city=eachRow[9],
-                subsidiary=Subsidiary.objects.get(name=eachRow[10])
+                #name=eachRow[1],
+                first_name=eachRow[1],
+                last_name=eachRow[2],
+                sex=eachRow[3],
+                #date_of_birth=eachRow[5],
+                email=eachRow[4],
+                phone=eachRow[5],
+                company=subsidiary.company
             )
 
             clientData.save()
+            """
 
-            url = short_url.encode_url(clientData.id)
-            print url
+            if Client.objects.filter(email=eachRow[4]).exists():
+                myAlreadyExistsClient = Client.objects.get(
+                    email=eachRow[4])
+                activityData = ClientActivity.objects.create(
+                    client=myAlreadyExistsClient,
+                    date=eachRow[6],
+                    subsidiary=subsidiary,
+                    business_unit=BusinessUnit.objects.get(name=eachRow[8],
+                                                           active=True),
+                    service=Service.objects.get(name=eachRow[9], active=True)
+                )
+                activityData.save()
+
+            else:
+                clientData = Client.objects.create(
+                #name=eachRow[1],
+                first_name=eachRow[1],
+                last_name=eachRow[2],
+                sex=eachRow[3],
+                #date_of_birth=eachRow[5],
+                email=eachRow[4],
+                phone=eachRow[5],
+                company=subsidiary.company
+                )
+
+                clientData.save()
+
+                activityData = ClientActivity.objects.create(
+                    client=clientData,
+                    date=eachRow[6],
+                    subsidiary=subsidiary,
+                    business_unit=BusinessUnit.objects.get(name=eachRow[8],
+                                                           active=True),
+                    service=Service.objects.get(name=eachRow[9], active=True)
+                )
+                activityData.save()
+
+                url = short_url.encode_url(clientData.id)
+                print url
 
         fileToAdd.close()
         if fileToAdd.closed:

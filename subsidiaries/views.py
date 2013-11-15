@@ -210,9 +210,9 @@ def getSubsidiariesInJson(request):
         subsidiaries['subsidiaries'].append(
             {
                 "subsidiaryId": s.id,
-                "name": s.name,
-                "type": s.subsidiary_types.name,
-                "zone": s.zone.name,
+                "name": s.name or 'subsidiaryName',
+                "type": s.subsidiary_types.name or 'typeName',
+                "zone": s.zone.name or 'zoneName',
                 "location": s.state_id.name
             }
         )
