@@ -238,3 +238,7 @@ def handle_uploaded_file(destination, f):
     with open(destination, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+
+def getAnswersByClient(request):
+    print 'Hello World'

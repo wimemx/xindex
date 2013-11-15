@@ -1011,3 +1011,26 @@ def report_by_business_unit(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/business-unit-report.html', request_context)
 
+
+def report_by_zone(request):
+    print 'reportByZone'
+    zones = Zone.objects.filter(active=True)
+    if zones:
+        current_zone = zones[0]
+    else:
+        current_zone = 'No existen zonas'
+    template_vars = {
+        "zones": zones,
+        "current_zone": current_zone
+    }
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/zone-report.html', request_context)
+
+
+def general_report(request):
+    print 'generalReport'
+    template_vars = {
+
+    }
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/general-report.html', request_context)
