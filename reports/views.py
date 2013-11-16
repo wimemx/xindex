@@ -9,6 +9,7 @@ from xindex.models import SubsidiaryBusinessUnit, sbu_service, sbu_service_momen
 from xindex.models import sbu_service_moment_attribute
 from xindex.models import Answer
 from xindex.models import Client
+from xindex.models import ClientActivity
 from decimal import *
 import random
 
@@ -184,13 +185,6 @@ def report_by_moment(request):
 
         moment = moments[0]
         #Get relations starting by subsidiary
-    print '---------------------------------------'
-    print zone
-    print subsidiary
-    print businessUnit
-    print service
-    print moment
-    print '---------------------------------------'
 
     total_promoters = 0
     total_passives = 0
@@ -212,9 +206,10 @@ def report_by_moment(request):
                             for a in question_answers:
                                 client = Client.objects.get(pk=a.client_id)
                                 try:
-                                    client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                                    #client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service)
                                     answers_list.append(a)
-                                except client_activity.DoesNotExist:
+                                except ClientActivity.DoesNotExist:
                                     pass
                             total_surveyed = len(answers_list)
                             #total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
@@ -483,10 +478,11 @@ def report_by_attribute(request):
                     for answer in attrib_answers:
                         client = Client.objects.get(pk=int(answer.client.id))
                         try:
-                            client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                            #client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
+                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service)
                             if client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
                                 total_answers.append(answer)
-                        except client_activity.DoesNotExist:
+                        except ClientActivity.DoesNotExist:
                             pass
 
     xindex_attribute = 0
@@ -680,10 +676,11 @@ def report_by_service(request):
                     for answer in attrib_answers:
                         client = Client.objects.get(pk=int(answer.client.id))
                         try:
-                            client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=business_unit, service=service)
+                            #client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=business_unit, service=service)
+                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service)
                             if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                 total_answers_by_moment.append(answer)
-                        except IndexError:
+                        except ClientActivity.DoesNotExist:
                             pass
 
             if not len(total_answers_by_moment) == 0:
@@ -892,10 +889,11 @@ def report_by_business_unit(request):
                     for answer in attrib_answers:
                         client = Client.objects.get(pk=int(answer.client.id))
                         try:
-                            client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=business_unit)
+                            #client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=business_unit)
+                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit)
                             if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                 total_answers_by_service.append(answer)
-                        except IndexError:
+                        except ClientActivity.DoesNotExist:
                             pass
 
         if not len(total_answers_by_service) == 0:
@@ -1067,10 +1065,11 @@ def report_by_subsidiary(request):
                         for answer in attrib_answers:
                             client = Client.objects.get(pk=int(answer.client.id))
                             try:
-                                client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
+                                #client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
+                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
                                 if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
                                     total_answers_by_business_unit.append(answer)
-                            except IndexError:
+                            except ClientActivity.DoesNotExist:
                                 pass
 
         if not len(total_answers_by_business_unit) == 0:
@@ -1232,10 +1231,11 @@ def report_by_zone(request):
                             for answer in attrib_answers:
                                 client = Client.objects.get(pk=int(answer.client.id))
                                 try:
-                                    client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
+                                    #client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
+                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
                                     if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
                                         total_answers_by_subsidiary.append(answer)
-                                except IndexError:
+                                except ClientActivity.DoesNotExist:
                                     pass
 
         if not len(total_answers_by_subsidiary) == 0:
@@ -1346,12 +1346,157 @@ def report_by_zone(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/zone-report.html', request_context)
 
-
+@login_required()
 def general_report(request):
-    print 'generalReport'
-    company = Company.objects.filter(active=True)[0]
+    #data for company
+    xindex_company = 0
+    promoters_percent = 0
+    passives_percent = 0
+    detractors_percent = 0
+    #zones data
+    zones_data = []
+    #data for relation?
+    survey_is_designed = True
+
+    user = Xindex_User.objects.get(user=request.user.id)
+
+    #Get data for zone subsidiaries
+    total_promoters = 0
+    total_passives = 0
+    total_detractors = 0
+    total_surveyed = 0
+    company = user.company_set.get()
+    if len(user.company_set.all()) == 0:
+        survey_is_designed = False
+    for zone in company.zone.all():
+        #All zones for company
+        total_answers_by_zone = []
+        promoters_zone = 0
+        promoters_percent_zone = 0
+        passives_zone = 0
+        passives_percent_zone = 0
+        detractors_zone = 0
+        detractors_percent_zone = 0
+        xindex_zone = 0
+        for subsidiary in zone.subsidiary_set.filter(active=True).order_by('id'):
+            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                                for answer in attrib_answers:
+                                    client = Client.objects.get(pk=int(answer.client.id))
+                                    try:
+                                        #client_activity = client.clientactivity_set.get(company=company)
+                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
+                                        #if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
+                                        total_answers_by_zone.append(answer)
+                                    except ClientActivity.DoesNotExist:
+                                        pass
+
+        if not len(total_answers_by_zone) == 0:
+            for answer_zone in total_answers_by_zone:
+                #total answers for company
+                total_surveyed += 1
+                if answer_zone.value == 10 or answer_zone.value == 9:
+                    promoters_zone += 1
+                    #promoters for company
+                    total_promoters += 1
+                elif answer_zone.value == 8 or answer_zone.value == 7:
+                    passives_zone += 1
+                    #passives for company
+                    total_passives += 1
+                elif 1 <= answer_zone.value <= 6:
+                    detractors_zone += 1
+                    #detractors for company
+                    total_detractors += 1
+
+        getcontext().prec = 5
+
+        if not promoters_zone == 0:
+            promoters_percent_zone = Decimal(promoters_zone*100)/Decimal(len(total_answers_by_zone))
+
+        if not passives_zone == 0:
+            passives_percent_zone = Decimal(passives_zone*100)/Decimal(len(total_answers_by_zone))
+
+        if not detractors_zone == 0:
+            detractors_percent_zone = Decimal(detractors_zone*100)/Decimal(len(total_answers_by_zone))
+
+        if promoters_percent_zone != 0 and passives_percent_zone != 0 and detractors_percent_zone != 0:
+            #check this operation
+            xindex_zone = Decimal(promoters_percent_zone-detractors_percent_zone)
+
+        r = lambda: random.randint(0, 255)
+        print()
+
+        zones_data.append(
+            {
+                #xindex for zone
+                'xindex_zone': xindex_zone,
+                #info
+                'zone_id':zone.id,
+                'zone_name': zone.name,
+                #data
+                'promoters': promoters_percent_zone,
+                'passives': passives_percent_zone,
+                'detractors': detractors_percent_zone,
+                #extra
+                'color': ('#%02X%02X%02X' % (r(), r(), r()))
+            }
+        )
+
+    #Calculate the company data
+    getcontext().prec = 5
+
+    if total_promoters != 0 and total_surveyed != 0:
+        promoters_percent = Decimal(total_promoters*100)/Decimal(total_surveyed)
+
+    if total_passives != 0 and total_surveyed != 0:
+        passives_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
+
+    if total_detractors != 0 and total_surveyed != 0:
+        detractors_percent = Decimal(total_detractors*100)/Decimal(total_surveyed)
+
+    if promoters_percent != 0 and passives_percent != 0 and detractors_percent != 0:
+        #xindex_service = ((Decimal(promoters_percent-detractors_percent))/(Decimal(promoters_percent+passives_percent+detractors_percent)))*Decimal(100)
+        xindex_company = Decimal(promoters_percent-detractors_percent)
+
+    ##############
+    historical_months = [
+        {'month': '2013-07', 'value': Decimal(21.67)},
+        {'month': '2013-08', 'value': Decimal(85.78)},
+        {'month': '2013-09', 'value': Decimal(48.51)}
+    ]
+
+    getcontext().prec = 5
+
+    #current data
+    current_data = {'month': '2013-10', 'value': xindex_company}
+
+    #compare the xindex last month with the current xindex month
+    last_month = historical_months[2]
+    if last_month['value'] > current_data['value']:
+        xindex_diff = last_month['value'] - current_data['value']
+        diff_type = 'negative'
+    else:
+        diff_type = 'positive'
+        xindex_diff = current_data['value'] - last_month['value']
+
+    ##############
+    print zones_data
     template_vars = {
-        "company": company.name
+        #data for company
+        'company_name': company.name,
+        'xindex_company': xindex_company,
+        'historical_months': historical_months,
+        'current_data': current_data,
+        'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
+        #data for relation?
+        'survey_is_designed': survey_is_designed,
+        #zones data
+        'zones_data': zones_data
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/general-report.html', request_context)

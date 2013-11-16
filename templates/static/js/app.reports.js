@@ -67,7 +67,6 @@ $(document).ready(function(){
         var business_unit_id = $('#form_select_business_unit #id_business_unit').val();
         $('#form_select_service input#id_business_unit').val(business_unit_id);
         $('#form_select_moment input#id_business_unit').val(business_unit_id);
-        alert(business_unit_id);
         $.ajax({
             url: $('#form_select_business_unit').attr('action'),
             method: 'POST',
