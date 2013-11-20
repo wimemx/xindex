@@ -17,7 +17,7 @@
             <div class="padder-xl">
                 <form class="form-horizontal animated fadeInRight"
                       data-validate="parsley"
-                      id="add-user-form"
+                      id="add-csv-form"
                       method="post"
                       action="/clients/csv/"
                       enctype="multipart/form-data">{% csrf_token %}
@@ -76,10 +76,16 @@
             $("#addClientCSVModal").css("width","900px");
             $("#id_modal_body").addClass("hidden");
             $(".modal-title").html("Vista previa de los datos del archivo: "
-                    + "<label>" + fileName +"&nbsp;&nbsp;&nbsp;</label>"
+                    + "<label>"
+                    + fileName +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    + "</label>"
                     + "<small><a href='#' id='add-new-csv' class='text-muted'>"
                     +"<i class='icon-file-text'></i>"
-                    +"Cambiar</a></small>");
+                    +"Cambiar</a></small>"
+                    + "<small><a href='#' id='csv-submit' class='text-muted'>"
+                    +"&nbsp;&nbsp;&nbsp;"
+                    +"<i class='icon-upload text-info'></i>"
+                    +"Guardar</a></small>");
             var reader = new FileReader();
             reader.onload = function(e) {
                 var csvval=e.target.result.split("\n");
@@ -120,6 +126,11 @@
     $(document).on('click', '#add-new-csv', function () {
         $("#id_modal_body").removeClass("hidden");
         $(this).addClass("hidden");
+        $("#csv-submit").addClass("hidden");
+    });
+
+    $(document).on('click', '#csv-submit', function () {
+        $("#add-csv-form").submit();
     });
 </script>
 </body>

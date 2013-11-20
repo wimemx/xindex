@@ -27,5 +27,8 @@ $(document).ready(function () {
     } else if ($('#mySubsidiaryDetailsGrid')[0]) {
         var id = $('#id-subsidiary-grid').val();
         subsidiaryDetailsDatagrid(id);
+    } else if ($('#myClientActivityGrid')[0]) {
+        var client = $('#client-id').val();
+        clientActivityDatagrid(client);
     }
 });

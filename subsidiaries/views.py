@@ -1,17 +1,12 @@
-# Create your views here.
-import re
-from django.db.models import Q
+import json
 from django.shortcuts import render_to_response
 from xindex.models import Subsidiary
 from django.http import HttpResponseRedirect, HttpResponse
-from subsidiaries.forms import SubsidiaryForm, UpdateForm
+from subsidiaries.forms import SubsidiaryForm
 from django.template.context import RequestContext
-from django.core import serializers
 from django.utils import simplejson
-from xindex.models import Company, State, Zone, BusinessUnit, Service
+from xindex.models import State, Zone, BusinessUnit
 from xindex.models import SubsidiaryBusinessUnit, sbu_service
-from xindex.models import Company, State, Zone, BusinessUnit, SubsidiaryBusinessUnit
-import json
 
 
 def index(request, message=''):
@@ -135,7 +130,8 @@ def edit(request, subsidiary_id):
                     "message": "Se ha modificado la subsidiaria"
                 }
                 request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/subsidiaries/details/'+subsidiary_id)
+                return HttpResponseRedirect('/subsidiaries/details/' +
+                                            subsidiary_id)
             else:
                 template_vars = {
                     "titulo": "Editar subsidiaria",
@@ -199,7 +195,6 @@ def remove(request, subsidiary_id):
             "message": message
         }
         request_context = RequestContext(request, template_vars)
-        #return render_to_response("subsidiaries/index.html", request_context)
         return HttpResponseRedirect('/subsidiaries')
 
 
@@ -242,8 +237,10 @@ def get_business_units(request):
         if 'zone' in request.POST and 'subsidiary' in request.POST:
             try:
                 zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
-                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                subsidiary = zone.subsidiary_set.get(
+                    pk=int(request.POST['subsidiary']))
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                        id_subsidiary=subsidiary):
                     businessUnitsList.append(
                         {
                             'business_unit_id': subsidiary_business_unit.id_business_unit.id,

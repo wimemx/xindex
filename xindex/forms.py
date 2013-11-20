@@ -1,21 +1,14 @@
-from django.forms import ModelForm, Form
-from django.forms.widgets import CheckboxSelectMultiple, Textarea
+from django.forms import ModelForm
+from django.forms.widgets import Textarea
 from django import forms
 from xindex.models import Company, Company_Type, Zone, Country, State, City, \
-    Moment, Attributes, Owner, Survey, Xindex_User, Question
+    Moment, Attributes, Owner, Survey
 import datetime
 
 
 class MomentForm(ModelForm):
 
     name = forms.CharField(label="Name:")
-    """
-    attributes = forms.ModelMultipleChoiceField(
-        queryset=Attributes.objects.all(),
-        label="Attribute:",
-        widget=forms.CheckboxSelectMultiple,
-        required=False)
-    """
     def __init__(self, *args, **kwargs):
         super(MomentForm, self).__init__(*args, **kwargs)
         self.fields['name'].error_messages = {
@@ -179,20 +172,11 @@ class SurveyForm(ModelForm):
             {'class': 'form-control text-center',
              'placeholder': 'Un nombre para mi encuesta'})
 
-    """
-    description = forms.CharField(
-        label="Description:", widget=Textarea,
-        required=False)
-
-    questions = forms.ModelMultipleChoiceField(
-        queryset=Question.objects.all().filter(active=True),
-        label="Questions",
-        widget=forms.Select)
-    """
     class Meta:
         model = Survey
         fields = ('name', 'picture')
-        exclude = ('description', 'questions', 'user', 'step', 'configuration', 'active', 'date',
+        exclude = ('description', 'questions', 'user', 'step', 'configuration',
+                   'active', 'date',
                    'meta')
 
 

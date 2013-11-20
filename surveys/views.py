@@ -1,33 +1,19 @@
 # -*- encoding: utf-8 -*-
+import os
+import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
-from xindex.models import Survey, Company
-from xindex.forms import SurveyForm
-from xindex.models import Xindex_User
-from xindex.models import Question_Type
-import os
-import json
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
-from xindex.models import Question
-from xindex.models import Option
-from xindex.models import Catalog
-from xindex.models import Moment
-from xindex.models import Service
-from xindex.models import Answer
-from xindex.models import Attributes
-from xindex.models import Question_sbu_s_m_a
-from xindex.models import SubsidiaryBusinessUnit
-from xindex.models import sbu_service
-from xindex.models import sbu_service_moment
-from xindex.models import sbu_service_moment_attribute
-from xindex.models import BusinessUnit
-from xindex.models import Service
-from xindex.models import Client
-from xindex.models import Subsidiary
+
+from xindex.forms import SurveyForm
+from xindex.models import Question, Option, Catalog, Moment, Service, Answer, \
+    Attributes, Question_sbu_s_m_a, SubsidiaryBusinessUnit, sbu_service, \
+    sbu_service_moment, sbu_service_moment_attribute, BusinessUnit, Service, \
+    Client, Subsidiary, Question_Type, Xindex_User, Survey, Company
 
 
 @login_required(login_url='/signin/')
@@ -193,8 +179,10 @@ def save(request, action, next_step, survey_id=False):
                                 name=form.cleaned_data['name'],
                                 step=step,
                                 configuration=configuration,
-                                business_unit_id=BusinessUnit.objects.get(pk=int(request.POST['business_unit'])),
-                                service_id=Service.objects.get(pk=int(request.POST['service']))
+                                business_unit_id=BusinessUnit.objects.get(
+                                    pk=int(request.POST['business_unit'])),
+                                service_id=Service.objects.get(
+                                    pk=int(request.POST['service']))
                                 )
                 survey.save()
 
@@ -269,9 +257,14 @@ def save(request, action, next_step, survey_id=False):
 
             for company in user.company_set.all():
                 for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
-                            for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id):
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                            id_subsidiary=subsidiary.id,
+                            id_business_unit=survey.business_unit_id):
+                        for sub_bu_ser in sbu_service.objects.filter(
+                                id_subsidiaryBU=subsidiary_business_unit.id,
+                                id_service=survey.service_id):
+                            for sbu_s_m in sbu_service_moment.objects.filter(
+                                    id_sbu_service=sub_bu_ser.id):
                                 current_moment = sbu_s_m.id_moment
                                 duplicated = False
                                 for moments in setup['moments']:
@@ -283,26 +276,6 @@ def save(request, action, next_step, survey_id=False):
                                             'moment': current_moment
                                         }
                                     )
-
-            """
-            for company in user.company_set.all():
-                for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id):
-                            for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id):
-                                for sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m.id):
-                                    current_attribute = sbu_s_m_a.id_attribute
-                                    duplicated = False
-                                    for attribute in setup['attributes']:
-                                        if attribute['attribute'] == current_attribute:
-                                            duplicated = True
-                                    if duplicated is False:
-                                        setup['attributes'].append(
-                                            {
-                                                'attribute': current_attribute
-                                            }
-                                        )
-            """
 
             for attribute in Attributes.objects.all():
                 setup['attributes'].append(
@@ -320,34 +293,22 @@ def save(request, action, next_step, survey_id=False):
                             if 'db_id' in q:
 
                                 try:
-                                    question = Question.objects.get(pk=q['db_id'])
-                                    options = question.option_set.filter(active=True).order_by('id')
+                                    question = Question.objects.get(
+                                        pk=q['db_id'])
+                                    options = question.option_set.filter(
+                                        active=True
+                                    ).order_by('id')
+
                                     #Check if question is associated to a moment
                                     try:
-                                        association = Question_sbu_s_m_a.objects.get(question_id=question)
+                                        association = Question_sbu_s_m_a.objects.get(
+                                            question_id=question)
                                         for assoc in association.sbu_s_m_a_id.all():
                                             attribute_title = assoc.id_attribute.name
                                             moment_title = assoc.id_sbu_service_moment.id_moment.name
                                     except Question_sbu_s_m_a.DoesNotExist:
                                         moment_title = False
                                         attribute_title = False
-                                    """
-                                    try:
-                                        association = Question_Attributes.objects.get(question_id=question)
-                                        if association.moment_id is None:
-                                            moment_title = False
-                                        else:
-                                            moment_title = association.moment_id.name
-
-                                        if association.attribute_id is None:
-                                            attribute_title = False
-                                        else:
-                                            attribute_title = association.attribute_id.name
-
-                                    except Question_Attributes.DoesNotExist:
-                                        moment_title = False
-                                        attribute_title = False
-                                        """
                                     #end check
 
                                     options_o = []
@@ -365,15 +326,8 @@ def save(request, action, next_step, survey_id=False):
                                         style = False
 
                                     if question.type.name == 'Matrix':
-                                        sub_questions = question.question_set.filter(active=True).order_by('id')
-                                        """
-                                        print '.s.s.s.s.s.s.s.'
-                                        for sub in sub_questions:
-                                            for option in  sub.option_set.filter(active=True).order_by('id'):
-                                                print 'this is my id: ' + str(option.id)
-                                                print option.label
-                                        print '.s.s.s.s.s.s.s.'
-                                        """
+                                        sub_questions = question.question_set.filter(
+                                            active=True).order_by('id')
                                     else:
                                         sub_questions = False
                                     questions.append(
@@ -632,10 +586,15 @@ def associate_questions_to_moments(request):
 
         for company in user.company_set.all():
                 for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                            id_subsidiary=subsidiary.id,
+                            id_business_unit=survey.business_unit_id):
+                        for sub_bu_ser in sbu_service.objects.filter(
+                                id_subsidiaryBU=subsidiary_business_unit.id,
+                                id_service=survey.service_id):
                             counter_rel = 0
-                            for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id):
+                            for sbu_s_m in sbu_service_moment.objects.filter(
+                                    id_sbu_service=sub_bu_ser.id):
                                 counter_rel += 1
                                 s_bu_s_m_a = sbu_service_moment_attribute()
                                 s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
@@ -765,12 +724,15 @@ def create_matrix(request, data):
         col_len = len(cols)
 
         for option in cols:
-            new_option = Option(question=q, label=option.label, value=i, order=i)
+            new_option = Option(question=q, label=option.label,
+                                value=i, order=i)
             new_option.save()
 
             if col_len == i:
-                not_apply_option = Option(question=q, label='No aplica',
-                                          value=i+1, order=i+1, meta='not editable')
+                not_apply_option = Option(question=q,
+                                          label='No aplica',
+                                          value=i+1, order=i+1,
+                                          meta='not editable')
                 not_apply_option.save()
 
             i += 1
@@ -812,7 +774,7 @@ def create_multiple_choice(request, data):
         i = 1
         for option in options:
             new_option = Option(question=catalog_question, label=option.label,
-                            value = i, order = i)
+                                value=i, order=i)
             new_option.save()
             i += 1
 
@@ -949,19 +911,23 @@ def create_range_question(request, data):
         catalog_question.title = title
         catalog_question.save()
 
-        new_option = Option(question=catalog_question, label=data.options.start_label,
-                        value = start_number, order = start_number)
+        new_option = Option(question=catalog_question,
+                            label=data.options.start_label,
+                            value=start_number,
+                            order=start_number)
         new_option.save()
 
         start_number += 1
 
         for i in range(start_number, end_number):
             new_option = Option(question=catalog_question, label="",
-                        value = i, order = i)
+                                value=i, order=i)
             new_option.save()
 
-        new_option = Option(question=catalog_question, label=data.options.end_label,
-                            value = end_number, order = end_number)
+        new_option = Option(question=catalog_question,
+                            label=data.options.end_label,
+                            value=end_number,
+                            rder=end_number)
         new_option.save()
 
         catalog = Catalog()
@@ -997,7 +963,9 @@ def create_range_question(request, data):
     new_option.save()
 
     not_apply_option = Option(question=question, label='No aplica',
-                              value=end_number+1, order=end_number+1, meta='not editable')
+                              value=end_number+1,
+                              order=end_number+1,
+                              meta='not editable')
     not_apply_option.save()
 
 
@@ -1256,7 +1224,8 @@ def edit(request, question_id):
         #TODO: Refactor using the factory
         if question.type.name == "Matrix":
             #We get the pattern of the options based on the first child
-            rows = Question.objects.filter(parent_question=question).order_by('id')
+            rows = Question.objects.filter(
+                parent_question=question).order_by('id')
             options = rows[0].option_set.all().order_by('id')
 
             '''
@@ -1276,7 +1245,8 @@ def edit(request, question_id):
 
             #Get Question Association
             try:
-                association = Question_sbu_s_m_a.objects.get(question_id__id=question_id)
+                association = Question_sbu_s_m_a.objects.get(
+                    question_id__id=question_id)
                 for assoc in association.sbu_s_m_a_id.all():
                     if assoc.id_attribute is None:
                         attribute_id = False
@@ -1688,13 +1658,20 @@ def update_matrix(question, data):
             if data.moment_id:
                 for company in user.company_set.all():
                         for subsidiary in company.subsidiary_set.all():
-                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
-                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                                    id_subsidiary=subsidiary.id,
+                                    id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(
+                                        id_subsidiaryBU=subsidiary_business_unit.id,
+                                        id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(
+                                            id_sbu_service=sub_bu_ser.id,
+                                            id_moment=Moment.objects.get(pk=data.moment_id)):
                                         s_bu_s_m_a = sbu_service_moment_attribute()
                                         s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
                                         if data.attribute_id:
-                                            s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=attribute_id)
+                                            s_bu_s_m_a.id_attribute = Attributes.objects.get(
+                                                pk=attribute_id)
                                         s_bu_s_m_a.save()
                                         s_bu_s_m_a_array.append(s_bu_s_m_a)
 
@@ -1919,7 +1896,9 @@ def update_range_question(question, data):
         lastOption.save()
 
     not_apply_option = Option(question=question, label='No aplica',
-                              value=end_number+1, order=end_number+1, meta='not editable')
+                              value=end_number+1,
+                              order=end_number+1,
+                              meta='not editable')
     not_apply_option.save()
 
     if data.moment_id or data.attribute_id:
@@ -2066,12 +2045,19 @@ def createAssociationQAM(question, moment_id, attribute_id):
         s_bu_s_m_a_array = []
         for company in user.company_set.all():
                 for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
-                            for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=moment_id)):
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                            id_subsidiary=subsidiary.id,
+                            id_business_unit=survey.business_unit_id):
+                        for sub_bu_ser in sbu_service.objects.filter(
+                                id_subsidiaryBU=subsidiary_business_unit.id,
+                                id_service=survey.service_id):
+                            for sbu_s_m in sbu_service_moment.objects.filter(
+                                    id_sbu_service=sub_bu_ser.id,
+                                    id_moment=Moment.objects.get(pk=moment_id)):
                                 s_bu_s_m_a = sbu_service_moment_attribute()
                                 s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
-                                s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=attribute_id)
+                                s_bu_s_m_a.id_attribute = Attributes.objects.get(
+                                    pk=attribute_id)
                                 s_bu_s_m_a.save()
                                 s_bu_s_m_a_array.append(s_bu_s_m_a)
 
@@ -2142,7 +2128,8 @@ def answer_survey(request, survey_id, hash_code, client_id):
         business_unit = survey.business_unit_id
         service = survey.service_id
         try:
-            activity = client.clientactivity_set.get(business_unit=business_unit, service=service)
+            activity = client.clientactivity_set.get(business_unit=business_unit,
+                                                     service=service)
             if not activity.status == 'A':
                 #function to validate hash or cookie
                 #TODO: find the best way to implement this
@@ -2175,8 +2162,10 @@ def answer_survey(request, survey_id, hash_code, client_id):
                                         if 'db_id' in q:
 
                                             try:
-                                                question = Question.objects.get(pk=q['db_id'])
-                                                options = question.option_set.filter(active=True).order_by('id')
+                                                question = Question.objects.get(
+                                                    pk=q['db_id'])
+                                                options = question.option_set.filter(
+                                                    active=True).order_by('id')
 
                                                 moment_title = False
                                                 attribute_title = False
@@ -2197,7 +2186,8 @@ def answer_survey(request, survey_id, hash_code, client_id):
                                                     style = False
 
                                                 if question.type.name == 'Matrix':
-                                                    sub_questions = question.question_set.filter(active=True).order_by('id')
+                                                    sub_questions = question.question_set.filter(
+                                                        active=True).order_by('id')
                                                 else:
                                                     sub_questions = False
                                                 questions.append(
@@ -2313,7 +2303,9 @@ def save_answers_ajax(request):
                     total_questions = len(survey.questions.all())
                     if total_questions == len(values):
                         print 'Es el total de respuestas'
-                        activity = client.clientactivity_set.get(business_unit=survey.business_unit_id, service=survey.service_id)
+                        activity = client.clientactivity_set.get(
+                            business_unit=survey.business_unit_id,
+                            service=survey.service_id)
                         activity.status = 'A'
                         activity.save()
                     else:
@@ -2321,11 +2313,13 @@ def save_answers_ajax(request):
 
                     for question in values:
                         try:
-                            question_db = Question.objects.get(pk=int(question['question_id']))
+                            question_db = Question.objects.get(
+                                pk=int(question['question_id']))
                         except Question.DoesNotExist:
                             question_db = False
                         try:
-                            option_db = Option.objects.get(pk=int(question['option_id']))
+                            option_db = Option.objects.get(
+                                pk=int(question['option_id']))
                         except Question.DoesNotExist:
                             option_db = False
                         answer = Answer()
@@ -2336,7 +2330,8 @@ def save_answers_ajax(request):
                         else:
                             answer.value = option_db.value
                         answer.order = option_db.order
-                        answer.client = Client.objects.get(pk=int(question['client_id']))
+                        answer.client = Client.objects.get(
+                            pk=int(question['client_id']))
                         answer.active = True
                         answer.save()
 

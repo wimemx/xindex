@@ -22,14 +22,18 @@ urlpatterns = patterns('surveys.views',
     url(r'^save_conf/(?P<survey_id>\d+)', views.save_ajax, name='save_ajax'),
 
     #url to remove questions
-    url(r'^delete_questions/', views.delete_questions, name='Delete Questions'),
+    url(r'^delete_questions/', views.delete_questions,
+        name='Delete Questions'),
 
     #url to check if a survey has blocks style and return it if so
-    url(r'^getSurveyBlocksStyle/', views.get_survey_blocks_style, name='Get survey blocks style'),
+    url(r'^getSurveyBlocksStyle/', views.get_survey_blocks_style,
+        name='Get survey blocks style'),
 
     #url to remove questions
-    url(r'^questions_moments/', views.associate_questions_to_moments, name='Associate Questions to Moments'),
-    url(r'^questions_attributes/', views.associate_questions_to_attributes, name='Associate Questions to Attributes'),
+    url(r'^questions_moments/', views.associate_questions_to_moments,
+        name='Associate Questions to Moments'),
+    url(r'^questions_attributes/', views.associate_questions_to_attributes,
+        name='Associate Questions to Attributes'),
 
     url(r'^add/ajax/$', 'add_ajax'),
     url(r'^preview/(?P<action>\w+)/(?P<next_step>\d+)/(?P<survey_id>\w+)',
@@ -42,7 +46,8 @@ urlpatterns = patterns('surveys.views',
     url(r'^(?P<question_id>\d+)/edit/ajax/$', 'edit_ajax'),
 
     #url to show a survey
-    url(r'^answer/(?P<survey_id>\d+)/(?P<hash_code>\w+)/(?P<client_id>\d+)/$', 'answer_survey'),
+    url(r'^answer/(?P<survey_id>\d+)/(?P<hash_code>\w+)/(?P<client_id>\d+)/$',
+        'answer_survey'),
 
     #url to save the answers
     url(r'^save_answers/$', 'save_answers_ajax'),

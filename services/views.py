@@ -1,13 +1,14 @@
-# Create your views here.
+import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service
-from xindex.models import sbu_service_moment_attribute, SubsidiaryBusinessUnit, sbu_service_moment
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
 from services.forms import AddService
 from django.utils import simplejson
-import json
+
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment, \
+    sbu_service, Zone, sbu_service_moment_attribute, SubsidiaryBusinessUnit, \
+    sbu_service_moment
 
 
 @login_required(login_url='/signin/')
@@ -83,12 +84,7 @@ def index(request, business_unit_id=False):
                 id_sbu_service_moment__id_moment__id=eachSetMoment
             )
 
-            print '========== C O N S U L T A ==========='
-            print myAtributtes
-
             for eachAttribute in myAtributtes:
-                print '====================='
-                print eachAttribute.alias
                 indicator_count += 1
 
 
@@ -161,19 +157,13 @@ def add(request, business_unit_id):
 @login_required(login_url='/signin/')
 def update(request, service_id, business_unit_id):
 
-    print '==ENTRA=='
-
     try:
         service = Service.objects.get(id=service_id)
     except Service.DoesNotExist:
         service = False
 
     if service:
-        print '==SERVICE=='
-        print '==REQUEST=='
-        print request
         if request.POST:
-            print '==POST=='
             formulario = AddService(request.POST or None, request.FILES,
                                     instance=service)
             if formulario.is_valid():
@@ -288,7 +278,6 @@ def getSByBUInJson(request, business_unit_id):
                 }
             )
 
-        #subsidiaries['subsidiarias'] = serializers.serialize('json', Subsidiary.objects.all())
 
     return HttpResponse(simplejson.dumps(services))
 
@@ -368,10 +357,21 @@ def get_moments(request):
         if 'zone' in request.POST and 'subsidiary' in request.POST and 'business_unit' in request.POST and 'service' in request.POST:
             try:
                 zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
-                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=int(request.POST['business_unit'])):
-                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=int(request.POST['service'])):
-                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                subsidiary = zone.subsidiary_set.get(
+                    pk=int(request.POST['subsidiary'])
+                )
+
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                        id_subsidiary=subsidiary,
+                        id_business_unit=int(request.POST['business_unit'])):
+
+                    for s_bu_s in sbu_service.objects.filter(
+                            id_subsidiaryBU=subsidiary_business_unit,
+                            id_service=int(request.POST['service'])):
+
+                        for s_bu_s_m in sbu_service_moment.objects.filter(
+                                id_sbu_service=s_bu_s):
+
                             momentList.append(
                                 {
                                     'moment_id': s_bu_s_m.id_moment.id,

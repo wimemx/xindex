@@ -59,7 +59,7 @@ def add(request):
 
 
 def edit(request, company_id):
-    #return HttpResponse("You're editing Company %s." % company_id)
+
     company = Company.objects.get(pk=company_id)
     if request.method=='POST':
         formulario = CompanyForm(request.POST, instance=company)

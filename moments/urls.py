@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^(?P<moment_id>\d+)/edit/$', views.edit, name='edit'),
     url(r'^(?P<service_id>\d+)/(?P<moment_id>\d+)/remove/$',
         views.remove, name='remove'),
+
     #Url to get the attributes
     url(r'^get_attributes/$', views.get_attributes),
 )
