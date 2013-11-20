@@ -65,10 +65,10 @@
                 </a>
                 <ul id="report-list" class="nav accordion-body in collapse">
                     <li>
-                        <a href="/reports/general">Satisfacci&oacute;n General</a>
+                        <a class="blue-xindex" href="/reports/general">Satisfacci&oacute;n General</a>
                     </li>
                     <li>
-                        <a href="/reports/zone" class="blue-xindex">Zona</a>
+                        <a href="/reports/zone">Zona</a>
                     </li>
                     <li>
                         <a href="/reports/subsidiary">Sucursal</a>
@@ -109,29 +109,27 @@
                     <div class="h2 header">Reporte de satisfacci&oacute;n general</div>
                 </div>
             </div>
-        {% if 'a' == 'a' %}
-            <!-- template vars.survey_is_designed-->
+        {% if survey_is_designed %}
             <div class="row wrapper">
                 <section class="panel no-borders hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
                             <div class="header h4 text-muted text-center">
                                 El nivel de satisfacci&oacute;n de la empresa
-                                {{ company }} es:
+                                {{ company_name }} es:
                             </div>
                             <div class="col-sm-12 r-r text-center v-middle">
                                 <div class="h1 icon-5x">
-                                    50%<!-- template vars.xindex_zone-->
+                                    {{ xindex_company }}%
                                 </div>
                             </div>
                             <div class="col-sm-12 r-r text-center v-middle wrapper">
                                 <div class="text-center v-middle" style="margin: 0 auto;">
-                                    {% if 'negative' == 'negative' %}
+                                    {% if comparison.diff_type == 'negative' %}
                                         <!--template  vars.comparison.diff_type-->
                                         <p class="h4 text-danger">
                                             <i class="icon-arrow-down "></i>
-                                            50%
-                                            <!-- template vars.camparison.xindex_diff-->
+                                            {{ comparison.xindex_diff }}%
                                             <a class="h5">Con respecto al mes pasado</a>
                                         </p>
                                     {% else %}
@@ -167,8 +165,38 @@
                 <section class="panel no-border hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
-                            <div id="services_graph">
+                            <div id="zones_graph">
 
+                            </div>
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+                                <div class="header h4 text-muted text-center">
+                                    Nivel de satisfacci&oacute;n en los ultimos meses:
+                                </div>
+                                <div class="media">
+                                    <ul class="list-group alt">
+                                        {% for zone in zones_data %}
+                                            <form method="POST" action="/reports/zone/">
+                                                {% csrf_token %}
+                                                <li class="list-group-item no-border btn btn-white btn_send_zone">
+                                                    <input type="hidden" name="zone" id="id_zone" value="{{ zone.zone_id }}">
+                                                    <div class="media">
+                                                        <div class="pull-left text-success m-t-sm">
+                                                            <i class="icon-stop icon-xlarge" style="color: {{ zone.color }} !important;"></i>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <div><a href="#">{{ zone.zone_name }}</a></div>
+                                                            <small class="text-muted">Xindex: {{ zone.xindex_zone }}</small>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </form>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -215,6 +243,78 @@
     <!-- Reports App -->
     <!-- Script General Report-->
     <script>
+
+        $('.btn_send_zone').click(function(){
+            $(this).closest('form').submit();
+        });
+
+        new Morris.Line({
+            element: 'historical-graph',
+            data: [
+                {% for data in historical_months %}
+                    { month: '{{ data.month }}', value: {{ data.value }} },
+                {% endfor %}
+                { month: '{{ current_data.month }}', value: {{ current_data.value }} }
+            ],
+            xkey: 'month',
+            ykeys: ['value'],
+            labels: ['Value'],
+            xLabels: 'month'
+        });
+
+        new Morris.Bar({
+            element: 'zones_graph',
+            data: [
+                {
+                {% for zone in zones_data %}
+                    {% if not forloop.last %}
+                        '{{ zone.zone_name }}': {{ zone.xindex_zone }},
+                        {% else %}
+                        '{{ zone.zone_name }}': {{ zone.xindex_zone }}
+                    {% endif %}
+                {% endfor %}
+                }
+            ],
+            xkey: [
+                {% for zone in zones_data %}
+                    {% if not forloop.last %}
+                        '{{ zone.zone_name }}',
+                    {% else %}
+                        '{{ zone.zone_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            ykeys: [
+                {% for zone in zones_data %}
+                    {% if not forloop.last %}
+                        '{{ zone.zone_name }}',
+                        {% else %}
+                        '{{ zone.zone_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            labels: [
+                {% for zone in zones_data %}
+                    {% if not forloop.last %}
+                        'xindex',
+                    {% else %}
+                        'xindex'
+                    {% endif %}
+                {% endfor %}
+            ],
+            hideHover: 'auto',
+            grid: 'auto',
+            barColors:[
+                {% for zone in zones_data %}
+                    {% if not forloop.last %}
+                        '{{ zone.color }}',
+                    {% else %}
+                        '{{ zone.color }}'
+                    {% endif %}
+                {% endfor %}
+            ]
+        });
+
     </script>
 {% endblock %}
 </body>

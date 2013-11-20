@@ -12,7 +12,6 @@ from xindex.models import Service, BusinessUnit, Subsidiary, Moment, \
 
 
 @login_required(login_url='/signin/')
-@login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
     global service_list
     if business_unit_id:

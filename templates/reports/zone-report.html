@@ -126,8 +126,7 @@
                     </div>
                 </div>
             </div>
-        {% if 'a' == 'a' %}
-            <!-- template vars.survey_is_designed-->
+        {% if survey_is_designed %}
             <div class="row wrapper">
                 <section class="panel no-borders hbox">
                     <aside class="lter r-l text-center v-middle">
@@ -137,24 +136,21 @@
                             </div>
                             <div class="col-sm-12 r-r text-center v-middle">
                                 <div class="h1 icon-5x">
-                                    50%<!-- template vars.xindex_zone-->
+                                    {{ xindex_zone }}%
                                 </div>
                             </div>
                             <div class="col-sm-12 r-r text-center v-middle wrapper">
                                 <div class="text-center v-middle" style="margin: 0 auto;">
-                                    {% if 'negative' == 'negative' %}
-                                        <!--template  vars.comparison.diff_type-->
+                                    {% if comparison.diff_type == 'negative' %}
                                         <p class="h4 text-danger">
                                             <i class="icon-arrow-down "></i>
-                                            50%
-                                            <!-- template vars.camparison.xindex_diff-->
+                                            {{ comparison.xindex_diff }}%
                                             <a class="h5">Con respecto al mes pasado</a>
                                         </p>
                                     {% else %}
                                         <p class="h4 text-success">
                                             <i class="icon-arrow-up "></i>
                                             {{ comparison.xindex_diff }}%
-                                            <!-- template vars.comparison_diff-->
                                             <a class="h5">Con respecto al mes pasado</a>
                                         </p>
                                     {% endif %}
@@ -183,8 +179,39 @@
                 <section class="panel no-border hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
-                            <div id="services_graph">
+                            <div id="subsidiaries_graph">
 
+                            </div>
+                        </div>
+                    </aside>
+                    <aside>
+                        <div class="pos-rlt">
+                            <div class="panel-body">
+                                <div class="header h4 text-muted text-center">
+                                    Nivel de satisfacci&oacute;n en los ultimos meses:
+                                </div>
+                                <div class="media">
+                                    <ul class="list-group alt">
+                                        {% for subsidiary in subsidiaries_data %}
+                                            <form method="POST" action="/reports/subsidiary/">
+                                            {% csrf_token %}
+                                                <li class="list-group-item no-border btn btn-white btn_send_subsidiary">
+                                                    <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                                    <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ subsidiary.subsidiary_id }}">
+                                                    <div class="media">
+                                                        <div class="pull-left text-success m-t-sm">
+                                                            <i class="icon-stop icon-xlarge" style="color: {{ subsidiary.color }} !important;"></i>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <div><a href="#">{{ subsidiary.subsidiary_name }}</a></div>
+                                                            <small class="text-muted">Xindex: {{ subsidiary.xindex_subsidiary }}</small>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </form>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -229,8 +256,75 @@
     <script src="/static/js/charts/morris/morris.min.js"></script>
 
     <!-- Reports App -->
-    <script src="/static/js/app.business.unit.report.js"></script>
+    <script src="/static/js/app.zone.report.js"></script>
     <script>
+        new Morris.Line({
+            element: 'historical-graph',
+            data: [
+                {% for data in historical_months %}
+                    { month: '{{ data.month }}', value: {{ data.value }} },
+                {% endfor %}
+                { month: '{{ current_data.month }}', value: {{ current_data.value }} }
+            ],
+            xkey: 'month',
+            ykeys: ['value'],
+            labels: ['Value'],
+            xLabels: 'month'
+        });
+
+        new Morris.Bar({
+            element: 'subsidiaries_graph',
+            data: [
+                {
+                {% for subsidiary in subsidiaries_data %}
+                    {% if not forloop.last %}
+                        '{{ subsidiary.subsidiary_name }}': {{ subsidiary.xindex_subsidiary }},
+                        {% else %}
+                        '{{ subsidiary.subsidiary_name }}': {{ subsidiary.xindex_subsidiary }}
+                    {% endif %}
+                {% endfor %}
+                }
+            ],
+            xkey: [
+                {% for subsidiary in subsidiaries_data %}
+                    {% if not forloop.last %}
+                        '{{ subsidiary.subsidiary_name }}',
+                    {% else %}
+                        '{{ subsidiary.subsidiary_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            ykeys: [
+                {% for subsidiary in subsidiaries_data %}
+                    {% if not forloop.last %}
+                        '{{ subsidiary.subsidiary_name }}',
+                        {% else %}
+                        '{{ subsidiary.subsidiary_name }}'
+                    {% endif %}
+                {% endfor %}
+            ],
+            labels: [
+                {% for subsidiary in subsidiaries_data %}
+                    {% if not forloop.last %}
+                        'xindex',
+                    {% else %}
+                        'xindex'
+                    {% endif %}
+                {% endfor %}
+            ],
+            hideHover: 'auto',
+            grid: 'auto',
+            barColors:[
+                {% for subsidiary in subsidiaries_data %}
+                    {% if not forloop.last %}
+                        '{{ subsidiary.color }}',
+                    {% else %}
+                        '{{ subsidiary.color }}'
+                    {% endif %}
+                {% endfor %}
+            ]
+        });
+
     </script>
 {% endblock %}
 </body>
