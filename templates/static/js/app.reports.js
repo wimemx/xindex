@@ -9,7 +9,7 @@ $(document).ready(function(){
 
     //Get subsidiaries for zone
     $('#form_select_zone #id_zone').click(function(){
-        var zone_id = $('#id_zone').val();
+        var zone_id = $('#form_select_zone #id_zone').val();
         $('#form_select_subsidiary input#id_zone').val(zone_id);
         $('#form_select_business_unit input#id_zone').val(zone_id);
         $('#form_select_service input#id_zone').val(zone_id);
@@ -37,7 +37,7 @@ $(document).ready(function(){
 
     //Get business units for subsidiary
     $('#form_select_subsidiary #id_subsidiary').click(function(){
-        var subsidiary_id = $('#form_select_subsidiary input#id_zone').val();
+        var subsidiary_id = $('#form_select_subsidiary #id_subsidiary').val();
         $('#form_select_business_unit input#id_subsidiary').val(subsidiary_id);
         $('#form_select_service input#id_subsidiary').val(subsidiary_id);
         $('#form_select_moment input#id_subsidiary').val(subsidiary_id)

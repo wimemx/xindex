@@ -36,7 +36,7 @@ $(document).ready(function(){
 
     //Get business units for subsidiary
     $('#form_select_subsidiary #id_subsidiary').click(function(){
-        var subsidiary_id = $('#form_select_subsidiary input#id_zone').val();
+        var subsidiary_id = $('#form_select_subsidiary #id_subsidiary').val();
         $('#form_select_business_unit input#id_subsidiary').val(subsidiary_id);
         $('#form_select_service input#id_subsidiary').val(subsidiary_id);
         $.ajax({

@@ -291,21 +291,37 @@
                     {% endfor %}
                 </section>
             </div>
-            <div class="row wrapper text-center text-muted h1">
-                <section class="panel no-borders hbox">
-                    <aside class="lter r-l text-center v-middle">
-                        <div class="wrapper" id="comparative_service_graph">
-
-                        </div>
-                    </aside>
-                    <aside>
-                        <div class="pos-rlt">
-                            <div class="panel-body">
+            <div class="row wrapper text-muted">
+                <div class="header text-center text-muted">
+                    <p class="h4">Comparativa entre sucursales de la <strong>{{ current_zone.name }}</strong> para el ciclo <strong>{{ current_service.name }}</strong></p>
+                </div>
+                {% if comparative_data %}
+                    <section class="panel no-borders hbox">
+                        <aside class="lter r-l text-center v-middle">
+                            <div class="" id="comparative_service_graph">
 
                             </div>
-                        </div>
-                    </aside>
-                </section>
+                        </aside>
+                        <aside>
+                            <div class="pos-rlt">
+                                <div class="panel-body">
+                                    <div class="list-group bg-white">
+                                        {% for service in comparative_data %}
+                                            <a href="#" class="list-group-item">
+                                                <span class="badge" style="background-color: {{ service.color }} !important;">Xindex: {{ service.xindex_service }}%</span>
+                                                <i class="icon-stop" style="color: {{ service.color }} !important;"></i> {{ service.subsidiary.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                    {% else %}
+                    <div>
+                        <p class="h5">No se encontró el servicio en otra sucursal</p>
+                    </div>
+                {% endif %}
             </div>
             {% else %}
             <section class="panel-body wrapper padder">
@@ -351,14 +367,35 @@
         new Morris.Bar({
             element: 'comparative_service_graph',
             data: [
-                {xlabel: '', promoters: 50, passives: 80, detractors: 45}
+                {% for service in comparative_data %}
+                    {% if not forloop.last %}
+                        {
+                            'subsidiary_name': '{{ service.subsidiary.name }}',
+                            'xindex': {{ service.xindex_service }}
+                        },
+                        {% else %}
+                        {
+                            'subsidiary_name': '{{ service.subsidiary.name }}',
+                            'xindex': {{ service.xindex_service }}
+                        }
+                    {% endif %}
+                {% endfor %}
             ],
-            xkey: 'xlabel',
-            ykeys: ['promoters', 'passives', 'detractors'],
-            labels: ['Promotores', 'Pasivos', 'Detractores' ],
+            xkey: 'subsidiary_name',
+            ykeys: ['xindex'],
+            labels: ['Xindex'],
             hideHover: 'auto',
             grid: 'auto',
-            barColors:['#5cb85c', '#f0ad4e', '#d9534f']
+            barColors:[
+                {% for service in comparative_data %}
+                    {% if not forloop.last %}
+                        '{{ service.color }}',
+                    {% else %}
+                        '{{ service.color }}'
+                    {% endif %}
+                {% endfor %}
+
+        ]
         });
 
     </script>

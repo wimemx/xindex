@@ -1,7 +1,7 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service
+from xindex.models import Service, BusinessUnit, Subsidiary, Moment, sbu_service, Zone
 from xindex.models import sbu_service_moment_attribute, SubsidiaryBusinessUnit, sbu_service_moment
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
@@ -10,7 +10,6 @@ from django.utils import simplejson
 import json
 
 
-@login_required(login_url='/signin/')
 @login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
     global service_list

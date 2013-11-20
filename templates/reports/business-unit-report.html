@@ -247,21 +247,37 @@
                     </aside>
                 </section>
             </div>
-            <div class="row wrapper text-center text-muted h1">
-                <section class="panel no-borders hbox">
-                    <aside class="lter r-l text-center v-middle">
-                        <div class="wrapper" id="comparative_service_graph">
-
-                        </div>
-                    </aside>
-                    <aside>
-                        <div class="pos-rlt">
-                            <div class="panel-body">
+            <div class="row wrapper text-muted">
+                <div class="header text-center text-muted">
+                    <p class="h4">Comparativa entre sucursales de la <strong>{{ current_zone.name }}</strong> para la unidad de servicio <strong>{{ current_business_unit.name }}</strong></p>
+                </div>
+                {% if comparative_data %}
+                    <section class="panel no-borders hbox">
+                        <aside class="lter r-l text-center v-middle">
+                            <div class="" id="comparative_bu_graph">
 
                             </div>
-                        </div>
-                    </aside>
-                </section>
+                        </aside>
+                        <aside>
+                            <div class="pos-rlt">
+                                <div class="panel-body">
+                                    <div class="list-group bg-white">
+                                        {% for business_unit in comparative_data %}
+                                            <a href="#" class="list-group-item">
+                                                <span class="badge" style="background-color: {{ business_unit.color }} !important;">Xindex: {{ business_unit.xindex_business_unit }}%</span>
+                                                <i class="icon-stop" style="color: {{ business_unit.color }} !important;"></i> {{ business_unit.subsidiary.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                    {% else %}
+                    <div>
+                        <p class="h5">No se encontró el servicio en otra sucursal</p>
+                    </div>
+                {% endif %}
             </div>
             {% else %}
             <section class="panel-body wrapper padder">
@@ -356,6 +372,40 @@
                     {% endif %}
                 {% endfor %}
             ]
+        });
+
+        new Morris.Bar({
+            element: 'comparative_bu_graph',
+            data: [
+                {% for bu in comparative_data %}
+                    {% if not forloop.last %}
+                        {
+                            'subsidiary_name': '{{ bu.subsidiary.name }}',
+                            'xindex': {{ bu.xindex_business_unit }}
+                        },
+                        {% else %}
+                        {
+                            'subsidiary_name': '{{ bu.subsidiary.name }}',
+                            'xindex': {{ bu.xindex_business_unit }}
+                        }
+                    {% endif %}
+                {% endfor %}
+            ],
+            xkey: 'subsidiary_name',
+            ykeys: ['xindex'],
+            labels: ['Xindex'],
+            hideHover: 'auto',
+            grid: 'auto',
+            barColors:[
+                {% for bu in comparative_data %}
+                    {% if not forloop.last %}
+                        '{{ bu.color }}',
+                    {% else %}
+                        '{{ bu.color }}'
+                    {% endif %}
+                {% endfor %}
+
+        ]
         });
 
     </script>
