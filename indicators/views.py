@@ -111,7 +111,6 @@ def remove(request, indicator_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
             return HttpResponse('Si')
 
         except:
@@ -121,7 +120,6 @@ def remove(request, indicator_id):
                 "message": message
             }
             request_context = RequestContext(request, template_vars)
-            #return render_to_response("services/index.html", request_context)
             return HttpResponse('No')
     else:
         message = "Problem to find this service"
@@ -130,7 +128,6 @@ def remove(request, indicator_id):
             "message": message
         }
         request_context = RequestContext(request, template_vars)
-        #return render_to_response("services/index.html", request_context)
         return HttpResponseRedirect('/indicators/')
 
 

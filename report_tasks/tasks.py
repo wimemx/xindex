@@ -7,7 +7,9 @@ from xindex.models import Moment
 
 
 #Report for Jan, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov and Dec
-@periodic_task(run_every=crontab(minute="01", hour="08", day_of_month="30", month_of_year="1, 3-12"))
+@periodic_task(run_every=crontab(minute="01",
+                                 hour="08", day_of_month="30",
+                                 month_of_year="1, 3-12"))
 def save_report_by_month():
     xindex_attribute = Decimal(0)
     xindex_moment = Decimal(0)
@@ -36,13 +38,20 @@ def save_report_by_month():
                     total_detractors += 1
         #Set the precision for decimal numbers
         getcontext().prec = 5
-        xindex_moment = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+        xindex_moment = ((Decimal(total_promoters - total_detractors)) /
+                         (Decimal(total_promoters +
+                                  total_passives + total_detractors)
+                         )
+                        )*Decimal(100)
 
         #Get date
 
 
 
 #Report for Feb
-@periodic_task(run_every=crontab(minute="01", hour="08", day_of_month="28", month_of_year="2"))
+@periodic_task(run_every=crontab(minute="01",
+                                 hour="08",
+                                 day_of_month="28",
+                                 month_of_year="2"))
 def save_report_by_month():
     print 'Saving report by month feb'

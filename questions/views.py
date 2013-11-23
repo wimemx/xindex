@@ -445,6 +445,7 @@ def update_matrix(question, data):
     )
     return HttpResponse(json_response, content_type="application/json")
 
+
 def update_multiple_choice(question, data):
     options = data.options
 
@@ -471,7 +472,9 @@ def update_multiple_choice(question, data):
     json_response = json.dumps(
         {'messagesent': "Question edited successfully!"}
     )
+
     return HttpResponse(json_response, content_type="application/json")
+
 
 def update_open_question(question, data):
     question.title = data.title
@@ -480,6 +483,7 @@ def update_open_question(question, data):
         {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
 
 def update_range_question(question, data):
     start_number = int(float(data.options.start_number))
@@ -549,6 +553,7 @@ def update_true_and_false(question, data):
         {'messagesent': "Question edited successfully!"}
     )
     return HttpResponse(json_response, content_type="application/json")
+
 
 #TODO: Fix this; DO NOT use in production
 @csrf_exempt

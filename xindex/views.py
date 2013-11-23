@@ -2,7 +2,7 @@
 from django.contrib.auth import authenticate, login as login_auth, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.template.context import RequestContext
 import re
 from django.db.models import Q

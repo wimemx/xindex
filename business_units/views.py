@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-# Create your views here.
+import json
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
-from business_units.forms import AddBusinessUnit
 from django.utils import simplejson
-from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit, Service, sbu_service, Zone, sbu_service_moment
-from xindex.models import Xindex_User
-import json
+from business_units.forms import AddBusinessUnit
+from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit
+from xindex.models import Xindex_User, Service, sbu_service, Zone
 
 
 def index(request):
@@ -35,8 +34,6 @@ def add(request):
             for eachSub in subSelected:
                 subToAssign = Subsidiary.objects.get(pk=eachSub)
 
-                print '""""""""""""2'
-                print subToAssign.name
                 alias = newBusinessUnit.name + ', ' + subToAssign.name
 
                 bu_assignment = SubsidiaryBusinessUnit.objects.create(
@@ -88,7 +85,6 @@ def add(request):
 
 
 def update(request, business_unit_id):
-    print str(request.method)
     try:
         bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
     except BusinessUnit.DoesNotExist:
@@ -96,7 +92,6 @@ def update(request, business_unit_id):
 
     if bus_unit:
         if request.method == 'POST':
-            print 'POST ENCONTRADO ____________________'
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             if formulario.is_valid():
@@ -118,8 +113,6 @@ def update(request, business_unit_id):
                 return render_to_response("business_units/update.html",
                                           request_context)
         else:
-            print 'POST NO ENCONTRADO__________:x__________'
-            print str(request.method)
             formulario = AddBusinessUnit(request.POST or None,
                                          instance=bus_unit)
             template_vars = {

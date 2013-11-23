@@ -1,27 +1,15 @@
-import re
-import urllib
 import random
-from datetime import date
-
-from django.views.generic.simple import direct_to_template
 from django.shortcuts import render_to_response, HttpResponse, \
     HttpResponseRedirect, get_object_or_404
 from django.template.context import RequestContext
-from django.http import Http404
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
 
-from django.db.models import Q
-from django.db import IntegrityError
-from django.db.models import ProtectedError
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 
-from rbacx.models import *
-from xindex.models import Company, Subsidiary, BusinessUnit, Service, Xindex_User
-from rbacx.functions import has_permission
+from xindex.models import Company, Subsidiary, BusinessUnit, Service, \
+    Xindex_User
 
 """
 VIEW = Operation.objects.get(operation_name="Ver")

@@ -1,16 +1,13 @@
-# Create your views here.
 from django.shortcuts import render_to_response
 from xindex.models import Subsidiary_Type
 from django.http import HttpResponseRedirect, HttpResponse
 from subsidiary_types.forms import AddSubsidiaryType
 from django.template.context import RequestContext
 from django.utils import simplejson
+from xindex.models import Subsidiary, Company
 
-from xindex.models import Subsidiary
-from xindex.models import Xindex_User
-from xindex.models import Company
 
-def index(request, message = ''):
+def index(request):
     all_subsidiary_types = Subsidiary_Type.objects.all().order_by('-name')
     for s_t in all_subsidiary_types:
         print s_t.name
@@ -21,6 +18,7 @@ def index(request, message = ''):
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("subsidiary_types/index.html", request_context)
+
 
 def add(request):
     if request.POST:
@@ -115,8 +113,6 @@ def remove(request, subsidiary_type_id):
                 "titulo": "Tipos de subsidiarias",
                 "message": message
             }
-            #request_context = RequestContext(request, template_vars)
-            #return HttpResponseRedirect('/subsidiary_types')
             return HttpResponse("Si")
 
         except:
@@ -133,13 +129,11 @@ def remove(request, subsidiary_type_id):
             "titulo": "tipos de subsidiarias",
             "message": message
         }
-        request_context = RequestContext(request, template_vars)
         return HttpResponseRedirect('/subsidiary_types')
 
 
 def getSTInJson(request):
-    s_types = {}
-    s_types['s_types'] = []
+    s_types = {'s_types': []}
 
     for st in Subsidiary_Type.objects.filter(active=True).order_by('-date'):
         s_types['s_types'].append(
@@ -173,6 +167,7 @@ def details(request, subsidiary_type_id):
 
 def stByCompany(request):
 
+    global company_id
     user = request.user.id
 
     companies = Company.objects.all()
@@ -182,12 +177,9 @@ def stByCompany(request):
             if user == u.user.id:
                 company_id = c.id
 
-
-
     subsidiaries = Subsidiary.objects.filter(company_id=company_id)
 
-    sub_t = {}
-    sub_t['subsidiary_types'] = []
+    sub_t = {'subsidiary_types': []}
 
     for subsidiary in subsidiaries:
         for st in subsidiary.subsidiary_types.all():
@@ -198,8 +190,7 @@ def stByCompany(request):
                 }
             )
 
-    sub_types = {}
-    sub_types['subsidiary_types'] = []
+    sub_types = {'subsidiary_types': []}
 
     for st in sub_t['subsidiary_types']:
         counter = 0

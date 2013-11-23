@@ -1,11 +1,12 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xindex.models import Moment, Service, sbu_service, sbu_service_moment, Zone, SubsidiaryBusinessUnit
+from xindex.models import Moment, Service, sbu_service, sbu_service_moment, \
+    Zone, SubsidiaryBusinessUnit
 from xindex.models import sbu_service_moment_attribute
 from xindex.forms import MomentForm
-import json
 
 
 def index(request):
@@ -96,14 +97,25 @@ def remove(request, service_id, moment_id):
 def get_attributes(request):
     attributesList = []
     if request.POST:
-        if 'zone' in request.POST and 'subsidiary' in request.POST and 'business_unit' in request.POST and 'moment' in request.POST:
+        if 'zone' in request.POST and 'subsidiary' in request.POST \
+            and 'business_unit' in request.POST and 'moment' in request.POST:
+
             try:
                 zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiary = zone.subsidiary_set.get(pk=int(request.POST['subsidiary']))
-                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=int(request.POST['business_unit'])):
-                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
-                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=int(request.POST['moment'])):
-                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m).order_by('id_attribute'):
+                subsidiary = zone.subsidiary_set.get(
+                    pk=int(request.POST['subsidiary'])
+                )
+                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                        id_subsidiary=subsidiary,
+                        id_business_unit=int(request.POST['business_unit'])
+                ):
+                    for s_bu_s in sbu_service.objects.filter(
+                            id_subsidiaryBU=subsidiary_business_unit):
+                        for s_bu_s_m in sbu_service_moment.objects.filter(
+                                id_sbu_service=s_bu_s,
+                                id_moment=int(request.POST['moment'])):
+                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(
+                                    id_sbu_service_moment=s_bu_s_m).order_by('id_attribute'):
                                 attributesList.append(
                                     {
                                         'attribute_id': s_bu_s_m_a.id_attribute.id,

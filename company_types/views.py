@@ -33,7 +33,6 @@ def add(request):
 
 
 def edit(request, company_type_id):
-    #return HttpResponse("You're editing Company Type %s." % company_type_id)
     company_type = Company_Type.objects.get(pk=company_type_id)
     if request.method=='POST':
         formulario = CompanyTypeForm(request.POST, instance=company_type)
@@ -53,7 +52,6 @@ def edit(request, company_type_id):
 
 
 def remove(request, company_type_id):
-    #return HttpResponse("You're about to remove Company %s." % company_id)
     company_type = Company_Type.objects.get(pk=company_type_id)
     company_type.active = False
     company_type.save()

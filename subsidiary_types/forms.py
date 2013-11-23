@@ -1,6 +1,7 @@
 from django import forms
 from xindex.models import Subsidiary_Type
 
+
 class AddSubsidiaryType(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):

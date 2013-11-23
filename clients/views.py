@@ -6,7 +6,6 @@ from django.shortcuts import render_to_response, HttpResponse, \
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
 
 from xindex.models import Subsidiary
 from xindex.models import Client, Company, ClientActivity
@@ -240,5 +239,38 @@ def handle_uploaded_file(destination, f):
             destination.write(chunk)
 
 
-def getAnswersByClient(request):
-    print 'Hello World'
+@login_required(login_url='/signin/')
+def getAnswersByClient(request, client_id):
+    client = Client.objects.get(pk=client_id)
+    clientActivity = ClientActivity.objects.filter(client__id=client.id)
+
+    template_vars = {
+        "client": client,
+        "activities": clientActivity
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("clients/details.html", request_context)
+
+
+@login_required(login_url='/signin/')
+#@user_passes_test(lambda u: u.is_superuser)
+def getClientActivityInJson(request, client_id):
+    activity = {'activity': []}
+
+    clientActivity = ClientActivity.objects.filter(
+        client__id=client_id
+    )
+
+    for eachActivity in clientActivity:
+
+        activity['activity'].append(
+            {
+                "id": eachActivity.id,
+                "date": str(eachActivity.date),
+                "subsidiary": eachActivity.subsidiary.name,
+                "rating": eachActivity.client.rating,
+                "status": eachActivity.status
+            }
+        )
+
+    return HttpResponse(simplejson.dumps(activity))
