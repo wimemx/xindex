@@ -365,14 +365,9 @@ $(document).ready(function () {
 
             var question_survey_id = $(this).closest('div.question-content').attr('id');
 
-            console.log(question_id)
-            console.log(question_survey_id)
-
             $('#current-question-updated').val(question_survey_id);
 
             var style = $(this).closest('div.question-content').attr('style');
-
-            //alert(style);
 
             setDefaultStyleInQuestionDesignUpdate((style).split(';'));
 
@@ -867,7 +862,7 @@ function getQuestionToUpdate(question_id) {
         },
         dataType: 'JSON',
         success: function (json_response) {
-
+            console.log(json_response);
             if (json_response.question_type_name == 'Multiple Choice') {
 
                 $('#update-question-title').val(json_response.question_title);

@@ -35,7 +35,8 @@ urlpatterns = patterns('surveys.views',
     url(r'^preview/(?P<action>\w+)/(?P<next_step>\d+)/(?P<survey_id>\w+)',
         views.deployment, name='deployment'),
 
-    url(r'^(?P<question_id>\d+)/edit/$', 'edit'),
+    #url to get question data to edit
+    url(r'^(?P<question_id>\d+)/edit/$', 'get_question_data_to_update'),
 
     #url(r'^(?P<question_id>\d+)/remove/$', 'remove'),
 

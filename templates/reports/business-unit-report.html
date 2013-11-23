@@ -234,7 +234,7 @@
                                                         </div>
                                                         <div class="media-body">
                                                             <div><a href="#">{{ service.service_name }}</a></div>
-                                                            <small class="text-muted">Xindex: {{ service.xindex_service }}</small>
+                                                            <small class="text-muted">Xindex: {{ service.xindex_service }}%</small>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -275,7 +275,7 @@
                     </section>
                     {% else %}
                     <div>
-                        <p class="h5">No se encontró el servicio en otra sucursal</p>
+                        <p class="h5">No se encontró la misma unidad de servicio en otra sucursal de esta zona</p>
                     </div>
                 {% endif %}
             </div>
@@ -319,7 +319,7 @@
             labels: ['Value'],
             xLabels: 'month'
         });
-
+        /*services data*/
         new Morris.Bar({
             element: 'services_graph',
             data: [
@@ -328,21 +328,13 @@
                     {% if not forloop.last %}
                         '{{ service.service_name }}': {{ service.xindex_service }},
                         {% else %}
-                        '{{ service.service_name }}': {{ service.xindex_service }}
+                        '{{ service.service_name }}': {{ service.xindex_service }},
+                        'services': 'Servicios'
                     {% endif %}
-
                 {% endfor %}
                 }
             ],
-            xkey: [
-                {% for service in services_data %}
-                    {% if not forloop.last %}
-                        '{{ service.service_name }}',
-                    {% else %}
-                        '{{ service.service_name }}'
-                    {% endif %}
-                {% endfor %}
-            ],
+            xkey: ['services'],
             ykeys: [
                 {% for service in services_data %}
                     {% if not forloop.last %}
@@ -355,9 +347,9 @@
             labels: [
                 {% for service in services_data %}
                     {% if not forloop.last %}
-                        'xindex',
+                        '{{ service.service_name }}',
                     {% else %}
-                        'xindex'
+                        '{{ service.service_name }}'
                     {% endif %}
                 {% endfor %}
             ],
@@ -373,40 +365,55 @@
                 {% endfor %}
             ]
         });
-
-        new Morris.Bar({
-            element: 'comparative_bu_graph',
-            data: [
-                {% for bu in comparative_data %}
-                    {% if not forloop.last %}
-                        {
-                            'subsidiary_name': '{{ bu.subsidiary.name }}',
-                            'xindex': {{ bu.xindex_business_unit }}
-                        },
+        {% if comparative_data %}
+            /*comparative data*/
+            new Morris.Bar({
+                element: 'comparative_bu_graph',
+                data: [
+                    {
+                        {% for bu in comparative_data %}
+                            {% if not forloop.last %}
+                                '{{ bu.subsidiary.name }}': {{ bu.xindex_business_unit }},
+                            {% else %}
+                                '{{ bu.subsidiary.name }}': {{ bu.xindex_business_unit }},
+                                'business_units': 'Unidades de servicio'
+                            {% endif %}
+                        {% endfor %}
+                    }
+                ],
+                xkey: 'business_units',
+                ykeys: [
+                    {% for bu in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ bu.subsidiary.name }}',
                         {% else %}
-                        {
-                            'subsidiary_name': '{{ bu.subsidiary.name }}',
-                            'xindex': {{ bu.xindex_business_unit }}
-                        }
-                    {% endif %}
-                {% endfor %}
-            ],
-            xkey: 'subsidiary_name',
-            ykeys: ['xindex'],
-            labels: ['Xindex'],
-            hideHover: 'auto',
-            grid: 'auto',
-            barColors:[
-                {% for bu in comparative_data %}
-                    {% if not forloop.last %}
-                        '{{ bu.color }}',
-                    {% else %}
-                        '{{ bu.color }}'
-                    {% endif %}
-                {% endfor %}
+                            '{{ bu.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                labels: [
+                    {% for bu in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ bu.subsidiary.name }}',
+                        {% else %}
+                            '{{ bu.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                hideHover: 'auto',
+                grid: 'auto',
+                barColors:[
+                    {% for bu in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ bu.color }}',
+                        {% else %}
+                            '{{ bu.color }}'
+                        {% endif %}
+                    {% endfor %}
 
-        ]
-        });
+            ]
+            });
+        {% endif %}
 
     </script>
 {% endblock %}

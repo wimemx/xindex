@@ -22,7 +22,7 @@ def index(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/index.html', request_context)
 
-
+@login_required(login_url='/signin/')
 def report_by_moment(request):
     global zone, subsidiary, businessUnit, service, moment
     survey_is_designed = False
@@ -39,33 +39,6 @@ def report_by_moment(request):
     diff_type = ''
     xindex_user = Xindex_User.objects.get(pk=request.user.id)
     companies = xindex_user.company_set.all()
-
-    '''
-    #Get services
-    for company in companies:
-        for subsidiary in company.subsidiary_set.all():
-            for business_unit in subsidiary:
-                for service in business_unit.service.all():
-                    coincidences = 0
-                    for s in services:
-                        if s == service:
-                            coincidences += 1
-                    if coincidences == 0:
-                        services.append(service)
-
-    #Get moments
-    for company in companies:
-        for subsidiary in company.subsidiary_set.all():
-            for business_unit in subsidiary.businessunit_set.all():
-                for service in business_unit.service.all():
-                    for moment in service.moments.all():
-                        coincidences = 0
-                        for m in moments:
-                            if m == moment:
-                                coincidences += 1
-                        if coincidences == 0:
-                            moments.append(moment)
-    '''
 
     #Get Zones
     myZones = Zone.objects.filter(active=True)
@@ -88,9 +61,6 @@ def report_by_moment(request):
                         service = Service.objects.get(active=True, pk=int(request.POST['service']))
                         if 'moment' in request.POST:
                             moment = Moment.objects.get(active=True, pk=int(request.POST['moment']))
-                            print '{{{{{{{{{{{{{{'
-                            print 'Obtuvo todos los parametros!'
-                            print '{{{{{{{{{{{{{{'
                         else:
                             moment = False
                     else:
@@ -361,6 +331,7 @@ def report_by_moment(request):
     return render(request, 'reports/moment-report.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def report_by_attribute(request):
     zones_list = Zone.objects.all()
     business_units_list = []
@@ -575,6 +546,7 @@ def report_by_attribute(request):
     return render(request, 'reports/attribute-report.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def report_by_service(request):
     #data for service
     xindex_service = 0
@@ -896,6 +868,7 @@ def report_by_service(request):
     return render(request, 'reports/service-report.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def report_by_business_unit(request):
     #data for business unit
     xindex_business_unit = 0
@@ -1141,9 +1114,6 @@ def report_by_business_unit(request):
                     'color': ('#%02X%02X%02X' % (r(), r(), r()))
                 }
             )
-    print '__________'
-    print comparative_data
-    print '__________'
     ##------------------##
 
     template_vars = {
@@ -1171,6 +1141,7 @@ def report_by_business_unit(request):
     return render(request, 'reports/business-unit-report.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def report_by_subsidiary(request):
     #data for subsidiary
     xindex_subsidiary = 0
@@ -1267,7 +1238,6 @@ def report_by_subsidiary(request):
             xindex_business_unit = Decimal(promoters_percent_business_unit-detractors_percent_business_unit)
 
         r = lambda: random.randint(0, 255)
-        print()
 
         business_units_data.append(
             {
@@ -1324,6 +1294,76 @@ def report_by_subsidiary(request):
 
     ##############
 
+    ##GET DATA TO COMPARE##
+    comparative_data = []
+    subsidiaries = zone.subsidiary_set.exclude(id=subsidiary.id)
+
+    if len(subsidiaries) > 0:
+        for subsidiary_c in subsidiaries:
+
+            promoters_c = 0
+            promoters_percent_c = 0
+            passives_c = 0
+            passives_percent_c = 0
+            detractors_c = 0
+            detractors_percent_c = 0
+            xindex_service_c = 0
+            total_surveyed_c = 0
+            total_answers_c = []
+            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary_c):
+                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                                for answer in attrib_answers:
+                                    client = Client.objects.get(pk=int(answer.client.id))
+                                    try:
+                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary_c)
+                                        if client_activity.subsidiary == subsidiary_c:
+                                            total_answers_c.append(answer)
+                                    except ClientActivity.DoesNotExist:
+                                        pass
+
+            if not len(total_answers_c) == 0:
+                for answer_service in total_answers_c:
+                    #total answers for service
+                    total_surveyed_c += 1
+                    if answer_service.value == 10 or answer_service.value == 9:
+                        promoters_c += 1
+                    elif answer_service.value == 8 or answer_service.value == 7:
+                        passives_c += 1
+                    elif 1 <= answer_service.value <= 6:
+                        detractors_c += 1
+
+            getcontext().prec = 5
+            if not promoters_c == 0:
+                promoters_percent_c = Decimal(promoters_c*100)/Decimal(len(total_answers_c))
+
+            if not passives_c == 0:
+                passives_percent_c = Decimal(passives_c*100)/Decimal(len(total_answers_c))
+
+            if not detractors_c == 0:
+                detractors_percent_c = Decimal(detractors_c*100)/Decimal(len(total_answers_c))
+
+            if promoters_percent_c == 0 and passives_percent_c == 0 and detractors_percent_c == 0:
+                xindex_service_c = 0
+            else:
+                xindex_service_c = (Decimal(promoters_percent_c)-Decimal(detractors_percent_c))
+
+            r = lambda: random.randint(0, 255)
+
+            comparative_data.append(
+                {
+                    #xindex for moment
+                    'xindex_subsidiary': xindex_service_c,
+                    'subsidiary': subsidiary_c,
+                    'color': ('#%02X%02X%02X' % (r(), r(), r()))
+                }
+            )
+    ##------------------##
+
     template_vars = {
         #data for subsidiary
         'xindex_subsidiary': xindex_subsidiary,
@@ -1339,12 +1379,15 @@ def report_by_subsidiary(request):
         'business_units_data': business_units_data,
         #lists
         'zones': zones_list,
-        'subsidiaries': subsidiaries_list
+        'subsidiaries': subsidiaries_list,
+        #comparative data
+        'comparative_data': comparative_data
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/subsidiary-report.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def report_by_zone(request):
     #data for zone
     xindex_zone = 0
@@ -1490,6 +1533,79 @@ def report_by_zone(request):
 
     ##############
 
+    ##GET DATA TO COMPARE##
+    comparative_data = []
+    user = Xindex_User.objects.get(user=request.user.id)
+    company = user.company_set.all()[0]
+    zones = company.zone.exclude(id=zone.id)
+
+    for zone_c in zones:
+        promoters_c = 0
+        promoters_percent_c = 0
+        passives_c = 0
+        passives_percent_c = 0
+        detractors_c = 0
+        detractors_percent_c = 0
+        xindex_zone_c = 0
+        total_surveyed_c = 0
+        total_answers_c = []
+        subsidiaries = zone_c.subsidiary_set.all()
+        if len(subsidiaries) > 0:
+            for subsidiary_c in subsidiaries:
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary_c):
+                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                                    for answer in attrib_answers:
+                                        client = Client.objects.get(pk=int(answer.client.id))
+                                        try:
+                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary_c)
+                                            if client_activity.subsidiary == subsidiary_c:
+                                                total_answers_c.append(answer)
+                                        except ClientActivity.DoesNotExist:
+                                            pass
+
+        if not len(total_answers_c) == 0:
+            for answer_zone in total_answers_c:
+                #total answers for zone
+                total_surveyed_c += 1
+                if answer_zone.value == 10 or answer_zone.value == 9:
+                    promoters_c += 1
+                elif answer_zone.value == 8 or answer_zone.value == 7:
+                    passives_c += 1
+                elif 1 <= answer_zone.value <= 6:
+                    detractors_c += 1
+
+        getcontext().prec = 5
+        if not promoters_c == 0:
+            promoters_percent_c = Decimal(promoters_c*100)/Decimal(len(total_answers_c))
+
+        if not passives_c == 0:
+            passives_percent_c = Decimal(passives_c*100)/Decimal(len(total_answers_c))
+
+        if not detractors_c == 0:
+            detractors_percent_c = Decimal(detractors_c*100)/Decimal(len(total_answers_c))
+
+        if promoters_percent_c == 0 and passives_percent_c == 0 and detractors_percent_c == 0:
+            pass
+        else:
+            xindex_zone_c = (Decimal(promoters_percent_c)-Decimal(detractors_percent_c))
+
+        r = lambda: random.randint(0, 255)
+
+        comparative_data.append(
+            {
+                #xindex for moment
+                'xindex_zone': xindex_zone_c,
+                'zone': zone_c,
+                'color': ('#%02X%02X%02X' % (r(), r(), r()))
+            }
+        )
+    ##------------------##
+
     template_vars = {
         #data for zone
         'xindex_zone': xindex_zone,
@@ -1503,12 +1619,15 @@ def report_by_zone(request):
         #subsidiaries data
         'subsidiaries_data': subsidiaries_data,
         #lists
-        'zones': zones_list
+        'zones': zones_list,
+        #comparative data
+        'comparative_data': comparative_data
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/zone-report.html', request_context)
 
-@login_required()
+
+@login_required(login_url='/signin/')
 def general_report(request):
     #data for company
     xindex_company = 0
@@ -1647,7 +1766,7 @@ def general_report(request):
         xindex_diff = current_data['value'] - last_month['value']
 
     ##############
-    print zones_data
+
     template_vars = {
         #data for company
         'company_name': company.name,
