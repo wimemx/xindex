@@ -107,6 +107,9 @@ urlpatterns = patterns('',
 
     #Reports
     url(r'^reports/', include('reports.urls')),
+    
+    #Cumulative reports
+    url(r'^cumulative_reports/', include('report_tasks.urls')),
 
 
 )

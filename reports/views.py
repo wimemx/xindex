@@ -727,7 +727,7 @@ def report_by_service(request):
         passives_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
 
     if total_detractors != 0 and total_surveyed != 0:
-        detractors_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
+        detractors_percent = Decimal(total_detractors*100)/Decimal(total_surveyed)
 
     if promoters_percent != 0 and passives_percent != 0 and detractors_percent != 0:
         #xindex_service = ((Decimal(promoters_percent-detractors_percent))/(Decimal(promoters_percent+passives_percent+detractors_percent)))*Decimal(100)
