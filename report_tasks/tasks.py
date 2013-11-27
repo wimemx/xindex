@@ -12,8 +12,6 @@ import datetime
 @periodic_task(run_every=crontab(minute="01",
                                  hour="08", day_of_month="30",
                                  month_of_year="1,3,4,5,6,7,8,9,10,11,12"))
-
-
 def save_report_by_month(request):
     xindex_attribute = Decimal(0)
     xindex_moment = Decimal(0)
@@ -26,29 +24,61 @@ def save_report_by_month(request):
     xindex_company = get_xindex_company()
 
     for company in Company.objects.filter(active=True):
+        '''
+        save_historical(
+            company, None, None, None,
+            None, None,
+            None, xindex_company
+        )
+        '''
         for zone in company.zone.filter(active=True):
-            print '-----------------------------------------'
             xindex_zone = get_xindex_zone(zone)
-            print 'La '+zone.name+' tiene un nivel de satisfaccion del '+str(xindex_zone)+'%'
+            '''
+            save_historical(
+                company, zone, None, None,
+                None, None,
+                None, xindex_zone
+            )
+            '''
             for subsidiary in zone.subsidiary_set.filter(active=True):
-                print '______________________________________________'
                 xindex_subsidiary = get_xindex_subsidiary(subsidiary)
-                print 'La '+subsidiary.name+' tiene un nivel de satisfaccion del '+str(xindex_subsidiary)+'%'
+                save_historical(
+                    company, zone, subsidiary, None,
+                    None, None,
+                    None, xindex_subsidiary
+                )
                 for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
-                    print '.....................................................'
                     xindex_business_unit = get_xindex_business_unit(subsidiary, s_bu.id_business_unit)
-                    print 'La '+s_bu.id_business_unit.name+' tiene un nivel de satisfaccion del '+str(xindex_business_unit)+'%'
+                    #save business unit historical xindex
+                    save_historical(
+                        company, zone, subsidiary, s_bu.id_business_unit,
+                        None, None,
+                        None, xindex_business_unit
+                    )
                     for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
-                        print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
                         xindex_service = get_xindex_service(subsidiary, s_bu.id_business_unit, s_bu_s.id_service)
-                        print 'El servicio:  '+s_bu_s.id_service.name+' tiene un nivel de satisfaccion del '+str(xindex_service)+'%'
+                        #save service historical xindex
+                        save_historical(
+                            company, zone, subsidiary, s_bu.id_business_unit,
+                            s_bu_s.id_service, None,
+                            None, xindex_service
+                        )
                         for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
                             xindex_moment = get_xindex_moment(subsidiary, s_bu.id_business_unit, s_bu_s.id_service, s_bu_s_m.id_moment)
-                            print 'El momento:  '+s_bu_s_m.id_moment.name+' tiene un nivel de satisfaccion del '+str(xindex_moment)+'%'
-                        print '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-                    print '.....................................................'
-                print '______________________________________________'
-            print '-----------------------------------------'
+                            #save moment historical xindex
+                            save_historical(
+                                company, zone, subsidiary, s_bu.id_business_unit,
+                                s_bu_s.id_service, s_bu_s_m.id_moment,
+                                None, xindex_moment
+                            )
+                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                xindex_attribute = get_xindex_attribute(subsidiary, s_bu.id_business_unit, s_bu_s.id_service, s_bu_s_m.id_moment, s_bu_s_m_a.id_attribute)
+                                #save attribute historical xindex
+                                save_historical(
+                                    company, zone, subsidiary, s_bu.id_business_unit,
+                                    s_bu_s.id_service, s_bu_s_m.id_moment,
+                                    s_bu_s_m_a.id_attribute, xindex_attribute
+                                )
 
     return HttpResponse('The xindex company is: '+str(xindex_company)+'%')
 
@@ -438,3 +468,73 @@ def get_xindex_moment(subsidiary, businessUnit, service, moment):
         moment_xindex = Decimal(promoters_percent-detractors_percent)
 
     return moment_xindex
+
+
+def get_xindex_attribute(subsidiary, business_unit, service, moment, attribute):
+    xindex_attribute = 0
+    promoters = 0
+    passives = 0
+    detractors = 0
+    promoters_percent = 0
+    passives_percent = 0
+    detractors_percent = 0
+    total_surveyed = 0
+    total_answers = []
+
+    s_bu = SubsidiaryBusinessUnit.objects.get(id_subsidiary=subsidiary, id_business_unit=business_unit)
+    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                    for answer in attrib_answers:
+                        client = Client.objects.get(pk=int(answer.client.id))
+                        try:
+                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service)
+                            date = datetime.date.today()
+                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == date.year and answer.date.month == date.month:
+                                total_answers.append(answer)
+                        except ClientActivity.DoesNotExist:
+                            pass
+
+    if not len(total_answers) == 0:
+        for answer in total_answers:
+            if answer.value > 0:
+                total_surveyed += 1
+            if answer.value == 10 or answer.value == 9:
+                promoters += 1
+            elif answer.value == 8 or answer.value == 7:
+                passives += 1
+            elif 1 <= answer.value <= 6:
+                detractors += 1
+
+        getcontext().prec = 5
+
+        if not promoters == 0:
+            promoters_percent = Decimal(promoters*100)/Decimal(total_surveyed)
+
+        if not passives == 0:
+            passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+
+        if not detractors == 0:
+            detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+
+    if promoters == 0 and passives == 0 and detractors == 0:
+        xindex_attribute = 0
+    else:
+        xindex_attribute = ((Decimal(promoters-detractors))/(Decimal(promoters+passives+detractors)))*Decimal(100)
+
+    return xindex_attribute
+
+
+def save_historical(company, zone, subsidiary, business_unit, service, moment, attribute, xindex):
+    cumulative_report = Cumulative_Report()
+    #cumulative_report.id_company = company
+    #cumulative_report.id_zone = zone
+    cumulative_report.id_subsidiary = subsidiary
+    cumulative_report.id_business_unit = business_unit
+    cumulative_report.id_service = service
+    cumulative_report.id_moment = moment
+    cumulative_report.id_attribute = attribute
+    cumulative_report.grade = xindex
+    cumulative_report.save()

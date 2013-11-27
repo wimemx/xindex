@@ -1131,6 +1131,149 @@ def deployment(request, action, next_step, survey_id=False):
     survey = Survey.objects.get(pk=survey_id)
     xindex_user = Xindex_User.objects.get(user__id=request.user.id)
     try:
+        survey = Survey.objects.get(pk=int(survey_id))
+        business_unit = survey.business_unit_id
+        service = survey.service_id
+
+        #function to validate hash or cookie
+        #TODO: find the best way to implement this
+        try:
+            survey = Survey.objects.get(pk=survey_id)
+            configuration = json.loads(survey.configuration)
+
+            #get the company name
+            companies = survey.user.company_set.all();
+
+            for company in companies:
+                company_name = company.name
+                company_address = company.address
+                company_email = company.email
+                company_phone = company.phone
+
+            setup = {}
+
+            setup['blocks'] = []
+
+            setup['question_styles'] = False
+
+            for key, values in configuration.items():
+                if key == 'blocks':
+                    for block in values:
+                        questions = []
+                        for q in block['questions']:
+                            if 'db_id' in q:
+
+                                try:
+                                    question = Question.objects.get(
+                                        pk=q['db_id'])
+                                    options = question.option_set.filter(
+                                        active=True).order_by('id')
+
+                                    moment_title = False
+                                    attribute_title = False
+                                    #end check
+
+                                    options_o = []
+                                    for option in options:
+                                        options_o.append(
+                                            {
+                                                'id_option': option.id,
+                                                'text': option.label,
+                                                'option': option
+                                            }
+                                        )
+                                    if 'question_style' in q:
+                                        style = q['question_style']
+                                    else:
+                                        style = False
+
+                                    if question.type.name == 'Matrix':
+                                        sub_questions = question.question_set.filter(
+                                            active=True).order_by('id')
+                                    else:
+                                        sub_questions = False
+                                    questions.append(
+                                        {
+                                            'question': question,
+                                            'sub_questions': sub_questions,
+                                            'moment_title': moment_title,
+                                            'attribute_title': attribute_title,
+                                            'question_style': style,
+                                            'survey_question_id': q['question_survey_id'],
+                                            'question_content_id': q['question_content_id'],
+                                            'db_question_id': q['db_id'],
+                                            'question_title': question.title,
+                                            'question_type': question.type.id,
+                                            'question_type_name': question.type.name,
+                                            'question_options': options_o
+                                        }
+                                    )
+                                except Question.DoesNotExist:
+                                    question = None
+
+                        if 'block_description' in block:
+                            block_description = block['block_description']
+                        else:
+                            block_description = ''
+                        if 'style' in block:
+                            style = block['style']
+                        else:
+                            style = ''
+                        if 'block_moment_associated_id' in block:
+                            block_moment_associated_id = block['block_moment_associated_id']
+                            print block_moment_associated_id
+                        else:
+                            block_moment_associated_id = False
+                        if 'block_type' in block:
+                            block_type = block['block_type']
+                        else:
+                            block_type = 'questions_block'
+
+                        setup['blocks'].append(
+                            {
+                                'block_id': block['block_id'],
+                                'block_default_class': block['class_default'],
+                                'block_description': block_description,
+                                'style': style,
+                                'questions': questions,
+                                'block_moment_associated_id': block_moment_associated_id,
+                                'block_type': block_type
+                            }
+                        )
+                if key == 'blocks_style':
+                    setup['blocks_style'] = values
+                if key == 'questions_style':
+                    setup['questions_style'] = values
+                if key == 'block_border_color':
+                    setup['block_border_color'] = values
+                if key == 'block_border_style':
+                    setup['block_border_style'] = values
+                if key == 'block_border_width':
+                    setup['block_border_width'] = values
+                if key == 'block_background_color':
+                    setup['block_background_color'] = values
+                if key == 'block_box_shadow':
+                    setup['block_box_shadow'] = values
+                if survey.picture:
+                    setup['survey_picture'] = survey.picture
+            template_vars = {
+                'survey_title': survey.name,
+                'survey_id': survey.id,
+                'company_name': company_name,
+                'company_address': company_address,
+                'company_email': company_email,
+                'company_phone': company_phone,
+                'setup': setup
+            }
+            request_context = RequestContext(request, template_vars)
+            return render_to_response('surveys/answer_survey.html',
+                                      request_context)
+        except Survey.DoesNotExist:
+            raise Http404
+    except Client.DoesNotExist:
+        return HttpResponse('Este cliente no existe!')
+    '''
+    try:
         company = Company.objects.get(staff=xindex_user)
 
     except:
@@ -1256,6 +1399,7 @@ def deployment(request, action, next_step, survey_id=False):
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/deployment.html',
                                   request_context)
+        '''
 
 
 #function to get question data to update
