@@ -121,7 +121,7 @@ function addRangeQuestion() {
     var survey_id = $('#survey_id').val()
 
     question.survey_id = survey_id
-
+    console.log('entro');
     manage_question_ajax(question);
 }
 
@@ -476,11 +476,11 @@ function insertQuestionsBlock() {
         '<div class="panel-body">' +
         '<div>' +
         '<header class="block-title">' +
-        'Este es el nombre del bloque de preguntas' +
+        'Titulo' +
         '</header>' +
         '<small class="block-description">' +
         '<p>' +
-        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
+        'Este contenido es editable' +
         '</p>' +
         '</small>' +
         '</div>' +
@@ -501,7 +501,7 @@ function insertQuestionsBlock() {
 
     $('#sortable_block_list').append('<li class="list-group-item" style="display: none;">'+new_questions_block_content+'</li>');
 
-    $("#survey-main-content ul").sortable('refresh');
+    //$("#survey-main-content ul").sortable('refresh');
 
     $('#sortable_block_list').find('li').last().slideDown('slow');
 
@@ -512,11 +512,11 @@ function insertQuestionsBlock() {
     tinymce.get('tinymce-editor').setContent(
         '<div>' +
             '<header class="">' +
-            'Este es el nombre del bloque de preguntas' +
+            'Titulo' +
             '</header>' +
             '<small class="">' +
             '<p>' +
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.' +
+            'Este contenido es editable' +
             '</p>' +
             '</small>' +
             '</div>'
@@ -705,8 +705,7 @@ $(document).ready(function () {
 
 
         $(this).parent().parent().find('ul').append('<li class="list-group-item" style="display: none;">'+new_question+'</li>');
-        console.log($(this).parent().parent().find('ul'));
-        console.log('lo ha agregado');
+
         $(this).parent().parent().find('ul').find('li').last().slideDown(300);
 
         $("#survey-main-content ul").sortable('refresh');
@@ -730,6 +729,20 @@ $(document).ready(function () {
         }
 
         $('#'+current_question).find('.attribute_info').html('<strong class="text-black">Atributo: </strong>" '+ current_text +' "');
+
+
+    });
+
+    //control to put the moment info in the new question information section
+    $('#add_moment_association').change(function(){
+        var current_moment = $('#add_moment_association option:selected').text();
+        var current_question = $('#current-question').val();
+
+        if(current_moment == 'No asociar'){
+            current_moment = 'Sin asignar'
+        }
+
+        $('#'+current_question).find('.moment_info').html('<strong class="text-black">Momento: </strong>" '+ current_moment +' "');
     });
 
 //flag
@@ -791,24 +804,24 @@ $(document).ready(function () {
                 '<div class="col-lg-12">' +
                     '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="border: 0px solid #FFFFFF !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);">' +
                         '<input type="hidden" class="block_moment_associated_id false">'+
-                        '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
-                            '<div class="question_actions">'+
-                                '<strong class="actions pull-left">'+
-                                    '<a class="actions_question remove_question" id="remove_block">'+
-                                        '<i class="icon-trash icon-sm pull-left"></i>'+
-                                    '</a>'+
-                                    '<a class="actions_question update_question" id="update_block">'+
-                                        '<i class="icon-edit icon-sm pull-left"></i>'+
-                                    '</a>'+
-                                '</strong>'+
-                                '<small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" Sin asignar " </small>'+
-                                '<small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" Sin asignar "</small>'+
-                            '</div>'+
-                        '</div>'+
                         /*
                          '<div class="wrapper question-blocks-content">' +
                          '</div>' +*/
                         '<div class="wrapper question-content block-question active-question" style="'+questions_style+'">'+
+                            '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
+                                '<div class="question_actions">'+
+                                    '<strong class="actions pull-left">'+
+                                        '<a class="actions_question remove_question" id="remove_block">'+
+                                            '<i class="icon-trash icon-sm pull-left"></i>'+
+                                        '</a>'+
+                                        '<a class="actions_question update_question" id="update_block">'+
+                                            '<i class="icon-edit icon-sm pull-left"></i>'+
+                                        '</a>'+
+                                    '</strong>'+
+                                    '<small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" Sin asignar " </small>'+
+                                    '<small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" Sin asignar "</small>'+
+                                '</div>'+
+                            '</div>'+
                             '<div class="question_id" style="float:left;"></div>'+
                             '<div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div>'+
                             '<div class="optional-content" style="margin-top: 15px;"></div>'+
@@ -820,18 +833,14 @@ $(document).ready(function () {
 
         $('#sortable_block_list').append('<li class="list-group-item" style="display: none;">'+new_questions_block_content+'</li>');
 
-        $("#survey-main-content ul").sortable('refresh');
+        //$("#survey-main-content ul").sortable('refresh');
 
         $('#sortable_block_list').find('li').last().slideDown('slow');
 
         enumerateQuestionBlocks();
         enumerateQuestions();
 
-        console.log($('#survey-main-content').find('section.selected-block'))
-
         var block_selected_id = $('#survey-main-content').find('section.selected-block').find('div.question-content').attr('id');
-
-        console.log(block_selected_id);
 
         $('#current-question-block').val(block_selected_id);
     });

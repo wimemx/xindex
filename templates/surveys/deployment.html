@@ -17,6 +17,10 @@
     <link rel="stylesheet" href="/static/css/app.css">
     <link rel="stylesheet" href="/static/dzcss/basic.css">
     <link rel="stylesheet" href="/static/dzcss/dropzone.css">
+    <style>
+        .wime-disclaimer{width: 80%; max-width: 900px; margin: 25px auto; text-align: center; font-size: 11px;}
+        .error_question{background-color: #ffe4d6; color: #ff525b; border: 1px solid #ff4450; font-size: 11px; padding: 5px; border-radius: 3px; clear: both; display: none;}
+    </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
     <script src="js/ie/html5.js" cache="false"></script>
@@ -58,13 +62,12 @@
                                     {% if setup.survey_picture %}
                                         <img src="{{ STATIC_URL }}images/{{ setup.survey_picture }}" alt="image" style="width: 60px;" />
                                     {% else %}
+                                        <h4>Logo</h4>
                                     {% endif %}
                                 {% endif %}
                             </section>
-                            <input type="hidden" id="id_client" value="{{ client_id }}">
-                            <input type="hidden" id="id_survey" value="{{ survey_id }}">
-                            <div class="text-center text-info">
-                                {{ client_name }}
+                            <div class="text-center text-muted">
+                                <strong>[ Nombre del Cliente ]</strong>
                             </div>
                             <section class="panel wrapper drop" id="survey-main-content" style="background-color: rgba(255, 255, 255, 0); border: none; box-shadow: none">
                                 {% for block in setup.blocks %}

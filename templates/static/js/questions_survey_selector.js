@@ -7,7 +7,6 @@
  */
 $(document).ready(function () {
 
-    $("#survey-main-content ul").sortable();
     /*
     var helper = '<div><a class="btn btn-success">Hello</a></div>';
 
@@ -189,6 +188,12 @@ function saveSurvey() {
     survey_configuration.block_box_shadow = $('#survey_global_content').css('box-shadow');
 
     var survey_id = $('#survey_id').val();
+
+    $('#survey-main-content div.question-content').each(function (index) {
+        if ($(this).hasClass('active-question')) {
+            $(this).removeClass('active-question');
+        }
+    });
 
     $.ajax({
         type: "POST",
