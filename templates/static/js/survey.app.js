@@ -1139,6 +1139,8 @@ function saveBlockConfiguration(){
         if(questions_in_block == 0){
             return true;
         } else {
+            console.log(moment_id);
+
             $('#' + block_id + ' div.db_question_id').each(function (index) {
                 question_ids.push(
                     {
@@ -1160,6 +1162,10 @@ function saveBlockConfiguration(){
                 success: function (msg) {
                     if (msg.success) {
                         //alert('Se han asociado los momentos a las preguntas');
+                        return true;
+                    } else {
+                        return false;
+                        console.log(msg);
                     }
                 },
                 error: function (msg) {

@@ -32,8 +32,8 @@ urlpatterns = patterns('surveys.views',
     #url to remove questions
     url(r'^questions_moments/', views.associate_questions_to_moments,
         name='Associate Questions to Moments'),
-    url(r'^questions_attributes/', views.associate_questions_to_attributes,
-        name='Associate Questions to Attributes'),
+    #url(r'^questions_attributes/', views.associate_questions_to_attributes,
+     #   name='Associate Questions to Attributes'),
 
     url(r'^add/ajax/$', 'add_ajax'),
     url(r'^preview/(?P<action>\w+)/(?P<next_step>\d+)/(?P<survey_id>\w+)',

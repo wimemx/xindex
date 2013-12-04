@@ -262,3 +262,77 @@ def user_profile(request, user_id):
 
     request_context = RequestContext(request, template_vars)
     return render_to_response("rbac/user_profile.html", request_context)
+
+
+@login_required(login_url='/signin/')
+@user_passes_test(lambda u: u.is_superuser)
+def my_account(request):
+
+    user = request.user
+    xindexUser = Xindex_User.objects.get(user=user)
+
+    try:
+        company = Company.objects.get(staff=xindexUser)
+    except Company.MultipleObjectsReturned:
+        company = Company.objects.filter(staff=xindexUser)[:1]
+
+    template_vars = {
+        'company': company
+    }
+
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("rbac/my_account.html", request_context)
+
+
+@login_required(login_url='/signin/')
+@user_passes_test(lambda u: u.is_superuser)
+def edit_account(request, data):
+
+    user = request.user
+    xindexUser = Xindex_User.objects.get(user=user)
+    data_to_change = False
+    data_label = ''
+
+    try:
+        company = Company.objects.get(staff=xindexUser)
+    except Company.MultipleObjectsReturned:
+        company = Company.objects.filter(staff=xindexUser)[:1]
+
+    if request.POST:
+        if data == 'company_name':
+            if 'company_name' in request.POST:
+                company.name = request.POST['company_name']
+        elif data == 'company_address':
+            if 'company_address' in request.POST:
+                company.address = request.POST['company_address']
+        elif data == 'company_phone':
+            if 'company_phone' in request.POST:
+                company.phone = request.POST['company_phone']
+        elif data == 'company_rfc':
+            if 'company_rfc' in request.POST:
+                company.rfc = request.POST['company_rfc']
+        company.save()
+        return HttpResponseRedirect('/my_account/')
+    else:
+        #check data to change
+        if data == 'company_name':
+            data_label = 'Nombre de la compa&ntilde;ia'
+            data_to_change = company.name
+        elif data == 'company_address':
+            data_label = 'Direcci&oacute;n de la compa&ntilde;ia'
+            data_to_change = company.address
+        elif data == 'company_phone':
+            data_label = 'Telefono de la compa&ntilde;ia'
+            data_to_change = company.phone
+        elif data == 'company_rfc':
+            data_label = 'RFC de la compa&ntilde;ia'
+            data_to_change = company.rfc
+
+        template_vars = {
+            'data_label': data_label,
+            'data_to_change': data_to_change,
+            'data': data
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/edit_account.html", request_context)
+

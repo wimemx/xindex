@@ -114,6 +114,50 @@
             height: 50%;
         }
 
+        /*style for jquery ui tooltip*/
+        .ui-tooltip {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0;
+            opacity: 1;
+        }
+        .ui-tooltip-content {
+            position: relative;
+            padding: 1em;
+        }
+        .ui-tooltip-content::after {
+            content: '';
+            position: absolute;
+            border-style: solid;
+            display: block;
+            width: 0;
+        }
+        .right .ui-tooltip-content::after {
+            top: 18px;
+            left: -10px;
+            border-color: transparent #666;
+            border-width: 10px 10px 10px 0;
+        }
+        .left .ui-tooltip-content::after {
+            top: 18px;
+            right: -10px;
+            border-color: transparent #666;
+            border-width: 10px 0 10px 10px;
+        }
+        .top .ui-tooltip-content::after {
+            bottom: -10px;
+            left: 72px;
+            border-color: #666 transparent;
+            border-width: 10px 10px 0;
+        }
+        .bottom .ui-tooltip-content::after {
+            top: -10px;
+            left: 72px;
+            border-color: #666 transparent;
+            border-width: 0 10px 10px;
+        }
+
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -271,7 +315,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} title="Arrastrame">
                                             <div class="block_actions_content" style="height: 25px; min-height: 25px;">
                                                 <div class="block_actions">
                                                     {% csrf_token %}
@@ -294,7 +338,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} title="Arrastrame">
                                             {% for question in block.questions %}
                                                 <div class="wrapper question-content padder" {% if question.question_style %} style="{{ question.question_style }}" {% else %} style="display: table; min-width: 100%; min-heigth: 70px;" {% endif %} id="{{ question.question_content_id }}">
                                                     <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
@@ -538,7 +582,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}"{% endif %} title="Arrastrame">
                                         <!-- input to verify if block has a moment associated -->
                                         {% if block.block_moment_associated_id %}
                                             <input type="hidden" class="block_moment_associated_id true" value="{{ block.block_moment_associated_id }}">
@@ -579,9 +623,13 @@
                                                                 </strong>
                                                                 {% if question.attribute_title %}
                                                                     <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
+                                                                    {% else %}
+                                                                    <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>"Sin asignar" </small>
                                                                 {% endif %}
                                                                 {% if question.moment_title %}
                                                                     <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                                    {% else %}
+                                                                    <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>"Sin asignar"</small>
                                                                 {% endif %}
 
                                                             </div>
@@ -2027,6 +2075,14 @@
             }
         }).disableSelection();
 
+        /*
+        $('.jquery-ui-tooltip').tooltip();
+
+        var position = { my: 'left center', at: 'right+10 center' };
+        var className = 'right';
+        $('.jquery-ui-tooltip').tooltip('option', 'position', position);
+        $('.jquery-ui-tooltip').tooltip('option', 'tooltipClass', className);
+        */
     });
 </script>
 

@@ -502,7 +502,7 @@ class sbu_service_moment_attribute(models.Model):
     alias = models.CharField(max_length=260, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service_moment.__unicode__()+'-'+self.id_attribute.name
+        return self.id_sbu_service_moment.__unicode__()+'-'+str(self.id_attribute)
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments-Attributes"

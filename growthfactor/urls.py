@@ -111,5 +111,10 @@ urlpatterns = patterns('',
     #Cumulative reports
     url(r'^cumulative_reports/', include('report_tasks.urls')),
 
+    #Account
+    url(r'^my_account/$', 'rbacx.views.my_account'),
+
+    #Edit account
+    url(r'^my_account/edit_account/(?P<data>\w+)$', 'rbacx.views.edit_account'),
 
 )

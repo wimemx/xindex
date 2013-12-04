@@ -183,6 +183,8 @@ def report_by_moment(request):
                                     c_d = datetime.date.today()
                                     if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
                                         answers_list.append(a)
+                                        print 'Today is '+str(c_d.day)+' from '+str(c_d.year)
+                                        print 'Question date is '+str(a.date.day)+' from '+str(a.date.year)
                                 except ClientActivity.DoesNotExist:
                                     pass
                             total_surveyed = len(answers_list)
@@ -1478,7 +1480,8 @@ def report_by_zone(request):
                                 try:
                                     #client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
                                     client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
-                                    if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
+                                    c_d = datetime.date.today()
+                                    if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone and c_d.month == answer.date.month and c_d.year == answer.date.year:
                                         total_answers_by_subsidiary.append(answer)
                                 except ClientActivity.DoesNotExist:
                                     pass
@@ -1711,9 +1714,12 @@ def general_report(request):
                                     client = Client.objects.get(pk=int(answer.client.id))
                                     try:
                                         #client_activity = client.clientactivity_set.get(company=company)
+                                        c_d = datetime.date.today()
                                         client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
-                                        #if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone:
-                                        total_answers_by_zone.append(answer)
+                                        if c_d.year == answer.date.year and c_d.month == answer.date.month:
+                                            total_answers_by_zone.append(answer)
+                                            print 'Today is '+str(c_d.day)+' from '+str(c_d.month)+' from '+str(c_d.year)
+                                            print 'Question date is '+str(answer.date.day)+' from '+str(answer.date.month)+' from '+str(answer.date.year)
                                     except ClientActivity.DoesNotExist:
                                         pass
 
