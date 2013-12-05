@@ -1,7 +1,6 @@
 import csv
 import json
 import os
-from setuptools.command.easy_install import easy_install
 import short_url
 from django.shortcuts import render_to_response, HttpResponse, \
     HttpResponseRedirect, get_object_or_404

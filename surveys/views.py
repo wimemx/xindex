@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
-from xindex.models import Survey, Company
+from xindex.models import Survey, Company, ClientActivity
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
@@ -2764,8 +2764,14 @@ def answer_survey(request, survey_id, hash_code, client_id):
         business_unit = survey.business_unit_id
         service = survey.service_id
         try:
-            activity = client.clientactivity_set.get(business_unit=business_unit,
-                                                     service=service)
+            #activity = client.clientactivity_set.get(business_unit=business_unit,
+            #                                        service=service)
+
+            activity = ClientActivity.objects.filter(
+                client=client,
+                business_unit=business_unit,
+                service=service
+            )[0]
             if not activity.status == 'A':
                 #function to validate hash or cookie
                 #TODO: find the best way to implement this
@@ -2776,7 +2782,7 @@ def answer_survey(request, survey_id, hash_code, client_id):
                         configuration = json.loads(survey.configuration)
 
                         #get the company name
-                        companies = survey.user.company_set.all();
+                        companies = survey.user.company_set.all()
 
                         for company in companies:
                             company_name = company.name
@@ -2908,7 +2914,7 @@ def answer_survey(request, survey_id, hash_code, client_id):
                         raise Http404
             else:
                 return HttpResponse('Esta encuesta ya ha sido contestada')
-        except activity.DoesNotExist:
+        except ClientActivity.DoesNotExist:
             return HttpResponse('La encuesta no ha sido asociada a este cliente')
     except Client.DoesNotExist:
         return HttpResponse('Este cliente no existe!')

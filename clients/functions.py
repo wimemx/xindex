@@ -2,6 +2,7 @@
 import json
 import mandrill
 from datetime import datetime
+import short_url
 from xindex.models import Client, Company, ClientActivity, Subsidiary, \
     BusinessUnit, Service, Survey
 
@@ -142,6 +143,12 @@ def addClientActivity(data, activity):
 
     newActivity.save()
 
+    url = short_url.encode_url(myClient.id)
+    urld = short_url.decode_url(url)
+
+    print url
+    print urld
+
     try:
         survey = Survey.objects.get(
             business_unit_id=newActivity.business_unit,
@@ -149,8 +156,8 @@ def addClientActivity(data, activity):
         )
         newActivity.survey = survey
         newActivity.save()
-        print "YA EXISTE ENCUESTA ====="
         mailing(myClient, survey)
+
     except Survey.DoesNotExist:
         print "NO EXISTE ENCUESTA"
 
@@ -182,6 +189,12 @@ def addActivity(client, activity):
                 newActivity.service = service
 
     newActivity.save()
+    url = short_url.encode_url(client.id)
+
+    urld = short_url.decode_url(url)
+    print url
+    print urld
+
     try:
         survey = Survey.objects.get(
             business_unit_id=newActivity.business_unit,
@@ -189,7 +202,7 @@ def addActivity(client, activity):
         )
         newActivity.survey = survey
         newActivity.save()
-        print "YA EXISTE ENCUESTA ====="
         mailing(client, survey)
+
     except Survey.DoesNotExist:
         print "NO EXISTE ENCUESTA"

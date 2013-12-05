@@ -109,7 +109,7 @@ urlpatterns = patterns('',
     url(r'^reports/', include('reports.urls')),
     
     #Cumulative reports
-    url(r'^cumulative_reports/', include('report_tasks.urls')),
+    #url(r'^cumulative_reports/', include('report_tasks.urls')),
 
     #Account
     url(r'^my_account/$', 'rbacx.views.my_account'),
