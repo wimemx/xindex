@@ -220,6 +220,22 @@
     <script src="/static/js/charts/easypiechart/jquery.easy-pie-chart.js"></script>
 
     <script src="/static/js/app.grids.xindex.js"></script>
+    <script>
+        (function($){
+            // ajax modal for this page
+            $(document).on('click', '[data-toggle="ajaxModal"]',
+                    function(e) {
+                        e.preventDefault();
+                        var $this = $(this)
+                                , $remote = $this.data('remote') || $this.attr('href')
+                                , $modal = $('<div class="modal" id="ajaxModal"><div class="modal-body"></div></div>');
+                        $('body').append($modal);
+                        $modal.modal();
+                        $modal.load($remote);
+                    }
+            );
+        })(jQuery);
+    </script>
 {% endblock %}
 </body>
 </html>

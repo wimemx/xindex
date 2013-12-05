@@ -10,8 +10,6 @@ from xindex.models import Survey, Company
 from xindex.forms import SurveyForm
 from xindex.models import Xindex_User
 from xindex.models import Question_Type
-import os
-import json
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
 
@@ -50,9 +48,11 @@ def index(request):
                 "next_step": each_survey.step
             }
         )
-    template_vars = {"title": "Surveys",
-                     "surveys": surveys,
-                     "order_query": "Nombre"}
+    template_vars = {
+        "title": "Surveys",
+        "surveys": surveys,
+        "order_query": "Nombre"
+    }
     request_context = RequestContext(request, template_vars)
     return render(request, 'surveys/index.html', request_context)
 

@@ -12,4 +12,6 @@ urlpatterns = patterns('clients.views',
                            views.getAnswersByClient),
                        url(r'^activity/(?P<client_id>\d+)$',
                            views.getClientActivityInJson),
+                       url(r'^activity_answers/(?P<activity_id>\d+)$',
+                           views.activity_answers),
                        )

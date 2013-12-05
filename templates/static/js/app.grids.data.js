@@ -1774,7 +1774,11 @@ function clientActivityDatagrid(client) {
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.status = '<a href="#">' + item.status + '</a>';
+                        var link = '<p>Sin responder</p>';
+                        if(item.status == 'A'){
+                            link = '<a class="text-success" data-toggle="ajaxModal" href="/clients/activity_answers/'+item.id+'">Ver Respuestas</a>';
+                        }
+                        item.status = link;
                         item.actions = '<a href="/clients/edit/'+ item.actions +'" class="edit-client" data-toggle="ajaxModal"><i class="icon-edit"></i></a>' +
                             '<a href="/clients/remove/'+ item.actions +'"  class="remove-client"><i class="icon-remove"></i></a>';
                     });

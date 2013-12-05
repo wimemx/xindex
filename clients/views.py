@@ -10,6 +10,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from xindex.models import Subsidiary
 from xindex.models import Client, Company, ClientActivity
 from xindex.models import BusinessUnit, Service
+from xindex.models import Survey
+from xindex.models import Question
+from xindex.models import Answer
+import json
 
 
 @login_required(login_url='/signin/')
@@ -274,3 +278,172 @@ def getClientActivityInJson(request, client_id):
         )
 
     return HttpResponse(simplejson.dumps(activity))
+
+
+@login_required(login_url='/signin/')
+def activity_answers(request, activity_id):
+    errors = []
+    try:
+        activity = ClientActivity.objects.get(pk=int(activity_id))
+        client = Client.objects.get(pk=activity.client_id)
+
+        if activity.survey_id is not None:
+            survey = Survey.objects.get(pk=activity.survey_id)
+            configuration = json.loads(survey.configuration)
+
+            #get the company name
+            companies = survey.user.company_set.all()
+
+            for company in companies:
+                company_name = company.name
+                company_address = company.address
+                company_email = company.email
+                company_phone = company.phone
+
+            setup = {
+                'blocks': [],
+                'question_styles': False
+            }
+
+            for key, values in configuration.items():
+                if key == 'blocks':
+                    for block in values:
+                        questions = []
+                        for q in block['questions']:
+                            if 'db_id' in q:
+
+                                try:
+                                    question = Question.objects.get(
+                                        pk=q['db_id'])
+                                    options = question.option_set.filter(
+                                        active=True).order_by('id')
+
+                                    moment_title = False
+                                    attribute_title = False
+                                    #end check
+
+                                    options_o = []
+                                    for option in options:
+                                        options_o.append(
+                                            {
+                                                'id_option': option.id,
+                                                'text': option.label,
+                                                'option': option
+                                            }
+                                        )
+                                    if 'question_style' in q:
+                                        style = q['question_style']
+                                    else:
+                                        style = False
+
+                                    if question.type.name == 'Matrix':
+                                        sub_questions = question.question_set.filter(
+                                            active=True).order_by('id')
+                                    else:
+                                        sub_questions = False
+                                    try:
+                                        answer = Answer.objects.get(question=question, client=client)
+                                    except Answer.DoesNotExist:
+                                        answer = False
+
+                                    questions.append(
+                                        {
+                                            'question': question,
+                                            'answer': answer,
+                                            'sub_questions': sub_questions,
+                                            'moment_title': moment_title,
+                                            'attribute_title': attribute_title,
+                                            'question_style': style,
+                                            'survey_question_id': q['question_survey_id'],
+                                            'question_content_id': q['question_content_id'],
+                                            'db_question_id': q['db_id'],
+                                            'question_title': question.title,
+                                            'question_type': question.type.id,
+                                            'question_type_name': question.type.name,
+                                            'question_options': options_o
+                                        }
+                                    )
+                                except Question.DoesNotExist:
+                                    question = None
+
+                        if 'block_description' in block:
+                            block_description = block['block_description']
+                        else:
+                            block_description = ''
+                        if 'style' in block:
+                            style = block['style']
+                        else:
+                            style = ''
+                        if 'block_moment_associated_id' in block:
+                            block_moment_associated_id = block['block_moment_associated_id']
+                        else:
+                            block_moment_associated_id = False
+                        if 'block_type' in block:
+                            block_type = block['block_type']
+                        else:
+                            block_type = 'questions_block'
+
+                        setup['blocks'].append(
+                            {
+                                'block_id': block['block_id'],
+                                'block_default_class': block['class_default'],
+                                'block_description': block_description,
+                                'style': style,
+                                'questions': questions,
+                                'block_moment_associated_id': block_moment_associated_id,
+                                'block_type': block_type
+                            }
+                        )
+                if key == 'blocks_style':
+                    setup['blocks_style'] = values
+                if key == 'questions_style':
+                    setup['questions_style'] = values
+                if key == 'block_border_color':
+                    setup['block_border_color'] = values
+                if key == 'block_border_style':
+                    setup['block_border_style'] = values
+                if key == 'block_border_width':
+                    setup['block_border_width'] = values
+                if key == 'block_background_color':
+                    setup['block_background_color'] = values
+                if key == 'block_box_shadow':
+                    setup['block_box_shadow'] = values
+                if survey.picture:
+                    setup['survey_picture'] = survey.picture
+            client = Client.objects.get(pk=activity.client_id)
+            template_vars = {
+                'survey_title': survey.name,
+                'survey_id': survey.id,
+                'company_name': company_name,
+                'company_address': company_address,
+                'company_email': company_email,
+                'company_phone': company_phone,
+                'client_id': activity.client_id,
+                'client_name': client.first_name+' '+client.last_name,
+                'setup': setup
+            }
+        else:
+            errors.append(
+                {
+                    'error_type': 'Encuesta',
+                    'error_message': 'La encuesta ha sido borrada'
+                }
+            )
+            template_vars = {
+                'errors': errors
+            }
+
+    except ClientActivity.DoesNotExist:
+        errors.append(
+            {
+                'error_type': 'Actividad del cliente',
+                'error_message': 'No se ha podido encontrar la actividad'
+            }
+        )
+
+        template_vars = {
+            'errors': errors
+        }
+
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("clients/activity_answers.html", request_context)
