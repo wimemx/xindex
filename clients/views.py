@@ -1,5 +1,7 @@
 import csv
+import json
 import os
+from setuptools.command.easy_install import easy_install
 import short_url
 from django.shortcuts import render_to_response, HttpResponse, \
     HttpResponseRedirect, get_object_or_404
@@ -7,14 +9,17 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from xindex.models import Subsidiary
+from xindex.models import Subsidiary, Zone, SubsidiaryBusinessUnit, sbu_service
+
 from xindex.models import Client, Company, ClientActivity
 from xindex.models import BusinessUnit, Service
+from clients.functions import mailing, addClientFromCSV, addClientActivity, addActivity
 
 
 @login_required(login_url='/signin/')
 def client_list(request):
 
+    #mailing()
     template_vars = {}
     request_context = RequestContext(request, template_vars)
     return render_to_response("clients/client_list.html", request_context)
@@ -34,6 +39,10 @@ def getClientsInJson(request):
                 "first_name": eachClient.first_name,
                 "last_name": eachClient.last_name,
                 "email": eachClient.email,
+                "company": eachClient.company.name,
+                "state": eachClient.state,
+                "city": eachClient.city,
+                "rating": eachClient.rating,
                 "actions": eachClient.id
             }
         )
@@ -48,7 +57,6 @@ def add_client(request):
         company = Company.objects.get(pk=request.POST['client_company'])
 
         new_client = Client.objects.create(
-            name=request.POST['client_name'],
             first_name=request.POST['client_name'],
             last_name=request.POST['client_surname'],
             sex=request.POST['client_sex'],
@@ -61,9 +69,20 @@ def add_client(request):
         return HttpResponseRedirect('/clients/')
 
     else:
-        companies = Company.objects.filter(active=True)
-
-        template_vars = {'companies': companies}
+        companies = Company.objects.filter(active=True)[:1]
+        zones = Zone.objects.filter(active=True)
+        subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
+        businessUnits = SubsidiaryBusinessUnit.objects.filter(
+            id_subsidiary__id=subsidiaries[0].id)
+        sbu_services = sbu_service.objects.filter(
+            id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
+        )
+        template_vars = {'companies': companies,
+                         'zones': zones,
+                         'zone': zones[0],
+                         'subsidiaries': subsidiaries,
+                         'businessUnits': businessUnits,
+                         'sbu_services': sbu_services}
         request_context = RequestContext(request, template_vars)
         return render_to_response("clients/add_client.html", request_context)
 
@@ -115,6 +134,7 @@ def edit_client(request, client_id):
         return render_to_response("clients/edit_client.html", request_context)
 
 
+'''
 @login_required(login_url='/signin/')
 def csv_read_prueba(request):
 
@@ -138,10 +158,41 @@ def csv_read_prueba(request):
 
         clientData.save()
     return HttpResponseRedirect('/clients/')
+'''
+
 
 @login_required(login_url='/signin/')
 def csv_read(request):
 
+    if request.method == 'POST':
+        clients = request.POST.getlist("newClient")
+        activity = request.POST.getlist("id_activity")
+
+        for eachClient in clients:
+            clientData = str(eachClient).split("},")
+
+            for eachClientData in clientData:
+                if eachClientData[-1] != "}":
+                    eachClientData += "}"
+
+                modelField = json.loads(eachClientData)["name"]
+                fieldData = json.loads(eachClientData)["value"]
+
+                if modelField == "email":
+                    if Client.objects.filter(email=fieldData).exists():
+                        if activity:
+                            client = Client.objects.get(email=fieldData)
+                            addActivity(client, activity)
+                    else:
+                        if activity:
+                            addClientActivity(eachClient, activity)
+                        else:
+                            addClientFromCSV(eachClient)
+
+    return HttpResponse("Yes")
+
+
+    '''
     if request.POST:
 
         path = os.path.join(
@@ -165,44 +216,17 @@ def csv_read(request):
                 continue
             subsidiary = Subsidiary.objects.get(name=eachRow[7], active=True)
 
-            """
-            clientData = Client.objects.create(
-                #name=eachRow[1],
-                first_name=eachRow[1],
-                last_name=eachRow[2],
-                sex=eachRow[3],
-                #date_of_birth=eachRow[5],
-                email=eachRow[4],
-                phone=eachRow[5],
-                company=subsidiary.company
-            )
-
-            clientData.save()
-            """
-
             if Client.objects.filter(email=eachRow[4]).exists():
-                myAlreadyExistsClient = Client.objects.get(
-                    email=eachRow[4])
-                activityData = ClientActivity.objects.create(
-                    client=myAlreadyExistsClient,
-                    date=eachRow[6],
-                    subsidiary=subsidiary,
-                    business_unit=BusinessUnit.objects.get(name=eachRow[8],
-                                                           active=True),
-                    service=Service.objects.get(name=eachRow[9], active=True)
-                )
-                activityData.save()
+                print '=====EL CLIENTE YA EXISTE====='
 
             else:
                 clientData = Client.objects.create(
-                #name=eachRow[1],
-                first_name=eachRow[1],
-                last_name=eachRow[2],
-                sex=eachRow[3],
-                #date_of_birth=eachRow[5],
-                email=eachRow[4],
-                phone=eachRow[5],
-                company=subsidiary.company
+                    first_name=eachRow[1],
+                    last_name=eachRow[2],
+                    sex=eachRow[3],
+                    email=eachRow[4],
+                    phone=eachRow[5],
+                    company=subsidiary.company
                 )
 
                 clientData.save()
@@ -231,6 +255,7 @@ def csv_read(request):
         template_vars = {}
         request_context = RequestContext(request, template_vars)
         return render_to_response("clients/add_csv.html", request_context)
+    '''
 
 
 def handle_uploaded_file(destination, f):
@@ -274,3 +299,136 @@ def getClientActivityInJson(request, client_id):
         )
 
     return HttpResponse(simplejson.dumps(activity))
+
+
+def getZonesInJson(request, zone_id):
+    subsidiary_list = Subsidiary.objects.filter(zone=zone_id, active=True)
+
+    if subsidiary_list.count() == 0:
+        print "CERO"
+    else:
+
+        subsidiariesToJson = {'subsidiaries': [],
+                              'business': [],
+                              'services': []}
+
+        if subsidiary_list:
+            counter = 0
+            for eachSubsidiary in subsidiary_list:
+                subsidiariesToJson['subsidiaries'].append(
+                    {
+                        "name": eachSubsidiary.name,
+                        "id": eachSubsidiary.id
+                    }
+                )
+
+            sBusinessUnits = SubsidiaryBusinessUnit.objects.filter(
+                id_subsidiary=subsidiary_list[0].id
+            )
+
+            for eachSBU in sBusinessUnits:
+                businessUnits = BusinessUnit.objects.get(
+                    pk=eachSBU.id_business_unit.id,
+                    active=True
+                )
+                subsidiariesToJson['business'].append(
+                    {
+                        "name": businessUnits.name,
+                        "id": businessUnits.id
+                    }
+                )
+
+                sbuService = sbu_service.objects.filter(
+                    id_subsidiaryBU__id_business_unit=businessUnits.id
+                )
+
+                if counter == 0:
+                    counter += 1
+                    for eachService in sbuService:
+                        services = Service.objects.get(
+                            pk=eachService.id_service.id,
+                            active=True
+                        )
+
+                        subsidiariesToJson['services'].append(
+                            {
+                                "name": services.name,
+                                "id": services.id
+                            }
+                        )
+
+        return HttpResponse(simplejson.dumps(subsidiariesToJson))
+
+
+def getBusinessInJson(request, subsidiary_id):
+    subsidiary_list = Subsidiary.objects.get(pk=subsidiary_id, active=True)
+
+    if subsidiary_list:
+
+        businessToJson = {'business': [],
+                              'services': []}
+
+        if subsidiary_list:
+            counter = 0
+
+            sBusinessUnits = SubsidiaryBusinessUnit.objects.filter(
+                id_subsidiary=subsidiary_list.id
+            )
+
+            for eachSBU in sBusinessUnits:
+                businessUnits = BusinessUnit.objects.get(
+                    pk=eachSBU.id_business_unit.id,
+                    active=True
+                )
+                businessToJson['business'].append(
+                    {
+                        "name": businessUnits.name,
+                        "id": businessUnits.id
+                    }
+                )
+
+                sbuService = sbu_service.objects.filter(
+                    id_subsidiaryBU__id_business_unit=businessUnits.id
+                )
+
+                if counter == 0:
+                    counter += 1
+                    for eachService in sbuService:
+                        services = Service.objects.get(
+                            pk=eachService.id_service.id,
+                            active=True
+                        )
+
+                        businessToJson['services'].append(
+                            {
+                                "name": services.name,
+                                "id": services.id
+                            }
+                        )
+
+        return HttpResponse(simplejson.dumps(businessToJson))
+
+
+def getServicesInJson(request, business_id):
+
+    servicesToJson = {'services': []}
+
+    sbuService = sbu_service.objects.filter(
+        id_subsidiaryBU__id_business_unit=business_id
+    )
+
+    if sbuService:
+        for eachService in sbuService:
+            services = Service.objects.get(
+                pk=eachService.id_service.id,
+                active=True
+            )
+
+            servicesToJson['services'].append(
+                {
+                    "name": services.name,
+                    "id": services.id
+                }
+            )
+
+    return HttpResponse(simplejson.dumps(servicesToJson))

@@ -150,9 +150,9 @@ function subsidiariesDatagrid() {
                 formatter: function (items) {
                     $.each(items, function (index, item) {
                         item.name = '<a href="/subsidiaries/details/'+ item.subsidiaryId +'">' + item.name + '</a>';
-                        item.subsidiaryId = '<a href="/subsidiaries/edit/' + item.subsidiaryId + '"><i class="icon-edit"></i></a>' +
+                        item.subsidiaryId = '<a href="/subsidiaries/edit/' + item.subsidiaryId + '" class="edit-subsidiary"><i class="icon-edit"></i></a>' +
                                             '<a href="/subsidiaries/remove/' + item.subsidiaryId + '" class="remove-subsidiary"><i class="icon-remove"></i></a>';
-                        item.detalles = '<a href="/subsidiaries/details/' + item.detalles + '"><i class="icon-eye-open"></i></a>';
+                        item.detalles = '<a href="/subsidiaries/details/' + item.detalles + '" ><i class="icon-eye-open"></i></a>';
                         //c = (item.active == true) ? "checked" : ""
                         //item.active = '<input type="checkbox" disabled="disabled" '+ c + '>';
                     });
@@ -1631,7 +1631,7 @@ function clientListDatagrid() {
 
                         callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
                     }).fail(function (e) {
-                        alert('¡No se pueden consultar los usuarios, intente mas tarde!')
+                        alert('¡No se pueden consultar los clientes, intente mas tarde!')
                     });
             }, self._delay);
         }
@@ -1657,6 +1657,26 @@ function clientListDatagrid() {
                         sortable: false
                     },
                     {
+                        property: 'company',
+                        label: 'Compañia',
+                        sortable: false
+                    },
+                    {
+                        property: 'state',
+                        label: 'Estado',
+                        sortable: false
+                    },
+                    {
+                        property: 'city',
+                        label: 'Ciudad',
+                        sortable: false
+                    },
+                    {
+                        property: 'rating',
+                        label: 'Rating',
+                        sortable: false
+                    },
+                    {
                         property: 'actions',
                         label: 'Acciones'
                     }
@@ -1665,7 +1685,25 @@ function clientListDatagrid() {
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
+
+                        var stars = '';
+
+                        if (item.rating == null){
+                            for (var j = 1; j <= 5; j++){
+                                stars += '<i class="icon-star-empty" id="star' + j + '">';
+                            }
+                        } else {
+                            for (var i = 1; i <= 5; i++){
+                                if (i <= item.rating){
+                                    stars += '<i class="icon-star" id="star' + i + '">';
+                                } else {
+                                    stars += '<i class="icon-star-empty" id="star' + i + '">';
+                                }
+                            }
+                        }
+
                         item.first_name = '<a href="/clients/details/'+ item.actions +'">' + item.first_name + '</a>';
+                        item.rating = '<input type="hidden" value="'+ item.rating +'">' + stars;
                         item.actions = '<a href="/clients/edit/'+ item.actions +'" class="edit-client" data-toggle="ajaxModal"><i class="icon-edit"></i></a>' +
                             '<a href="/clients/remove/'+ item.actions +'"  class="remove-client"><i class="icon-remove"></i></a>';
                     });

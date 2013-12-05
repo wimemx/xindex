@@ -551,5 +551,22 @@ $(document).ready(function () {
 
     });
 
+    //--- Función corregir problema modal  Subsidiaries---//
+    $('#mySubsidiaryGrid').on('click', 'a.edit-subsidiary', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        if (url.indexOf('#') == 0) {
+            $(url).modal('open');
+        } else {
+            $.get(url,function (data) {
+                $('<div class="modal" id="edit-subsidiary">' + data + '</div>').modal();
+            }).success(function () {
+                    $('input:text:visible:first').focus();
+                });
+        }
+
+
+    });
+
 
 })

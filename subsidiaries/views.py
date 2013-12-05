@@ -32,7 +32,7 @@ def details(request, subsidiary_id):
         myBusinessUnitList.append(eachBusinessUnit.id_business_unit.id)
 
     myBusinessUnitList = list(set(myBusinessUnitList))
-
+    services = {'services': []}
     for eachSetBusinessUnit in myBusinessUnitList:
         myBusinessUnit = BusinessUnit.objects.get(pk=eachSetBusinessUnit)
 
@@ -40,7 +40,6 @@ def details(request, subsidiary_id):
             id_subsidiaryBU__id_subsidiary__id=subsidiary_id
         )
 
-        services = {'services': []}
         for eachSBUS in mySBUSS:
             myServiceList.append(eachSBUS.id_service.id)
             services['services'].append({
@@ -158,18 +157,16 @@ def edit(request, subsidiary_id):
 
 
 def remove(request, subsidiary_id):
-    try:
-        sub = Subsidiary.objects.get(id=subsidiary_id)
-    except Subsidiary.DoesNotExist:
-        sub = False
 
+    sub = Subsidiary.objects.get(id=subsidiary_id)
     if sub:
-        try:
-            businessUnit = BusinessUnit.objects.filter(subsidiary=sub)
 
+        try:
+            businessUnit = SubsidiaryBusinessUnit.objects.filter(
+                id_subsidiary__id=sub.id
+            )
             for eachBusinessUnit in businessUnit:
-                eachBusinessUnit.active = False
-                eachBusinessUnit.save()
+                eachBusinessUnit.delete()
 
             sub.active = False
             sub.save()

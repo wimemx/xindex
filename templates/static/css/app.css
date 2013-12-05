@@ -2817,3 +2817,33 @@ a:hover{
     padding-top: 10px;
     padding-left: 10px;
 }
+
+.ck-button {
+    padding: 0 !important;
+    background-color:#EFEFEF;
+    width: 37px !important;
+    height: 34px !important;
+}
+
+.ck-button label span {
+    padding-top: 6px !important;
+     width: 36px !important;
+    height: 34px !important;
+    border-radius: 3px;
+    display:block;
+}
+
+.ck-button label span:hover{
+    cursor: pointer;
+}
+.ck-button label input {
+    position:absolute;
+    top:-20px;
+}
+
+.ck-button input:checked + span {
+    width: 36px !important;
+    height: 34px !important;
+    background-color:#92cf5c;
+    color:#fff;
+}
