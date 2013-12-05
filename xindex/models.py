@@ -419,7 +419,7 @@ class Client(models.Model):
     date = models.DateField(default=datetime.now, blank=True, null=True)
 
     def __unicode__(self):
-        return self.first_name
+        return unicode(self.first_name)
 
 
 class ClientActivity(models.Model):
