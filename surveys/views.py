@@ -6,6 +6,10 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
+from xindex.models import Survey, Company
+from xindex.forms import SurveyForm
+from xindex.models import Xindex_User
+from xindex.models import Question_Type
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
 
@@ -44,9 +48,11 @@ def index(request):
                 "next_step": each_survey.step
             }
         )
-    template_vars = {"title": "Surveys",
-                     "surveys": surveys,
-                     "order_query": "Nombre"}
+    template_vars = {
+        "title": "Surveys",
+        "surveys": surveys,
+        "order_query": "Nombre"
+    }
     request_context = RequestContext(request, template_vars)
     return render(request, 'surveys/index.html', request_context)
 
@@ -55,7 +61,7 @@ def index(request):
 def indexOrder(request, order_type):
     surveys = {'surveys': []}
     survey_query = Survey.objects.filter(active=True).order_by(order_type)
-    question_attribute_query = Question_Attributes.objects.all()
+    question_attribute_query = Question_sbu_s_m_a.objects.all()
 
     for each_survey in survey_query:
         counter_question = 0
@@ -233,7 +239,7 @@ def save(request, action, next_step, survey_id=False):
             return render_to_response('surveys/add-step-2.html',
                                       request_context)
 
-        question_types = Question_Type.objects.all().order_by('name')
+        question_types = Question_Type.objects.filter(active=True).order_by('name')
         if int(next_step) == 3 and action == 'next':
             survey.step = 3
             survey.save()
@@ -304,7 +310,7 @@ def save(request, action, next_step, survey_id=False):
                                         association = Question_sbu_s_m_a.objects.get(
                                             question_id=question)
                                         for assoc in association.sbu_s_m_a_id.all():
-                                            attribute_title = assoc.id_attribute.name
+                                            attribute_title = assoc.id_attribute.name if assoc.id_attribute is not None else 'Sin asignar'
                                             moment_title = assoc.id_sbu_service_moment.id_moment.name
                                     except Question_sbu_s_m_a.DoesNotExist:
                                         moment_title = False
@@ -555,16 +561,53 @@ def save_ajax(request, survey_id):
 
 def delete_questions(request):
     if request.is_ajax():
-
         question_ids = json.loads(request.POST.get('ids'))
 
-        print request.POST['survey_id']
+        ids_q_s_bu_s_m_a = []
+        ids_s_bu_s_m_a = []
 
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
 
         for question in question_ids:
-            q = Question.objects.get(pk=int(question['question_id']))
-            survey.questions.remove(q)
+            try:
+                q = Question.objects.get(pk=int(question['question_id']))
+                survey.questions.remove(q)
+            except Question.DoesNotExist:
+                pass
+
+        for question in question_ids:
+            try:
+                q_s_bu_s_m_a = Question_sbu_s_m_a.objects.get(question_id=Question.objects.get(pk=int(question['question_id'])))
+                ids_q_s_bu_s_m_a.append(q_s_bu_s_m_a.id)
+                for s_bu_s_m_a in q_s_bu_s_m_a.sbu_s_m_a_id.all():
+                    ids_s_bu_s_m_a.append(s_bu_s_m_a.id)
+
+                try:
+                    Option.objects.filter(question=Question.objects.get(pk=int(question['question_id']))).delete()
+                except Option.DoesNotExist:
+                    pass
+            except Question_sbu_s_m_a.DoesNotExist:
+                pass
+
+            try:
+                Question.objects.get(pk=int(question['question_id'])).delete()
+            except Question.DoesNotExist:
+                pass
+        #delete Questions-Attributes
+        print ids_q_s_bu_s_m_a
+        for q_s_bu_s_m_a in ids_q_s_bu_s_m_a:
+            try:
+                Question_sbu_s_m_a.objects.get(pk=q_s_bu_s_m_a).delete()
+            except Question_sbu_s_m_a.DoesNotExist:
+                pass
+
+        #delete Attributes-Moments
+        print ids_s_bu_s_m_a
+        for s_bu_s_m_a in ids_s_bu_s_m_a:
+            try:
+                sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+            except sbu_service_moment_attribute.DoesNotExist:
+                pass
 
         json_response = json.dumps(
             {
@@ -577,45 +620,30 @@ def delete_questions(request):
 def associate_questions_to_moments(request):
     if request.is_ajax():
         question_ids = json.loads(request.POST.get('ids'))
-
-        moment = Moment.objects.get(pk=int(request.POST['moment_id']))
+        try:
+            moment = Moment.objects.get(pk=int(request.POST['moment_id'])).id
+        except Moment.DoesNotExist:
+            moment = False
 
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
 
         user = Xindex_User.objects.get(pk=request.user.id)
 
-        for company in user.company_set.all():
-                for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
-                            id_subsidiary=subsidiary.id,
-                            id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(
-                                id_subsidiaryBU=subsidiary_business_unit.id,
-                                id_service=survey.service_id):
-                            counter_rel = 0
-                            for sbu_s_m in sbu_service_moment.objects.filter(
-                                    id_sbu_service=sub_bu_ser.id):
-                                counter_rel += 1
-                                s_bu_s_m_a = sbu_service_moment_attribute()
-                                s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
-                                s_bu_s_m_a.alias = 'Relation: '+str(counter_rel)
-                                s_bu_s_m_a.save()
-
-        for question in question_ids:
-            q = Question.objects.get(pk=int(question['question_id']))
-            attribute = Attributes.objects.get(pk=1)
-
-
-
+        for question_id in question_ids:
             try:
-                relation = Question_Attributes.objects.get(question_id=q)
-            except Question_Attributes.DoesNotExist:
-                relation = Question_Attributes()
-
-            relation.moment_id = moment
-            relation.question_id = q
-            relation.weight = 10
-            relation.save()
+                question = Question.objects.get(pk=int(question_id['question_id']))
+                attribute = False
+                try:
+                    relation = Question_sbu_s_m_a.objects.get(question_id=question)
+                    for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                        attribute = s_bu_s_m_a.id_attribute.id if s_bu_s_m_a.id_attribute is not None else False
+                    print 'Changing the relation with the same attribute'
+                    update_association_qma(question, moment, attribute)
+                except Question_sbu_s_m_a.DoesNotExist:
+                    print 'Creating the relation'
+                    update_association_qma(question, moment, attribute)
+            except Question.DoesNotExist:
+                pass
 
         json_response = json.dumps(
             {
@@ -624,7 +652,7 @@ def associate_questions_to_moments(request):
         )
         return HttpResponse(json_response, content_type="application/json")
 
-
+'''
 def associate_questions_to_attributes(request):
 
     if request.is_ajax():
@@ -651,10 +679,10 @@ def associate_questions_to_attributes(request):
         )
 
         return HttpResponse(json_response, content_type="application/json")
+'''
+
 
 #Questions Section
-
-
 def create_matrix(request, data):
     type = int(data.type)
     title = data.title
@@ -1084,10 +1112,148 @@ def add_ajax(request):
         raise Http404
 
 
+@login_required(login_url='/login/')
 def deployment(request, action, next_step, survey_id=False):
-    survey_id = int(survey_id)
-    survey = Survey.objects.get(pk=survey_id)
-    xindex_user = Xindex_User.objects.get(user__id=request.user.id)
+
+    #function to validate hash or cookie
+    #TODO: find the best way to implement this
+    try:
+        survey = Survey.objects.get(pk=survey_id)
+        configuration = json.loads(survey.configuration)
+
+        #get the company name
+        companies = survey.user.company_set.all();
+
+        for company in companies:
+            company_name = company.name
+            company_address = company.address
+            company_email = company.email
+            company_phone = company.phone
+
+        setup = {}
+
+        setup['blocks'] = []
+
+        setup['question_styles'] = False
+
+        for key, values in configuration.items():
+            if key == 'blocks':
+                for block in values:
+                    questions = []
+                    for q in block['questions']:
+                        if 'db_id' in q:
+
+                            try:
+                                question = Question.objects.get(
+                                    pk=q['db_id'])
+                                options = question.option_set.filter(
+                                    active=True).order_by('id')
+
+                                moment_title = False
+                                attribute_title = False
+                                #end check
+
+                                options_o = []
+                                for option in options:
+                                    options_o.append(
+                                        {
+                                            'id_option': option.id,
+                                            'text': option.label,
+                                            'option': option
+                                        }
+                                    )
+                                if 'question_style' in q:
+                                    style = q['question_style']
+                                else:
+                                    style = False
+
+                                if question.type.name == 'Matrix':
+                                    sub_questions = question.question_set.filter(
+                                        active=True).order_by('id')
+                                else:
+                                    sub_questions = False
+                                questions.append(
+                                    {
+                                        'question': question,
+                                        'sub_questions': sub_questions,
+                                        'moment_title': moment_title,
+                                        'attribute_title': attribute_title,
+                                        'question_style': style,
+                                        'survey_question_id': q['question_survey_id'],
+                                        'question_content_id': q['question_content_id'],
+                                        'db_question_id': q['db_id'],
+                                        'question_title': question.title,
+                                        'question_type': question.type.id,
+                                        'question_type_name': question.type.name,
+                                        'question_options': options_o
+                                    }
+                                )
+                            except Question.DoesNotExist:
+                                question = None
+
+                    if 'block_description' in block:
+                        block_description = block['block_description']
+                    else:
+                        block_description = ''
+                    if 'style' in block:
+                        style = block['style']
+                    else:
+                        style = ''
+                    if 'block_moment_associated_id' in block:
+                        block_moment_associated_id = block['block_moment_associated_id']
+                        print block_moment_associated_id
+                    else:
+                        block_moment_associated_id = False
+                    if 'block_type' in block:
+                        block_type = block['block_type']
+                    else:
+                        block_type = 'questions_block'
+
+                    setup['blocks'].append(
+                        {
+                            'block_id': block['block_id'],
+                            'block_default_class': block['class_default'],
+                            'block_description': block_description,
+                            'style': style,
+                            'questions': questions,
+                            'block_moment_associated_id': block_moment_associated_id,
+                            'block_type': block_type
+                        }
+                    )
+            if key == 'blocks_style':
+                setup['blocks_style'] = values
+            if key == 'questions_style':
+                setup['questions_style'] = values
+            if key == 'block_border_color':
+                setup['block_border_color'] = values
+            if key == 'block_border_style':
+                setup['block_border_style'] = values
+            if key == 'block_border_width':
+                setup['block_border_width'] = values
+            if key == 'block_background_color':
+                setup['block_background_color'] = values
+            if key == 'block_box_shadow':
+                setup['block_box_shadow'] = values
+        if not survey.picture == 'No image':
+            print survey.picture
+            setup['survey_picture'] = survey.picture
+        else:
+            setup['survey_picture'] = False
+        template_vars = {
+            'survey_title': survey.name,
+            'survey_id': survey.id,
+            'company_name': company_name,
+            'company_address': company_address,
+            'company_email': company_email,
+            'company_phone': company_phone,
+            'setup': setup
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('surveys/deployment.html',
+                                  request_context)
+    except Survey.DoesNotExist:
+        HttpResponse('La encuesta no existe')
+    '''
     try:
         company = Company.objects.get(staff=xindex_user)
 
@@ -1214,9 +1380,11 @@ def deployment(request, action, next_step, survey_id=False):
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/deployment.html',
                                   request_context)
+        '''
 
 
-def edit(request, question_id):
+#function to get question data to update
+def get_question_data_to_update(request, question_id):
     if request.is_ajax:
         question_types = Question_Type.objects.all().order_by('name')
         question = get_object_or_404(Question, pk=question_id)
@@ -1356,28 +1524,6 @@ def edit(request, question_id):
                 moment_name = False
                 attribute_id = False
                 attribute_name = False
-            """
-            try:
-                question_association = Question_Attributes.objects.get(question_id__id=question_id)
-                if question_association.moment_id is None:
-                    moment_id = False
-                    moment_name = False
-                else:
-                    moment_id = question_association.moment_id.id
-                    moment_name = question_association.moment_id.name
-                if question_association.attribute_id is None:
-                    attribute_id = False
-                    attribute_name = False
-                else:
-                    attribute_id = question_association.attribute_id.id
-                    attribute_name = question_association.attribute_id.name
-
-            except Question_Attributes.DoesNotExist:
-                moment_id = False
-                moment_name = False
-                attribute_id = False
-                attribute_name = False
-                """
 
             question_json['question_moment_id'] = moment_id
             question_json['question_moment_name'] = moment_name
@@ -1407,11 +1553,7 @@ def edit(request, question_id):
 
         #Editar una pregunta tipo 'Falso o verdadero o Abierta'
         elif question.type.name == "Open Question" or question.type.name == "False and True":
-            '''
-            return render_to_response('questions/edit.html',
-                                      {'question': question,
-                                       'question_types': question_types})
-            '''
+
             question_json = {}
             question_json['question_type_id'] = question.type.id
             question_json['question_type_name'] = question.type.name
@@ -1439,28 +1581,6 @@ def edit(request, question_id):
                 moment_name = False
                 attribute_id = False
                 attribute_name = False
-            """
-            try:
-                question_association = Question_Attributes.objects.get(question_id__id=question_id)
-                if question_association.moment_id is None:
-                    moment_id = False
-                    moment_name = False
-                else:
-                    moment_id = question_association.moment_id.id
-                    moment_name = question_association.moment_id.name
-                if question_association.attribute_id is None:
-                    attribute_id = False
-                    attribute_name = False
-                else:
-                    attribute_id = question_association.attribute_id.id
-                    attribute_name = question_association.attribute_id.name
-
-            except Question_Attributes.DoesNotExist:
-                moment_id = False
-                moment_name = False
-                attribute_id = False
-                attribute_name = False
-                """
 
             question_json['question_moment_id'] = moment_id
             question_json['question_moment_name'] = moment_name
@@ -1474,15 +1594,6 @@ def edit(request, question_id):
         elif question.type.name == "Range":
             options = question.option_set.filter(active=True).order_by('id')
             first, last = options[0], options.reverse()[1]
-
-            '''
-            return render_to_response('questions/edit.html',
-                                      {'question': question,
-                                       'question_types': question_types,
-                                       'options': options,
-                                       'first': first,
-                                       'last': last})
-            '''
 
             question_json = {'question_type_id': question.type.id,
                              'question_type_name': question.type.name,
@@ -1515,30 +1626,7 @@ def edit(request, question_id):
                 moment_name = False
                 attribute_id = False
                 attribute_name = False
-            """
-            try:
-                question_association = Question_Attributes.objects.get(
-                    question_id__id=question_id)
 
-                if question_association.moment_id is None:
-                    moment_id = False
-                    moment_name = False
-                else:
-                    moment_id = question_association.moment_id.id
-                    moment_name = question_association.moment_id.name
-                if question_association.attribute_id is None:
-                    attribute_id = False
-                    attribute_name = False
-                else:
-                    attribute_id = question_association.attribute_id.id
-                    attribute_name = question_association.attribute_id.name
-
-            except Question_Attributes.DoesNotExist:
-                moment_id = False
-                moment_name = False
-                attribute_id = False
-                attribute_name = False
-            """
             question_json['question_moment_id'] = moment_id
             question_json['question_moment_name'] = moment_name
             question_json['question_attribute_id'] = attribute_id
@@ -1634,83 +1722,7 @@ def update_matrix(question, data):
         for d_question in deleted_questions:
             d_question.option_set.all().update(active=False)
 
-    if data.moment_id or data.attribute_id:
-
-        try:
-            q_a_m = Question_sbu_s_m_a.objects.get(question_id=question)
-
-            survey = question.survey_set.all()[0]
-            user = Xindex_User.objects.get(pk=survey.user_id)
-
-            for s_bu_s_m_a in q_a_m.sbu_s_m_a_id.all():
-                #TODO: Fix this for every question
-                pass
-
-        except Question_sbu_s_m_a.DoesNotExist:
-            q_a_m = Question_sbu_s_m_a()
-            q_a_m.question_id = question
-
-
-            survey = question.survey_set.all()[0]
-            user = Xindex_User.objects.get(pk=survey.user_id)
-            s_bu_s_m_a_array = []
-
-            if data.moment_id:
-                for company in user.company_set.all():
-                        for subsidiary in company.subsidiary_set.all():
-                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
-                                    id_subsidiary=subsidiary.id,
-                                    id_business_unit=survey.business_unit_id):
-                                for sub_bu_ser in sbu_service.objects.filter(
-                                        id_subsidiaryBU=subsidiary_business_unit.id,
-                                        id_service=survey.service_id):
-                                    for sbu_s_m in sbu_service_moment.objects.filter(
-                                            id_sbu_service=sub_bu_ser.id,
-                                            id_moment=Moment.objects.get(pk=data.moment_id)):
-                                        s_bu_s_m_a = sbu_service_moment_attribute()
-                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
-                                        if data.attribute_id:
-                                            s_bu_s_m_a.id_attribute = Attributes.objects.get(
-                                                pk=attribute_id)
-                                        s_bu_s_m_a.save()
-                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
-
-                qsbusma = Question_sbu_s_m_a()
-                qsbusma.question_id = question
-                qsbusma.weight = 10
-                qsbusma.save()
-                for sbusma in s_bu_s_m_a_array:
-                    qsbusma.sbu_s_m_a_id.add(sbusma)
-
-
-        try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-        except Question_Attributes.DoesNotExist:
-            q_a_m = Question_Attributes()
-            q_a_m.question_id = question
-
-        if data.moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
-        else:
-            q_a_m.moment_id = None
-
-
-
-        if data.attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-
-    if not data.moment_id and not data.attribute_id:
-        try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-            q_a_m.delete()
-        except Question_Attributes.DoesNotExist:
-            q_a_m = None
+    #TODO: Check how to apply each relation
 
     json_response = json.dumps(
         {
@@ -1757,37 +1769,195 @@ def update_multiple_choice(question, data):
                               value=i+1, order=i+1, meta='not editable')
     not_apply_option.save()
 
-    if data.moment_id or data.attribute_id:
+    if data.moment_id and data.attribute_id:
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #Get the moment object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-        except Question_Attributes.DoesNotExist:
-            q_a_m = Question_Attributes()
-            q_a_m.question_id = question
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
 
-        print q_a_m
-
-        if data.moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
-        else:
-            q_a_m.moment_id = None
-
-
-
-        if data.attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-
-    if not data.moment_id and not data.attribute_id:
+        #Get the attribute object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-            q_a_m.delete()
-        except Question_Attributes.DoesNotExist:
-            q_a_m = None
+            attribute = Attributes.objects.get(pk=data.attribute_id)
+        except Attributes.DoesNotExist:
+            attribute = False
+
+        #if objects were recovered
+        if moment and attribute:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute == attribute:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = attribute
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = attribute
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=data.attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if data.moment_id and (not data.attribute_id):
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #initialize attribute as false
+        attribute = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #if objects were recovered
+        if moment:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute is None:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = None
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = None
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if (not data.moment_id) and (not data.attribute_id):
+        delete_relation = True
+        create_new_relation = False
+        current_moment = False
+        s_bu_s_m_a_ids_array = []
+        #recover the relation
+        try:
+            relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+            for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                s_bu_s_m_a_ids_array.append(s_bu_s_m_a.id)
+
+            #delete the relation
+            relation.delete()
+
+            for s_bu_s_m_a in s_bu_s_m_a_ids_array:
+                try:
+                    sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+                except sbu_service_moment_attribute.DoesNotExist:
+                    pass
+
+        except Question_sbu_s_m_a.DoesNotExist:
+            pass
 
     json_response = json.dumps(
         {
@@ -1801,37 +1971,195 @@ def update_open_question(question, data):
     question.title = data.title
     question.save()
 
-    if data.moment_id or data.attribute_id:
+    if data.moment_id and data.attribute_id:
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #Get the moment object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-        except Question_Attributes.DoesNotExist:
-            q_a_m = Question_Attributes()
-            q_a_m.question_id = question
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
 
-        print q_a_m
-
-        if data.moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
-        else:
-            q_a_m.moment_id = None
-
-
-
-        if data.attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-
-    if not data.moment_id and not data.attribute_id:
+        #Get the attribute object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-            q_a_m.delete()
-        except Question_Attributes.DoesNotExist:
-            q_a_m = None
+            attribute = Attributes.objects.get(pk=data.attribute_id)
+        except Attributes.DoesNotExist:
+            attribute = False
+
+        #if objects were recovered
+        if moment and attribute:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute == attribute:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = attribute
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = attribute
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=data.attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if data.moment_id and (not data.attribute_id):
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #initialize attribute as false
+        attribute = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #if objects were recovered
+        if moment:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute is None:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = None
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = None
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if (not data.moment_id) and (not data.attribute_id):
+        delete_relation = True
+        create_new_relation = False
+        current_moment = False
+        s_bu_s_m_a_ids_array = []
+        #recover the relation
+        try:
+            relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+            for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                s_bu_s_m_a_ids_array.append(s_bu_s_m_a.id)
+
+            #delete the relation
+            relation.delete()
+
+            for s_bu_s_m_a in s_bu_s_m_a_ids_array:
+                try:
+                    sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+                except sbu_service_moment_attribute.DoesNotExist:
+                    pass
+
+        except Question_sbu_s_m_a.DoesNotExist:
+            pass
 
     json_response = json.dumps(
         {
@@ -1896,49 +2224,205 @@ def update_range_question(question, data):
         lastOption.save()
 
     not_apply_option = Option(question=question, label='No aplica',
-                              value=end_number+1,
-                              order=end_number+1,
-                              meta='not editable')
+                              value=end_number+1, order=end_number+1, meta='not editable')
     not_apply_option.save()
 
-    if data.moment_id or data.attribute_id:
+    if data.moment_id and data.attribute_id:
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #Get the moment object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-        except Question_Attributes.DoesNotExist:
-            q_a_m = Question_Attributes()
-            q_a_m.question_id = question
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
 
-        print q_a_m
-
-        if data.moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
-        else:
-            q_a_m.moment_id = None
-
-
-
-        if data.attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-
-    if not data.moment_id and not data.attribute_id:
+        #Get the attribute object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-            q_a_m.delete()
-        except Question_Attributes.DoesNotExist:
-            q_a_m = None
+            attribute = Attributes.objects.get(pk=data.attribute_id)
+        except Attributes.DoesNotExist:
+            attribute = False
 
+        #if objects were recovered
+        if moment and attribute:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute == attribute:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = attribute
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment.id)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = attribute
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=data.attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if data.moment_id and (not data.attribute_id):
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #initialize attribute as false
+        attribute = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #if objects were recovered
+        if moment:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute is None:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = None
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment.id)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = None
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if (not data.moment_id) and (not data.attribute_id):
+        delete_relation = True
+        create_new_relation = False
+        current_moment = False
+        s_bu_s_m_a_ids_array = []
+        #recover the relation
+        try:
+            relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+            for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                s_bu_s_m_a_ids_array.append(s_bu_s_m_a.id)
+
+            #delete the relation
+            relation.delete()
+
+            for s_bu_s_m_a in s_bu_s_m_a_ids_array:
+                try:
+                    sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+                except sbu_service_moment_attribute.DoesNotExist:
+                    pass
+
+        except Question_sbu_s_m_a.DoesNotExist:
+            pass
 
     json_response = json.dumps(
         {
             'updated': True
         }
     )
+
     return HttpResponse(json_response, content_type="application/json")
 
 
@@ -1946,37 +2430,195 @@ def update_true_and_false(question, data):
     question.title = data.title
     question.save()
 
-    if data.moment_id or data.attribute_id:
+    if data.moment_id and data.attribute_id:
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #Get the moment object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-        except Question_Attributes.DoesNotExist:
-            q_a_m = Question_Attributes()
-            q_a_m.question_id = question
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
 
-        print q_a_m
-
-        if data.moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=data.moment_id)
-        else:
-            q_a_m.moment_id = None
-
-
-
-        if data.attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=data.attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-
-    if not data.moment_id and not data.attribute_id:
+        #Get the attribute object
         try:
-            q_a_m = Question_Attributes.objects.get(question_id=question)
-            q_a_m.delete()
-        except Question_Attributes.DoesNotExist:
-            q_a_m = None
+            attribute = Attributes.objects.get(pk=data.attribute_id)
+        except Attributes.DoesNotExist:
+            attribute = False
+
+        #if objects were recovered
+        if moment and attribute:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute == attribute:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = attribute
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = attribute
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=data.attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if data.moment_id and (not data.attribute_id):
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #initialize attribute as false
+        attribute = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=data.moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #if objects were recovered
+        if moment:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute is None:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = None
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = None
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=data.moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if (not data.moment_id) and (not data.attribute_id):
+        delete_relation = True
+        create_new_relation = False
+        current_moment = False
+        s_bu_s_m_a_ids_array = []
+        #recover the relation
+        try:
+            relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+            for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                s_bu_s_m_a_ids_array.append(s_bu_s_m_a.id)
+
+            #delete the relation
+            relation.delete()
+
+            for s_bu_s_m_a in s_bu_s_m_a_ids_array:
+                try:
+                    sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+                except sbu_service_moment_attribute.DoesNotExist:
+                    pass
+
+        except Question_sbu_s_m_a.DoesNotExist:
+            pass
 
     json_response = json.dumps(
         {
@@ -2000,8 +2642,6 @@ def edit_ajax(request, question_id):
                                   (*d.values())
             )
 
-            print data
-
             q_id = int(question_id)
             question = Question.objects.get(pk=q_id)
             question.title = data.title
@@ -2011,7 +2651,6 @@ def edit_ajax(request, question_id):
             if question.type.name == "Matrix":
                 return update_matrix(question, data)
             elif question.type.name == "Multiple Choice":
-                print 'entra al metodo'
                 return update_multiple_choice(question, data)
             elif question.type.name == "Open Question":
                 return update_open_question(question, data)
@@ -2019,8 +2658,6 @@ def edit_ajax(request, question_id):
                 return update_range_question(question, data)
             elif question.type.name == "False and True":
                 return update_true_and_false(question, data)
-
-            print question.type.name
 
             #If the type of question is not defined, throw an error
             json_response = json.dumps(
@@ -2040,52 +2677,51 @@ def edit_ajax(request, question_id):
 
 def createAssociationQAM(question, moment_id, attribute_id):
     if moment_id or attribute_id:
-        survey = question.survey_set.all()[0]
-        user = Xindex_User.objects.get(pk=survey.user_id)
-        s_bu_s_m_a_array = []
-        for company in user.company_set.all():
-                for subsidiary in company.subsidiary_set.all():
-                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
-                            id_subsidiary=subsidiary.id,
-                            id_business_unit=survey.business_unit_id):
-                        for sub_bu_ser in sbu_service.objects.filter(
-                                id_subsidiaryBU=subsidiary_business_unit.id,
-                                id_service=survey.service_id):
-                            for sbu_s_m in sbu_service_moment.objects.filter(
-                                    id_sbu_service=sub_bu_ser.id,
-                                    id_moment=Moment.objects.get(pk=moment_id)):
-                                s_bu_s_m_a = sbu_service_moment_attribute()
-                                s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
-                                s_bu_s_m_a.id_attribute = Attributes.objects.get(
-                                    pk=attribute_id)
-                                s_bu_s_m_a.save()
-                                s_bu_s_m_a_array.append(s_bu_s_m_a)
+        if moment_id and attribute_id:
+            survey = question.survey_set.all()[0]
+            user = Xindex_User.objects.get(pk=survey.user_id)
+            s_bu_s_m_a_array = []
+            for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
 
-        qsbusma = Question_sbu_s_m_a()
-        qsbusma.question_id = question
-        qsbusma.weight = 10
-        qsbusma.save()
-        for sbusma in s_bu_s_m_a_array:
-            qsbusma.sbu_s_m_a_id.add(sbusma)
+            qsbusma = Question_sbu_s_m_a()
+            qsbusma.question_id = question
+            qsbusma.weight = 10
+            qsbusma.save()
+            for sbusma in s_bu_s_m_a_array:
+                qsbusma.sbu_s_m_a_id.add(sbusma)
+        elif moment_id and (not attribute_id):
+            survey = question.survey_set.all()[0]
+            user = Xindex_User.objects.get(pk=survey.user_id)
+            s_bu_s_m_a_array = []
+            for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
 
-        """
-        q_a_m = Question_Attributes()
-        q_a_m.question_id = question
-
-        if moment_id:
-            q_a_m.moment_id = Moment.objects.get(pk=moment_id)
-        else:
-            q_a_m.moment_id = None
-
-        if attribute_id:
-            q_a_m.attribute_id = Attributes.objects.get(pk=attribute_id)
-        else:
-            q_a_m.attribute_id = None
-
-        q_a_m.weight = 10
-
-        q_a_m.save()
-        """
+            qsbusma = Question_sbu_s_m_a()
+            qsbusma.question_id = question
+            qsbusma.weight = 10
+            qsbusma.save()
+            for sbusma in s_bu_s_m_a_array:
+                qsbusma.sbu_s_m_a_id.add(sbusma)
+        elif attribute_id and (not moment_id):
+            #TODO: check if the relation can be created without moment, for now it is not possible
+            pass
 
 
 def get_survey_blocks_style(request):
@@ -2352,3 +2988,195 @@ def save_answers_ajax(request):
                     {'messagesent': "Error - Invalid json"}
             )
         return HttpResponse(json_response, content_type="application/json")
+
+
+def update_association_qma(question, moment_id, attribute_id):
+    if moment_id and attribute_id:
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #Get the attribute object
+        try:
+            attribute = Attributes.objects.get(pk=attribute_id)
+        except Attributes.DoesNotExist:
+            attribute = False
+
+        #if objects were recovered
+        if moment and attribute:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute == attribute:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = attribute
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment.id)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = attribute
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = Attributes.objects.get(pk=attribute_id)
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if moment_id and (not attribute_id):
+        delete_relation = False
+        create_new_relation = False
+        current_moment = False
+        #initialize attribute as false
+        attribute = False
+        #Get the moment object
+        try:
+            moment = Moment.objects.get(pk=moment_id)
+        except Moment.DoesNotExist:
+            moment = False
+
+        #if objects were recovered
+        if moment:
+            #recover the relation
+            try:
+                relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+                #check if the moment is the same
+                for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                    if s_bu_s_m_a.id_sbu_service_moment.id_moment == moment:
+                        if s_bu_s_m_a.id_attribute is None:
+                            pass
+                        else:
+                            s_bu_s_m_a.id_attribute = None
+                            s_bu_s_m_a.save()
+                    else:
+                        current_moment = Moment.objects.get(pk=s_bu_s_m_a.id_sbu_service_moment.id_moment.id)
+                        delete_relation = True
+                        create_new_relation = True
+
+                #new relation is needed?
+                if delete_relation is True:
+                    relation.sbu_s_m_a_id.all().delete()
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=current_moment):
+                                        sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=sbu_s_m).delete()
+                if create_new_relation is True:
+                    survey = question.survey_set.all()[0]
+                    user = Xindex_User.objects.get(pk=survey.user_id)
+                    s_bu_s_m_a_array = []
+                    for company in user.company_set.all():
+                        for subsidiary in company.subsidiary_set.all():
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                                for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                    for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=moment):
+                                        s_bu_s_m_a = sbu_service_moment_attribute()
+                                        s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                        s_bu_s_m_a.id_attribute = None
+                                        s_bu_s_m_a.save()
+                                        s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                    for sbusma in s_bu_s_m_a_array:
+                        relation.sbu_s_m_a_id.add(sbusma)
+            except Question_sbu_s_m_a.DoesNotExist:
+                #create new relation
+                survey = question.survey_set.all()[0]
+                user = Xindex_User.objects.get(pk=survey.user_id)
+                s_bu_s_m_a_array = []
+                for company in user.company_set.all():
+                    for subsidiary in company.subsidiary_set.all():
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary.id, id_business_unit=survey.business_unit_id):
+                            for sub_bu_ser in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit.id, id_service=survey.service_id):
+                                for sbu_s_m in sbu_service_moment.objects.filter(id_sbu_service=sub_bu_ser.id, id_moment=Moment.objects.get(pk=moment_id)):
+                                    s_bu_s_m_a = sbu_service_moment_attribute()
+                                    s_bu_s_m_a.id_sbu_service_moment = sbu_s_m
+                                    s_bu_s_m_a.id_attribute = None
+                                    s_bu_s_m_a.save()
+                                    s_bu_s_m_a_array.append(s_bu_s_m_a)
+
+                qsbusma = Question_sbu_s_m_a()
+                qsbusma.question_id = question
+                qsbusma.weight = 10
+                qsbusma.save()
+                for sbusma in s_bu_s_m_a_array:
+                    qsbusma.sbu_s_m_a_id.add(sbusma)
+    if (not moment_id) and (not attribute_id):
+        delete_relation = True
+        create_new_relation = False
+        current_moment = False
+        s_bu_s_m_a_ids_array = []
+        #recover the relation
+        try:
+            relation = Question_sbu_s_m_a.objects.get(question_id=question)
+
+            for s_bu_s_m_a in relation.sbu_s_m_a_id.all():
+                s_bu_s_m_a_ids_array.append(s_bu_s_m_a.id)
+
+            #delete the relation
+            relation.delete()
+
+            for s_bu_s_m_a in s_bu_s_m_a_ids_array:
+                try:
+                    sbu_service_moment_attribute.objects.get(pk=s_bu_s_m_a).delete()
+                except sbu_service_moment_attribute.DoesNotExist:
+                    pass
+
+        except Question_sbu_s_m_a.DoesNotExist:
+            pass

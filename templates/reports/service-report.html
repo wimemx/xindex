@@ -363,40 +363,70 @@
             labels: ['Value'],
             xLabels: 'month'
         });
-
-        new Morris.Bar({
-            element: 'comparative_service_graph',
-            data: [
-                {% for service in comparative_data %}
-                    {% if not forloop.last %}
-                        {
-                            'subsidiary_name': '{{ service.subsidiary.name }}',
-                            'xindex': {{ service.xindex_service }}
-                        },
+        {% if comparative_data %}
+            /*comparative data*/
+            new Morris.Bar({
+                element: 'comparative_service_graph',
+                data: [
+                    {
+                        {% for service in comparative_data %}
+                            {% if not forloop.last %}
+                                '{{ service.subsidiary.name }}': {{ service.xindex_service }},
+                            {% else %}
+                                '{{ service.subsidiary.name }}': {{ service.xindex_service }},
+                                'service': 'Servicios'
+                            {% endif %}
+                        {% endfor %}
+                    }
+                    /*
+                    {% for service in comparative_data %}
+                        {% if not forloop.last %}
+                            {
+                                'subsidiary_name': '{{ service.subsidiary.name }}',
+                                'xindex': {{ service.xindex_service }}
+                            },
+                            {% else %}
+                            {
+                                'subsidiary_name': '{{ service.subsidiary.name }}',
+                                'xindex': {{ service.xindex_service }}
+                            }
+                        {% endif %}
+                    {% endfor %}
+                    */
+                ],
+                xkey: 'service',
+                ykeys: [
+                    {% for service in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ service.subsidiary.name }}',
+                            {% else %}
+                            '{{ service.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                labels: [
+                    {% for service in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ service.subsidiary.name }}',
+                            {% else %}
+                            '{{ service.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                hideHover: 'auto',
+                grid: 'auto',
+                barColors:[
+                    {% for service in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ service.color }}',
                         {% else %}
-                        {
-                            'subsidiary_name': '{{ service.subsidiary.name }}',
-                            'xindex': {{ service.xindex_service }}
-                        }
-                    {% endif %}
-                {% endfor %}
-            ],
-            xkey: 'subsidiary_name',
-            ykeys: ['xindex'],
-            labels: ['Xindex'],
-            hideHover: 'auto',
-            grid: 'auto',
-            barColors:[
-                {% for service in comparative_data %}
-                    {% if not forloop.last %}
-                        '{{ service.color }}',
-                    {% else %}
-                        '{{ service.color }}'
-                    {% endif %}
-                {% endfor %}
+                            '{{ service.color }}'
+                        {% endif %}
+                    {% endfor %}
 
-        ]
-        });
+            ]
+            });
+        {% endif %}
 
     </script>
 {% endblock %}

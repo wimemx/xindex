@@ -98,6 +98,66 @@
         .question-content.block-question:hover {
             border: 1px dashed rgba(255, 255, 255, 0);
         }
+
+        /*Draggable items*/
+        #draggable-items {
+            padding: 0px;
+        }
+        #draggable-items li {
+            list-style: none;
+        }
+
+        /*Placeholder for draggable items*/
+        .placeholder-list {
+            border: 2px dotted #fb6364;
+            list-style: none;
+            height: 50%;
+        }
+
+        /*style for jquery ui tooltip*/
+        .ui-tooltip {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0;
+            opacity: 1;
+        }
+        .ui-tooltip-content {
+            position: relative;
+            padding: 1em;
+        }
+        .ui-tooltip-content::after {
+            content: '';
+            position: absolute;
+            border-style: solid;
+            display: block;
+            width: 0;
+        }
+        .right .ui-tooltip-content::after {
+            top: 18px;
+            left: -10px;
+            border-color: transparent #666;
+            border-width: 10px 10px 10px 0;
+        }
+        .left .ui-tooltip-content::after {
+            top: 18px;
+            right: -10px;
+            border-color: transparent #666;
+            border-width: 10px 0 10px 10px;
+        }
+        .top .ui-tooltip-content::after {
+            bottom: -10px;
+            left: 72px;
+            border-color: #666 transparent;
+            border-width: 10px 10px 0;
+        }
+        .bottom .ui-tooltip-content::after {
+            top: -10px;
+            left: 72px;
+            border-color: #666 transparent;
+            border-width: 0 10px 10px;
+        }
+
     </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
@@ -255,7 +315,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} title="Arrastrame">
                                             <div class="block_actions_content" style="height: 25px; min-height: 25px;">
                                                 <div class="block_actions">
                                                     {% csrf_token %}
@@ -278,7 +338,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}" {% else %} style="border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);"{% endif %} title="Arrastrame">
                                             {% for question in block.questions %}
                                                 <div class="wrapper question-content padder" {% if question.question_style %} style="{{ question.question_style }}" {% else %} style="display: table; min-width: 100%; min-heigth: 70px;" {% endif %} id="{{ question.question_content_id }}">
                                                     <div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">
@@ -522,7 +582,7 @@
                             <li class="list-group-item">
                                 <div class="row row-block {{ block.block_type }} animated fadeInDown {% if not block.block_default_class %}row-no-block{% endif %}" id="{{ block.block_id }}">
                                     <div class="col-lg-12">
-                                        <section class="padder padder-v question-block" {% if block.style %}style="{{ block.style }}"{% endif %} data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastrame">
+                                        <section class="padder padder-v question-block jquery-ui-tooltip" {% if block.style %}style="{{ block.style }}"{% endif %} title="Arrastrame">
                                         <!-- input to verify if block has a moment associated -->
                                         {% if block.block_moment_associated_id %}
                                             <input type="hidden" class="block_moment_associated_id true" value="{{ block.block_moment_associated_id }}">
@@ -563,9 +623,13 @@
                                                                 </strong>
                                                                 {% if question.attribute_title %}
                                                                     <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" {{ question.attribute_title }} " </small>
+                                                                    {% else %}
+                                                                    <small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>"Sin asignar" </small>
                                                                 {% endif %}
                                                                 {% if question.moment_title %}
                                                                     <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" {{ question.moment_title }} "</small>
+                                                                    {% else %}
+                                                                    <small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>"Sin asignar"</small>
                                                                 {% endif %}
 
                                                             </div>
@@ -868,51 +932,56 @@
                      draggable="true"
                      ondragstart="dragQuestionBlock(event)"
                      ondragend="dropQuestionBlock(event)">-->
-                <div id="drag-question-block" class="col-lg-4 drag">
-                    <section class="panel">
-                        <div class="panel-body text-center m-t">
-                            <i class="icon-list-alt icon-3x"></i>
+                <ul id="draggable-items">
+                    <li class="questions-block-item">
+                        <div id="drag-question-block" class="col-lg-4 drag">
+                            <section class="panel">
+                                <div class="panel-body text-center m-t">
+                                    <i class="icon-list-alt icon-3x"></i>
+                                </div>
+                                <div class="footer text-center bg-gradient b-t padder-v">
+                                    <small>Bloque de preguntas</small>
+                                </div>
+                            </section>
                         </div>
-                        <div class="footer text-center bg-gradient b-t padder-v">
-                            <small>Bloque de preguntas</small>
+                    </li>
+                    <li class="question-block-item">
+                        <div id="drag-question-only" class="col-lg-4 drag">
+                            <section class="panel">
+                                <div class="panel-body text-center m-t">
+                                    <i class="icon-question-sign icon-3x"></i>
+                                </div>
+                                <div class="footer text-center bg-gradient b-t padder-v">
+                                    <small>Pregunta</small>
+                                </div>
+                            </section>
                         </div>
-                    </section>
-                </div>
-
-                <!--<div id="drag-question-only" class="col-lg-4 drag"
-                     draggable="true"
-                     ondragstart="dragQuestionBlock(event)"
-                     >-->
-                <div id="drag-question-only" class="col-lg-4 drag">
-                    <section class="panel">
-                        <div class="panel-body text-center m-t">
-                            <i class="icon-question-sign icon-3x"></i>
+                    </li>
+                    <li class="image-item">
+                        <div class="col-lg-4 drag">
+                            <section class="panel">
+                                <div class="panel-body text-center m-t">
+                                    <i class="icon-picture icon-3x"></i>
+                                </div>
+                                <div class="footer text-center bg-gradient b-t padder-v">
+                                    <small>Imagen</small>
+                                </div>
+                            </section>
                         </div>
-                        <div class="footer text-center bg-gradient b-t padder-v">
-                            <small>Pregunta</small>
+                    </li>
+                    <li class="text-block-item">
+                        <div class="col-lg-4 drag">
+                            <section class="panel">
+                                <div class="panel-body text-center m-t">
+                                    <i class="icon-align-justify icon-3x"></i>
+                                </div>
+                                <div class="footer text-center bg-gradient b-t padder-v">
+                                    <small>Bloque de texto</small>
+                                </div>
+                            </section>
                         </div>
-                    </section>
-                </div>
-                <div class="col-lg-4 drag">
-                    <section class="panel">
-                        <div class="panel-body text-center m-t">
-                            <i class="icon-picture icon-3x"></i>
-                        </div>
-                        <div class="footer text-center bg-gradient b-t padder-v">
-                            <small>Imagen</small>
-                        </div>
-                    </section>
-                </div>
-                <div class="col-lg-4 drag">
-                    <section class="panel">
-                        <div class="panel-body text-center m-t">
-                            <i class="icon-align-justify icon-3x"></i>
-                        </div>
-                        <div class="footer text-center bg-gradient b-t padder-v">
-                            <small>Bloque de texto</small>
-                        </div>
-                    </section>
-                </div>
+                    </li>
+                </ul>
                 <!--
                 <div class="col-lg-4">
                     <div class="" id="panel-items">
@@ -1900,8 +1969,8 @@
 <!-- Survey Questions App -->
 <script src="/static/js/survey.questions.app.js"></script>
 
-<!-- Sortable-->
-<script src="/static/js/sortable/jquery.sortable.js"></script>
+<!-- Sortable
+<script src="/static/js/sortable/jquery.sortable.js"></script>-->
 
 <!-- Dropzone -->
 <script src="/static/js/dropzone.js"></script>
@@ -1930,12 +1999,96 @@
 
 <!-- BootBox -->
 <script src="/static/js/bootbox/bootbox.min.js"></script>
-<!-- Jquery UI
+<!-- Jquery UI -->
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
--->
+
+<script>
+    $(function() {
+        $("#survey-main-content ul").sortable({
+            placeholder: 'placeholder-list',
+            forcePlaceholderSize: true,
+            stop: function(event, ui){
+                if(ui.item.hasClass('questions-block-item')){
+                    var questions_block = get_questions_block_structure();
+                    ui.item.html(questions_block);
+                    ui.item.addClass('list-group-item');
+                    ui.item.removeClass('questions-block-item');
+                    ui.item.attr('style', '');
+
+                    enumerateQuestionBlocks();
+
+                    var block_id = ui.item.find('div.row-block').attr('id');
+
+                    $('#current-question-block').val(block_id);
+
+                    tinymce.get('tinymce-editor').setContent(
+                            '<div>' +
+                                    '<header class="">' +
+                                    'Titulo' +
+                                    '</header>' +
+                                    '<small class="">' +
+                                    '<p>' +
+                                    'Este contenido es editable' +
+                                    '</p>' +
+                                    '</small>' +
+                                    '</div>'
+                    );
+
+                    $('#main-configuration-panel').addClass('hidden');
+                    $('#questions-block-configuration-panel').removeClass('hidden');
+
+                } else if(ui.item.hasClass('question-block-item')){
+                    ui.item.html(get_question_block_structure());
+                    ui.item.addClass('list-group-item');
+                    ui.item.removeClass('question-block-item');
+                    ui.item.attr('style', '');
+
+                    $('#main-configuration-panel').addClass('hidden');
+                    $('#questions-block-configuration-panel').addClass('hidden');
+                    $('#add-question-option-panel').removeClass('hidden');
+                    enumerateQuestionBlocks();
+                    enumerateQuestions();
+                    hideDefaultButtons();
+
+                } else if(ui.item.hasClass('image-block-item')){
+                    ui.item.html('<div>Imagen Insertada</div>');
+                    ui.item.removeClass('image-block-item');
+                }
+            }
+        }).disableSelection();
+
+        $("#draggable-items li").draggable({
+            connectToSortable: '#sortable_block_list',
+            start: function() {
+                $(this).removeClass("zindexMin");
+                $('#flag-to-drag').removeClass("overfloyd");
+                $(this).addClass("zindexMax");
+            },
+            helper: function(event){
+                if(event.currentTarget.className == 'questions-block-item ui-draggable'){
+                    return $(get_questions_block_structure());
+                } else if(event.currentTarget.className == 'question-block-item ui-draggable'){
+                    return $(get_question_block_structure());
+                } else {
+                    return $(get_questions_block_structure());
+                }
+            }
+        }).disableSelection();
+
+        /*
+        $('.jquery-ui-tooltip').tooltip();
+
+        var position = { my: 'left center', at: 'right+10 center' };
+        var className = 'right';
+        $('.jquery-ui-tooltip').tooltip('option', 'position', position);
+        $('.jquery-ui-tooltip').tooltip('option', 'tooltipClass', className);
+        */
+    });
+</script>
+
 <script>
 
-    $('.drag').draggable({
+    /*$('.drag').draggable({
         start: function() {
             $(this).removeClass("zindexMin");
             $('#flag-to-drag').removeClass("overfloyd");
@@ -1949,11 +2102,11 @@
             return !event;
         },
         stop: function() {
-            $(this).removeClass("zindexMax")
+            $(this).removeClass("zindexMax");
             $('#flag-to-drag').addClass("overfloyd");
             $(this).addClass("zindexMin");
         }
-    });
+    });*/
     $(".drop").droppable({
         drop: function(event, ui) {
             var id = ui.draggable.attr("id");

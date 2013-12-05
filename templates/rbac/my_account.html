@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Mi cuenta{% endblock %}</title>
+</head>
+<body>
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Mi cuenta</p>
+        </header>
+        <section class="panel animated fadeInRight scrollable wrapper">
+            <div class="row padder">
+                <div class="header">
+                    <p class="h1">Mi cuenta</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="headerXINDEX">
+                    <div class="row">
+                        <div class="col-lg-12 padder-v">
+                            <table class="normal-table">
+                                <tr>
+                                    <td>
+                                        <strong>Nombre de la empresa:</strong>
+                                        {{ company.name }}
+                                    </td>
+                                    <td>
+                                        <a href="/my_account/edit_account/company_name"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Direcci&oacute;n:</strong>
+                                        {{ company.address }}
+                                    </td>
+                                    <td>
+                                        <a href="/my_account/edit_account/company_address"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Tel&eacute;fono: </strong>
+                                        {{ company.phone }}
+                                    </td>
+                                    <td>
+                                        <a href="/my_account/edit_account/company_phone"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>RFC:</strong>
+                                        {{ company.rfc }}
+                                    </td>
+                                    <td>
+                                        <a href="/my_account/edit_account/company_rfc"
+                                           class=""
+                                           data-toggle="ajaxModal">
+                                            <i class="icon-edit text-warning"></i>
+                                            Editar
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Plan:</strong>
+                                        Basic
+                                    </td>
+                                    <td>
+                                        <a href="/profile/edit/4"
+                                           class="btn btn-sm btn-white"
+                                           data-toggle="ajaxModal">
+                                            Cambiar
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row padder">
+                <div class="header">
+                    <p class="h1">Facturaci&oacute;n</p>
+                </div>
+            </div>
+            <div class="row padder">
+                <div class="col-lg-12">
+                    <section class="panel">
+                        <table class="table table-striped m-b-none">
+                            <thead>
+                            <tr>
+                                <th>Periodo</th>
+                                <th>Plan</th>
+                                <th>Cantidad</th>
+                                <th>Pago</th>
+                                <th>Factura</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    Julio 2013
+                                </td>
+                                <td>Basico</td>
+                                <td>$200</td>
+                                <td class="text-center">
+                                    <i class="icon-ok text-success icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Agosto 2013
+                                </td>
+                                <td>Basico</td>
+                                <td>$200</td>
+                                <td class="text-center">
+                                    <i class="icon-ok text-success icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Septiembre 2013
+                                </td>
+                                <td>Basico</td>
+                                <td>$200</td>
+                                <td class="text-center">
+                                    <i class="icon-ok text-success icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Octubre 2013
+                                </td>
+                                <td>Basico</td>
+                                <td>$200</td>
+                                <td class="text-center">
+                                    <i class="icon-ok text-success icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Noviembre 2013
+                                </td>
+                                <td>Basico</td>
+                                <td>$200</td>
+                                <td class="text-center">
+                                    <i class="icon-ok text-success icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Diciembre 2013
+                                </td>
+                                <td>Pro</td>
+                                <td>$1000</td>
+                                <td class="text-center">
+                                    <i class="icon-remove text-danger icon-xlarge"></i>
+                                </td>
+                                <td class="text-center">
+                                    <a>
+                                        <i class="icon-download icon-muted icon-xlarge"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+            <div class="row wrapper padder padder-v">
+                <a class="btn btn-danger text-white">Cancelar mi cuenta</a>
+            </div>
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App to show Modal-->
+    <script src="/static/js/app.js"></script>
+{% endblock%}
+</body>
+</html>

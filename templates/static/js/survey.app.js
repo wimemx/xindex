@@ -302,7 +302,6 @@ $(document).ready(function () {
 
 
     $('#save_block_configuration').on('click', function () {
-        console.log('saving');
         saveBlockConfiguration();
         enumerateQuestionBlocks();
         enumerateQuestions();
@@ -365,14 +364,9 @@ $(document).ready(function () {
 
             var question_survey_id = $(this).closest('div.question-content').attr('id');
 
-            console.log(question_id)
-            console.log(question_survey_id)
-
             $('#current-question-updated').val(question_survey_id);
 
             var style = $(this).closest('div.question-content').attr('style');
-
-            //alert(style);
 
             setDefaultStyleInQuestionDesignUpdate((style).split(';'));
 
@@ -867,7 +861,7 @@ function getQuestionToUpdate(question_id) {
         },
         dataType: 'JSON',
         success: function (json_response) {
-
+            console.log(json_response);
             if (json_response.question_type_name == 'Multiple Choice') {
 
                 $('#update-question-title').val(json_response.question_title);
@@ -1136,7 +1130,6 @@ function saveBlockConfiguration(){
     var moment_id = $("#moment_object").val();
 
     if($('#associate_moment_to_block').is(':checked')){
-        console.log('associating moment');
         $('#'+block_id+' input.block_moment_associated_id').removeClass('false');
         $('#'+block_id+' input.block_moment_associated_id').addClass('true');
         $('#'+block_id+' input.block_moment_associated_id').val(moment_id);
@@ -1146,6 +1139,8 @@ function saveBlockConfiguration(){
         if(questions_in_block == 0){
             return true;
         } else {
+            console.log(moment_id);
+
             $('#' + block_id + ' div.db_question_id').each(function (index) {
                 question_ids.push(
                     {
@@ -1167,6 +1162,10 @@ function saveBlockConfiguration(){
                 success: function (msg) {
                     if (msg.success) {
                         //alert('Se han asociado los momentos a las preguntas');
+                        return true;
+                    } else {
+                        return false;
+                        console.log(msg);
                     }
                 },
                 error: function (msg) {
@@ -1819,4 +1818,109 @@ function hideDefaultButtons(){
     $('#survey-main-content a.add-question-to-block').each(function () {
         $(this).closest('footer').slideUp(300);
     });
+}
+
+function get_questions_block_structure(){
+    //check if survey has blocks style by default
+    var hasBlocksStyle = checkIfSurveyHasBlocksStyle();
+    var blocks_style;
+    if(hasBlocksStyle){
+        //TO DO: fix this, recover the style from db with this function
+        //blocks_style = getSurveyBlocksStyle();
+        blocks_style = $('#survey_blocks_style').val();
+        setDefaultStyle();
+        //disable check box to apply style to all blocks
+        $('#apply_design_to_all_blocks').prop('disabled', true);
+    } else {
+        blocks_style = 'border: 1px solid #cecece !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);';
+
+        setDefaultStyleInDesign((blocks_style).split(';'));
+    }
+
+    var new_questions_block_content = '<div class="row row-block questions-block animated fadeInDown" id="">' +
+        '<div class="col-lg-12">' +
+        '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="'+blocks_style+'">' +
+        '<input type="hidden" class="block_moment_associated_id false">'+
+        '<div class="block_actions_content" style="height: 25px; min-height: 25px;">'+
+            '<div class="block_actions">'+
+                '<a class="actions_block remove_block" id="remove_block">'+
+                    '<i class="icon-trash icon-large pull-right"></i>'+
+                '</a>'+
+                '<a class="actions_block update_block" id="update_block">'+
+                    '<i class="icon-edit icon-large pull-right"></i>'+
+                '</a>'+
+            '</div>'+
+        '</div>'+
+        '<div class="panel-body">' +
+        '<div>' +
+        '<header class="block-title">' +
+        'Titulo' +
+        '</header>' +
+        '<small class="block-description">' +
+        '<p>' +
+        'Este contenido es editable' +
+        '</p>' +
+        '</small>' +
+        '</div>' +
+        '</div>' +
+        '<ul class="list-group no-bg gutter list-group-lg list-group-sp sortable" id="sortable_question_list">'+
+        '</ul>'+
+        '<footer class="wrapper text-center" style="display: none;">' +
+        '<a class="btn btn-info wrapper add-question-to-block">' +
+        '<i class="icon-plus-sign-alt"></i>' +
+        'Da click aquí para añadir una pregunta' +
+        '</a>' +
+        '</footer>' +
+        '</section>' +
+        '</div>' +
+        '</div>';
+
+    return new_questions_block_content;
+}
+
+function get_question_block_structure(){
+    var survey_has_question_style = checkIfSurveyHasQuestionsStyle();
+
+    var questions_style = 'display: table; min-width: 100%; min-height: 50px; font-family: Lato; font-style: normal; color: #717171;';
+
+    if(survey_has_question_style){
+        questions_style = getSurveyQuestionsStyle();
+        setDefaultStyleInQuestionDesign((questions_style).split(';'));
+
+        $('#apply_design_to_all_questions').prop('disabled', true);
+    }
+
+    var new_questions_block_content =
+        '<div class="row row-block row-no-block question-block animated" id="">' +
+            '<div class="col-lg-12">' +
+                '<section class="padder padder-v question-block selected-block" data-toggle="tooltip" data-placement="right" title="" data-original-title="Arrastre para cambiar la pocisión del bloque" style="border: 0px solid #FFFFFF !important; font-family: Lato; color: #717171; background-color: rgba(255, 255, 255, 0);">' +
+                    '<input type="hidden" class="block_moment_associated_id false">'+
+                    /*
+                     '<div class="wrapper question-blocks-content">' +
+                     '</div>' +*/
+                    '<div class="wrapper question-content block-question active-question" style="'+questions_style+'">'+
+                        '<div class="question_actions_content wrapper b-b bg-gradient" style="height: 30px; min-height: 30px;">'+
+                            '<div class="question_actions">'+
+                                '<strong class="actions pull-left">'+
+                                    '<a class="actions_question remove_question" id="remove_block">'+
+                                        '<i class="icon-trash icon-sm pull-left"></i>'+
+                                    '</a>'+
+                                    '<a class="actions_question update_question" id="update_block">'+
+                                        '<i class="icon-edit icon-sm pull-left"></i>'+
+                                    '</a>'+
+                                '</strong>'+
+                                '<small class="pull-right padder text-dark attribute_info"><strong class="text-black">Atributo: </strong>" Sin asignar " </small>'+
+                                '<small class="pull-right text-dark moment_info"><strong class="text-black"> Momento: </strong>" Sin asignar "</small>'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="question_id" style="float:left;"></div>'+
+                        '<div class="question-text" style="float: left; margin-left: 5px; display: table;">Texto de la pregunta</div>'+
+                        '<div class="optional-content" style="margin-top: 15px;"></div>'+
+                        '<div class="db_question_id"></div>'+
+                    '</div>' +
+                '</section>' +
+            '</div>' +
+        '</div>';
+
+    return new_questions_block_content;
 }

@@ -243,11 +243,10 @@
     <!-- Reports App -->
     <!-- Script General Report-->
     <script>
-
         $('.btn_send_zone').click(function(){
             $(this).closest('form').submit();
         });
-
+        /* historical graph */
         new Morris.Line({
             element: 'historical-graph',
             data: [
@@ -261,11 +260,12 @@
             labels: ['Value'],
             xLabels: 'month'
         });
-
+        /* Zones Data */
         new Morris.Bar({
             element: 'zones_graph',
             data: [
                 {
+                'zones': 'Zonas',
                 {% for zone in zones_data %}
                     {% if not forloop.last %}
                         '{{ zone.zone_name }}': {{ zone.xindex_zone }},
@@ -275,15 +275,7 @@
                 {% endfor %}
                 }
             ],
-            xkey: [
-                {% for zone in zones_data %}
-                    {% if not forloop.last %}
-                        '{{ zone.zone_name }}',
-                    {% else %}
-                        '{{ zone.zone_name }}'
-                    {% endif %}
-                {% endfor %}
-            ],
+            xkey: ['zones'],
             ykeys: [
                 {% for zone in zones_data %}
                     {% if not forloop.last %}
@@ -296,9 +288,9 @@
             labels: [
                 {% for zone in zones_data %}
                     {% if not forloop.last %}
-                        'xindex',
+                        '{{ zone.zone_name }}',
                     {% else %}
-                        'xindex'
+                        '{{ zone.zone_name }}'
                     {% endif %}
                 {% endfor %}
             ],

@@ -175,7 +175,7 @@ class Question_Type(models.Model):
 
     class Meta:
         verbose_name_plural = "Question_Types"
-        verbose_name = "Question_Type"
+        verbose_name = "Question Type"
 
 
 class Question(models.Model):
@@ -448,7 +448,11 @@ class Cumulative_Report(models.Model):
     date = models.DateField(default=datetime.now, blank=True, null=True)
 
     def __unicode__(self):
-        return self.grade
+        return str(self.grade)
+
+    class Meta:
+        verbose_name_plural = "Reportes Historicos"
+        verbose_name = "Reporte Historico"
 
 
 class SubsidiaryBusinessUnit(models.Model):
@@ -498,7 +502,7 @@ class sbu_service_moment_attribute(models.Model):
     alias = models.CharField(max_length=260, blank=True, null=True)
 
     def __unicode__(self):
-        return self.id_sbu_service_moment.__unicode__()+'-'+self.id_attribute.name
+        return self.id_sbu_service_moment.__unicode__()+'-'+str(self.id_attribute)
 
     class Meta:
         verbose_name_plural = "SBU-Services-Moments-Attributes"

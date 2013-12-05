@@ -132,6 +132,8 @@ INSTALLED_APPS = (
     'rbacx',
     'reports',
     'clients',
+    #report tasks
+    'report_tasks',
 )
 
 # A sample logging configuration. The only tangible logging
