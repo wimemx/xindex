@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="/static/css/font.css" cache="false">
     <link rel="stylesheet" href="/static/css/plugin.css">
     <link rel="stylesheet" href="/static/css/app.css">
+    <style>
+        span.error {
+            color: #d9534f;
+        }
+    </style>
     <!--[if lt IE 9]>
     <script src="js/ie/respond.min.js" cache="false"></script>
     <script src="js/ie/html5.js" cache="false"></script>
@@ -52,6 +57,7 @@
         </header>
         <section class="">
             <form action="/surveys/save/next/2/empty" class="" id="new-survey-form" method="POST">{% csrf_token %}
+                <span class="error name_error"></span>
                 <div class="" style="width: 50%; margin: auto">
                     {{ form.name }}
                 </div>
@@ -63,16 +69,22 @@
                     <div class="wrapper">
                         <div class="h4 text-info wrapper">Unidad de Servicio</div>
                         <div style="width: 40%; margin: auto;">
+                            <span class="error business_unit_error"></span>
                             <select class="form-control" name="business_unit" id="id_business_unit">
-                                {% for business_unit in business_units %}
-                                <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
-                                {% endfor %}
+                                {% if business_units %}
+                                    {% for business_unit in business_units %}
+                                        <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                    <option value="default">No se encontra&oacute;n unidades de servicio</option>
+                                {% endif %}
                             </select>
                         </div>
                         <div class="h4 text-info wrapper">Servicio</div>
                         <div style="width: 40%; margin: auto;">
+                            <span class="error service_error"></span>
                             <select class="form-control" name="service" id="id_service">
-                                <option>Selecciona antes una unidad de servicio</option>
+                                <option value="default">Selecciona antes una unidad de servicio</option>
                             </select>
                         </div>
                     </div>
@@ -131,6 +143,53 @@
         });
     });
 
+    $('#step-one-next').click(function(){
+        var business_unit = $('#id_business_unit').val();
+        var service = $('#id_service').val();
+
+
+        if (service == 'default' | business_unit == 'default' | $('#id_name').val().length == 0){
+            if (business_unit == 'default'){
+                $('span.business_unit_error').html('Debe seleccionar una unidad de negocio');
+                $('span.business_unit_error').fadeIn(300);
+            } else {
+                $('span.business_unit_error').fadeOut(300);
+            }
+            if(service == 'default'){
+                $('span.service_error').html('Debe seleccionar un servicio');
+                $('span.service_error').fadeIn(300);
+            } else {
+                $('span.service_error').fadeOut(300);
+            }
+            if($('#id_name').val().length == 0){
+                $('span.name_error').html('Ingrese un nombre para la encuesta');
+                $('span.name_error').fadeIn(300);
+            } else {
+                $('span.name_error').fadeOut(300);
+            }
+            return false;
+        } else {
+            if ($('#id_name').val().length > 1) {
+                $.ajax({
+                    url: '/surveys/save/next/2/empty',
+                    type: 'POST',
+                    data: $('#new-survey-form').serialize(),
+                    dataType: 'Json',
+                    success: function (msg) {
+                        if (msg.save) {
+                            window.location.href = msg.url;
+                        }
+                    },
+                    error: function (msg_error) {
+                        alert(msg_error.error);
+                    }
+                });
+            }
+        }
+
+    });
+
+    /*
     document.onkeypress=function(e){
         var esIE=(document.all);
         var esNS=(document.layers);
@@ -158,7 +217,7 @@
             }
             return false;
         }
-    }
+    }*/
 </script>
 
 </body>
