@@ -9,16 +9,18 @@ from xindex.models import Client, Company, ClientActivity, Subsidiary, \
 # my MANDRILL API KEY        hzuTlBSxNBabQDBkpTZveA
 
 
-def mailing(client, survey):
+def mailing(client, survey, activity_code):
     try:
         mandrill_client = mandrill.Mandrill('hzuTlBSxNBabQDBkpTZveA')
 
         message = {
             'html': '<h2>Xindex Survey</h2>'
                     + '<a href="http://127.0.0.1:8000/surveys/answer/'
-                    + str(survey.id)
-                    + '/a6dt3j4kd90/'
-                    + str(client.id)
+                    + str(short_url.encode_url(survey.id))
+                    + '/'
+                    + str(activity_code)
+                    + '/'
+                    + str(short_url.encode_url(client.id))
                     + ' ">' +
                     'Responder encuesta'
                     + '</a>',
@@ -143,11 +145,13 @@ def addClientActivity(data, activity):
 
     newActivity.save()
 
-    url = short_url.encode_url(myClient.id)
-    urld = short_url.decode_url(url)
-
-    print url
-    print urld
+    #concatenate new activity id and client id
+    a_id_and_c_id = str(newActivity.id)+str(myClient.id)
+    #short the concatenation
+    activity_code = short_url.encode_url(int(a_id_and_c_id))
+    #set the code in the activity field
+    newActivity.code = activity_code
+    newActivity.save()
 
     try:
         survey = Survey.objects.get(
@@ -156,7 +160,7 @@ def addClientActivity(data, activity):
         )
         newActivity.survey = survey
         newActivity.save()
-        mailing(myClient, survey)
+        mailing(myClient, survey, newActivity.code)
 
     except Survey.DoesNotExist:
         print "NO EXISTE ENCUESTA"
@@ -189,12 +193,17 @@ def addActivity(client, activity):
                 newActivity.service = service
 
     newActivity.save()
-    url = short_url.encode_url(client.id)
 
-    urld = short_url.decode_url(url)
-    print url
-    print urld
+    #concatenate new activity id and client id
+    a_id_and_c_id = str(newActivity.id)+str(client.id)
+    #short the concatenation
+    activity_code = short_url.encode_url(int(a_id_and_c_id))
+    #set the code in the activity field
+    newActivity.code = activity_code
 
+    newActivity.save()
+
+    print 'this is the code: ' + str(newActivity.code)
     try:
         survey = Survey.objects.get(
             business_unit_id=newActivity.business_unit,
@@ -202,7 +211,7 @@ def addActivity(client, activity):
         )
         newActivity.survey = survey
         newActivity.save()
-        mailing(client, survey)
+        mailing(client, survey, newActivity.code)
 
     except Survey.DoesNotExist:
         print "NO EXISTE ENCUESTA"

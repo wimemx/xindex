@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import os
 import json
+import short_url
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -2757,26 +2758,41 @@ def get_survey_blocks_style(request):
         return HttpResponse(json_response, content_type='application/json')
 
 
-def answer_survey(request, survey_id, hash_code, client_id):
-    try:
-        client = Client.objects.get(pk=int(client_id))
-        survey = Survey.objects.get(pk=int(survey_id))
-        business_unit = survey.business_unit_id
-        service = survey.service_id
+def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
+    #decode client id
+    client_id = int(short_url.decode_url(client_id_encoded))
+    #decode code
+    hash = int(short_url.decode_url(hash_code))
+    #decode survey id
+    survey_id = int(short_url.decode_url(survey_id_encoded))
+    #get the length of client id
+    client_id_length = len(str(client_id))
+    #get the client id from the code string
+    client_id_in_code = str(hash)[-client_id_length:]
+
+    #get the client activity id
+    client_activity_length = len(str(hash)) - client_id_length
+    client_activity_id = int(str(hash)[:client_activity_length])
+
+    #check if the client id in code is equal to client id decoded
+    if client_id == int(client_id_in_code):
         try:
-            #activity = client.clientactivity_set.get(business_unit=business_unit,
-            #                                        service=service)
+            client = Client.objects.get(pk=int(client_id))
+            survey = Survey.objects.get(pk=int(survey_id))
+            business_unit = survey.business_unit_id
+            service = survey.service_id
+            try:
+                #activity = client.clientactivity_set.get(business_unit=business_unit,
+                #                                        service=service)
 
-            activity = ClientActivity.objects.filter(
-                client=client,
-                business_unit=business_unit,
-                service=service
-            )[0]
-            if not activity.status == 'A':
-                #function to validate hash or cookie
-                #TODO: find the best way to implement this
-
-                if hash_code == 'a6dt3j4kd90':
+                activity = ClientActivity.objects.get(
+                    client=client,
+                    business_unit=business_unit,
+                    service=service,
+                    pk=client_activity_id
+                )
+                if not activity.status == 'A':
+                    #function to validate hash or cookie
                     try:
                         survey = Survey.objects.get(pk=survey_id)
                         configuration = json.loads(survey.configuration)
@@ -2905,6 +2921,7 @@ def answer_survey(request, survey_id, hash_code, client_id):
                             'company_phone': company_phone,
                             'client_id': client_id,
                             'client_name': client.first_name+' '+client.last_name,
+                            'client_activity': short_url.encode_url(activity.id),
                             'setup': setup
                         }
                         request_context = RequestContext(request, template_vars)
@@ -2912,12 +2929,14 @@ def answer_survey(request, survey_id, hash_code, client_id):
                                                   request_context)
                     except Survey.DoesNotExist:
                         raise Http404
-            else:
-                return HttpResponse('Esta encuesta ya ha sido contestada')
-        except ClientActivity.DoesNotExist:
-            return HttpResponse('La encuesta no ha sido asociada a este cliente')
-    except Client.DoesNotExist:
-        return HttpResponse('Este cliente no existe!')
+                else:
+                    return HttpResponse('Esta encuesta ya ha sido contestada')
+            except ClientActivity.DoesNotExist:
+                return HttpResponse('La encuesta no ha sido asociada a este cliente')
+        except Client.DoesNotExist:
+            return HttpResponse('Este cliente no existe!')
+    else:
+        return HttpResponse('Imposible acceder!')
 
 
 #TODO: Fix this; DO NOT use in production
@@ -2938,16 +2957,23 @@ def save_answers_ajax(request):
                                 client = Client.objects.get(pk=int(values))
                             except Client.DoesNotExist:
                                 client = False
+                        if key == 'activity':
+                            try:
+                                activity = ClientActivity.objects.get(pk=int(short_url.decode_url(values)))
+                            except ClientActivity.DoesNotExist:
+                                activity = False
 
             for key, values in data.items():
                 if key == 'question':
 
                     total_questions = len(survey.questions.all())
                     if total_questions == len(values):
-                        print 'Es el total de respuestas'
-                        activity = client.clientactivity_set.get(
-                            business_unit=survey.business_unit_id,
-                            service=survey.service_id)
+                        if activity:
+                            pass
+                        else:
+                            activity = client.clientactivity_set.get(
+                                business_unit=survey.business_unit_id,
+                                service=survey.service_id)
                         activity.status = 'A'
                         activity.save()
                     else:
