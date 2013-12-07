@@ -49,11 +49,6 @@ def report_by_moment(request):
     for eachZone in myZones:
         zones.append(eachZone)
 
-    #Get Subsidiaries
-    mySubsidiaries = Subsidiary.objects.filter(active=True)
-    for eachSubsidiary in mySubsidiaries:
-        subsidiaries.append(eachSubsidiary)
-
     if request.POST:
         if 'zone' in request.POST:
             zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
@@ -107,6 +102,8 @@ def report_by_moment(request):
     else:
         zone = zones[0]
         subsidiary = Subsidiary.objects.filter(zone_id=zone.id)[0]
+
+        subsidiaries = zone.subsidiary_set.all()
 
         #Adding to businessUnit list
         mySUB = SubsidiaryBusinessUnit.objects.filter(
