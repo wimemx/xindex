@@ -2848,3 +2848,9 @@ a:hover{
     background-color:#92cf5c;
     color:#fff;
 }
+
+#wait{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}

@@ -8,14 +8,11 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from xindex.models import Subsidiary, Zone, SubsidiaryBusinessUnit, sbu_service
-
-from xindex.models import Client, Company, ClientActivity
-from xindex.models import BusinessUnit, Service
-from clients.functions import mailing, addClientFromCSV, addClientActivity, addActivity
-from xindex.models import Survey
-from xindex.models import Question
-from xindex.models import Answer
+from xindex.models import Subsidiary, Zone, SubsidiaryBusinessUnit, \
+    sbu_service, Client, Company, ClientActivity, BusinessUnit, Service, \
+    Survey, Question, Answer
+from clients.functions import mailing, addClientFromCSV, addClientActivity, \
+    addActivity
 
 
 @login_required(login_url='/signin/')
