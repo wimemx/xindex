@@ -232,27 +232,80 @@ def get_business_units(request):
     businessUnitsList = []
     if request.POST:
         if 'zone' in request.POST and 'subsidiary' in request.POST:
-            try:
-                zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiary = zone.subsidiary_set.get(
-                    pk=int(request.POST['subsidiary']))
-                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
-                        id_subsidiary=subsidiary):
-                    businessUnitsList.append(
-                        {
-                            'business_unit_id': subsidiary_business_unit.id_business_unit.id,
-                            'business_unit_name': subsidiary_business_unit.id_business_unit.name + ' - ' + subsidiary_business_unit.alias
-                        }
-                    )
+            if request.POST['zone'] == 'all' and request.POST['subsidiary'] == 'all':
+                zones = Zone.objects.filter(active=True)
+                for zone in zones:
+                    for subsidiary in zone.subsidiary_set.filter(active=True):
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                            coincidences = 0
+                            for business_unit in businessUnitsList:
+                                if business_unit['business_unit_id'] == subsidiary_business_unit.id_business_unit.id:
+                                    coincidences += 1
+                            if coincidences == 0:
+                                businessUnitsList.append(
+                                    {
+                                        'business_unit_id': subsidiary_business_unit.id_business_unit.id,
+                                        'business_unit_name': subsidiary_business_unit.id_business_unit.name
+                                    }
+                                )
                 if len(businessUnitsList) == 0:
-                    pass
+                    json_response = {
+                        'answer': False
+                    }
                 else:
                     json_response = {
                         'answer': True,
                         'business_units': businessUnitsList
                     }
-                    return HttpResponse(json.dumps(json_response))
-            except Zone.DoesNotExist:
-                pass
+                return HttpResponse(json.dumps(json_response))
+            elif request.POST['zone'] != 'all' and request.POST['subsidiary'] == 'all':
+                zone = Zone.objects.get(pk=int(request.POST['zone']))
+                for subsidiary in zone.subsidiary_set.filter(active=True):
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                        coincidences = 0
+                        for business_unit in businessUnitsList:
+                            if business_unit['business_unit_id'] == subsidiary_business_unit.id_business_unit.id:
+                                coincidences += 1
+                        if coincidences == 0:
+                            businessUnitsList.append(
+                                {
+                                    'business_unit_id': subsidiary_business_unit.id_business_unit.id,
+                                    'business_unit_name': subsidiary_business_unit.id_business_unit.name
+                                    #'business_unit_name': subsidiary_business_unit.id_business_unit.name + ' - ' + subsidiary_business_unit.alias
+                                }
+                            )
+                if len(businessUnitsList) == 0:
+                    json_response = {
+                        'answer': False
+                    }
+                else:
+                    json_response = {
+                        'answer': True,
+                        'business_units': businessUnitsList
+                    }
+                return HttpResponse(json.dumps(json_response))
+            else:
+                try:
+                    zone = Zone.objects.get(pk=int(request.POST['zone']))
+                    subsidiary = zone.subsidiary_set.get(
+                        pk=int(request.POST['subsidiary']))
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                            id_subsidiary=subsidiary):
+                        businessUnitsList.append(
+                            {
+                                'business_unit_id': subsidiary_business_unit.id_business_unit.id,
+                                'business_unit_name': subsidiary_business_unit.id_business_unit.name + ' - ' + subsidiary_business_unit.alias
+                            }
+                        )
+                    if len(businessUnitsList) == 0:
+                        pass
+                    else:
+                        json_response = {
+                            'answer': True,
+                            'business_units': businessUnitsList
+                        }
+                        return HttpResponse(json.dumps(json_response))
+                except Zone.DoesNotExist:
+                    pass
         else:
             pass

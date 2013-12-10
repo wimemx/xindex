@@ -20,11 +20,20 @@ $(document).ready(function(){
             success: function(msg){
                 if(msg.answer == true){
                     $('#form_select_subsidiary #id_subsidiary').html('');
+                    var coincidences = 0;
                     $.each(msg.subsidiaries,function(index, object){
+                        if(object.subsidiary_id == 'all'){
+                            coincidences += 1;
+                        }
                         $('#form_select_subsidiary #id_subsidiary').append(
                             '<option value="'+object.subsidiary_id+'">'+object.subsidiary_name+'</option>'
                         );
-                    })
+                    });
+                    if(coincidences == 0){
+                        $('#form_select_subsidiary #id_subsidiary').append(
+                            '<option value="all">Todas</option>'
+                        );
+                    }
                     $('select#id_business_unit').attr('disabled', 'disabled');
                     $('select#id_business_unit').html(
                         '<option value="default">Seleccione una sucursal</option>'
@@ -55,6 +64,9 @@ $(document).ready(function(){
                         );
                     });
                     $('select#id_business_unit').attr('disabled', false);
+                } else {
+                    $('select#id_business_unit').html('<option value="invalid">No hay unidades de servicio</option>');
+                    $('select#id_business_unit').attr('disabled', true);
                 }
             },
             error: function(){

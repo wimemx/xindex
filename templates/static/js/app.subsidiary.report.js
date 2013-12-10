@@ -24,6 +24,9 @@ $(document).ready(function(){
                             '<option value="'+object.subsidiary_id+'">'+object.subsidiary_name+'</option>'
                         );
                     })
+                } else {
+                    $('select#id_subsidiary').attr('disabled', true);
+                    $('select#id_subsidiary').html('<option value="invalid">Sin sucursales</option>');
                 }
             },
             error: function(){
