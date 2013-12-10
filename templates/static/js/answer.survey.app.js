@@ -12,8 +12,9 @@ $(document).ready(function(){
     $('#btn_send_data').on('click', function(e){
         e.preventDefault();
         var answers_json = {};
-        answers_json.client_id =$('#id_client').val();
-        answers_json.survey_id =$('#id_survey').val();
+        answers_json.client_id = $('#id_client').val();
+        answers_json.survey_id = $('#id_survey').val();
+        answers_json.activity = $('#id_client_activity').val();
         answers_json.question = [];
 
         //fields of question json

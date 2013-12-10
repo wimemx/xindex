@@ -433,6 +433,7 @@ class ClientActivity(models.Model):
     survey = models.ForeignKey('Survey', null=True, blank=True)
     status = models.CharField(choices=STATUS, default='NA', max_length=2,
                               blank=True, null=True)
+    code = models.CharField(max_length=30, blank=True, null=True)
 
     def __unicode__(self):
         return self.client.first_name

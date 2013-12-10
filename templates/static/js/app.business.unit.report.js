@@ -25,6 +25,10 @@ $(document).ready(function(){
                             '<option value="'+object.subsidiary_id+'">'+object.subsidiary_name+'</option>'
                         );
                     })
+                    $('select#id_business_unit').attr('disabled', 'disabled');
+                    $('select#id_business_unit').html(
+                        '<option value="default">Seleccione una sucursal</option>'
+                    )
                 }
             },
             error: function(){
@@ -49,7 +53,8 @@ $(document).ready(function(){
                         $('#form_select_business_unit #id_business_unit').append(
                             '<option value="'+object.business_unit_id+'">'+object.business_unit_name+'</option>'
                         );
-                    })
+                    });
+                    $('select#id_business_unit').attr('disabled', false);
                 }
             },
             error: function(){
