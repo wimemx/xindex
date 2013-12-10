@@ -5,7 +5,8 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from xindex.forms import ZoneForm, StateListForm
-from xindex.models import Zone, BusinessUnit, Country, State, City
+from xindex.models import Zone, BusinessUnit, Country, State, City, \
+    SubsidiaryBusinessUnit
 
 
 def index(request):
@@ -135,7 +136,11 @@ def detail(request, zone_id):
         status = str(zone.active)
 
         for each_subsidiary in zone.subsidiary_set.all():
-            for each_business_unit in each_subsidiary.businessunit_set.all():
+
+            mySBU = SubsidiaryBusinessUnit.objects.filter(
+                id_subsidiary__id=each_subsidiary.id)
+
+            for each_business_unit in mySBU:
                 counter_business_units += 1
 
             subsidiaries['subsidiaries'].append({

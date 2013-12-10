@@ -2764,8 +2764,6 @@ def answer_survey(request, survey_id, hash_code, client_id):
         business_unit = survey.business_unit_id
         service = survey.service_id
         try:
-            #activity = client.clientactivity_set.get(business_unit=business_unit,
-            #                                        service=service)
 
             activity = ClientActivity.objects.filter(
                 client=client,

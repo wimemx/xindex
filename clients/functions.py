@@ -15,6 +15,7 @@ def mailing(client, survey):
 
         message = {
             'html': '<h2>Xindex Survey</h2>'
+                    + ''
                     + '<a href="http://127.0.0.1:8000/surveys/answer/'
                     + str(survey.id)
                     + '/a6dt3j4kd90/'
@@ -24,7 +25,7 @@ def mailing(client, survey):
                     + '</a>',
             'subject': 'Customer Service',
             'from_email': 'team@xindex.com.mx',
-            'from_name': 'XindeX Survey',
+            'from_name': 'Xindex Survey',
             'to': [
                 {'email': client.email,
                  'name': client.first_name,
@@ -189,12 +190,14 @@ def addActivity(client, activity):
                 newActivity.service = service
 
     newActivity.save()
-    url = short_url.encode_url(client.id)
 
+    """
+    url = short_url.encode_url(client.id)
     urld = short_url.decode_url(url)
+
     print url
     print urld
-
+    """
     try:
         survey = Survey.objects.get(
             business_unit_id=newActivity.business_unit,
