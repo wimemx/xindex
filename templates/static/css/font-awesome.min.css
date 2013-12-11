@@ -126,6 +126,17 @@ a [class^="icon-"], a [class*=" icon-"] {
     border-radius: 7px;
 }
 
+.icon-7x {
+    font-size: 7em;
+}
+
+.icon-7x.icon-border {
+    border-width: 7px;
+    -webkit-border-radius: 9px;
+    -moz-border-radius: 9px;
+    border-radius: 9px;
+}
+
 .pull-right {
     float: right;
 }

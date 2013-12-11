@@ -2854,3 +2854,7 @@ a:hover{
     top: 50%;
     left: 50%;
 }
+
+#client-success{
+    text-align: center !important;
+}
