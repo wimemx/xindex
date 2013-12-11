@@ -229,26 +229,43 @@ def get_subsidiaries(request):
     subsidiariesList = []
     if request.POST:
         if 'zone' in request.POST:
-            try:
-                zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiaries = zone.subsidiary_set.all()
-                if len(subsidiaries) == 0:
-                    pass
-                else:
-                    for subsidiary in subsidiaries:
-                        subsidiariesList.append(
-                            {
-                                'subsidiary_id': subsidiary.id,
-                                'subsidiary_name': subsidiary.name
-
-                            }
-                        )
-                    json_response = {
-                        'answer': True,
-                        'subsidiaries': subsidiariesList
+            #check if all zones are selected
+            if request.POST['zone'] == 'all':
+                subsidiariesList.append(
+                    {
+                        'subsidiary_id': 'all',
+                        'subsidiary_name': 'Todas'
                     }
-                    return HttpResponse(json.dumps(json_response))
-            except Zone.DoesNotExist:
-                pass
+                )
+                json_response = {
+                    'answer': True,
+                    'subsidiaries': subsidiariesList
+                }
+                return HttpResponse(json.dumps(json_response))
+            else:
+                try:
+                    zone = Zone.objects.get(pk=int(request.POST['zone']))
+                    subsidiaries = zone.subsidiary_set.all()
+                    if len(subsidiaries) == 0:
+                        json_response = {
+                            'answer': False
+                        }
+                        return HttpResponse(json.dumps(json_response))
+                    else:
+                        for subsidiary in subsidiaries:
+                            subsidiariesList.append(
+                                {
+                                    'subsidiary_id': subsidiary.id,
+                                    'subsidiary_name': subsidiary.name
+
+                                }
+                            )
+                        json_response = {
+                            'answer': True,
+                            'subsidiaries': subsidiariesList
+                        }
+                        return HttpResponse(json.dumps(json_response))
+                except Zone.DoesNotExist:
+                    pass
         else:
             pass

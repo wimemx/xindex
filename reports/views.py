@@ -26,6 +26,7 @@ def index(request):
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/index.html', request_context)
 
+
 @login_required(login_url='/signin/')
 def report_by_moment(request):
     global zone, subsidiary, businessUnit, service, moment
@@ -295,7 +296,27 @@ def report_by_moment(request):
         current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': moment_xindex}
 
         #compare the xindex last month with the current xindex month
-        last_month = historical_months[2]
+        if len(historical_months) < 3:
+            if len(historical_months) == 2:
+                last_month = historical_months[1]
+            elif len(historical_months) == 1:
+                last_month = historical_months[0]
+            elif len(historical_months) == 0:
+                #create an object of the last month
+                if current_date.month == 01:
+                    month = 12
+                    year = current_date.year - 1
+                else:
+                    month = current_date.month - 1
+                    year = current_date.year
+                last_month = {
+                    'month': str(year)+'-'+str(month),
+                    'value': Decimal(0)
+                }
+                #historical_months.append(last_month)
+        else:
+            last_month = historical_months[2]
+
         if last_month['value'] > current_data['value']:
             xindex_diff = last_month['value'] - current_data['value']
             diff_type = 'negative'
@@ -504,14 +525,6 @@ def report_by_attribute(request):
             }
         )
 
-    '''
-    historical_months = [
-        {'month': '2013-07', 'value': Decimal(45.67)},
-        {'month': '2013-08', 'value': Decimal(56.78)},
-        {'month': '2013-09', 'value': Decimal(59.51)}
-    ]
-    '''
-
     getcontext().prec = 5
 
     #current data
@@ -519,7 +532,27 @@ def report_by_attribute(request):
     current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': xindex_attribute}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -530,7 +563,6 @@ def report_by_attribute(request):
     if total_answers == 0 and promoters == 0 and passives == 0 and detractors == 0:
         attribute_data = {'promoters': 0, 'passives': 0, 'detractors': 0}
     else:
-        print 'all are'
         attribute_data = {'promoters': promoters_percent, 'passives': passives_percent, 'detractors': detractors_percent}
 
     template_vars = {
@@ -770,7 +802,28 @@ def report_by_service(request):
     current_data = {'month': str(c_d.year)+'-'+str(c_d.month), 'value': xindex_service}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            current_date = datetime.date.today()
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -904,9 +957,16 @@ def report_by_business_unit(request):
     if request.POST:
         print request.POST
         if 'zone' in request.POST:
-            zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            #return another report
+            if request.POST['zone'] == 'all':
+                return report_by_business_unit_not_instances(request)
+            else:
+                zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
             if 'subsidiary' in request.POST:
-                subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                if request.POST['subsidiary'] == 'all':
+                    return report_by_business_unit_not_instances(request)
+                else:
+                    subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
                 if 'business_unit' in request.POST:
                     business_unit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
                 else:
@@ -915,6 +975,13 @@ def report_by_business_unit(request):
                 subsidiary = False
     else:
         zone = Zone.objects.filter(active=True)[0]
+
+        if not zone:
+            template_vars = {
+                'empty_data': True
+            }
+            request_context = RequestContext(request, template_vars)
+            return render(request, 'reports/business-unit-report.html', request_context)
 
         subsidiary = zone.subsidiary_set.filter(active=True)[0]
 
@@ -1063,7 +1130,27 @@ def report_by_business_unit(request):
     current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': xindex_business_unit}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -1323,7 +1410,28 @@ def report_by_subsidiary(request):
     current_data = {'month': str(c_d.year)+'-'+str(c_d.month), 'value': xindex_subsidiary}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            current_date = datetime.date.today()
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -1439,11 +1547,22 @@ def report_by_zone(request):
     subsidiaries_data = []
     #data for relation?
     survey_is_designed = True
+    #current date
+    c_d = datetime.date.today()
     if request.POST:
         if 'zone' in request.POST:
             zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
     else:
         zone = Zone.objects.filter(active=True)[0]
+
+    if len(Zone.objects.filter(active=True)) == 0:
+        template_vars = {
+            #not data
+            'empty_data': True
+        }
+        request_context = RequestContext(request, template_vars)
+        return render(request, 'reports/zone-report.html', request_context)
+
 
     #Get data for zone subsidiaries
     total_promoters = 0
@@ -1477,7 +1596,6 @@ def report_by_zone(request):
                                 try:
                                     #client_activity = client.clientactivity_set.get(subsidiary=subsidiary)
                                     client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary)
-                                    c_d = datetime.date.today()
                                     if client_activity.subsidiary == subsidiary and client_activity.subsidiary.zone == zone and c_d.month == answer.date.month and c_d.year == answer.date.year:
                                         total_answers_by_subsidiary.append(answer)
                                 except ClientActivity.DoesNotExist:
@@ -1563,7 +1681,28 @@ def report_by_zone(request):
     current_data = {'month': '2013-10', 'value': xindex_zone}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            current_date = datetime.date.today()
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -1603,7 +1742,7 @@ def report_by_zone(request):
                                         client = Client.objects.get(pk=int(answer.client.id))
                                         try:
                                             client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary_c)
-                                            if client_activity.subsidiary == subsidiary_c:
+                                            if client_activity.subsidiary == subsidiary_c and answer.date.year == c_d.year and answer.date.month == c_d.month:
                                                 total_answers_c.append(answer)
                                         except ClientActivity.DoesNotExist:
                                             pass
@@ -1800,7 +1939,28 @@ def general_report(request):
     current_data = {'month': '2013-10', 'value': xindex_company}
 
     #compare the xindex last month with the current xindex month
-    last_month = historical_months[2]
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            current_date = datetime.date.today()
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
     if last_month['value'] > current_data['value']:
         xindex_diff = last_month['value'] - current_data['value']
         diff_type = 'negative'
@@ -1824,3 +1984,398 @@ def general_report(request):
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/general-report.html', request_context)
+
+
+#################################################################NEW METHODS##################################################################
+
+@login_required(login_url='/signin/')
+def report_by_business_unit_not_instances(request):
+    #data for business unit
+    xindex_business_unit = 0
+    promoters_percent = 0
+    passives_percent = 0
+    detractors_percent = 0
+    #lists
+    zones_list = Zone.objects.all()
+    subsidiaries_list = []
+    business_units_list = []
+    #services data
+    services_data = []
+    #data for relation?
+    survey_is_designed = True
+
+    c_d = datetime.date.today()
+    if request.POST:
+        if 'zone' in request.POST:
+            if request.POST['zone'] == 'all':
+                zone = Zone.objects.filter(active=True)
+            else:
+                zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            if 'subsidiary' in request.POST:
+                if request.POST['subsidiary'] == 'all':
+                    if isinstance(zone, Zone):
+                        subsidiary = zone.subsidiary_set.filter(active=True)
+                    else:
+                        subsidiary = []
+                        for z in zone:
+                            for s in z.subsidiary_set.filter(active=True):
+                                subsidiary.append(s)
+                else:
+                    subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                if 'business_unit' in request.POST:
+                    business_unit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
+                else:
+                    businessUnit = False
+            else:
+                subsidiary = False
+
+    #Get subsidiaries
+    if isinstance(zone, Zone):
+        subsidiaries_list = zone.subsidiary_set.all()
+        if isinstance(subsidiary, Subsidiary):
+            #Get business units for first subsidiary
+            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                if len(business_units_list) > 0:
+                    coincidences_bu = 0
+                    for b_u in business_units_list:
+                        if b_u == s_bu.id_business_unit:
+                            coincidences_bu += 1
+                    if coincidences_bu == 0:
+                        business_units_list.append(s_bu.id_business_unit)
+                else:
+                    business_units_list.append(s_bu.id_business_unit)
+        else:
+            for s in zone.subsidiary_set.filter(active=True):
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s):
+                    if len(business_units_list) > 0:
+                        coincidences_bu = 0
+                        for b_u in business_units_list:
+                            if b_u == s_bu.id_business_unit:
+                                coincidences_bu += 1
+                        if coincidences_bu == 0:
+                            business_units_list.append(s_bu.id_business_unit)
+                    else:
+                        business_units_list.append(s_bu.id_business_unit)
+    else:
+        subsidiaries_list = []
+        for z in zone:
+            for s in z.subsidiary_set.filter(active=True):
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s):
+                    if len(business_units_list) > 0:
+                        coincidences_bu = 0
+                        for b_u in business_units_list:
+                            if b_u == s_bu.id_business_unit:
+                                coincidences_bu += 1
+                        if coincidences_bu == 0:
+                            business_units_list.append(s_bu.id_business_unit)
+                    else:
+                        business_units_list.append(s_bu.id_business_unit)
+
+    ###############################################################################
+
+    #Get data for business unit services
+    total_promoters = 0
+    total_passives = 0
+    total_detractors = 0
+    total_surveyed = 0
+    #relation between subsidiary and business unit
+    if isinstance(subsidiary, Subsidiary):
+        s_bu = SubsidiaryBusinessUnit.objects.get(id_subsidiary=subsidiary, id_business_unit=business_unit)
+        if len(sbu_service.objects.filter(id_subsidiaryBU=s_bu)) == 0:
+            survey_is_designed = False
+        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu).order_by('id_service'):
+            #All services for all business unit
+            total_answers_by_service = []
+            promoters_service = 0
+            promoters_percent_service = 0
+            passives_service = 0
+            passives_percent_service = 0
+            detractors_service = 0
+            detractors_percent_service = 0
+            xindex_service = 0
+
+            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                    for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                        attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                        for answer in attrib_answers:
+                            client = Client.objects.get(pk=int(answer.client.id))
+                            try:
+                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit)
+                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                    total_answers_by_service.append(answer)
+                            except ClientActivity.DoesNotExist:
+                                pass
+
+            if not len(total_answers_by_service) == 0:
+                for answer_service in total_answers_by_service:
+                    #total answers for service
+                    total_surveyed += 1
+                    if answer_service.value == 10 or answer_service.value == 9:
+                        promoters_service += 1
+                        #promoters for business unit
+                        total_promoters += 1
+                    elif answer_service.value == 8 or answer_service.value == 7:
+                        passives_service += 1
+                        #passives for business unit
+                        total_passives += 1
+                    elif 1 <= answer_service.value <= 6:
+                        detractors_service += 1
+                        #detractors for business unit
+                        total_detractors += 1
+
+            getcontext().prec = 5
+
+            if not promoters_service == 0:
+                promoters_percent_service = Decimal(promoters_service*100)/Decimal(len(total_answers_by_service))
+
+            if not passives_service == 0:
+                passives_percent_service = Decimal(passives_service*100)/Decimal(len(total_answers_by_service))
+
+            if not detractors_service == 0:
+                detractors_percent_service  = Decimal(detractors_service*100)/Decimal(len(total_answers_by_service))
+
+            if promoters_percent_service != 0 and passives_percent_service != 0 and detractors_percent_service != 0:
+                #xindex_service = ((Decimal(promoters_percent_service-detractors_percent_service))/(Decimal(promoters_percent_service+passives_percent_service+detractors_percent_service)))*Decimal(100)
+                xindex_service = Decimal(promoters_percent_service-detractors_percent_service)
+
+            r = lambda: random.randint(0, 255)
+
+            services_data.append(
+                {
+                    #xindex for moment
+                    'xindex_service': xindex_service,
+                    #info
+                    'service_id': s_bu_s.id_service.id,
+                    'service_name': s_bu_s.id_service.name,
+                    #data
+                    'promoters': promoters_percent_service,
+                    'passives': passives_percent_service,
+                    'detractors': detractors_percent_service,
+                    #extra
+                    'color': ('#%02X%02X%02X' % (r(), r(), r()))
+                }
+            )
+    else:
+        for subsidiary_a in subsidiary:
+            try:
+                s_bu = SubsidiaryBusinessUnit.objects.get(id_subsidiary=subsidiary_a, id_business_unit=business_unit)
+                if len(sbu_service.objects.filter(id_subsidiaryBU=s_bu)) == 0:
+                    survey_is_designed = False
+                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu).order_by('id_service'):
+                    #All services for all business unit
+                    total_answers_by_service = []
+                    promoters_service = 0
+                    promoters_percent_service = 0
+                    passives_service = 0
+                    passives_percent_service = 0
+                    detractors_service = 0
+                    detractors_percent_service = 0
+                    xindex_service = 0
+
+                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s).order_by('id_moment'):
+                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+
+                                for answer in attrib_answers:
+                                    client = Client.objects.get(pk=int(answer.client.id))
+                                    try:
+                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary_a, business_unit=business_unit)
+                                        if client_activity.subsidiary == subsidiary_a and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                            total_answers_by_service.append(answer)
+                                    except ClientActivity.DoesNotExist:
+                                        pass
+
+                    if not len(total_answers_by_service) == 0:
+                        for answer_service in total_answers_by_service:
+                            #total answers for service
+                            total_surveyed += 1
+                            if answer_service.value == 10 or answer_service.value == 9:
+                                promoters_service += 1
+                                #promoters for business unit
+                                total_promoters += 1
+                            elif answer_service.value == 8 or answer_service.value == 7:
+                                passives_service += 1
+                                #passives for business unit
+                                total_passives += 1
+                            elif 1 <= answer_service.value <= 6:
+                                detractors_service += 1
+                                #detractors for business unit
+                                total_detractors += 1
+
+                    getcontext().prec = 5
+
+                    if not promoters_service == 0:
+                        promoters_percent_service = Decimal(promoters_service*100)/Decimal(len(total_answers_by_service))
+
+                    if not passives_service == 0:
+                        passives_percent_service = Decimal(passives_service*100)/Decimal(len(total_answers_by_service))
+
+                    if not detractors_service == 0:
+                        detractors_percent_service  = Decimal(detractors_service*100)/Decimal(len(total_answers_by_service))
+
+                    if promoters_percent_service != 0 and passives_percent_service != 0 and detractors_percent_service != 0:
+                        #xindex_service = ((Decimal(promoters_percent_service-detractors_percent_service))/(Decimal(promoters_percent_service+passives_percent_service+detractors_percent_service)))*Decimal(100)
+                        xindex_service = Decimal(promoters_percent_service-detractors_percent_service)
+
+                    r = lambda: random.randint(0, 255)
+
+                    services_data.append(
+                        {
+                            #xindex for moment
+                            'xindex_service': xindex_service,
+                            #info
+                            'service_id': s_bu_s.id_service.id,
+                            'service_name': s_bu_s.id_service.name,
+                            #data
+                            'promoters': promoters_percent_service,
+                            'passives': passives_percent_service,
+                            'detractors': detractors_percent_service,
+                            #extra
+                            'color': ('#%02X%02X%02X' % (r(), r(), r()))
+                        }
+                    )
+            except SubsidiaryBusinessUnit.DoesNotExist:
+                pass
+
+    #Calculate the business unit data
+    getcontext().prec = 5
+
+    if total_promoters != 0 and total_surveyed != 0:
+        promoters_percent = Decimal(total_promoters*100)/Decimal(total_surveyed)
+
+    if total_passives != 0 and total_surveyed != 0:
+        passives_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
+
+    if total_detractors != 0 and total_surveyed != 0:
+        detractors_percent = Decimal(total_detractors*100)/Decimal(total_surveyed)
+
+    if promoters_percent != 0 and passives_percent != 0 and detractors_percent != 0:
+        #xindex_service = ((Decimal(promoters_percent-detractors_percent))/(Decimal(promoters_percent+passives_percent+detractors_percent)))*Decimal(100)
+        xindex_business_unit = Decimal(promoters_percent-detractors_percent)
+
+    ##############
+    last_xindex = 0
+    #create subsidiary ids array
+    ids_subs = []
+    for subs in subsidiary:
+        ids_subs.append(subs.id)
+    if c_d.month == 01:
+        historical = Cumulative_Report.objects.filter(
+            id_subsidiary__in=ids_subs, id_business_unit=business_unit,
+            id_service=None, id_moment=None, id_attribute=None,
+            date__year=datetime.date.today().year-1, date__month=12
+        ).order_by('date')
+    else:
+        historical = Cumulative_Report.objects.filter(
+            id_subsidiary__in=ids_subs, id_business_unit=business_unit,
+            id_service=None, id_moment=None, id_attribute=None,
+            date__year=datetime.date.today().year, date__month=c_d.month-1
+        ).order_by('date')
+    #comparing xindex
+    comparing_xindex = 0
+    for hist in historical:
+        #print 'This is the subsidiary: '+hist.id_subsidiary.name+' and this is the business unit: '+hist.id_business_unit.name+' with his xindex: '+str(hist.grade)+' and the date is: '+str(hist.date)
+        comparing_xindex += hist.grade
+    if len(historical) > 0:
+        comparing_xindex = comparing_xindex/len(historical)
+    else:
+        comparing_xindex = 0
+
+    print comparing_xindex
+    #############
+
+    historical_months = []
+    if len(historical) > 0:
+        if c_d.month == 01:
+            historical_months.append(
+                {
+                    'month': str(c_d.year-1)+'-'+str(12),
+                    'value': comparing_xindex
+                }
+            )
+        else:
+            historical_months.append(
+                {
+                    'month': str(c_d.year)+'-'+str(c_d.month-1),
+                    'value': comparing_xindex
+                }
+            )
+
+    getcontext().prec = 5
+
+    #current data
+    current_date = datetime.date.today()
+    current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': xindex_business_unit}
+
+    #compare the xindex last month with the current xindex month
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
+    if last_month['value'] > current_data['value']:
+        xindex_diff = last_month['value'] - current_data['value']
+        diff_type = 'negative'
+    else:
+        diff_type = 'positive'
+        xindex_diff = current_data['value'] - last_month['value']
+
+    print '############################'
+    print 'This is the business unit xindex: '+str(xindex_business_unit)
+    print 'This is the zone:'
+    if isinstance(zone, Zone):
+        print str(zone.name)
+    else:
+        for z in zone:
+            print str(z.name)
+
+    for s in subsidiary:
+        print str(s.name)
+    print historical_months
+    print '############################'
+
+
+    #calculate prom from the services
+    for service in services_data:
+        pass
+
+    template_vars = {
+        #data for business unit
+        'xindex_business_unit': xindex_business_unit,
+        'historical_months': historical_months,
+        'current_data': current_data,
+        'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
+        #data for relation?
+        'survey_is_designed': survey_is_designed,
+        #current list values
+        'current_zone': zone,
+        'current_subsidiary': subsidiary,
+        'current_business_unit': business_unit,
+        #services data
+        'services_data': services_data,
+        #lists
+        'zones': zones_list,
+        'subsidiaries': subsidiaries_list,
+        'business_units': business_units_list,
+    }
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/by-group/business-unit-report-by-group.html', request_context)

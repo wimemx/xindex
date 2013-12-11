@@ -112,7 +112,10 @@
                             <p>Zona</p>
                             <form id="form_select_zone" action="" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="zone" id="id_zone">
+                                <select class="form-control text-primary header" name="zone" id="id_zone" {% if empty_data %}disabled="disabled"{% endif %}>
+                                    {% if empty_data %}
+                                        <option value="invalid" selected>No hay zonas</option>
+                                    {% endif %}
                                     {% for eachZone in zones %}
                                         {% if eachZone.id == current_zone.id %}
                                             <option value="{{ eachZone.id }}" selected>{{ eachZone.name }}</option>
@@ -126,137 +129,145 @@
                     </div>
                 </div>
             </div>
-        {% if survey_is_designed %}
-            <div class="row wrapper">
-                <section class="panel no-borders hbox">
-                    <aside class="lter r-l text-center v-middle">
-                        <div class="wrapper">
-                            <div class="header h4 text-muted text-center">
-                                &Eacute;sta zona tiene un nivel de satisfacci&oacute;n de:
-                            </div>
-                            <div class="col-sm-12 r-r text-center v-middle">
-                                <div class="h1 icon-5x">
-                                    {{ xindex_zone }}%
-                                </div>
-                            </div>
-                            <div class="col-sm-12 r-r text-center v-middle wrapper">
-                                <div class="text-center v-middle" style="margin: 0 auto;">
-                                    {% if comparison.diff_type == 'negative' %}
-                                        <p class="h4 text-danger">
-                                            <i class="icon-arrow-down "></i>
-                                            {{ comparison.xindex_diff }}%
-                                            <a class="h5">Con respecto al mes pasado</a>
-                                        </p>
-                                    {% else %}
-                                        <p class="h4 text-success">
-                                            <i class="icon-arrow-up "></i>
-                                            {{ comparison.xindex_diff }}%
-                                            <a class="h5">Con respecto al mes pasado</a>
-                                        </p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                    <aside>
-                        <div class="pos-rlt">
-                            <div class="panel-body">
-                                <div class="header h4 text-muted text-center">
-                                    Nivel de satisfacci&oacute;n en los ultimos meses:
-                                </div>
-                                <div class="graph" id="historical-graph">
-
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                </section>
-            </div>
-            <div class="row wrapper">
-                <div class="header text-muted">
-                    <p class="h4">Nivel de Satisfaccion por sucursal</p>
+        {% if empty_data %}
+            <section class="wrapper panel-body">
+                <div class="alert alert-warning alert-block">
+                    <h4><i class="icon-bell-alt"></i>Warning!</h4>
+                    <p>No hay zonas dadas de alta</p>
                 </div>
-                <section class="panel no-border hbox">
-                    <aside class="lter r-l text-center v-middle">
-                        <div class="wrapper">
-                            <div id="subsidiaries_graph">
-
-                            </div>
-                        </div>
-                    </aside>
-                    <aside>
-                        <div class="pos-rlt">
-                            <div class="panel-body">
-                                <div class="header h4 text-muted text-center">
-                                    Nivel de satisfacci&oacute;n en los ultimos meses:
-                                </div>
-                                <div class="media">
-                                    <ul class="list-group alt">
-                                        {% for subsidiary in subsidiaries_data %}
-                                            <form method="POST" action="/reports/subsidiary/">
-                                            {% csrf_token %}
-                                                <li class="list-group-item no-border btn btn-white btn_send_subsidiary">
-                                                    <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                                    <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ subsidiary.subsidiary_id }}">
-                                                    <div class="media">
-                                                        <div class="pull-left text-success m-t-sm">
-                                                            <i class="icon-stop icon-xlarge" style="color: {{ subsidiary.color }} !important;"></i>
-                                                        </div>
-                                                        <div class="media-body">
-                                                            <div><a href="#">{{ subsidiary.subsidiary_name }}</a></div>
-                                                            <small class="text-muted">Xindex: {{ subsidiary.xindex_subsidiary }}%</small>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </form>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                </section>
-            </div>
-            <div class="row wrapper text-muted">
-                <div class="header text-center text-muted">
-                    <p class="h4">Comparativa de nivel de satisfacci&oacute;n por Zonas</p>
-                </div>
-                {% if comparative_data %}
+            </section>
+            {% else %}
+            {% if survey_is_designed %}
+                <div class="row wrapper">
                     <section class="panel no-borders hbox">
                         <aside class="lter r-l text-center v-middle">
-                            <div class="" id="comparative_zone_graph">
-
+                            <div class="wrapper">
+                                <div class="header h4 text-muted text-center">
+                                    &Eacute;sta zona tiene un nivel de satisfacci&oacute;n de:
+                                </div>
+                                <div class="col-sm-12 r-r text-center v-middle">
+                                    <div class="h1 icon-5x">
+                                        {{ xindex_zone }}%
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 r-r text-center v-middle wrapper">
+                                    <div class="text-center v-middle" style="margin: 0 auto;">
+                                        {% if comparison.diff_type == 'negative' %}
+                                            <p class="h4 text-danger">
+                                                <i class="icon-arrow-down "></i>
+                                                {{ comparison.xindex_diff }}%
+                                                <a class="h5">Con respecto al mes pasado</a>
+                                            </p>
+                                        {% else %}
+                                            <p class="h4 text-success">
+                                                <i class="icon-arrow-up "></i>
+                                                {{ comparison.xindex_diff }}%
+                                                <a class="h5">Con respecto al mes pasado</a>
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </aside>
                         <aside>
                             <div class="pos-rlt">
                                 <div class="panel-body">
-                                    <div class="list-group bg-white">
-                                        {% for zone in comparative_data %}
-                                            <a href="#" class="list-group-item">
-                                                <span class="badge" style="background-color: {{ zone.color }} !important;">Xindex: {{ zone.xindex_zone }}%</span>
-                                                <i class="icon-stop" style="color: {{ zone.color }} !important;"></i> {{ zone.zone.name }}
-                                            </a>
-                                        {% endfor %}
+                                    <div class="header h4 text-muted text-center">
+                                        Nivel de satisfacci&oacute;n en los ultimos meses:
+                                    </div>
+                                    <div class="graph" id="historical-graph">
+
                                     </div>
                                 </div>
                             </div>
                         </aside>
                     </section>
-                    {% else %}
-                    <div>
-                        <p class="h5">No se encontraron mas zonas</p>
-                    </div>
-                {% endif %}
-            </div>
-            {% else %}
-            <section class="panel-body wrapper padder">
-                <div class="alert alert-danger text-center">
-                    <i class="icon-info-sign"></i>No existen datos para esta relaci&oacute;n
                 </div>
-            </section>
-        {% endif %}
+                <div class="row wrapper">
+                    <div class="header text-muted">
+                        <p class="h4">Nivel de Satisfaccion por sucursal</p>
+                    </div>
+                    <section class="panel no-border hbox">
+                        <aside class="lter r-l text-center v-middle">
+                            <div class="wrapper">
+                                <div id="subsidiaries_graph">
 
+                                </div>
+                            </div>
+                        </aside>
+                        <aside>
+                            <div class="pos-rlt">
+                                <div class="panel-body">
+                                    <div class="header h4 text-muted text-center">
+                                        Nivel de satisfacci&oacute;n en los ultimos meses:
+                                    </div>
+                                    <div class="media">
+                                        <ul class="list-group alt">
+                                            {% for subsidiary in subsidiaries_data %}
+                                                <form method="POST" action="/reports/subsidiary/">
+                                                {% csrf_token %}
+                                                    <li class="list-group-item no-border btn btn-white btn_send_subsidiary">
+                                                        <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                                        <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ subsidiary.subsidiary_id }}">
+                                                        <div class="media">
+                                                            <div class="pull-left text-success m-t-sm">
+                                                                <i class="icon-stop icon-xlarge" style="color: {{ subsidiary.color }} !important;"></i>
+                                                            </div>
+                                                            <div class="media-body">
+                                                                <div><a href="#">{{ subsidiary.subsidiary_name }}</a></div>
+                                                                <small class="text-muted">Xindex: {{ subsidiary.xindex_subsidiary }}%</small>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </form>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                </div>
+                <div class="row wrapper text-muted">
+                    <div class="header text-center text-muted">
+                        <p class="h4">Comparativa de nivel de satisfacci&oacute;n por Zonas</p>
+                    </div>
+                    {% if comparative_data %}
+                        <section class="panel no-borders hbox">
+                            <aside class="lter r-l text-center v-middle">
+                                <div class="" id="comparative_zone_graph">
+
+                                </div>
+                            </aside>
+                            <aside>
+                                <div class="pos-rlt">
+                                    <div class="panel-body">
+                                        <div class="list-group bg-white">
+                                            {% for zone in comparative_data %}
+                                                <a href="#" class="list-group-item">
+                                                    <span class="badge" style="background-color: {{ zone.color }} !important;">Xindex: {{ zone.xindex_zone }}%</span>
+                                                    <i class="icon-stop" style="color: {{ zone.color }} !important;"></i> {{ zone.zone.name }}
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </section>
+                        {% else %}
+                        <div>
+                            <p class="h5">No se encontraron mas zonas</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <section class="panel-body wrapper padder">
+                    <div class="alert alert-danger text-center">
+                        <i class="icon-info-sign"></i>No existen datos para esta relaci&oacute;n
+                    </div>
+                </section>
+            {% endif %}
+        {% endif %}
         </section>
     </section>
     </section>
