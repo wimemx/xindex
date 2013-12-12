@@ -3000,6 +3000,7 @@ def save_answers_ajax(request):
                         answer.order = option_db.order
                         answer.client = Client.objects.get(
                             pk=int(question['client_id']))
+                        answer.client_activity = activity
                         answer.active = True
                         answer.save()
 

@@ -155,7 +155,7 @@
                             <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
                                     {% for business_unit in business_units %}
-                                        {% if businessUnit.id == current_business_unit.id %}
+                                        {% if business_unit.id == current_business_unit.id %}
                                             <option value="{{ business_unit.id }}" selected>{{ business_unit.name }}</option>
                                         {% else %}
                                             <option value="{{ business_unit.id }}">{{ business_unit.name }}</option>
