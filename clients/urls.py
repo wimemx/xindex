@@ -19,6 +19,8 @@ urlpatterns = patterns('clients.views',
                            views.getBusinessInJson),
                        url(r'^business/(?P<business_id>\d+)$',
                            views.getServicesInJson),
+                       url(r'^survey/(?P<business_id>\d+)/(?P<service_id>\d+)$',
+                           views.getSurveyInJson),
                        
                        url(r'^activity_answers/(?P<activity_id>\d+)$',
                            views.activity_answers),

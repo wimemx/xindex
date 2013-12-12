@@ -599,3 +599,21 @@ def getServicesInJson(request, business_id):
             )
 
     return HttpResponse(simplejson.dumps(servicesToJson))
+
+
+def getSurveyInJson(request, business_id, service_id):
+
+    surveyToJson = {'survey': []}
+
+    mySurvey = Survey.objects.filter(
+        business_unit_id=business_id,
+        service_id=service_id)[0]
+
+    if mySurvey:
+        surveyToJson['survey'].append(
+            {
+                "name": mySurvey.name,
+                "id": mySurvey.id
+            }
+        )
+    return HttpResponse(simplejson.dumps(surveyToJson))
