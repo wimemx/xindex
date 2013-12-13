@@ -38,7 +38,11 @@
     <footer class="footer yellow-xindex-nohover bg-gradient hidden-xs">
         <a href="#nav" data-toggle="class:nav-vertical"
            class="btn btn-sm btn-link m-l-n-sm">
-            <i class="icon-reorder"></i>
+
+            <i class="icon-reorder hidden"></i>
+             {% load staticfiles %}
+                <img src="{% static "images/xindex-logo.png" %}"
+                     alt="XINDEX Home" class="hidden-vertical"/>
         </a>
     </footer>
     <!--End Footer-->
@@ -48,7 +52,7 @@
            data-target="body">
             <i class="icon-reorder"></i>
         </a>
-        <a href="#" class="nav-brand" data-toggle="fullscreen">
+        <a href="#" class="nav-brand">
         <i class="icon-renren icon-2x"></i>
             {% block title-menu %}
             {% endblock %}
@@ -67,7 +71,7 @@
                 <i class="hidden-vertical" style="margin-left: 20px;">
                     <label class="h4">
                         {% block username %}
-                            Username
+                            {{ user.username }}
                         {% endblock %}
                     </label>
                     <span class="caret-white icon-chevron-down"></span>
@@ -200,7 +204,7 @@
 <div class="blue-xindex wrapper hidden-vertical animated fadeInDown text-sm">
     <a href="#" data-dismiss="alert" class="pull-right m-r-n-sm m-t-n-sm"><i
             class="icon-close icon-remove"></i></a>
-    Hi, welcome to [ x i n d e x ].
+    Bienvenido a [ x i n d e x ].
 </div>
 <!-- / note -->
 </section>

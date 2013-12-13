@@ -8,10 +8,10 @@ from rbacx.models import PermissionAssignment, UserRole, DataContextPermission,\
 # my MANDRILL API KEY        hzuTlBSxNBabQDBkpTZveA
 
 
-VIEW = Operation.objects.get(name="Ver")
-CREATE = Operation.objects.get(name="Crear")
-DELETE = Operation.objects.get(name="Eliminar")
-UPDATE = Operation.objects.get(name="Editar")
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
 
 
 def check_roles_permission(object_name):
