@@ -280,7 +280,6 @@ def getSubsidiaryDetailsInJson(request, subsidiary_id):
         return render_to_response("rbac/generic_error.html", template_vars)
 
 
-@login_required(login_url='/signin/')
 def get_business_units(request):
     if has_permission(request.user, VIEW, "Ver reportes") or \
             request.user.is_superuser:
