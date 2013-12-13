@@ -424,3 +424,198 @@ def get_last_month_service_xindex(subsidiary, business_unit, service):
         'month': str(year)+'-'+str(last_month),
         'value': xindex_service
     }
+
+
+def get_last_month_moment_xindex(subsidiary, business_unit, service, moment):
+    total_promoters = 0
+    total_passives = 0
+    total_detractors = 0
+    total_answers = 0
+    answers_list = []
+
+    c_d = datetime.date.today()
+    last_month = c_d.month-1
+    year = c_d.year
+    if c_d.month == 01:
+        last_month = 12
+        year = c_d.year-1
+
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS an instance and service IS an instance
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                    for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                        for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                            for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                    question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                    for a in question_answers:
+                                        client = Client.objects.get(pk=a.client_id)
+                                        if a.client_activity is not None:
+                                            try:
+                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                c_d = datetime.date.today()
+                                                if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                    answers_list.append(a)
+                                            except ClientActivity.DoesNotExist:
+                                                pass
+            else:
+                #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                    for serv in service:
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
+                for bu_un in business_unit:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+            else:
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
+                for bu_un in business_unit:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                        for serv in service:
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS an instance
+                for subsid in subsidiary:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=business_unit):
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+            else:
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
+                for subsid in subsidiary:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=business_unit):
+                        for serv in service:
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
+                for subsid in subsidiary:
+                    for bu_un in business_unit:
+                        for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=bu_un):
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+            else:
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
+                for subsid in subsidiary:
+                    for bu_un in business_unit:
+                        for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=bu_un):
+                            for serv in service:
+                                for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                    for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                        for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                            for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                                question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                                for a in question_answers:
+                                                    client = Client.objects.get(pk=a.client_id)
+                                                    if a.client_activity is not None:
+                                                        try:
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                            c_d = datetime.date.today()
+                                                            if a.date.year == year and a.date.month == last_month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                                answers_list.append(a)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+    if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
+        moment_xindex = 0
+    else:
+        moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+
+    return {
+        'month': str(year)+'-'+str(last_month),
+        'value': moment_xindex
+    }

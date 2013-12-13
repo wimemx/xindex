@@ -135,6 +135,9 @@
                                 '<option value="'+object.id+'">'+object.name+'</option>'
                         );
                     });
+                } else {
+                    $('#id_service').html('<option value="default">No hay servicio asociados</option>')
+                    $('#id_service').attr('disabled', true);
                 }
             },
             error: function(){
@@ -169,7 +172,7 @@
             }
             return false;
         } else {
-            if ($('#id_name').val().length > 1) {
+            if ($('#id_name').val().length > 1 & $('#id_service').val() != 'default') {
                 $.ajax({
                     url: '/surveys/save/next/2/empty',
                     type: 'POST',
