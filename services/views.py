@@ -85,7 +85,9 @@ def index(request, business_unit_id=False):
             )
 
             for eachAttribute in myAtributtes:
-                myAttributeCounter.append(eachAttribute.id)
+
+                att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+                myAttributeCounter.append(att.id)
 
         myAttributeCounter = list(set(myAttributeCounter))
 
