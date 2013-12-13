@@ -105,8 +105,8 @@
 <script src="/static/js/jquery.min.js"></script>
 <!-- Bootstrap -->
 <script src="/static/js/bootstrap.js"></script>
-<!-- Sparkline Chart -->
-<script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>
+<!-- Sparkline Chart
+<script src="/static/js/charts/sparkline/jquery.sparkline.min.js"></script>-->
 <!-- App -->
 <!--<script src="/static/js/app.js"></script>
 <script src="/static/js/app.plugin.js"></script>-->
@@ -117,7 +117,7 @@
 <script language="javascript">
 
     //get the services to apply the survey
-    $('#id_business_unit').on('click', function(){
+    $('#id_business_unit').on('click change', function(){
         var business_unit_id = $(this).val();
         $.ajax({
             type: 'POST',
