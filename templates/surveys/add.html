@@ -117,7 +117,8 @@
 <script language="javascript">
 
     //get the services to apply the survey
-    $('#id_business_unit').click(function(){
+    $('#id_business_unit').change(function(){
+        console.log($(this).val());
         var business_unit_id = $(this).val();
         $.ajax({
             type: 'POST',
