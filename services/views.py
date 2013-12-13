@@ -278,7 +278,6 @@ def getSByBUInJson(request, business_unit_id):
                 }
             )
 
-
     return HttpResponse(simplejson.dumps(services))
 
 
@@ -389,7 +388,6 @@ def details(request, service_id):
     return render_to_response('services/details.html', request_context)
 
 
-@login_required(login_url='/signin/')
 def get_moments(request):
     business_unit = []
     servicesArray = []
@@ -727,7 +725,6 @@ def get_moments(request):
             pass
 
 
-@login_required(login_url='/signin/')
 def get_services(request):
     businessUnit_id = int(request.POST['select_businessUnit'])
     try:

@@ -151,11 +151,6 @@ class Company(models.Model):
     def __unicode__(self):
         return self.name
 
-    def company_type(self):
-        return ', '.join([a.name for a in self.types.all()])
-
-    company_type.short_description = "Type"
-
     class Meta:
         verbose_name_plural = "Companies"
         verbose_name = "Company"

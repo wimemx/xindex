@@ -12,10 +12,10 @@ from xindex.models import Company, Subsidiary, BusinessUnit, Service, \
 from rbacx.models import Operation, Role
 
 
-VIEW = Operation.objects.get(name="Ver")
-CREATE = Operation.objects.get(name="Crear")
-DELETE = Operation.objects.get(name="Eliminar")
-UPDATE = Operation.objects.get(name="Editar")
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
 
 
 @login_required(login_url='/signin/')

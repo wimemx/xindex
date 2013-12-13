@@ -191,7 +191,6 @@ def details(request, business_unit_id):
     return render_to_response('business_units/details.html', request_context)
 
 
-@login_required(login_url='/signin/')
 def get_services(request):
     businessUnitList = []
     servicesList = []
@@ -352,7 +351,6 @@ def get_services(request):
             pass
 
 
-@login_required(login_url='/signin/')
 def get_services_to_apply(request):
     if request.POST:
         if 'business_unit_id' in request.POST:

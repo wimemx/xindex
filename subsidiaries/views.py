@@ -10,10 +10,10 @@ from xindex.models import State, Zone, BusinessUnit, SubsidiaryBusinessUnit, \
 from rbacx.models import Operation
 from rbacx.functions import has_permission
 
-VIEW = Operation.objects.get(name="Ver")
-CREATE = Operation.objects.get(name="Crear")
-DELETE = Operation.objects.get(name="Eliminar")
-UPDATE = Operation.objects.get(name="Editar")
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
 
 
 @login_required(login_url='/signin/')
@@ -21,16 +21,17 @@ def index(request, message=''):
     if has_permission(request.user, VIEW, "Ver subsidiarias") or \
             request.user.is_superuser:
         all_subsidiaries = Subsidiary.objects.filter(active='True')
-        return render_to_response(
-            'subsidiaries/index.html',
-            {
+        template_vars = {
                 'all_subsidiaries': all_subsidiaries,
                 'message': message
             }
-        )
+        request_context = RequestContext(request, template_vars)
+        return render_to_response(
+            'subsidiaries/index.html', request_context)
     else:
         template_vars = {}
-        return render_to_response("rbac/generic_error.html", template_vars)
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
@@ -280,7 +281,6 @@ def getSubsidiaryDetailsInJson(request, subsidiary_id):
         return render_to_response("rbac/generic_error.html", template_vars)
 
 
-@login_required(login_url='/signin/')
 def get_business_units(request):
     if has_permission(request.user, VIEW, "Ver reportes") or \
             request.user.is_superuser:

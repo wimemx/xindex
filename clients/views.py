@@ -67,14 +67,19 @@ def add_client(request):
         return HttpResponseRedirect('/clients/')
 
     else:
+
         companies = Company.objects.filter(active=True)[:1]
         zones = Zone.objects.filter(active=True)
         subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
         businessUnits = SubsidiaryBusinessUnit.objects.filter(
             id_subsidiary__id=subsidiaries[0].id)
-        sbu_services = sbu_service.objects.filter(
-            id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
-        )
+
+        try:
+            sbu_services = sbu_service.objects.filter(
+                id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
+            )
+        except:
+            sbu_services = "Sin servicios"
         template_vars = {'companies': companies,
                          'zones': zones,
                          'zone': zones[0],

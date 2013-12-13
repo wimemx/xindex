@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import os
 import json
+from django.contrib.auth.models import User
 import short_url
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
@@ -258,7 +259,7 @@ def save(request, action, next_step, survey_id=False):
 
             setup['question_styles'] = False
 
-            user = Xindex_User.objects.get(pk=request.user.id)
+            user = Xindex_User.objects.get(user__id=request.user.id)
 
             for company in user.company_set.all():
                 for subsidiary in company.subsidiary_set.all():
@@ -458,7 +459,6 @@ def available(request, survey_id):
     return HttpResponseRedirect('/surveys/')
 
 
-@login_required(login_url='/signin/')
 def media_upload(request, survey_id):
     survey = Survey.objects.get(pk=survey_id)
     survey.picture = str(survey.id) + str(request.FILES['file'])
@@ -520,7 +520,6 @@ def handle_uploaded_file(destination, f):
            '''
 
 
-@login_required(login_url='/signin/')
 @csrf_exempt
 def save_ajax(request, survey_id):
     if request.is_ajax():
@@ -560,7 +559,6 @@ def save_ajax(request, survey_id):
         raise Http404
 
 
-@login_required(login_url='/signin/')
 def delete_questions(request):
     if request.is_ajax():
         question_ids = json.loads(request.POST.get('ids'))
@@ -619,7 +617,6 @@ def delete_questions(request):
         return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def associate_questions_to_moments(request):
     if request.is_ajax():
         question_ids = json.loads(request.POST.get('ids'))
@@ -630,7 +627,7 @@ def associate_questions_to_moments(request):
 
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
 
-        user = Xindex_User.objects.get(pk=request.user.id)
+        user = Xindex_User.objects.get(user__id=request.user.id)
 
         for question_id in question_ids:
             try:
@@ -686,7 +683,6 @@ def associate_questions_to_attributes(request):
 
 
 #Questions Section
-@login_required(login_url='/signin/')
 def create_matrix(request, data):
     type = int(data.type)
     title = data.title
@@ -697,26 +693,26 @@ def create_matrix(request, data):
 
     if add_catalog:
         catalog_question = Question()
-        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog_question.type = Question_Type.objects.get(pk=type)
         catalog_question.title = title
         catalog_question.save()
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog.question = catalog_question
 
         catalog.save()
 
         for subquestion in rows:
-            q = Question(user=Xindex_User.objects.get(pk=1),
+            q = Question(user=Xindex_User.objects.get(user__id=request.user.id),
                          title=subquestion.label,
                          type=Question_Type.objects.get(pk=type),
                          parent_question=catalog_question)
             q.save()
 
             catalog_child = Catalog()
-            catalog_child.user = Xindex_User.objects.get(pk=request.user.id)
+            catalog_child.user = Xindex_User.objects.get(user__id=request.user.id)
             catalog_child.question = q
             catalog_child.save()
 
@@ -728,13 +724,13 @@ def create_matrix(request, data):
                 i += 1
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog.question = catalog_question
 
         catalog.save()
 
     question = Question()
-    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.user = Xindex_User.objects.get(user__id=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
@@ -746,7 +742,7 @@ def create_matrix(request, data):
     createAssociationQAM(question, data.moment_id, data.attribute_id)
 
     for subquestion in rows:
-        q = Question(user=Xindex_User.objects.get(pk=request.user.id),
+        q = Question(user=Xindex_User.objects.get(user__id=request.user.id),
                      title=subquestion.label,
                      type=Question_Type.objects.get(pk=type),
                      parent_question=question)
@@ -788,7 +784,6 @@ def create_matrix(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def create_multiple_choice(request, data):
     print data
     type = int(data.type)
@@ -799,7 +794,7 @@ def create_multiple_choice(request, data):
 
     if add_catalog:
         catalog_question = Question()
-        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog_question.type = Question_Type.objects.get(pk=type)
         catalog_question.title = title
         catalog_question.save()
@@ -814,7 +809,7 @@ def create_multiple_choice(request, data):
             print new_option
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog.question = catalog_question
 
         catalog.save()
@@ -824,7 +819,7 @@ def create_multiple_choice(request, data):
 
 
     question = Question()
-    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.user = Xindex_User.objects.get(user__id=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
@@ -865,7 +860,6 @@ def create_multiple_choice(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def create_open_question(request, data):
     type = int(data.type)
     title = data.title
@@ -874,19 +868,19 @@ def create_open_question(request, data):
 
     if add_catalog:
         catalog_question = Question()
-        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog_question.type = Question_Type.objects.get(pk=type)
         catalog_question.title = title
         catalog_question.save()
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog.question = catalog_question
 
         catalog.save()
 
     question = Question()
-    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.user = Xindex_User.objects.get(user__id=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
@@ -921,7 +915,6 @@ def create_open_question(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def create_range_question(request, data):
 
     type = int(data.type)
@@ -940,7 +933,7 @@ def create_range_question(request, data):
 
     if add_catalog:
         catalog_question = Question()
-        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog_question.type = Question_Type.objects.get(pk=type)
         catalog_question.title = title
         catalog_question.save()
@@ -1019,7 +1012,6 @@ def create_range_question(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def create_true_and_false(request, data):
     type = int(data.type)
     title = data.title
@@ -1029,7 +1021,7 @@ def create_true_and_false(request, data):
 
     if add_catalog:
         catalog_question = Question()
-        catalog_question.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog_question.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog_question.type = Question_Type.objects.get(pk=type)
         catalog_question.title = title
         catalog_question.save()
@@ -1040,13 +1032,13 @@ def create_true_and_false(request, data):
             new_option.save()
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user__id=request.user.id)
         catalog.question = catalog_question
 
         catalog.save()
 
     question = Question()
-    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.user = Xindex_User.objects.get(user__id=request.user.id)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
@@ -1080,7 +1072,6 @@ def create_true_and_false(request, data):
 
 
 #TODO: Fix this; DO NOT use in production
-@login_required(login_url='/signin/')
 @csrf_exempt
 def add_ajax(request):
     if request.is_ajax():
@@ -1120,7 +1111,6 @@ def add_ajax(request):
         raise Http404
 
 
-@login_required(login_url='/login/')
 def deployment(request, action, next_step, survey_id=False):
 
     #function to validate hash or cookie
@@ -1392,7 +1382,6 @@ def deployment(request, action, next_step, survey_id=False):
 
 
 #function to get question data to update
-@login_required(login_url='/signin/')
 def get_question_data_to_update(request, question_id):
     if request.is_ajax:
         question_types = Question_Type.objects.all().order_by('name')
@@ -1658,7 +1647,6 @@ def get_question_data_to_update(request, question_id):
                                    'question_types': question_types})
 
 
-@login_required(login_url='/signin/')
 def update_matrix(question, data):
     cols = data.cols
     rows = data.rows
@@ -1748,7 +1736,6 @@ def update_matrix(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def update_multiple_choice(question, data):
     options = data.options
 
@@ -1978,7 +1965,6 @@ def update_multiple_choice(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def update_open_question(question, data):
     question.title = data.title
     question.save()
@@ -2438,7 +2424,6 @@ def update_range_question(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-
 def update_true_and_false(question, data):
     question.title = data.title
     question.save()
@@ -2684,7 +2669,6 @@ def edit_ajax(request, question_id):
         raise Http404
 
 
-@login_required(login_url='/signin/')
 def createAssociationQAM(question, moment_id, attribute_id):
     if moment_id or attribute_id:
         if moment_id and attribute_id:
@@ -2734,7 +2718,6 @@ def createAssociationQAM(question, moment_id, attribute_id):
             pass
 
 
-@login_required(login_url='/signin/')
 def get_survey_blocks_style(request):
     if request.is_ajax():
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
@@ -2950,7 +2933,6 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
 
 
 #TODO: Fix this; DO NOT use in production
-@login_required(login_url='/signin/')
 @csrf_exempt
 def save_answers_ajax(request):
     if request.is_ajax():
@@ -3034,7 +3016,6 @@ def save_answers_ajax(request):
         return HttpResponse(json_response, content_type="application/json")
 
 
-@login_required(login_url='/signin/')
 def update_association_qma(question, moment_id, attribute_id):
     if moment_id and attribute_id:
         delete_relation = False

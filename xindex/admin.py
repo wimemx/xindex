@@ -40,7 +40,7 @@ class SurveyMe(admin.ModelAdmin):
 
 
 class CompanyMe(admin.ModelAdmin):
-    list_display = ['name', 'company_type', 'active']
+    list_display = ['name', 'active']
     list_filter = ['types']
 
 
