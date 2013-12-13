@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xindex.models import Attributes, Question
+from xindex.models import Attributes, Question, Question_sbu_s_m_a
 from xindex.forms import AttributesForm
 from django.utils import simplejson
 from xindex.models import Moment
@@ -160,6 +160,12 @@ def getSInJson(request):
         #Question_Attributes.objects.filter(active=True)
 
     for each_attribute in attribute_query:
+        question_count = 0
+        myQuestions = Question_sbu_s_m_a.objects.filter(
+                sbu_s_m_a_id=each_attribute
+            )
+        for eachQuestion in myQuestions:
+            question_count += 1
 
         attributes['attributes'].append(
             {
@@ -170,7 +176,7 @@ def getSInJson(request):
                 #"max_value": each_attribute.max_value,
                 "threshold": each_attribute.threshold,
                 #"weight": each_attribute.weight,
-                #"questions": counter_question,
+                "questions": question_count,
                 "attribute_id": each_attribute.id
             }
         )
