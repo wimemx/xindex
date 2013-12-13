@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
-import re
-from datetime import date
-
-from django.db.models.aggregates import Count
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import simplejson
-
+import mandrill
+import short_url
+from xindex.models import Company
 from rbacx.models import PermissionAssignment, UserRole, DataContextPermission,\
     Operation, Object
-from xindex.models import Company, Subsidiary, BusinessUnit, Service
 
-"""
+# my MANDRILL API KEY        hzuTlBSxNBabQDBkpTZveA
+
+
 VIEW = Operation.objects.get(name="Ver")
 CREATE = Operation.objects.get(name="Crear")
 DELETE = Operation.objects.get(name="Eliminar")
-UPDATE = Operation.objects.get(name="Modificar")
-"""
+UPDATE = Operation.objects.get(name="Editar")
+
 
 def check_roles_permission(object_name):
 
@@ -30,13 +27,16 @@ def check_roles_permission(object_name):
 
 
 def has_permission(user, operation, object_name):
-    user_role = UserRole.objects.filter(user=user,
-                                        role_id__status=True). \
+    user_role = UserRole.objects.filter(
+        user_id=user,
+        role_id__status=True). \
         exclude(status=False)
+
+    print user_role
     for eachUserRole in user_role:
         permission = PermissionAssignment.objects.filter(
             object_id__name=object_name,
-            role=eachUserRole.role_id, operation_id=operation)
+            role_id=eachUserRole.role_id, operation_id=operation)
         if permission:
             return True
     return False
@@ -58,3 +58,51 @@ def get_all_companies_for_operation(operation, permission, user):
             if permission_assignment:
                 companies.append(eachDataContext.company_id)
         return companies
+
+
+def mailing(new_user, content):
+    try:
+        mandrill_client = mandrill.Mandrill('hzuTlBSxNBabQDBkpTZveA')
+
+        message = {
+            'html': '<h2>Xindex Account</h2>'
+                    + content,
+            'subject': 'New member',
+            'from_email': 'team@xindex.com.mx',
+            'from_name': 'Xindex Account',
+            'to': [
+                {'email': new_user.email,
+                 'name': new_user.first_name,
+                 'type': 'to'}
+            ],
+            'important': True,
+            'track_opens': True,
+            'track_clicks': True,
+            'auto_text': None,
+            'auto_html': None,
+            'tracking_domain': None,
+            'signing_domain': None,
+            'return_path_domain': None,
+            'merge': True,
+            'global_merge_vars': [
+                {'content': 'merge1 content',
+                 'name': 'GLOBAL MERGE'}],
+            'merge_vars': [
+                {'rcpt': 'martin_3-3@hotmail.com',
+                 'vars': [
+                     {'content': 'merge2 content',
+                      'name': 'MARTIN ANDRADE'}
+                 ]}
+            ],
+            'tags': ['prueba mailing'],
+        }
+        result = mandrill_client.messages.send(
+            message=message,
+            async=False)
+
+        print result
+
+    except mandrill.Error, e:
+
+        print 'A mandrill error occurred: %s - %s' % (e.__class__, e)
+        raise

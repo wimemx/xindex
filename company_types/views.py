@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from xindex.models import Company_Type
@@ -5,6 +6,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyTypeForm
 
 
+@login_required(login_url='/signin/')
 def index(request):
     all_company_type = Company_Type.objects.all().filter(active=True).\
         order_by('-date')
@@ -16,6 +18,7 @@ def index(request):
                               request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.method=='POST':
         formulario = CompanyTypeForm(request.POST)
@@ -32,6 +35,7 @@ def add(request):
                               request_context)
 
 
+@login_required(login_url='/signin/')
 def edit(request, company_type_id):
     company_type = Company_Type.objects.get(pk=company_type_id)
     if request.method=='POST':
@@ -51,6 +55,7 @@ def edit(request, company_type_id):
                               request_context)
 
 
+@login_required(login_url='/signin/')
 def remove(request, company_type_id):
     company_type = Company_Type.objects.get(pk=company_type_id)
     company_type.active = False
@@ -58,6 +63,7 @@ def remove(request, company_type_id):
     return HttpResponseRedirect('/company_types')
 
 
+@login_required(login_url='/signin/')
 def detail(request, company_type_id):
     try:
         company_type = Company_Type.objects.get(pk=company_type_id)

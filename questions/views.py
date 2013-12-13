@@ -1,4 +1,5 @@
 # Create your views here.
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -18,12 +19,14 @@ import json
 from django.http import HttpResponseRedirect, HttpResponse
 
 
+@login_required(login_url='/signin/')
 def index(request):
     all_questions = Question.objects.filter(active=True).order_by('type')
     return render_to_response('questions/index.html',
                               {'all_questions': all_questions})
 
 
+@login_required(login_url='/signin/')
 def add(request):
     question_types = Question_Type.objects.all().order_by('name');
     c = {}
@@ -34,6 +37,7 @@ def add(request):
 #TODO: Create the factory for the questions
 
 
+@login_required(login_url='/signin/')
 def create_matrix(request, data):
     type = int(data.type)
     title = data.title
@@ -67,6 +71,7 @@ def create_matrix(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_multiple_choice(request, data):
     print data
     type = int(data.type)
@@ -135,6 +140,7 @@ def create_multiple_choice(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_open_question(data):
     type = int(data.type)
     title = data.title
@@ -152,6 +158,7 @@ def create_open_question(data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_range_question(data):
     type = int(data.type)
     title = data.title
@@ -193,6 +200,7 @@ def create_range_question(data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_true_and_false(request, data):
     type = int(data.type)
     title = data.title
@@ -247,7 +255,10 @@ def create_true_and_false(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 #TODO: Fix this; DO NOT use in production
+
+
 @csrf_exempt
+@login_required(login_url='/signin/')
 def add_ajax(request):
     if request.is_ajax():
         try:
@@ -286,6 +297,7 @@ def add_ajax(request):
         raise Http404
 
 
+@login_required(login_url='/signin/')
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     #TODO: Try to sort this client side
@@ -294,7 +306,10 @@ def detail(request, question_id):
                                                         'options': options})
 
 #TODO: Fix this; DO NOT use in production
+
+
 @csrf_exempt
+@login_required(login_url='/signin/')
 def remove(request, question_id):
     if request.is_ajax():
         try:
@@ -337,6 +352,7 @@ def remove(request, question_id):
         raise Http404
 
 
+@login_required(login_url='/signin/')
 def edit(request, question_id):
     question_types = Question_Type.objects.all().order_by('name')
     question = get_object_or_404(Question, pk=question_id)
@@ -380,6 +396,7 @@ def edit(request, question_id):
 #TODO: Refactor this, maybe is easier and convenient to actually delete them
 
 
+@login_required(login_url='/signin/')
 def update_matrix(question, data):
     cols = data.cols
     rows = data.rows
@@ -446,6 +463,7 @@ def update_matrix(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_multiple_choice(question, data):
     options = data.options
 
@@ -476,6 +494,7 @@ def update_multiple_choice(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_open_question(question, data):
     question.title = data.title
     question.save()
@@ -485,6 +504,7 @@ def update_open_question(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_range_question(question, data):
     start_number = int(float(data.options.start_number))
     end_number = int(float(data.options.end_number))
@@ -546,6 +566,7 @@ def update_range_question(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_true_and_false(question, data):
     question.title = data.title
     question.save()
@@ -557,6 +578,7 @@ def update_true_and_false(question, data):
 
 #TODO: Fix this; DO NOT use in production
 @csrf_exempt
+@login_required(login_url='/signin/')
 def edit_ajax(request, question_id):
     if request.is_ajax():
         try:

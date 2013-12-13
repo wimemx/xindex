@@ -8,7 +8,7 @@ from django.utils import simplejson
 
 from xindex.models import Service, BusinessUnit, Subsidiary, Moment, \
     sbu_service, Zone, sbu_service_moment_attribute, SubsidiaryBusinessUnit, \
-    sbu_service_moment
+    sbu_service_moment, Question_sbu_s_m_a, Question, Attributes, Survey
 
 
 @login_required(login_url='/signin/')
@@ -70,6 +70,7 @@ def index(request, business_unit_id=False):
         myMomentCounter = []
         myAttributeCounter = []
         for eachMoment in myMoments:
+            print "================================"
             myMomentCounter.append(eachMoment.id_moment.id)
 
         myMomentCounter = list(set(myMomentCounter))
@@ -312,6 +313,52 @@ def details(request, service_id):
     momentsInService = {'moments': []}
     myMomentList = []
 
+
+    #Counters!
+    myMomentCounter = []
+    mySurveyCounter = []
+    for eachMoment in all_sbuServiceMoment:
+        myMomentCounter.append(eachMoment.id_moment.id)
+
+    myMomentCounter = list(set(myMomentCounter))
+
+    touch_count = 0
+    indicator_count = 0
+    question_count = 0
+    survey_count = 0
+    for eachSetMoment in myMomentCounter:
+        touch_count += 1
+
+        myAtributtes = sbu_service_moment_attribute.objects.filter(
+            id_sbu_service_moment__id_moment__id=eachSetMoment
+        )
+
+        for eachAttribute in myAtributtes:
+            indicator_count += 1
+
+            myQuestions = Question_sbu_s_m_a.objects.filter(
+                sbu_s_m_a_id=eachAttribute
+            )
+
+            for eachQuestion in myQuestions:
+                question_count += 1
+
+
+                mySurvey = Survey.objects.filter(
+                    questions=eachQuestion.question_id
+                )
+
+                for eachSurvey in mySurvey:
+                    survey_count +=1
+                """
+                myQuestionsToSurveys = Question.objects.filter(
+                    pk=eachQuestion.question_id
+                )
+
+                for eachQuestionToSurvey in myQuestionsToSurveys:
+                    mySurveyCounter.append(eachQuestionToSurvey)
+                """
+
     for eachSbuServiceMoment in all_sbuServiceMoment:
         myMomentList.append(eachSbuServiceMoment.id_moment.id)
 
@@ -327,29 +374,22 @@ def details(request, service_id):
             }
         )
 
-    '''
-    counter_moments = 0
-    for a in moments.moments.all():
-        counter_moments += 1
-
-    counter_attributes_ = 0
-    for each_moment in moments.moments.all():
-        each_moment_to_compare = Moment.objects.get(pk=each_moment.id)
-        for attribute in each_moment_to_compare.attributes.all():
-            counter_attributes_ += 1
-    '''
     template_vars = {
         'titulo': 'Detalles',
         'service': momentsInService,
         'service_id': service_id,
-        'counter_moments': 'counter_moments',
-        'counter_attributes': 'counter_attributes_',
+        'serviceData': Service.objects.get(pk=service_id),
+        'counter_moments': touch_count,
+        'counter_attributes': indicator_count,
+        'counter_questions': question_count,
+        'counter_surveys': survey_count,
         'business_unit': 'business_unit'
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response('services/details.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def get_moments(request):
     momentList = []
     if request.POST:
@@ -391,6 +431,7 @@ def get_moments(request):
             pass
 
 
+@login_required(login_url='/signin/')
 def get_services(request):
     businessUnit_id = int(request.POST['select_businessUnit'])
     try:

@@ -7,18 +7,14 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
-from xindex.models import Survey, Company, ClientActivity
 from xindex.forms import SurveyForm
-from xindex.models import Xindex_User
-from xindex.models import Question_Type
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
 
-from xindex.forms import SurveyForm
 from xindex.models import Question, Option, Catalog, Moment, Service, Answer, \
     Attributes, Question_sbu_s_m_a, SubsidiaryBusinessUnit, sbu_service, \
     sbu_service_moment, sbu_service_moment_attribute, BusinessUnit, Service, \
-    Client, Subsidiary, Question_Type, Xindex_User, Survey, Company
+    Client, Subsidiary, Question_Type, Xindex_User, Survey, Company, ClientActivity
 
 
 @login_required(login_url='/signin/')
@@ -114,6 +110,7 @@ def getJson(request):
         )
     return HttpResponse(simplejson.dumps(survey))
 
+
 @login_required(login_url='/signin/')
 def addSurvey(request):
     if request.POST:
@@ -146,6 +143,7 @@ def addSurvey(request):
         return render_to_response('surveys/add.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def add_step(request, step=1, survey_id=False):
     if survey_id:
         try:
@@ -168,7 +166,7 @@ def add_step(request, step=1, survey_id=False):
     else:
         return HttpResponseRedirect('/surveys/add')
 
-
+@login_required(login_url='/signin/')
 def save(request, action, next_step, survey_id=False):
     if survey_id == 'empty':
         if request.POST:
@@ -419,6 +417,7 @@ def save(request, action, next_step, survey_id=False):
                                       request_context)
 
 
+@login_required(login_url='/signin/')
 def edit(request, survey_id):
     survey = Survey.objects.get(pk=survey_id)
     if request.method == 'POST':
@@ -521,6 +520,7 @@ def handle_uploaded_file(destination, f):
            '''
 
 
+@login_required(login_url='/signin/')
 @csrf_exempt
 def save_ajax(request, survey_id):
     if request.is_ajax():
@@ -560,6 +560,7 @@ def save_ajax(request, survey_id):
         raise Http404
 
 
+@login_required(login_url='/signin/')
 def delete_questions(request):
     if request.is_ajax():
         question_ids = json.loads(request.POST.get('ids'))
@@ -618,6 +619,7 @@ def delete_questions(request):
         return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def associate_questions_to_moments(request):
     if request.is_ajax():
         question_ids = json.loads(request.POST.get('ids'))
@@ -684,6 +686,7 @@ def associate_questions_to_attributes(request):
 
 
 #Questions Section
+@login_required(login_url='/signin/')
 def create_matrix(request, data):
     type = int(data.type)
     title = data.title
@@ -785,6 +788,7 @@ def create_matrix(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_multiple_choice(request, data):
     print data
     type = int(data.type)
@@ -861,6 +865,7 @@ def create_multiple_choice(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_open_question(request, data):
     type = int(data.type)
     title = data.title
@@ -916,6 +921,7 @@ def create_open_question(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_range_question(request, data):
 
     type = int(data.type)
@@ -931,7 +937,6 @@ def create_range_question(request, data):
             )
         return HttpResponse(json_response, content_type="application/json",
                             status=400)
-
 
     if add_catalog:
         catalog_question = Question()
@@ -960,13 +965,12 @@ def create_range_question(request, data):
         new_option.save()
 
         catalog = Catalog()
-        catalog.user = Xindex_User.objects.get(pk=request.user.id)
+        catalog.user = Xindex_User.objects.get(user=request.user)
         catalog.question = catalog_question
 
         catalog.save()
-
     question = Question()
-    question.user = Xindex_User.objects.get(pk=request.user.id)
+    question.user = Xindex_User.objects.get(user=request.user)
     question.type = Question_Type.objects.get(pk=type)
     question.title = title
     question.save()
@@ -1015,6 +1019,7 @@ def create_range_question(request, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def create_true_and_false(request, data):
     type = int(data.type)
     title = data.title
@@ -1073,7 +1078,9 @@ def create_true_and_false(request, data):
     )
     return HttpResponse(json_response, content_type="application/json")
 
+
 #TODO: Fix this; DO NOT use in production
+@login_required(login_url='/signin/')
 @csrf_exempt
 def add_ajax(request):
     if request.is_ajax():
@@ -1385,6 +1392,7 @@ def deployment(request, action, next_step, survey_id=False):
 
 
 #function to get question data to update
+@login_required(login_url='/signin/')
 def get_question_data_to_update(request, question_id):
     if request.is_ajax:
         question_types = Question_Type.objects.all().order_by('name')
@@ -1650,6 +1658,7 @@ def get_question_data_to_update(request, question_id):
                                    'question_types': question_types})
 
 
+@login_required(login_url='/signin/')
 def update_matrix(question, data):
     cols = data.cols
     rows = data.rows
@@ -1739,6 +1748,7 @@ def update_matrix(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_multiple_choice(question, data):
     options = data.options
 
@@ -1968,6 +1978,7 @@ def update_multiple_choice(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_open_question(question, data):
     question.title = data.title
     question.save()
@@ -2427,6 +2438,7 @@ def update_range_question(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
+
 def update_true_and_false(question, data):
     question.title = data.title
     question.save()
@@ -2629,10 +2641,6 @@ def update_true_and_false(question, data):
     return HttpResponse(json_response, content_type="application/json")
 
 
-
-
-
-
 #TODO: Fix this; DO NOT use in production
 @csrf_exempt
 def edit_ajax(request, question_id):
@@ -2676,6 +2684,7 @@ def edit_ajax(request, question_id):
         raise Http404
 
 
+@login_required(login_url='/signin/')
 def createAssociationQAM(question, moment_id, attribute_id):
     if moment_id or attribute_id:
         if moment_id and attribute_id:
@@ -2725,6 +2734,7 @@ def createAssociationQAM(question, moment_id, attribute_id):
             pass
 
 
+@login_required(login_url='/signin/')
 def get_survey_blocks_style(request):
     if request.is_ajax():
         survey = Survey.objects.get(pk=int(request.POST['survey_id']))
@@ -2940,6 +2950,7 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
 
 
 #TODO: Fix this; DO NOT use in production
+@login_required(login_url='/signin/')
 @csrf_exempt
 def save_answers_ajax(request):
     if request.is_ajax():
@@ -3022,6 +3033,7 @@ def save_answers_ajax(request):
         return HttpResponse(json_response, content_type="application/json")
 
 
+@login_required(login_url='/signin/')
 def update_association_qma(question, moment_id, attribute_id):
     if moment_id and attribute_id:
         delete_relation = False

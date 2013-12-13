@@ -1,4 +1,5 @@
 import json
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -9,6 +10,7 @@ from xindex.models import sbu_service_moment_attribute
 from xindex.forms import MomentForm
 
 
+@login_required(login_url='/signin/')
 def index(request):
     moments = Moment.objects.all().order_by('-date')
     template_vars = {"title": "Moments",
@@ -17,6 +19,7 @@ def index(request):
     return render(request, 'moments/index.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def detail(request, moment_id):
     try:
         moment = Moment.objects.get(pk=moment_id)
@@ -25,6 +28,7 @@ def detail(request, moment_id):
     return render(request, 'moments/detail.html', {'moment': moment})
 
 
+@login_required(login_url='/signin/')
 def add(request, service_id):
     print("Entrando al metodo")
     if request.method=='POST':
@@ -52,6 +56,7 @@ def add(request, service_id):
                                                     "service_id": service_id})
 
 
+@login_required(login_url='/signin/')
 def edit(request, moment_id):
     moment = Moment.objects.get(pk=moment_id)
     if request.POST:
@@ -66,6 +71,7 @@ def edit(request, moment_id):
                                                  "moment_id": moment_id})
 
 
+@login_required(login_url='/signin/')
 def remove(request, service_id, moment_id):
 
     try:
@@ -94,6 +100,7 @@ def remove(request, service_id, moment_id):
         return HttpResponse('No')
 
 
+@login_required(login_url='/signin/')
 def get_attributes(request):
     attributesList = []
     if request.POST:
