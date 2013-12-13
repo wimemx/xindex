@@ -152,7 +152,7 @@ class Company(models.Model):
         return self.name
 
     def company_type(self):
-        return ', '.join([a.name for a in self.types])
+        return ', '.join([a.name for a in self.types.name])
 
     company_type.short_description = "Type"
 
