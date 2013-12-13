@@ -335,7 +335,8 @@ def details(request, service_id):
 
         for eachAttribute in myAtributtes:
 
-            myAttributeCounter.append(eachAttribute)
+            att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+            myAttributeCounter.append(att)
             myQuestions = Question_sbu_s_m_a.objects.filter(
                 sbu_s_m_a_id=eachAttribute
             )
