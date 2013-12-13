@@ -436,11 +436,7 @@ def get_moments(request):
                 else:
                     business_unit = BusinessUnit.objects.get(pk=int(request.POST['business_unit']))
 
-                print 'its here'
-
-                print business_unit
                 if request.POST['service'] == 'all':
-                    print 'also its here'
                     if isinstance(subsidiary, Subsidiary):
                         if isinstance(business_unit, BusinessUnit):
                             for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
@@ -466,7 +462,6 @@ def get_moments(request):
                                 except SubsidiaryBusinessUnit.DoesNotExist:
                                     pass
                     else:
-                        print 'its again here'
                         print request.POST
                         if isinstance(business_unit, BusinessUnit):
                             for subs in subsidiary:
@@ -483,11 +478,9 @@ def get_moments(request):
                                 except SubsidiaryBusinessUnit.DoesNotExist:
                                     pass
                         else:
-                            print 'its supposed to be here'
                             for subs in subsidiary:
                                 for bu_un in business_unit:
                                     try:
-                                        print 'owww'
                                         s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=bu_un)
                                         for subsidiary_business_unit in s_bu:
                                             for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):

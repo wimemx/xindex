@@ -482,7 +482,6 @@ def report_by_attribute(request):
                         client = Client.objects.get(pk=int(answer.client.id))
                         if answer.client_activity is not None:
                             try:
-                                #client_activity = client.clientactivity_set.get(subsidiary=subsidiary, business_unit=businessUnit, service=service)
                                 c_d = datetime.date.today()
                                 client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=answer.client_activity.id)
                                 if client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit and answer.date.year == c_d.year and answer.date.month == c_d.month:
@@ -2791,8 +2790,8 @@ def report_by_service_by_group(request):
 
 @login_required(login_url='/signin/')
 def report_by_moment_by_group(request):
-    global zone, subsidiary, businessUnit, service, moment
-    survey_is_designed = False
+    global zone, subsidiary, business_unit, service, moment
+    survey_is_designed = True
     moment_xindex = Decimal(0)
     zones = []
     subsidiaries = []
@@ -2804,7 +2803,7 @@ def report_by_moment_by_group(request):
     current_data = {}
     xindex_diff = 0
     diff_type = ''
-    xindex_user = Xindex_User.objects.get(pk=request.user.id)
+    xindex_user = Xindex_User.objects.get(user=request.user)
     companies = xindex_user.company_set.all()
 
     #Get Zones
@@ -2814,277 +2813,393 @@ def report_by_moment_by_group(request):
 
     if request.POST:
         if 'zone' in request.POST:
-            zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            if request.POST['zone'] == 'all':
+                zone = Zone.objects.filter(active=True)
+            else:
+                zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
             if 'subsidiary' in request.POST:
-                subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                if request.POST['subsidiary'] == 'all':
+                    if isinstance(zone, Zone):
+                        subsidiary = zone.subsidiary_set.filter(active=True)
+                        #Set the subsidiaries list
+                        subsidiaries_list = zone.subsidiary_set.all()
+                    else:
+                        subsidiary = []
+                        for z in zone:
+                            for s in z.subsidiary_set.filter(active=True):
+                                subsidiary.append(s)
+                        #set the subsidiaries list
+                        print 'Entro a donde no es una instancia'
+                        subsidiaries_list = []
+                else:
+                    subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                    if isinstance(zone, Zone):
+                        subsidiaries_list = zone.subsidiary_set.filter(active=True)
+                    else:
+                        subsidiaries_list = []
+
                 if 'business_unit' in request.POST:
-                    businessUnit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
-                    if 'service' in request.POST:
-                        service = Service.objects.get(active=True, pk=int(request.POST['service']))
-                        if 'moment' in request.POST:
-                            moment = Moment.objects.get(active=True, pk=int(request.POST['moment']))
+                    if request.POST['business_unit'] == 'all':
+                        business_unit = []
+                        if isinstance(subsidiary, Subsidiary):
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                                coincidences = 0
+                                for bu in business_unit:
+                                    if bu == subsidiary_business_unit.id_business_unit:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    business_unit.append(subsidiary_business_unit.id_business_unit)
                         else:
-                            moment = False
+                            for s in subsidiary:
+                                try:
+                                    s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s)
+                                    for subsidiary_business_unit in s_bu:
+                                        coincidences = 0
+                                        for bu in business_unit:
+                                            if bu == subsidiary_business_unit.id_business_unit:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            business_unit.append(subsidiary_business_unit.id_business_unit)
+                                except SubsidiaryBusinessUnit.DoesNotExist:
+                                    pass
+                    else:
+                        business_unit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
+                    if 'service' in request.POST:
+                        if request.POST['service'] == 'all':
+                            if isinstance(subsidiary, Subsidiary):
+                                if isinstance(business_unit, BusinessUnit):
+                                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                            coincidences = 0
+                                            for serviceA in service:
+                                                if serviceA == s_bu_s.id_service:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                service.append(s_bu_s.id_service)
+                                else:
+                                    for bu in business_unit:
+                                        try:
+                                            s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                                            for subsidiary_business_unit in s_bu:
+                                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                                    coincidences = 0
+                                                    for serviceA in service:
+                                                        if serviceA == s_bu_s.id_service:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        service.append(s_bu_s.id_service)
+                                        except SubsidiaryBusinessUnit.DoesNotExist:
+                                            pass
+                            else:
+                                print request.POST
+                                if isinstance(business_unit, BusinessUnit):
+                                    for subs in subsidiary:
+                                        try:
+                                            s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit)
+                                            for subsidiary_business_unit in s_bu:
+                                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                                    coincidences = 0
+                                                    for serviceA in service:
+                                                        if serviceA == s_bu_s.id_service:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        service.append(s_bu_s.id_service)
+                                        except SubsidiaryBusinessUnit.DoesNotExist:
+                                            pass
+                                else:
+                                    for subs in subsidiary:
+                                        for bu_un in business_unit:
+                                            try:
+                                                s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=bu_un)
+                                                for subsidiary_business_unit in s_bu:
+                                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                                        coincidences = 0
+                                                        for serviceA in service:
+                                                            if serviceA == s_bu_s.id_service:
+                                                                coincidences += 1
+                                                        if coincidences == 0:
+                                                            service.append(s_bu_s.id_service)
+                                            except SubsidiaryBusinessUnit.DoesNotExist:
+                                                pass
+
+                            if 'moment' in request.POST:
+                                moment = Moment.objects.get(pk=int(request.POST['moment']))
+                            else:
+                                moment = False
+                        else:
+                            service = Service.objects.get(active=True, pk=int(request.POST['service']))
                     else:
                         service = False
                 else:
-                    businessUnit = False
+                    business_unit = False
             else:
                 subsidiary = False
-
-        subsidiaries = zone.subsidiary_set.filter(pk=subsidiary.id)
-        for subsidiary in subsidiaries:
-            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
-                #check business units list
-                coincidences_bu = 0
-                for bu in businessUnits:
-                    if bu == s_bu.id_business_unit:
-                        coincidences_bu += 1
-                if coincidences_bu == 0:
-                    businessUnits.append(s_bu.id_business_unit)
-
-                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
-                    #check services list
-                    coincidences_bu_s = 0
-                    for s in services:
-                        if s == s_bu_s.id_service:
-                            coincidences_bu_s += 1
-                    if coincidences_bu_s == 0:
-                        services.append(s_bu_s.id_service)
-
-                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
-                        coincidences_bu_s_m = 0
-                        for m in moments:
-                            if m == s_bu_s_m.id_moment:
-                                coincidences_bu_s_m += 1
-                        if coincidences_bu_s_m == 0:
-                            moments.append(s_bu_s_m.id_moment)
-
-        subsidiaries = zone.subsidiary_set.all()
-
-    else:
-        zone = zones[0]
-        subsidiary = Subsidiary.objects.filter(zone_id=zone.id)[0]
-
-        subsidiaries = zone.subsidiary_set.all()
-
-        #Adding to businessUnit list
-        mySUB = SubsidiaryBusinessUnit.objects.filter(
-            id_subsidiary__id=subsidiary.id
-        )
-
-        #Get Business Units
-        myBUIdList = []
-        for eachSubsidiaryBusinessUnit in mySUB:
-            myBUIdList.append(eachSubsidiaryBusinessUnit.id_business_unit.id)
-
-        myBUIdList = list(set(myBUIdList))
-        for eachBUId in myBUIdList:
-            myBusinessUnits = BusinessUnit.objects.get(pk=eachBUId)
-            if myBusinessUnits.active:
-                businessUnits.append(myBusinessUnits)
-
-        businessUnit = businessUnits[0]
-
-        #Adding to services list
-        mySUBS = sbu_service.objects.filter(
-            id_subsidiaryBU__id_business_unit=businessUnit.id
-        )
-
-        #Get Services
-        mySIdList = []
-        for eachSBUService in mySUBS:
-            mySIdList.append(eachSBUService.id_service.id)
-
-        mySIdList = list(set(mySIdList))
-        for eachIdService in mySIdList:
-            myServices = Service.objects.get(pk=eachIdService)
-            services.append(myServices)
-
-        service = services[0]
-
-        #Adding to moment list
-        mySUBSMIdList = []
-        mySUBSM = sbu_service_moment.objects.filter(
-            id_sbu_service__id_service=service.id
-        )
-        for eachSBUSMoment in mySUBSM:
-            mySUBSMIdList.append(eachSBUSMoment.id_moment.id)
-
-        #Get Moments
-        mySUBSMIdList = list(set(mySUBSMIdList))
-        for eachMoment in mySUBSMIdList:
-            myMoments = Moment.objects.get(pk=eachMoment)
-            moments.append(myMoments)
-
-        moment = moments[0]
-        #Get relations starting by subsidiary
 
     total_promoters = 0
     total_passives = 0
     total_detractors = 0
     total_answers = 0
+    answers_list = []
 
-    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
-        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
-            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
-                if len(sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment)) > 0:
-                    survey_is_designed = True
-                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
-                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
-                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS an instance and service IS an instance
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
+                    for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                        for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                            for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                    question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
 
-                            answers_list = []
-                            for a in question_answers:
-                                client = Client.objects.get(pk=a.client_id)
-                                if answer.client_activity is not None:
-                                    try:
-                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=answer.client_activity.id)
-                                        c_d = datetime.date.today()
-                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
-                                            answers_list.append(a)
-                                            print 'Today is '+str(c_d.day)+' from '+str(c_d.year)
-                                            print 'Question date is '+str(a.date.day)+' from '+str(a.date.year)
-                                    except ClientActivity.DoesNotExist:
-                                        pass
-                            total_surveyed = len(answers_list)
-                            #total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
-                            attribute = child_sbu_s_m_a.id_attribute
-                            promoters_9 = 0
-                            promoters_10 = 0
-                            passives = 0
-                            detractors = 0
-                            if total_surveyed > 0:
+                                    for a in question_answers:
+                                        client = Client.objects.get(pk=a.client_id)
+                                        if a.client_activity is not None:
+                                            try:
+                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                c_d = datetime.date.today()
+                                                if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                    answers_list.append(a)
+                                            except ClientActivity.DoesNotExist:
+                                                pass
+            else:
+                #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
+                    for serv in service:
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
 
-                                #for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
-                                for answer in answers_list:
-                                    print answer.value
-                                    total_answers += 1
-                                    if answer.value == 10:
-                                        promoters_10 += 1
-                                        total_promoters += 1
-                                    elif answer.value == 9:
-                                        promoters_9 += 1
-                                        total_promoters += 1
-                                    elif answer.value == 8 or answer.value == 7:
-                                        passives += 1
-                                        total_passives += 1
-                                    elif 1 <= answer.value <= 6:
-                                        detractors += 1
-                                        total_detractors += 1
-
-                                getcontext().prec = 5
-
-                                if promoters_10 == 0:
-                                    promoters_10_percent = 0
-                                else:
-                                    promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
-
-                                if promoters_9 == 0:
-                                    promoters_9_percent = 0
-                                else:
-                                    promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
-
-                                if passives == 0:
-                                    passives_percent = 0
-                                else:
-                                    passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
-
-                                if detractors == 0:
-                                    detractors_percent = 0
-                                else:
-                                    detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
-
-                                xindex_percent = Decimal(promoters_10_percent+promoters_9_percent)-Decimal(detractors_percent)
-
-                                #round all the percents to 1 decimal
-                                promoters_10_percent = round(promoters_10_percent, 5)
-                                promoters_9_percent = round(promoters_9_percent, 5)
-                                passives_percent = round(passives_percent, 5)
-                                detractors_percent = round(detractors_percent, 5)
-                                xindex_percent = round(xindex_percent, 5)
-
-                                data_attribute.append(
-                                    {
-                                        'attribute_id': attribute.id,
-                                        'attribute_name': attribute.name,
-                                        'promoters_10_percent': promoters_10_percent,
-                                        'promoters_9_percent': promoters_9_percent,
-                                        'passives_percent': passives_percent,
-                                        'detractors_percent': detractors_percent,
-                                        'xindex_percent': xindex_percent
-                                    }
-                                )
-                            else:
-                                data_attribute.append(
-                                    {
-                                        'attribute_id': attribute.id,
-                                        'attribute_name': attribute.name,
-                                        'promoters_10_percent': 0,
-                                        'promoters_9_percent': 0,
-                                        'passives_percent': 0,
-                                        'detractors_percent': 0,
-                                        'xindex_percent': 0
-                                    }
-                                )
-                else:
-                    survey_is_designed = False
-    if survey_is_designed is True:
-
-        historical_data = Cumulative_Report.objects.filter(
-            id_subsidiary=subsidiary, id_business_unit=businessUnit,
-            id_service=service, id_moment=moment, id_attribute=None
-        ).order_by('-date')[:3]
-
-        historical_months = []
-
-        for last_data in reversed(historical_data):
-            historical_months.append(
-                {
-                    'month': str(last_data.date.year)+'-'+str(last_data.date.month),
-                    'value': last_data.grade
-                }
-            )
-
-        getcontext().prec = 5
-
-        if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
-            moment_xindex = 0
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
         else:
-            moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
+                for bu_un in business_unit:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
 
-        #current data
-        current_date = datetime.date.today()
-        current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': moment_xindex}
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+            else:
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
+                for bu_un in business_unit:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                        for serv in service:
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
 
-        #compare the xindex last month with the current xindex month
-        if len(historical_months) < 3:
-            if len(historical_months) == 2:
-                last_month = historical_months[1]
-            elif len(historical_months) == 1:
-                last_month = historical_months[0]
-            elif len(historical_months) == 0:
-                #create an object of the last month
-                if current_date.month == 01:
-                    month = 12
-                    year = current_date.year - 1
-                else:
-                    month = current_date.month - 1
-                    year = current_date.year
-                last_month = {
-                    'month': str(year)+'-'+str(month),
-                    'value': Decimal(0)
-                }
-                #historical_months.append(last_month)
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS an instance
+                for subsid in subsidiary:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=business_unit):
+                        for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                            for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                    for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                        question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                        for a in question_answers:
+                                            client = Client.objects.get(pk=a.client_id)
+                                            if a.client_activity is not None:
+                                                try:
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    c_d = datetime.date.today()
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        answers_list.append(a)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+            else:
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
+                for subsid in subsidiary:
+                    for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=business_unit):
+                        for serv in service:
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
         else:
-            last_month = historical_months[2]
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
+                for subsid in subsidiary:
+                    for bu_un in business_unit:
+                        for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=bu_un):
+                            for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
+                                for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                    for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                        for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                            question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
 
-        if last_month['value'] > current_data['value']:
-            xindex_diff = last_month['value'] - current_data['value']
-            diff_type = 'negative'
-        else:
-            diff_type = 'positive'
-            xindex_diff = current_data['value'] - last_month['value']
+                                            for a in question_answers:
+                                                client = Client.objects.get(pk=a.client_id)
+                                                if a.client_activity is not None:
+                                                    try:
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        c_d = datetime.date.today()
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                            answers_list.append(a)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+            else:
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
+                for subsid in subsidiary:
+                    for bu_un in business_unit:
+                        for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsid, id_business_unit=bu_un):
+                            for serv in service:
+                                for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
+                                    for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
+                                        for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
+                                            for relation_q_s_bu_s_m_a in child_sbu_s_m_a.question_sbu_s_m_a_set.all():
+                                                question_answers = Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id)
+
+                                                for a in question_answers:
+                                                    client = Client.objects.get(pk=a.client_id)
+                                                    if a.client_activity is not None:
+                                                        try:
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                            c_d = datetime.date.today()
+                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                                answers_list.append(a)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+
+    total_surveyed = len(answers_list)
+    #total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
+    attribute = child_sbu_s_m_a.id_attribute
+    promoters_9 = 0
+    promoters_10 = 0
+    passives = 0
+    detractors = 0
+    if total_surveyed > 0:
+
+        #for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
+        for answer in answers_list:
+            print answer.value
+            total_answers += 1
+            if answer.value == 10:
+                promoters_10 += 1
+                total_promoters += 1
+            elif answer.value == 9:
+                promoters_9 += 1
+                total_promoters += 1
+            elif answer.value == 8 or answer.value == 7:
+                passives += 1
+                total_passives += 1
+            elif 1 <= answer.value <= 6:
+                detractors += 1
+                total_detractors += 1
+
+    if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
+        moment_xindex = 0
+    else:
+        moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+
+    print answers_list
+
+    historical_data = Cumulative_Report.objects.filter(
+        id_subsidiary=subsidiary, id_business_unit=businessUnit,
+        id_service=service, id_moment=moment, id_attribute=None
+    ).order_by('-date')[:3]
+
+    historical_months = []
+
+    for last_data in reversed(historical_data):
+        historical_months.append(
+            {
+                'month': str(last_data.date.year)+'-'+str(last_data.date.month),
+                'value': last_data.grade
+            }
+        )
+
+    getcontext().prec = 5
+
+    if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
+        moment_xindex = 0
+    else:
+        moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
+
+    #current data
+    current_date = datetime.date.today()
+    current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': moment_xindex}
+
+    #compare the xindex last month with the current xindex month
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
+    if last_month['value'] > current_data['value']:
+        xindex_diff = last_month['value'] - current_data['value']
+        diff_type = 'negative'
+    else:
+        diff_type = 'positive'
+        xindex_diff = current_data['value'] - last_month['value']
+
     if total_answers == 0 and total_promoters == 0 and total_passives == 0 and total_detractors == 0:
         moment_data = {'promoters': 0, 'passives': 0, 'detractors': 0}
     else:
