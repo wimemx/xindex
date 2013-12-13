@@ -85,8 +85,14 @@ def index(request, business_unit_id=False):
             )
 
             for eachAttribute in myAtributtes:
-                indicator_count += 1
 
+                att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+                myAttributeCounter.append(att.id)
+
+        myAttributeCounter = list(set(myAttributeCounter))
+
+        for x in myAttributeCounter:
+            indicator_count += 1
 
 
         services['services'].append(
@@ -316,6 +322,8 @@ def details(request, service_id):
     #Counters!
     myMomentCounter = []
     myAttributeCounter = []
+    myScounter = []
+    myQcounter = []
     mySurveyCounter = []
     for eachMoment in all_sbuServiceMoment:
         myMomentCounter.append(eachMoment.id_moment.id)
@@ -335,21 +343,18 @@ def details(request, service_id):
 
         for eachAttribute in myAtributtes:
 
-            myAttributeCounter.append(eachAttribute)
+            att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+            myAttributeCounter.append(att)
             myQuestions = Question_sbu_s_m_a.objects.filter(
                 sbu_s_m_a_id=eachAttribute
             )
 
             for eachQuestion in myQuestions:
-                question_count += 1
+
+                question = Question.objects.get(pk=eachQuestion.question_id.id)
+                myQcounter.append(question.id)
 
 
-                mySurvey = Survey.objects.filter(
-                    questions=eachQuestion.question_id
-                )
-
-                for eachSurvey in mySurvey:
-                    survey_count +=1
                 """
                 myQuestionsToSurveys = Question.objects.filter(
                     pk=eachQuestion.question_id
@@ -359,9 +364,24 @@ def details(request, service_id):
                     mySurveyCounter.append(eachQuestionToSurvey)
                 """
     myAttributeCounter = list(set(myAttributeCounter))
+    myQcounter = list(set(myQcounter))
 
     for a in myAttributeCounter:
         indicator_count += 1
+
+    for b in myQcounter:
+        question_count += 1
+
+        qq = Question.objects.get(pk=b)
+        mySurvey = Survey.objects.filter(questions=qq)
+
+        for eachSurvey in mySurvey:
+            myScounter.append(eachSurvey.id)
+
+    myScounter = list(set(myScounter))
+
+    for s in myScounter:
+        survey_count += 1
     #dd
 
     for eachSbuServiceMoment in all_sbuServiceMoment:
