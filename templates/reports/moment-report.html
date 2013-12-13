@@ -115,6 +115,7 @@
                             <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
                             {% csrf_token %}
                                 <select class="form-control text-primary header" name="zone" id="id_zone">
+                                <option value="all">Todas</option>
                                     {% for zone in zones %}
                                         {% if zone.id == current_zone.id %}
                                             <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
@@ -131,6 +132,7 @@
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
+                                <option value="all">Todas</option>
                                     {% for subsidiary in subsidiaries %}
                                         {% if subsidiary.id == current_subsidiary.id %}
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
@@ -148,6 +150,7 @@
                             <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                             <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
+                                <option value="all">Todas</option>
                                     {% for businessUnit in businessUnits %}
                                         {% if businessUnit.id == current_businessUnit.id %}
                                             <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
@@ -167,6 +170,7 @@
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
                                 <select class="form-control text-primary header" name="service" id="id_service">
+                                <option value="all">Todas</option>
                                     {% for service in services %}
                                         {% if service.id == current_service.id %}
                                             <option value="{{ service.id }}" selected>{{ service.name }}</option>
