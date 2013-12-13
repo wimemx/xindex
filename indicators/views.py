@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -8,6 +9,7 @@ from django.utils import simplejson
 from xindex.models import Moment
 
 
+@login_required(login_url='/signin/')
 def index(request):
     indicators = Attributes.objects.all().order_by('-date')
     template_vars = {"title": "Indicators",
@@ -16,6 +18,7 @@ def index(request):
     return render(request, 'indicators/index.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.POST:
         formulario = AttributesForm(request.POST or None)
@@ -46,6 +49,7 @@ def add(request):
         return render_to_response("indicators/add.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def update(request, indicator_id):
     attribute = Attributes.objects.get(pk=indicator_id)
 
@@ -95,6 +99,7 @@ def update(request, indicator_id):
         return render(request, "indicators/edit.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def remove(request, indicator_id):
     try:
         attribute = Attributes.objects.get(id=indicator_id)
@@ -131,6 +136,7 @@ def remove(request, indicator_id):
         return HttpResponseRedirect('/indicators/')
 
 
+@login_required(login_url='/signin/')
 def details(request, indicator_id):
     try:
         attribute_details = Attributes.objects.get(pk=indicator_id)
@@ -146,6 +152,7 @@ def details(request, indicator_id):
     return render_to_response('indicators/details.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def getSInJson(request):
     attributes = {'attributes': []}
     attribute_query = Attributes.objects.filter(active=True).order_by('-date')

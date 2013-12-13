@@ -468,6 +468,7 @@ def activity_answers(request, activity_id):
     return render_to_response("clients/activity_answers.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def getZonesInJson(request, zone_id):
     subsidiary_list = Subsidiary.objects.filter(zone=zone_id, active=True)
 
@@ -527,6 +528,7 @@ def getZonesInJson(request, zone_id):
         return HttpResponse(simplejson.dumps(subsidiariesToJson))
 
 
+@login_required(login_url='/signin/')
 def getBusinessInJson(request, subsidiary_id):
     subsidiary_list = Subsidiary.objects.get(pk=subsidiary_id, active=True)
 
@@ -576,6 +578,7 @@ def getBusinessInJson(request, subsidiary_id):
         return HttpResponse(simplejson.dumps(businessToJson))
 
 
+@login_required(login_url='/signin/')
 def getServicesInJson(request, business_id):
 
     servicesToJson = {'services': []}
@@ -601,6 +604,7 @@ def getServicesInJson(request, business_id):
     return HttpResponse(simplejson.dumps(servicesToJson))
 
 
+@login_required(login_url='/signin/')
 def getSurveyInJson(request, business_id, service_id):
 
     surveyToJson = {'survey': []}

@@ -49,9 +49,13 @@
                     </div>
                     <div class="form-group m-t-lg">
                         Rol:
-                        <select class="form-controlr">
-                            <option>Gerente</option>
-                            <option>Roles</option>
+                        <select class="form-control">
+                            {% for eachRole in roles %}
+
+                                <option value="{{ eachRole.id }}">
+                                    {{ eachRole.name }}
+                                </option>
+                            {% endfor %}
                         </select>
                     </div>
 

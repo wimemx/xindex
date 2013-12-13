@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
@@ -9,6 +10,7 @@ from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit
 from xindex.models import Xindex_User, Service, sbu_service, Zone
 
 
+@login_required(login_url='/signin/')
 def index(request):
     all_business_units = BusinessUnit.objects.all().order_by('-name')
     template_vars = {
@@ -19,6 +21,7 @@ def index(request):
     return render_to_response("business_units/index.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.POST:
         formulario = AddBusinessUnit(request.POST or None)
@@ -84,6 +87,7 @@ def add(request):
         return render_to_response("business_units/add.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def update(request, business_unit_id):
     try:
         bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
@@ -129,6 +133,7 @@ def update(request, business_unit_id):
         return HttpResponseRedirect('/business_units/')
 
 
+@login_required(login_url='/signin/')
 def remove(request, business_unit_id):
 
     try:
@@ -144,6 +149,7 @@ def remove(request, business_unit_id):
         return HttpResponse('No')
 
 
+@login_required(login_url='/signin/')
 def getBUInJson(request):
     b_u = {'business_u': []}
 
@@ -170,6 +176,7 @@ def getBUInJson(request):
     return HttpResponse(simplejson.dumps(b_u))
 
 
+@login_required(login_url='/signin/')
 def details(request, business_unit_id):
     template_vars = {'titulo': 'Detalles'}
     try:
@@ -184,6 +191,7 @@ def details(request, business_unit_id):
     return render_to_response('business_units/details.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def get_services(request):
     businessUnitList = []
     servicesList = []
@@ -344,6 +352,7 @@ def get_services(request):
             pass
 
 
+@login_required(login_url='/signin/')
 def get_services_to_apply(request):
     if request.POST:
         if 'business_unit_id' in request.POST:

@@ -3,20 +3,19 @@ from django.shortcuts import render_to_response, HttpResponse, \
     HttpResponseRedirect, get_object_or_404
 from django.template.context import RequestContext
 from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
-
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-
+from rbacx.functions import mailing
 from xindex.models import Company, Subsidiary, BusinessUnit, Service, \
     Xindex_User
+from rbacx.models import Operation, Role
 
-"""
-VIEW = Operation.objects.get(operation_name="Ver")
-CREATE = Operation.objects.get(operation_name="Crear")
-DELETE = Operation.objects.get(operation_name="Eliminar")
-UPDATE = Operation.objects.get(operation_name="Modificar")
-"""
+
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')
@@ -33,7 +32,7 @@ def profile(request):
 @login_required(login_url='/signin/')
 def control_panel(request):
     user = request.user
-    extendedInfo = Xindex_User.objects.get(pk=user.id)
+    extendedInfo = Xindex_User.objects.get(user=user)
 
     template_vars = {"user": user,
                      "extendedInfo": extendedInfo}
@@ -44,7 +43,7 @@ def control_panel(request):
 @login_required(login_url='/signin/')
 def user_list(request):
     user = request.user
-    extendedInfo = Xindex_User.objects.get(pk=user.id)
+    extendedInfo = Xindex_User.objects.get(user=user)
 
     template_vars = {}
     request_context = RequestContext(request, template_vars)
@@ -80,7 +79,7 @@ def edit_profile(request, action):
 
     user = request.user
     basicInfo = User.objects.get(pk=user.id)
-    extendedInfo = Xindex_User.objects.get(pk=user.id)
+    extendedInfo = Xindex_User.objects.get(user=user)
 
     if action == "1":
         todo = 'Nombre'
@@ -152,7 +151,7 @@ def edit_profile(request, action):
 
 
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def create_user(request):
 
     if request.POST:
@@ -186,8 +185,9 @@ def create_user(request):
 
         content = 'Username:' + username + ' - Password:' + password
 
-        email = EmailMessage('Xindex Account', content, to=[new_user.email])
-        email.send()
+        mailing(new_user, content)
+        #email = EmailMessage('Xindex Account', content, to=[new_user.email])
+        #email.send()
 
         new_xindexUser = Xindex_User.objects.create(user=new_user,
                                                     first_name=name,
@@ -200,13 +200,15 @@ def create_user(request):
         return HttpResponseRedirect('/user_list/')
 
     else:
-        template_vars = {}
+        roles = Role.objects.filter(status=True)
+        template_vars = {"roles": roles}
 
         request_context = RequestContext(request, template_vars)
         return render_to_response("rbac/add_user.html", request_context)
 
+
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def delete_user(request, user_id):
 
     if request.user.id != user_id:
@@ -220,9 +222,8 @@ def delete_user(request, user_id):
         return HttpResponse('No puedes eliminar tu propia cuenta')
 
 
-
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def edit_user(request, user_id):
     userDjango = User.objects.get(pk=user_id)
     userXindex = Xindex_User.objects.get(user=userDjango)
@@ -249,7 +250,7 @@ def edit_user(request, user_id):
 
 
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def user_profile(request, user_id):
     userDjango = User.objects.get(pk=user_id)
     userXindex = Xindex_User.objects.get(user=userDjango)
@@ -265,7 +266,7 @@ def user_profile(request, user_id):
 
 
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def my_account(request):
 
     user = request.user
@@ -285,7 +286,7 @@ def my_account(request):
 
 
 @login_required(login_url='/signin/')
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def edit_account(request, data):
 
     user = request.user

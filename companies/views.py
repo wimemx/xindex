@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from xindex.models import Company
@@ -6,6 +7,7 @@ from xindex.forms import CompanyForm
 from django.utils import simplejson
 
 
+@login_required(login_url='/signin/')
 def index(request):
     all_companies = Company.objects.all().filter(active=True).order_by('-date')
     template_vars = {"titulo": "Companies",
@@ -14,6 +16,7 @@ def index(request):
     return render_to_response("companies/companies.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.method=='POST':
         formulario = CompanyForm(request.POST)
@@ -58,6 +61,7 @@ def add(request):
 '''
 
 
+@login_required(login_url='/signin/')
 def edit(request, company_id):
 
     company = Company.objects.get(pk=company_id)
@@ -78,6 +82,7 @@ def edit(request, company_id):
                               request_context)
 
 
+@login_required(login_url='/signin/')
 def remove(request, company_id):
     #return HttpResponse("You're about to remove Company %s." % company_id)
     company = Company.objects.get(pk=company_id)
@@ -87,6 +92,7 @@ def remove(request, company_id):
     return HttpResponseRedirect('/companies')
 
 
+@login_required(login_url='/signin/')
 def detail(request, company_id):
     try:
         company = Company.objects.get(pk=company_id)
@@ -97,6 +103,7 @@ def detail(request, company_id):
                                                         'status': status})
 
 
+@login_required(login_url='/signin/')
 def getCInJson(request):
     companies = {'companies': []}
 
@@ -115,6 +122,7 @@ def getCInJson(request):
     return HttpResponse(simplejson.dumps(companies))
 
 
+@login_required(login_url='/signin/')
 def details(request, business_unit_id):
     template_vars = {
         'titulo': 'Detalles'

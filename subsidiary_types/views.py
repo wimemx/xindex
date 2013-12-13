@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from xindex.models import Subsidiary_Type
 from django.http import HttpResponseRedirect, HttpResponse
@@ -7,6 +8,7 @@ from django.utils import simplejson
 from xindex.models import Subsidiary, Company
 
 
+@login_required(login_url='/signin/')
 def index(request):
     all_subsidiary_types = Subsidiary_Type.objects.all().order_by('-name')
     for s_t in all_subsidiary_types:
@@ -20,6 +22,7 @@ def index(request):
     return render_to_response("subsidiary_types/index.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def add(request):
     if request.POST:
         formulario = AddSubsidiaryType(request.POST or None)
@@ -53,6 +56,7 @@ def add(request):
         return render_to_response("subsidiary_types/add.html", request_context)
 
 
+@login_required(login_url='/signin/')
 def update(request, subsidiary_type_id):
     try:
         sub_type = Subsidiary_Type.objects.get(id=subsidiary_type_id)
@@ -97,6 +101,7 @@ def update(request, subsidiary_type_id):
         return HttpResponseRedirect('/subsidiary_types/')
 
 
+@login_required(login_url='/signin/')
 def remove(request, subsidiary_type_id):
 
     try:
@@ -132,6 +137,7 @@ def remove(request, subsidiary_type_id):
         return HttpResponseRedirect('/subsidiary_types')
 
 
+@login_required(login_url='/signin/')
 def getSTInJson(request):
     s_types = {'s_types': []}
 
@@ -149,6 +155,7 @@ def getSTInJson(request):
     return HttpResponse(simplejson.dumps(s_types))
 
 
+@login_required(login_url='/signin/')
 def details(request, subsidiary_type_id):
     template_vars = {
         'titulo': 'Detalles'
@@ -165,6 +172,7 @@ def details(request, subsidiary_type_id):
     return render_to_response('subsidiary_types/details.html', request_context)
 
 
+@login_required(login_url='/signin/')
 def stByCompany(request):
 
     global company_id
