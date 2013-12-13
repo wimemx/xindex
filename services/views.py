@@ -389,42 +389,345 @@ def details(request, service_id):
 
 
 def get_moments(request):
+    business_unit = []
+    servicesArray = []
+    service = []
+    momentsArray = []
     momentList = []
     if request.POST:
         if 'zone' in request.POST and 'subsidiary' in request.POST and 'business_unit' in request.POST and 'service' in request.POST:
-            try:
-                zone = Zone.objects.get(pk=int(request.POST['zone']))
-                subsidiary = zone.subsidiary_set.get(
-                    pk=int(request.POST['subsidiary'])
-                )
+            if request.POST['zone'] == 'all' or request.POST['subsidiary'] == 'all' or request.POST['business_unit'] == 'all' or request.POST['service'] == 'all':
+                if request.POST['zone'] == 'all':
+                    zone = Zone.objects.filter(active=True)
+                else:
+                    zone = Zone.objects.get(pk=int(request.POST['zone']))
 
-                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
-                        id_subsidiary=subsidiary,
-                        id_business_unit=int(request.POST['business_unit'])):
+                if request.POST['subsidiary'] == 'all':
+                    if isinstance(zone, Zone):
+                        subsidiary = zone.subsidiary_set.filter(active=True)
+                    else:
+                        subsidiary = []
+                        for z in zone:
+                            for s in z.subsidiary_set.filter(active=True):
+                                subsidiary.append(s)
+                else:
+                    subsidiary = Subsidiary.objects.get(pk=int(request.POST['subsidiary']))
 
-                    for s_bu_s in sbu_service.objects.filter(
-                            id_subsidiaryBU=subsidiary_business_unit,
-                            id_service=int(request.POST['service'])):
+                if request.POST['business_unit'] == 'all':
+                    if isinstance(subsidiary, Subsidiary):
+                        for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                            coincidences = 0
+                            for bu in business_unit:
+                                if subsidiary_business_unit.id_business_unit == bu:
+                                    coincidences += 1
+                            if coincidences == 0:
+                                business_unit.append(subsidiary_business_unit.id_business_unit)
+                    else:
+                        for sub in subsidiary:
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub):
+                                coincidences = 0
+                                for bu in business_unit:
+                                    if subsidiary_business_unit.id_business_unit == bu:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    business_unit.append(subsidiary_business_unit.id_business_unit)
+                else:
+                    business_unit = BusinessUnit.objects.get(pk=int(request.POST['business_unit']))
 
-                        for s_bu_s_m in sbu_service_moment.objects.filter(
-                                id_sbu_service=s_bu_s):
+                print 'its here'
 
-                            momentList.append(
-                                {
-                                    'moment_id': s_bu_s_m.id_moment.id,
-                                    'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
-                                }
-                            )
+                print business_unit
+                if request.POST['service'] == 'all':
+                    print 'also its here'
+                    if isinstance(subsidiary, Subsidiary):
+                        if isinstance(business_unit, BusinessUnit):
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                    coincidences = 0
+                                    for serviceA in service:
+                                        if serviceA == s_bu_s.id_service:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        service.append(s_bu_s.id_service)
+                        else:
+                            for bu in business_unit:
+                                try:
+                                    s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                                    for subsidiary_business_unit in s_bu:
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                            coincidences = 0
+                                            for serviceA in service:
+                                                if serviceA == s_bu_s.id_service:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                service.append(s_bu_s.id_service)
+                                except SubsidiaryBusinessUnit.DoesNotExist:
+                                    pass
+                    else:
+                        print 'its again here'
+                        print request.POST
+                        if isinstance(business_unit, BusinessUnit):
+                            for subs in subsidiary:
+                                try:
+                                    s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit)
+                                    for subsidiary_business_unit in s_bu:
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                            coincidences = 0
+                                            for serviceA in service:
+                                                if serviceA == s_bu_s.id_service:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                service.append(s_bu_s.id_service)
+                                except SubsidiaryBusinessUnit.DoesNotExist:
+                                    pass
+                        else:
+                            print 'its supposed to be here'
+                            for subs in subsidiary:
+                                for bu_un in business_unit:
+                                    try:
+                                        print 'owww'
+                                        s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=bu_un)
+                                        for subsidiary_business_unit in s_bu:
+                                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit):
+                                                coincidences = 0
+                                                for serviceA in service:
+                                                    if serviceA == s_bu_s.id_service:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    service.append(s_bu_s.id_service)
+                                    except SubsidiaryBusinessUnit.DoesNotExist:
+                                        pass
+                else:
+                    service = Service.objects.get(pk=int(request.POST['service']))
+
+                print service
+
+                if isinstance(subsidiary, Subsidiary):
+                    #subsidiary IS an instance
+                    if isinstance(business_unit, BusinessUnit):
+                        #subsidiary IS an instance and business unit IS an instance
+                        if isinstance(service, Service):
+                            #subsidiary IS an instance and business unit IS an instance and service IS an instance
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=service):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                        coincidences = 0
+                                        for momentA in momentsArray:
+                                            if momentA == s_bu_s_m.id_moment:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            momentsArray.append(s_bu_s_m.id_moment)
+                                            momentList.append(
+                                                {
+                                                    'moment_id': s_bu_s_m.id_moment.id,
+                                                    'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                }
+                                            )
+                        else:
+                            #subsidiary IS an instance and business unit IS an instance and service IS NOT an instance
+                            for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                for serv in service:
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=serv):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                            coincidences = 0
+                                            for momentA in momentsArray:
+                                                if momentA == s_bu_s_m.id_moment:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                momentsArray.append(s_bu_s_m.id_moment)
+                                                momentList.append(
+                                                    {
+                                                        'moment_id': s_bu_s_m.id_moment.id,
+                                                        'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                    }
+                                                )
+                    else:
+                        #subsidiary IS an instance and business unit IS NOT an instance
+                        if isinstance(service, Service):
+                            #subsidiary IS an instance and business unit IS NOT an instance and service IS an instance
+                            for bu in business_unit:
+                                try:
+                                    s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                                    for subsidiary_business_unit in s_bu:
+                                        try:
+                                            s_bu_ser = sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=service)
+                                            for s_bu_s in s_bu_ser:
+                                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                    coincidences = 0
+                                                    for momentA in momentsArray:
+                                                        if momentA == s_bu_s_m.id_moment:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        momentsArray.append(s_bu_s_m.id_moment)
+                                                        momentList.append(
+                                                            {
+                                                                'moment_id': s_bu_s_m.id_moment.id,
+                                                                'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                            }
+                                                        )
+                                        except sbu_service.DoesNotExist:
+                                            pass
+                                except SubsidiaryBusinessUnit.DoesNotExist:
+                                    pass
+                        else:
+                            #subsidiary IS an instance and business unit IS NOT an instance and service IS NOT an instance
+                            for bu in business_unit:
+                                for serv in service:
+                                    try:
+                                        s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                                        for subsidiary_business_unit in s_bu:
+                                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=serv):
+                                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                    coincidences = 0
+                                                    for momentA in momentsArray:
+                                                        if momentA == s_bu_s_m.id_moment:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        momentsArray.append(s_bu_s_m.id_moment)
+                                                        momentList.append(
+                                                            {
+                                                                'moment_id': s_bu_s_m.id_moment.id,
+                                                                'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                            }
+                                                        )
+                                    except SubsidiaryBusinessUnit.DoesNotExist:
+                                        pass
+
+                else:
+                    #subsidiary IS NOT an instance
+                    if isinstance(business_unit, BusinessUnit):
+                        #subsidiary IS NOT an instance and business unit IS an instance
+                        if isinstance(service, Service):
+                            #subsidiary IS an instance and business unit IS an instance and service IS an instance
+                            for subs in subsidiary:
+                                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=service):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                            coincidences = 0
+                                            for momentA in momentsArray:
+                                                if momentA == s_bu_s_m.id_moment:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                momentsArray.append(s_bu_s_m.id_moment)
+                                                momentList.append(
+                                                    {
+                                                        'moment_id': s_bu_s_m.id_moment.id,
+                                                        'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                    }
+                                                )
+                        else:
+                            #subsidiary IS NOT an instance and business unit IS an instance and service IS NOT an instance
+                            for subs in subsidiary:
+                                for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit):
+                                    for serv in service:
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=serv):
+                                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                coincidences = 0
+                                                for momentA in momentsArray:
+                                                    if momentA == s_bu_s_m.id_moment:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    momentsArray.append(s_bu_s_m.id_moment)
+                                                    momentList.append(
+                                                        {
+                                                            'moment_id': s_bu_s_m.id_moment.id,
+                                                            'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                        }
+                                                    )
+                    else:
+                        #subsidiary IS NOT an instance and business unit IS NOT an instance
+                        if isinstance(service, Service):
+                            #subsidiary IS NOT an instance and business unit IS NOT an instance and service IS an instance
+                            for subs in subsidiary:
+                                for bu in business_unit:
+                                    try:
+                                        s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=bu)
+                                        for subsidiary_business_unit in s_bu:
+                                            try:
+                                                s_bu_ser = sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=service)
+                                                for s_bu_s in s_bu_ser:
+                                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                        coincidences = 0
+                                                        for momentA in momentsArray:
+                                                            if momentA == s_bu_s_m.id_moment:
+                                                                coincidences += 1
+                                                        if coincidences == 0:
+                                                            momentsArray.append(s_bu_s_m.id_moment)
+                                                            momentList.append(
+                                                                {
+                                                                    'moment_id': s_bu_s_m.id_moment.id,
+                                                                    'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                                }
+                                                            )
+                                            except sbu_service.DoesNotExist:
+                                                pass
+                                    except SubsidiaryBusinessUnit.DoesNotExist:
+                                        pass
+                        else:
+                            #subsidiary IS NOT an instance and business unit IS NOT an instance and service IS NOT an instance
+                            for subs in subsidiary:
+                                for bu in business_unit:
+                                    for serv in service:
+                                        try:
+                                            s_bu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=bu)
+                                            for subsidiary_business_unit in s_bu:
+                                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=subsidiary_business_unit, id_service=serv):
+                                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                        coincidences = 0
+                                                        for momentA in momentsArray:
+                                                            if momentA == s_bu_s_m.id_moment:
+                                                                coincidences += 1
+                                                        if coincidences == 0:
+                                                            momentsArray.append(s_bu_s_m.id_moment)
+                                                            momentList.append(
+                                                                {
+                                                                    'moment_id': s_bu_s_m.id_moment.id,
+                                                                    'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                                                }
+                                                            )
+                                        except SubsidiaryBusinessUnit.DoesNotExist:
+                                            pass
+
                 if len(momentList) == 0:
-                    pass
+                        pass
                 else:
                     json_response = {
                         'answer': True,
                         'moments': momentList
                     }
                     return HttpResponse(json.dumps(json_response))
-            except Zone.DoesNotExist:
-                pass
+            else:
+                try:
+                    zone = Zone.objects.get(pk=int(request.POST['zone']))
+                    subsidiary = zone.subsidiary_set.get(
+                        pk=int(request.POST['subsidiary'])
+                    )
+                    for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(
+                            id_subsidiary=subsidiary,
+                            id_business_unit=int(request.POST['business_unit'])):
+
+                        for s_bu_s in sbu_service.objects.filter(
+                                id_subsidiaryBU=subsidiary_business_unit,
+                                id_service=int(request.POST['service'])):
+
+                            for s_bu_s_m in sbu_service_moment.objects.filter(
+                                    id_sbu_service=s_bu_s):
+                                momentList.append(
+                                    {
+                                        'moment_id': s_bu_s_m.id_moment.id,
+                                        'moment_name': s_bu_s_m.id_moment.name + ' - ' + s_bu_s_m.alias
+                                    }
+                                )
+                    if len(momentList) == 0:
+                        pass
+                    else:
+                        json_response = {
+                            'answer': True,
+                            'moments': momentList
+                        }
+                        return HttpResponse(json.dumps(json_response))
+                except Zone.DoesNotExist:
+                    pass
         else:
             pass
 
