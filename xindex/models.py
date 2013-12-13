@@ -221,12 +221,12 @@ class Option(models.Model):
 
 
 class Answer(models.Model):
-
     question = models.ForeignKey(Question)
     value = models.DecimalField(max_digits=5, decimal_places=2)
     order = models.IntegerField()
     options = models.ManyToManyField(Option, null=True, blank=True)
     client = models.ForeignKey('Client', null=True, blank=True)
+    client_activity = models.ForeignKey('ClientActivity', null=True, blank=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)
     meta = models.TextField(blank=True, null=True)
@@ -440,6 +440,8 @@ class ClientActivity(models.Model):
     
 
 class Cumulative_Report(models.Model):
+    #id_company = models.ForeignKey(Company, blank=True, null=True)
+    #id_zone = models.ForeignKey(Zone, blank=True, null=True)
     id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
     id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
     id_service = models.ForeignKey(Service, blank=True, null=True)

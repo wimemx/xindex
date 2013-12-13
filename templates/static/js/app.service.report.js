@@ -20,12 +20,21 @@ $(document).ready(function(){
             dataType: 'Json',
             success: function(msg){
                 if(msg.answer == true){
+                    var coincidences = 0
                     $('#form_select_subsidiary #id_subsidiary').html('');
                     $.each(msg.subsidiaries,function(index, object){
+                        if(object.subsidiary_id == 'all'){
+                            coincidences += 1;
+                        }
                         $('#form_select_subsidiary #id_subsidiary').append(
                             '<option value="'+object.subsidiary_id+'">'+object.subsidiary_name+'</option>'
                         );
                     });
+                    if(coincidences == 0){
+                        $('#form_select_subsidiary #id_subsidiary').append(
+                            '<option value="all">Todas</option>'
+                        );
+                    }
                     //Disable the business unit and service selects
                     $('select#id_business_unit').attr('disabled', true);
                     $('select#id_business_unit').html('<option value="default">Seleccione una sucursal</option>');
@@ -52,6 +61,9 @@ $(document).ready(function(){
             success: function(msg){
                 if(msg.answer == true){
                     $('#form_select_business_unit #id_business_unit').html('');
+                    $('#form_select_business_unit #id_business_unit').append(
+                        '<option value="all">Todas</option>'
+                    );
                     $.each(msg.business_units,function(index, object){
                         $('#form_select_business_unit #id_business_unit').append(
                             '<option value="'+object.business_unit_id+'">'+object.business_unit_name+'</option>'

@@ -361,7 +361,7 @@ def activity_answers(request, activity_id):
                                     else:
                                         sub_questions = False
                                     try:
-                                        answer = Answer.objects.get(question=question, client=client)
+                                        answer = Answer.objects.get(question=question, client=client, client_activity=activity)
                                     except Answer.DoesNotExist:
                                         answer = False
 
