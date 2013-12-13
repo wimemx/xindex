@@ -16,7 +16,7 @@ def mailing(client, survey, activity_code):
         message = {
             'html': '<h2>Xindex Survey</h2>'
                     + ''
-                    + '<a href="http://127.0.0.1:8000/surveys/answer/'
+                    + '<a href="http://xindex.wimjapps.com/surveys/answer/'
                     + str(short_url.encode_url(survey.id))
                     + '/'
                     + str(activity_code)

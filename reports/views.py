@@ -2795,8 +2795,8 @@ def report_by_moment_by_group(request):
     moment_xindex = Decimal(0)
     zones = []
     subsidiaries = []
-    businessUnits = []
-    services = []
+    business_units_list = []
+    services_list = []
     moments = []
     data_attribute = []
     historical_months = []
@@ -2866,6 +2866,7 @@ def report_by_moment_by_group(request):
                         business_unit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
                     if 'service' in request.POST:
                         if request.POST['service'] == 'all':
+                            service = []
                             if isinstance(subsidiary, Subsidiary):
                                 if isinstance(business_unit, BusinessUnit):
                                     for subsidiary_business_unit in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
@@ -2921,19 +2922,120 @@ def report_by_moment_by_group(request):
                                                             service.append(s_bu_s.id_service)
                                             except SubsidiaryBusinessUnit.DoesNotExist:
                                                 pass
-
-                            if 'moment' in request.POST:
-                                moment = Moment.objects.get(pk=int(request.POST['moment']))
-                            else:
-                                moment = False
                         else:
                             service = Service.objects.get(active=True, pk=int(request.POST['service']))
+                        if 'moment' in request.POST:
+                            moment = Moment.objects.get(pk=int(request.POST['moment']))
+                        else:
+                            moment = False
                     else:
                         service = False
                 else:
                     business_unit = False
             else:
                 subsidiary = False
+
+    #Get business units for first subsidiary
+    if isinstance(subsidiary, Subsidiary):
+        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+            if len(business_units_list) > 0:
+                coincidences_bu = 0
+                for b_u in business_units_list:
+                    if b_u == s_bu.id_business_unit:
+                        coincidences_bu += 1
+                if coincidences_bu == 0:
+                    business_units_list.append(s_bu.id_business_unit)
+            else:
+                business_units_list.append(s_bu.id_business_unit)
+    else:
+        for sub in subsidiary:
+            try:
+                sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub)
+                for s_bu in sbu:
+                    if len(business_units_list) > 0:
+                        coincidences_bu = 0
+                        for b_u in business_units_list:
+                            if b_u == s_bu.id_business_unit:
+                                coincidences_bu += 1
+                        if coincidences_bu == 0:
+                            business_units_list.append(s_bu.id_business_unit)
+                    else:
+                        business_units_list.append(s_bu.id_business_unit)
+            except SubsidiaryBusinessUnit.DoesNotExist:
+                pass
+
+    #Get services for first business unit
+
+    if isinstance(zone, Zone):
+        subsidiaries_list = zone.subsidiary_set.filter(active=True)
+    else:
+        subsidiaries_list = []
+
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                    if len(services_list) > 0:
+                        coincidences_s = 0
+                        for s in services_list:
+                            if s == s_bu_s.id_service:
+                                coincidences_s += 1
+                        if coincidences_s == 0:
+                            services_list.append(s_bu_s.id_service)
+                    else:
+                        services_list.append(s_bu_s.id_service)
+        else:
+            for bu in business_unit:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            for subs in subsidiary:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
+        else:
+            for subs in subsidiary:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
 
     total_promoters = 0
     total_passives = 0
@@ -2945,7 +3047,7 @@ def report_by_moment_by_group(request):
         if isinstance(business_unit, BusinessUnit):
             if isinstance(service, Service):
                 #subsidiary IS an instance, business unit IS an instance and service IS an instance
-                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
                     for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=service):
                         for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
                             for child_sbu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=child_sbu_s_moment).order_by('id_attribute'):
@@ -2956,15 +3058,15 @@ def report_by_moment_by_group(request):
                                         client = Client.objects.get(pk=a.client_id)
                                         if a.client_activity is not None:
                                             try:
-                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
                                                 c_d = datetime.date.today()
-                                                if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                     answers_list.append(a)
                                             except ClientActivity.DoesNotExist:
                                                 pass
             else:
                 #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
-                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=businessUnit):
+                for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
                     for serv in service:
                         for child_sbu_service in sbu_service.objects.filter(id_subsidiaryBU=child_subsidiary_bu, id_service=serv):
                             for child_sbu_s_moment in sbu_service_moment.objects.filter(id_sbu_service=child_sbu_service, id_moment=moment):
@@ -2976,9 +3078,9 @@ def report_by_moment_by_group(request):
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
-                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
@@ -2997,9 +3099,9 @@ def report_by_moment_by_group(request):
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
-                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
@@ -3018,9 +3120,9 @@ def report_by_moment_by_group(request):
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -3040,9 +3142,9 @@ def report_by_moment_by_group(request):
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
-                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
@@ -3061,9 +3163,9 @@ def report_by_moment_by_group(request):
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -3083,9 +3185,9 @@ def report_by_moment_by_group(request):
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -3105,60 +3207,35 @@ def report_by_moment_by_group(request):
                                                     client = Client.objects.get(pk=a.client_id)
                                                     if a.client_activity is not None:
                                                         try:
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=businessUnit, service=service, pk=a.client_activity.id)
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
                                                             c_d = datetime.date.today()
-                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == businessUnit:
+                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                                 answers_list.append(a)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
 
-    total_surveyed = len(answers_list)
-    #total_surveyed = len(Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary))
-    attribute = child_sbu_s_m_a.id_attribute
     promoters_9 = 0
     promoters_10 = 0
     passives = 0
     detractors = 0
-    if total_surveyed > 0:
+    total_surveyed = 0
+    if len(answers_list) > 0:
 
         #for answer in Answer.objects.filter(question_id=relation_q_s_bu_s_m_a.question_id, client_id__subsidiary=subsidiary):
         for answer in answers_list:
-            print answer.value
-            total_answers += 1
+            if answer.value > 0:
+                total_surveyed += 1
             if answer.value == 10:
-                promoters_10 += 1
                 total_promoters += 1
             elif answer.value == 9:
-                promoters_9 += 1
                 total_promoters += 1
             elif answer.value == 8 or answer.value == 7:
-                passives += 1
                 total_passives += 1
             elif 1 <= answer.value <= 6:
-                detractors += 1
                 total_detractors += 1
 
-    if total_promoters == 0 and total_detractors == 0 and total_passives == 0 and total_answers == 0:
-        moment_xindex = 0
-    else:
-        moment_xindex = ((Decimal(total_promoters-total_detractors))/(Decimal(total_promoters+total_passives+total_detractors)))*Decimal(100)
-
-    print answers_list
-
-    historical_data = Cumulative_Report.objects.filter(
-        id_subsidiary=subsidiary, id_business_unit=businessUnit,
-        id_service=service, id_moment=moment, id_attribute=None
-    ).order_by('-date')[:3]
-
     historical_months = []
-
-    for last_data in reversed(historical_data):
-        historical_months.append(
-            {
-                'month': str(last_data.date.year)+'-'+str(last_data.date.month),
-                'value': last_data.grade
-            }
-        )
+    historical_months.append(functions.get_last_month_moment_xindex(subsidiary, business_unit, service, moment))
 
     getcontext().prec = 5
 
@@ -3205,18 +3282,38 @@ def report_by_moment_by_group(request):
     else:
         moment_data = {'promoters': Decimal((Decimal(total_promoters)/total_answers)*100), 'passives': Decimal((Decimal(total_passives)/total_answers)*100), 'detractors': Decimal((Decimal(total_detractors)/total_answers)*100)}
 
+    if not isinstance(zone, Zone):
+        zone = 'all'
+    else:
+        zone = zone.id
+    if not isinstance(subsidiary, Subsidiary):
+        subsidiary = 'all'
+    else:
+        subsidiary = subsidiary.id
+    if not isinstance(business_unit, BusinessUnit):
+        business_unit = 'all'
+    else:
+        business_unit = business_unit.id
+
+    if not isinstance(service, Service):
+        service = 'all'
+    else:
+        service = service.id
+
+    print zone
+
     template_vars = {
         'title': '',
         'survey_is_designed': survey_is_designed,
         'moment_xindex': moment_xindex,
         'zones': zones,
-        'subsidiaries': subsidiaries,
-        'businessUnits': businessUnits,
+        'subsidiaries': subsidiaries_list,
+        'businessUnits': business_units_list,
         'moments': moments,
-        'services': services,
+        'services': services_list,
         'current_zone': zone,
         'current_subsidiary': subsidiary,
-        'current_businessUnit': businessUnit,
+        'current_businessUnit': business_unit,
         'current_service': service,
         'current_moment': moment,
         'historical_months': historical_months,
@@ -3226,4 +3323,4 @@ def report_by_moment_by_group(request):
         'moment_data': moment_data
     }
     request_context = RequestContext(request, template_vars)
-    return render(request, 'reports/moment-report.html', request_context)
+    return render(request, 'reports/by-group/moment-report-by-group.html', request_context)

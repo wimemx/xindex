@@ -381,6 +381,12 @@ def get_services_to_apply(request):
                                                 'name': s_bu_s.id_service.name
                                             }
                                         )
+                if len(services) == 0:
+                    json_response = {
+                        'answer': False,
+                        'services': services
+                    }
+                    return HttpResponse(json.dumps(json_response))
 
                 json_response = {
                     'answer': True,
