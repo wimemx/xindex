@@ -85,8 +85,12 @@ def index(request, business_unit_id=False):
             )
 
             for eachAttribute in myAtributtes:
-                indicator_count += 1
+                myAttributeCounter.append(eachAttribute.id)
 
+        myAttributeCounter = list(set(myAttributeCounter))
+
+        for x in myAttributeCounter:
+            indicator_count += 1
 
 
         services['services'].append(
