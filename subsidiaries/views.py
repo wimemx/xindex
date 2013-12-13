@@ -21,16 +21,17 @@ def index(request, message=''):
     if has_permission(request.user, VIEW, "Ver subsidiarias") or \
             request.user.is_superuser:
         all_subsidiaries = Subsidiary.objects.filter(active='True')
-        return render_to_response(
-            'subsidiaries/index.html',
-            {
+        template_vars = {
                 'all_subsidiaries': all_subsidiaries,
                 'message': message
             }
-        )
+        request_context = RequestContext(request, template_vars)
+        return render_to_response(
+            'subsidiaries/index.html', request_context)
     else:
         template_vars = {}
-        return render_to_response("rbac/generic_error.html", template_vars)
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
