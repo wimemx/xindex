@@ -43,7 +43,7 @@ def report_by_moment(request):
     xindex_diff = 0
     diff_type = ''
     xindex_user = Xindex_User.objects.get(user=request.user)
-    companies = xindex_user.company_set.all()
+    companies = xindex_user.company_set.filter(active=True)
 
     #Get Zones
     myZones = Zone.objects.filter(active=True)
@@ -110,13 +110,13 @@ def report_by_moment(request):
                         if coincidences_bu_s_m == 0:
                             moments.append(s_bu_s_m.id_moment)
 
-        subsidiaries = zone.subsidiary_set.all()
+        subsidiaries = zone.subsidiary_set.filter(active=True)
 
     else:
         zone = zones[0]
         subsidiary = Subsidiary.objects.filter(zone_id=zone.id)[0]
 
-        subsidiaries = zone.subsidiary_set.all()
+        subsidiaries = zone.subsidiary_set.filter(active=True)
 
         #Adding to businessUnit list
         mySUB = SubsidiaryBusinessUnit.objects.filter(
@@ -366,7 +366,7 @@ def report_by_moment(request):
 
 @login_required(login_url='/signin/')
 def report_by_attribute(request):
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     business_units_list = []
     services_list = []
     moments_list = []
@@ -419,7 +419,7 @@ def report_by_attribute(request):
                     counter_s_bu_s += 1
             counter_s_bu += 1
 
-    subsidiaries_list = zone.subsidiary_set.all()
+    subsidiaries_list = zone.subsidiary_set.filter(active=True)
 
     for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
         if len(business_units_list) > 0:
@@ -610,7 +610,7 @@ def report_by_service(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     business_units_list = []
     services_list = []
     #moments data
@@ -663,7 +663,7 @@ def report_by_service(request):
             counter_s_bu += 1
 
     #Get subsidiaries
-    subsidiaries_list = zone.subsidiary_set.all()
+    subsidiaries_list = zone.subsidiary_set.filter(active=True)
 
     #Get business units for first subsidiary
     for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
@@ -971,7 +971,7 @@ def report_by_business_unit(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     subsidiaries_list = []
     business_units_list = []
     #services data
@@ -1018,7 +1018,7 @@ def report_by_business_unit(request):
             counter_s_bu += 1
 
     #Get subsidiaries
-    subsidiaries_list = zone.subsidiary_set.all()
+    subsidiaries_list = zone.subsidiary_set.filter(active=True)
 
     #Get business units for first subsidiary
     for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
@@ -1292,7 +1292,7 @@ def report_by_subsidiary(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     subsidiaries_list = []
     #business units data
     business_units_data = []
@@ -1312,7 +1312,7 @@ def report_by_subsidiary(request):
         subsidiary = zone.subsidiary_set.filter(active=True)[0]
 
     #Get subsidiaries
-    subsidiaries_list = zone.subsidiary_set.all()
+    subsidiaries_list = zone.subsidiary_set.filter(active=True)
 
     #Get data for subsidiary business units
     total_promoters = 0
@@ -1571,7 +1571,7 @@ def report_by_zone(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     #subsidiaries data
     subsidiaries_data = []
     #data for relation?
@@ -1744,7 +1744,7 @@ def report_by_zone(request):
     ##GET DATA TO COMPARE##
     comparative_data = []
     user = Xindex_User.objects.get(user=request.user.id)
-    company = user.company_set.all()[0]
+    company = user.company_set.filter(active=True)[0]
     zones = company.zone.exclude(id=zone.id)
 
     for zone_c in zones:
@@ -1757,7 +1757,7 @@ def report_by_zone(request):
         xindex_zone_c = 0
         total_surveyed_c = 0
         total_answers_c = []
-        subsidiaries = zone_c.subsidiary_set.all()
+        subsidiaries = zone_c.subsidiary_set.filter(active=True)
         if len(subsidiaries) > 0:
             for subsidiary_c in subsidiaries:
                 for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary_c):
@@ -1858,7 +1858,7 @@ def general_report(request):
     company = user.company_set.get()
     if len(user.company_set.all()) == 0:
         survey_is_designed = False
-    for zone in company.zone.all():
+    for zone in company.zone.filter(active=True):
         #All zones for company
         total_answers_by_zone = []
         promoters_zone = 0
@@ -2027,7 +2027,7 @@ def report_by_business_unit_not_instances(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     subsidiaries_list = []
     business_units_list = []
     #services data
@@ -2064,7 +2064,7 @@ def report_by_business_unit_not_instances(request):
 
     #Get subsidiaries
     if isinstance(zone, Zone):
-        subsidiaries_list = zone.subsidiary_set.all()
+        subsidiaries_list = zone.subsidiary_set.filter(active=True)
         if isinstance(subsidiary, Subsidiary):
             #Get business units for first subsidiary
             for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
@@ -2353,7 +2353,7 @@ def report_by_service_by_group(request):
     passives_percent = 0
     detractors_percent = 0
     #lists
-    zones_list = Zone.objects.all()
+    zones_list = Zone.objects.filter(active=True)
     business_units_list = []
     services_list = []
     #moments data
@@ -2373,7 +2373,7 @@ def report_by_service_by_group(request):
                     if isinstance(zone, Zone):
                         subsidiary = zone.subsidiary_set.filter(active=True)
                         #Set the subsidiaries list
-                        subsidiaries_list = zone.subsidiary_set.all()
+                        subsidiaries_list = zone.subsidiary_set.filter(active=True)
                         print 'Entro a donde es una instancia'
                     else:
                         subsidiary = []
@@ -2822,7 +2822,7 @@ def report_by_moment_by_group(request):
                     if isinstance(zone, Zone):
                         subsidiary = zone.subsidiary_set.filter(active=True)
                         #Set the subsidiaries list
-                        subsidiaries_list = zone.subsidiary_set.all()
+                        subsidiaries_list = zone.subsidiary_set.filter(active=True)
                     else:
                         subsidiary = []
                         for z in zone:
