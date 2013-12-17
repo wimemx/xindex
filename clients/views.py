@@ -601,7 +601,6 @@ def getServicesInJson(request, business_id):
             )
             #myS.append(services)
             #myS = list(set(myS))
-            BIG PROBLEM HERE
             servicesToJson['services'].append(
                 {
                     "name": services.name,
