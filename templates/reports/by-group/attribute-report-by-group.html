@@ -118,7 +118,7 @@
                                 {% if zones_list %}
                                     <option value="all">Todas</option>
                                     {% for zone in zones_list %}
-                                        {% if zone.id == current_zone.id %}
+                                        {% if zone.id == current_zone %}
                                             <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
                                         {% else %}
                                             <option value="{{ zone.id }}">{{ zone.name }}</option>
@@ -134,11 +134,11 @@
                             <p>Sucursal</p>
                             <form id="form_select_subsidiary" action="/subsidiaries/get_business_units/" method="POST">
                             {% csrf_token %}
-                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
                                 <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
                                 <option value="all">Todas</option>
                                     {% for subsidiary in subsidiaries_list %}
-                                        {% if subsidiary.id == current_subsidiary.id %}
+                                        {% if subsidiary.id == current_subsidiary %}
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
                                         {% else %}
                                             <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
@@ -151,12 +151,12 @@
                             <p>Unidad de servicio</p>
                             <form id="form_select_business_unit" action="/business_units/get_services/" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                            <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
+                            <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
+                            <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
                                 <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
                                 <option value="all">Todas</option>
                                     {% for businessUnit in business_units_list %}
-                                        {% if businessUnit.id == current_businessUnit.id %}
+                                        {% if businessUnit.id == current_businessUnit %}
                                             <option value="{{ businessUnit.id }}" selected>{{ businessUnit.name }}</option>
                                         {% else %}
                                             <option value="{{ businessUnit.id }}">{{ businessUnit.name }}</option>
@@ -170,13 +170,13 @@
                             <p>Servicio</p>
                             <form id="form_select_service" action="/services/get_moments/" method="POST">
                             {% csrf_token %}
-                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
+                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
                                 <select class="form-control text-primary header" name="service" id="id_service">
                                 <option value="all">Todos</option>
                                     {% for service in services_list %}
-                                        {% if service.id == current_service.id %}
+                                        {% if service.id == current_service %}
                                             <option value="{{ service.id }}" selected>{{ service.name }}</option>
                                         {% else %}
                                             <option value="{{ service.id }}">{{ service.name }}</option>
@@ -189,14 +189,14 @@
                             <p>Punto de contacto</p>
                             <form id="form_select_moment" action="/moments/get_attributes/" method="POST">
                                 {% csrf_token %}
-                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
-                                <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
+                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
+                                <input type="hidden" name="service" id="id_service" value="{{ current_service }}">
                                 <select class="form-control text-primary header" name="moment" id="id_moment">
                                 <option value="all">Todos</option>
                                     {% for moment in moments_list %}
-                                        {% if moment.id == current_moment.id %}
+                                        {% if moment.id == current_moment %}
                                             <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
                                         {% else %}
                                             <option value="{{ moment.id }}">{{ moment.name }}</option>
@@ -209,9 +209,9 @@
                             <p>Atributo</p>
                             <form id="form_select_attribute" action="/reports/attribute/" method="POST">
                                 {% csrf_token %}
-                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
+                                <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
+                                <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
+                                <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
                                 <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
                                 <select class="form-control text-primary header" name="attribute" id="id_attribute">

@@ -141,7 +141,7 @@ $(document).ready(function(){
                     });
                     $('select#id_moment').attr('disabled', false);
                 } else {
-                    $('#id_moment').html('<option value="all">Todos</option>');
+                    $('#id_moment').html('<option value="invalid">No hay momentos</option>');
                     $('#id_moment').attr('disabled', true);
                 }
             },

@@ -22,12 +22,21 @@ $(document).ready(function(){
             dataType: 'Json',
             success: function(msg){
                 if(msg.answer == true){
+                    var coincidences = 0
                     $('#form_select_subsidiary #id_subsidiary').html('');
                     $.each(msg.subsidiaries,function(index, object){
+                        if(object.subsidiary_id == 'all'){
+                            coincidences += 1;
+                        }
                         $('#form_select_subsidiary #id_subsidiary').append(
                             '<option value="'+object.subsidiary_id+'">'+object.subsidiary_name+'</option>'
                         );
                     });
+                    if(coincidences == 0){
+                        $('#form_select_subsidiary #id_subsidiary').append(
+                            '<option value="all">Todas</option>'
+                        );
+                    }
                     $('select#id_business_unit').attr('disabled', true);
                     $('select#id_business_unit').html('<option value="default">Seleccionar Sucursal</option>');
 
@@ -62,6 +71,9 @@ $(document).ready(function(){
             success: function(msg){
                 if(msg.answer == true){
                     $('#form_select_business_unit #id_business_unit').html('');
+                    $('#form_select_business_unit #id_business_unit').append(
+                        '<option value="all">Todas</option>'
+                    );
                     $.each(msg.business_units,function(index, object){
                         $('#form_select_business_unit #id_business_unit').append(
                             '<option value="'+object.business_unit_id+'">'+object.business_unit_name+'</option>'
@@ -99,6 +111,9 @@ $(document).ready(function(){
             success: function(msg){
                 if(msg.answer == true){
                     $('#form_select_service #id_service').html('');
+                    $('#form_select_service #id_service').append(
+                        '<option value="all">Todos</option>'
+                    );
                     $.each(msg.services,function(index, object){
                         $('#form_select_service #id_service').append(
                             '<option value="'+object.service_id+'">'+object.service_name+'</option>'
@@ -132,6 +147,9 @@ $(document).ready(function(){
             success: function(msg){
                 if(msg.answer == true){
                     $('#form_select_moment #id_moment').html('');
+                    $('#form_select_moment #id_moment').append(
+                        '<option value="all">Todos</option>'
+                    );
                     $.each(msg.moments,function(index, object){
                         $('#form_select_moment #id_moment').append(
                             '<option value="'+object.moment_id+'">'+object.moment_name+'</option>'
@@ -167,6 +185,9 @@ $(document).ready(function(){
                         );
                     });
                     $('select#id_attribute').attr('disabled', false);
+                } else {
+                    $('#id_attribute').html('<option value="invalid">No hay atributos</option>')
+                    $('#id_attribute').attr('disabled', true);
                 }
             },
             error: function(){

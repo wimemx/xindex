@@ -374,15 +374,30 @@ def report_by_attribute(request):
     if request.POST:
         print request.POST
         if 'zone' in request.POST:
-            zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
+            if request.POST['zone'] == 'all':
+                return report_by_attribute_by_group(request)
+            else:
+                zone = Zone.objects.get(active=True, pk=int(request.POST['zone']))
             if 'subsidiary' in request.POST:
-                subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                if request.POST['subsidiary'] == 'all':
+                    return report_by_attribute_by_group(request)
+                else:
+                    subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
                 if 'business_unit' in request.POST:
-                    businessUnit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
+                    if request.POST['business_unit'] == 'all':
+                        return report_by_attribute_by_group(request)
+                    else:
+                        businessUnit = BusinessUnit.objects.get(active=True, pk=int(request.POST['business_unit']))
                     if 'service' in request.POST:
-                        service = Service.objects.get(active=True, pk=int(request.POST['service']))
+                        if request.POST['service'] == 'all':
+                            return report_by_attribute_by_group(request)
+                        else:
+                            service = Service.objects.get(active=True, pk=int(request.POST['service']))
                         if 'moment' in request.POST:
-                            moment = Moment.objects.get(active=True, pk=int(request.POST['moment']))
+                            if request.POST['moment'] == 'all':
+                                return report_by_attribute_by_group(request)
+                            else:
+                                moment = Moment.objects.get(active=True, pk=int(request.POST['moment']))
                             if 'attribute' in request.POST:
                                 attribute = Attributes.objects.get(pk=int(request.POST['attribute']))
                         else:
@@ -733,7 +748,8 @@ def report_by_service(request):
             if not len(total_answers_by_moment) == 0:
                 for answer_moment in total_answers_by_moment:
                     #total answers for service
-                    total_surveyed += 1
+                    if answer_moment.value > 0:
+                        total_surveyed += 1
                     if answer_moment.value == 10:
                         promoters_10_moment += 1
                         total_promoters_moment += 1
@@ -2804,7 +2820,9 @@ def report_by_moment_by_group(request):
     xindex_diff = 0
     diff_type = ''
     xindex_user = Xindex_User.objects.get(user=request.user)
-    companies = xindex_user.company_set.all()
+    companies = xindex_user.company_set.filter(active=True)
+    #attribute array
+    attribute_array = []
 
     #Get Zones
     myZones = Zone.objects.filter(active=True)
@@ -2829,7 +2847,6 @@ def report_by_moment_by_group(request):
                             for s in z.subsidiary_set.filter(active=True):
                                 subsidiary.append(s)
                         #set the subsidiaries list
-                        print 'Entro a donde no es una instancia'
                         subsidiaries_list = []
                 else:
                     subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
@@ -2935,7 +2952,13 @@ def report_by_moment_by_group(request):
             else:
                 subsidiary = False
 
-    #Get business units for first subsidiary
+    #get subsidiaries list
+    if isinstance(zone, Zone):
+        subsidiaries_list = zone.subsidiary_set.filter(active=True)
+    else:
+        subsidiaries_list = []
+
+    #Get business units for subsidiary
     if isinstance(subsidiary, Subsidiary):
         for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
             if len(business_units_list) > 0:
@@ -2964,13 +2987,7 @@ def report_by_moment_by_group(request):
             except SubsidiaryBusinessUnit.DoesNotExist:
                 pass
 
-    #Get services for first business unit
-
-    if isinstance(zone, Zone):
-        subsidiaries_list = zone.subsidiary_set.filter(active=True)
-    else:
-        subsidiaries_list = []
-
+    #Get services list
     if isinstance(subsidiary, Subsidiary):
         if isinstance(business_unit, BusinessUnit):
             for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
@@ -3037,6 +3054,114 @@ def report_by_moment_by_group(request):
                 except SubsidiaryBusinessUnit.DoesNotExist:
                     pass
 
+    #get moments for services
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS an instance and service IS an instance
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                            coincidences = 0
+                            for m in moments:
+                                if m == s_bu_s_m.id_moment:
+                                    coincidences += 1
+                            if coincidences == 0:
+                                moments.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
+                for s in service:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=s):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments.append(s_bu_s_m.id_moment)
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
+                for bu in business_unit:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
+                for bu in business_unit:
+                    for s in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=s):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments.append(s_bu_s_m.id_moment)
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS an instance
+                for s in subsidiary:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=business_unit):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
+                for s in subsidiary:
+                    for se in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=se):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments.append(s_bu_s_m.id_moment)
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
+                for s in subsidiary:
+                    for bu in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=bu):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
+                for s in subsidiary:
+                    for bu in business_unit:
+                        for se in service:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=bu):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=se):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                        coincidences = 0
+                                        for m in moments:
+                                            if m == s_bu_s_m.id_moment:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            moments.append(s_bu_s_m.id_moment)
+
     total_promoters = 0
     total_passives = 0
     total_detractors = 0
@@ -3064,6 +3189,14 @@ def report_by_moment_by_group(request):
                                                     answers_list.append(a)
                                             except ClientActivity.DoesNotExist:
                                                 pass
+                                coincidences = 0
+                                for attribute_object in attribute_array:
+                                    if attribute_object == child_sbu_s_m_a.id_attribute:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                    data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+
             else:
                 #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
                 for child_subsidiary_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
@@ -3084,6 +3217,13 @@ def report_by_moment_by_group(request):
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
+                                    coincidences = 0
+                                    for attribute_object in attribute_array:
+                                        if attribute_object == child_sbu_s_m_a.id_attribute:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
         else:
             if isinstance(service, Service):
                 #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
@@ -3105,6 +3245,13 @@ def report_by_moment_by_group(request):
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
+                                    coincidences = 0
+                                    for attribute_object in attribute_array:
+                                        if attribute_object == child_sbu_s_m_a.id_attribute:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
                 for bu_un in business_unit:
@@ -3126,6 +3273,13 @@ def report_by_moment_by_group(request):
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
+                                        coincidences = 0
+                                        for attribute_object in attribute_array:
+                                            if attribute_object == child_sbu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
     else:
         if isinstance(business_unit, BusinessUnit):
             if isinstance(service, Service):
@@ -3148,6 +3302,14 @@ def report_by_moment_by_group(request):
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
+
+                                    coincidences = 0
+                                    for attribute_object in attribute_array:
+                                        if attribute_object == child_sbu_s_m_a.id_attribute:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
                 for subsid in subsidiary:
@@ -3169,6 +3331,13 @@ def report_by_moment_by_group(request):
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
+                                        coincidences = 0
+                                        for attribute_object in attribute_array:
+                                            if attribute_object == child_sbu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
         else:
             if isinstance(service, Service):
                 #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
@@ -3191,6 +3360,14 @@ def report_by_moment_by_group(request):
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
+
+                                        coincidences = 0
+                                        for attribute_object in attribute_array:
+                                            if attribute_object == child_sbu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
                 for subsid in subsidiary:
@@ -3213,6 +3390,13 @@ def report_by_moment_by_group(request):
                                                                 answers_list.append(a)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
+                                            coincidences = 0
+                                            for attribute_object in attribute_array:
+                                                if attribute_object == child_sbu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attribute_array.append(child_sbu_s_m_a.id_attribute)
+                                                data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
 
     promoters_9 = 0
     promoters_10 = 0
@@ -3300,8 +3484,6 @@ def report_by_moment_by_group(request):
     else:
         service = service.id
 
-    print zone
-
     template_vars = {
         'title': '',
         'survey_is_designed': survey_is_designed,
@@ -3324,3 +3506,1026 @@ def report_by_moment_by_group(request):
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/by-group/moment-report-by-group.html', request_context)
+
+
+def report_by_attribute_by_group(request):
+    zone = []
+    subsidiary = []
+    business_unit = []
+    service = []
+    moment = []
+    zones_list = Zone.objects.filter(active=True)
+    business_units_list = []
+    services_list = []
+    moments_list = []
+    attributes_list = []
+
+    if request.POST:
+        if 'zone' in request.POST and 'subsidiary' in request.POST \
+                and 'business_unit' in request.POST and 'moment' in request.POST:
+            if request.POST['zone'] == 'all' or request.POST['subsidiary'] == 'all' \
+                    or request.POST['business_unit'] == 'all':
+                #get zone
+                if request.POST['zone'] == 'all':
+                    zone = Zone.objects.filter(active=True)
+                else:
+                    zone = Zone.objects.get(pk=int(request.POST['zone']))
+                #get subsdiary
+                if request.POST['subsidiary'] == 'all':
+                    if isinstance(zone, Zone):
+                        subsidiary = zone.subsidiary_set.filter(active=True)
+                    else:
+                        subsidiary = []
+                        for z in zone:
+                            for s in z.subsidiary_set.filter(active=True):
+                                subsidiary.append(s)
+                else:
+                    subsidiary = Subsidiary.objects.get(active=True, pk=int(request.POST['subsidiary']))
+                #get business unit
+                if request.POST['business_unit'] == 'all':
+                    business_unit = []
+                    if isinstance(subsidiary, Subsidiary):
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+                            business_unit.append(s_bu.id_business_unit)
+                    else:
+                        for s in subsidiary:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s):
+                                coincidences = 0
+                                for bu in business_unit:
+                                    if bu == s_bu.id_business_unit:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    business_unit.append(s_bu.id_business_unit)
+                else:
+                    business_unit = BusinessUnit.objects.get(pk=int(request.POST['business_unit']))
+                #get services
+                if request.POST['service'] == 'all':
+                    service = []
+                    if isinstance(subsidiary, Subsidiary):
+                        if isinstance(business_unit, BusinessUnit):
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                                    coincidences = 0
+                                    for se in service:
+                                        if se == s_bu_s.id_service:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        service.append(s_bu_s.id_service)
+                        else:
+                            for bu in business_unit:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                                        coincidences = 0
+                                        for se in service:
+                                            if se == s_bu_s.id_service:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            service.append(s_bu_s.id_service)
+                    else:
+                        if isinstance(business_unit, BusinessUnit):
+                            for sub in subsidiary:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                                        coincidences = 0
+                                        for se in service:
+                                            if se == s_bu_s.id_service:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            service.append(s_bu_s.id_service)
+                        else:
+                            for sub in subsidiary:
+                                for bu in business_unit:
+                                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                                            coincidences = 0
+                                            for se in service:
+                                                if se == s_bu_s.id_service:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                service.append(s_bu_s.id_service)
+                else:
+                    service = Service.objects.get(pk=int(request.POST['service']))
+
+                if request.POST['moment'] == 'all':
+                    moment = []
+                    if isinstance(subsidiary, Subsidiary):
+                        if isinstance(business_unit, BusinessUnit):
+                            if isinstance(service, Service):
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                            coincidences = 0
+                                            for m in moment:
+                                                if m == s_bu_s_m.id_moment:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                moment.append(s_bu_s_m.id_moment)
+                            else:
+                                for serv in service:
+                                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=serv):
+                                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                coincidences = 0
+                                                for m in moment:
+                                                    if m == s_bu_s_m.id_moment:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    moment.append(s_bu_s_m.id_moment)
+                        else:
+                            if isinstance(service, Service):
+                                for bu in business_unit:
+                                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                coincidences = 0
+                                                for m in moment:
+                                                    if m == s_bu_s_m.id_moment:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    moment.append(s_bu_s_m.id_moment)
+                            else:
+                                for bu in business_unit:
+                                    for ser in service:
+                                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                    coincidences = 0
+                                                    for m in moment:
+                                                        if m == s_bu_s_m.id_moment:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        moment.append(s_bu_s_m.id_moment)
+                    else:
+                        if isinstance(business_unit, BusinessUnit):
+                            if isinstance(service, Service):
+                                for sub in subsidiary:
+                                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                coincidences = 0
+                                                for m in moment:
+                                                    if m == s_bu_s_m.id_moment:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    moment.append(s_bu_s_m.id_moment)
+                            else:
+                                for sub in subsidiary:
+                                    for serv in service:
+                                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=serv):
+                                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                    coincidences = 0
+                                                    for m in moment:
+                                                        if m == s_bu_s_m.id_moment:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        moment.append(s_bu_s_m.id_moment)
+                        else:
+                            if isinstance(service, Service):
+                                for sub in subsidiary:
+                                    for bu in business_unit:
+                                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu):
+                                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                    coincidences = 0
+                                                    for m in moment:
+                                                        if m == s_bu_s_m.id_moment:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        moment.append(s_bu_s_m.id_moment)
+                            else:
+                                for sub in subsidiary:
+                                    for bu in business_unit:
+                                        for ser in service:
+                                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu):
+                                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                                        coincidences = 0
+                                                        for m in moment:
+                                                            if m == s_bu_s_m.id_moment:
+                                                                coincidences += 1
+                                                        if coincidences == 0:
+                                                            moment.append(s_bu_s_m.id_moment)
+                else:
+                    moment = Moment.objects.get(pk=int(request.POST['moment']))
+
+                attribute = Attributes.objects.get(pk=int(request.POST['attribute']))
+    ##
+    zones_list = Zone.objects.filter(active=True)
+
+    if isinstance(zone, Zone):
+        subsidiaries_list = zone.subsidiary_set.filter(active=True)
+    else:
+        subsidiaries_list = []
+
+    #Get business units for subsidiary
+    if isinstance(subsidiary, Subsidiary):
+        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary):
+            if len(business_units_list) > 0:
+                coincidences_bu = 0
+                for b_u in business_units_list:
+                    if b_u == s_bu.id_business_unit:
+                        coincidences_bu += 1
+                if coincidences_bu == 0:
+                    business_units_list.append(s_bu.id_business_unit)
+            else:
+                business_units_list.append(s_bu.id_business_unit)
+    else:
+        for sub in subsidiary:
+            try:
+                sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub)
+                for s_bu in sbu:
+                    if len(business_units_list) > 0:
+                        coincidences_bu = 0
+                        for b_u in business_units_list:
+                            if b_u == s_bu.id_business_unit:
+                                coincidences_bu += 1
+                        if coincidences_bu == 0:
+                            business_units_list.append(s_bu.id_business_unit)
+                    else:
+                        business_units_list.append(s_bu.id_business_unit)
+            except SubsidiaryBusinessUnit.DoesNotExist:
+                pass
+
+    #Get services list
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                    if len(services_list) > 0:
+                        coincidences_s = 0
+                        for s in services_list:
+                            if s == s_bu_s.id_service:
+                                coincidences_s += 1
+                        if coincidences_s == 0:
+                            services_list.append(s_bu_s.id_service)
+                    else:
+                        services_list.append(s_bu_s.id_service)
+        else:
+            for bu in business_unit:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            for subs in subsidiary:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs, id_business_unit=business_unit)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
+        else:
+            for subs in subsidiary:
+                try:
+                    sbu = SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subs)
+                    for s_bu in sbu:
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu):
+                            if len(services_list) > 0:
+                                coincidences_s = 0
+                                for s in services_list:
+                                    if s == s_bu_s.id_service:
+                                        coincidences_s += 1
+                                if coincidences_s == 0:
+                                    services_list.append(s_bu_s.id_service)
+                            else:
+                                services_list.append(s_bu_s.id_service)
+                except SubsidiaryBusinessUnit.DoesNotExist:
+                    pass
+
+    #get moments for services
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS an instance and service IS an instance
+                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                            coincidences = 0
+                            for m in moments_list:
+                                if m == s_bu_s_m.id_moment:
+                                    coincidences += 1
+                            if coincidences == 0:
+                                moments_list.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS an instance, business unit IS an instance and service IS NOT an instance
+                for s in service:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=s):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments_list:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments_list.append(s_bu_s_m.id_moment)
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
+                for bu in business_unit:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments_list:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments_list.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
+                for bu in business_unit:
+                    for s in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=s):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments_list:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments_list.append(s_bu_s_m.id_moment)
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS an instance
+                for s in subsidiary:
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=business_unit):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                coincidences = 0
+                                for m in moments_list:
+                                    if m == s_bu_s_m.id_moment:
+                                        coincidences += 1
+                                if coincidences == 0:
+                                    moments_list.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
+                for s in subsidiary:
+                    for se in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=se):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments_list:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments_list.append(s_bu_s_m.id_moment)
+        else:
+            if isinstance(service, Service):
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
+                for s in subsidiary:
+                    for bu in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=bu):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                    coincidences = 0
+                                    for m in moments_list:
+                                        if m == s_bu_s_m.id_moment:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        moments_list.append(s_bu_s_m.id_moment)
+            else:
+                #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
+                for s in subsidiary:
+                    for bu in business_unit:
+                        for se in service:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=bu):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=se):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
+                                        coincidences = 0
+                                        for m in moments_list:
+                                            if m == s_bu_s_m.id_moment:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            moments_list.append(s_bu_s_m.id_moment)
+
+
+    total_answers = []
+    #get attributes list
+    if isinstance(subsidiary, Subsidiary):
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                if isinstance(moment, Moment):
+                    #subsidiary IS an instance, business unit IS an instance, service IS an instance and moment IS an instance
+                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                #get attributes list
+                                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                    coincidences = 0
+                                    for attrib in attributes_list:
+                                        if attrib == s_bu_s_m_a.id_attribute:
+                                            coincidences += 1
+                                    if coincidences == 0:
+                                        attributes_list.append(s_bu_s_m_a.id_attribute)
+                                ##
+                                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                    for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                        attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                        for answer in attrib_answers:
+                                            client = Client.objects.get(pk=int(answer.client.id))
+                                            if answer.client_activity is not None:
+                                                try:
+                                                    c_d = datetime.date.today()
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                    if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                        total_answers.append(answer)
+                                                except ClientActivity.DoesNotExist:
+                                                    pass
+                else:
+                    #subsidiary IS an instance, business unit IS an instance, service IS an instance and moment IS NOT an instance
+                    for mom in moment:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                    #get attributes list
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                        coincidences = 0
+                                        for attrib in attributes_list:
+                                            if attrib == s_bu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attributes_list.append(s_bu_s_m_a.id_attribute)
+                                    ##
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                        for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                            attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                            for answer in attrib_answers:
+                                                client = Client.objects.get(pk=int(answer.client.id))
+                                                if answer.client_activity is not None:
+                                                    try:
+                                                        c_d = datetime.date.today()
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                            total_answers.append(answer)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+            else:
+                if isinstance(moment, Moment):
+                    #subsidiary IS an instance, business unit IS an instance, service IS NOT an instance and moment IS an instance
+                    for ser in service:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                    #get attributes list
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                        coincidences = 0
+                                        for attrib in attributes_list:
+                                            if attrib == s_bu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attributes_list.append(s_bu_s_m_a.id_attribute)
+                                    ##
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                        for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                            attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                            for answer in attrib_answers:
+                                                client = Client.objects.get(pk=int(answer.client.id))
+                                                if answer.client_activity is not None:
+                                                    try:
+                                                        c_d = datetime.date.today()
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                            total_answers.append(answer)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+                else:
+                    #subsidiary IS an instance, business unit IS an instance, service IS NOT an instance and moment IS NOT an instance
+                    for ser in service:
+                        for mom in moment:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                        #get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+        else:
+            if isinstance(service, Service):
+                if isinstance(moment, Moment):
+                    #subsidiary IS an instance, business unit IS NOT an instance, service IS an instance and moment IS an instance
+                    for bu_un in business_unit:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                    #get attributes list
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                        coincidences = 0
+                                        for attrib in attributes_list:
+                                            if attrib == s_bu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attributes_list.append(s_bu_s_m_a.id_attribute)
+                                    ##
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                        for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                            attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                            for answer in attrib_answers:
+                                                client = Client.objects.get(pk=int(answer.client.id))
+                                                if answer.client_activity is not None:
+                                                    try:
+                                                        c_d = datetime.date.today()
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                            total_answers.append(answer)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+                else:
+                    #subsidiary IS an instance, business unit IS NOT an instance, service IS an instance and moment IS NOT an instance
+                    for bu_un in business_unit:
+                        for mom in moment:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                        #get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+            else:
+                if isinstance(moment, Moment):
+                    #subsidiary IS an instance, business unit IS NOT an instance, service IS NOT an instance and moment IS an instance
+                    for bu_un in business_unit:
+                        for ser in service:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                        #get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+                else:
+                    #subsidiary IS an instance, business unit IS NOT an instance, service IS NOT an instance and moment IS NOT an instance
+                    for bu_un in business_unit:
+                        for ser in service:
+                            for mom in moment:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=subsidiary, id_business_unit=bu_un):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                            #get attributes list
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                                coincidences = 0
+                                                for attrib in attributes_list:
+                                                    if attrib == s_bu_s_m_a.id_attribute:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    attributes_list.append(s_bu_s_m_a.id_attribute)
+                                            ##
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                    for answer in attrib_answers:
+                                                        client = Client.objects.get(pk=int(answer.client.id))
+                                                        if answer.client_activity is not None:
+                                                            try:
+                                                                c_d = datetime.date.today()
+                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                    total_answers.append(answer)
+                                                            except ClientActivity.DoesNotExist:
+                                                                pass
+    else:
+        if isinstance(business_unit, BusinessUnit):
+            if isinstance(service, Service):
+                if isinstance(moment, Moment):
+                    #subsidiary IS NOT an instance, business unit IS an instance, service IS an instance and moment IS an instance
+                    for sub in subsidiary:
+                        for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                            for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                    #get attributes list
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                        coincidences = 0
+                                        for attrib in attributes_list:
+                                            if attrib == s_bu_s_m_a.id_attribute:
+                                                coincidences += 1
+                                        if coincidences == 0:
+                                            attributes_list.append(s_bu_s_m_a.id_attribute)
+                                    ##
+                                    for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                        for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                            attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                            for answer in attrib_answers:
+                                                client = Client.objects.get(pk=int(answer.client.id))
+                                                if answer.client_activity is not None:
+                                                    try:
+                                                        c_d = datetime.date.today()
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                            total_answers.append(answer)
+                                                    except ClientActivity.DoesNotExist:
+                                                        pass
+                else:
+                    #subsidiary IS NOT an instance, business unit IS an instance, service IS an instance and moment IS NOT an instance
+                    for sub in subsidiary:
+                        for mom in moment:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                        #get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+            else:
+                if isinstance(moment, Moment):
+                    #subsidiary IS NOT an instance, business unit IS an instance, service IS NOT an instance and moment IS an instance
+                    for sub in subsidiary:
+                        for ser in service:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                        ##get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+                else:
+                    #subsidiary IS NOT an instance, business unit IS an instance, service IS NOT an instance and moment IS NOT an instance
+                    for sub in subsidiary:
+                        for ser in service:
+                            for mom in moment:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=business_unit):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                            ##get attributes list
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                                coincidences = 0
+                                                for attrib in attributes_list:
+                                                    if attrib == s_bu_s_m_a.id_attribute:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    attributes_list.append(s_bu_s_m_a.id_attribute)
+                                            ##
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                    for answer in attrib_answers:
+                                                        client = Client.objects.get(pk=int(answer.client.id))
+                                                        if answer.client_activity is not None:
+                                                            try:
+                                                                c_d = datetime.date.today()
+                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                    total_answers.append(answer)
+                                                            except ClientActivity.DoesNotExist:
+                                                                pass
+        else:
+            if isinstance(service, Service):
+                if isinstance(moment, Moment):
+                    #subsidiary IS NOT an instance, business unit IS NOT an instance, service IS an instance and moment IS an instance
+                    for sub in subsidiary:
+                        for bu_un in business_unit:
+                            for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu_un):
+                                for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                    for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                        ##get attributes list
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                            coincidences = 0
+                                            for attrib in attributes_list:
+                                                if attrib == s_bu_s_m_a.id_attribute:
+                                                    coincidences += 1
+                                            if coincidences == 0:
+                                                attributes_list.append(s_bu_s_m_a.id_attribute)
+                                        ##
+                                        for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                            for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                for answer in attrib_answers:
+                                                    client = Client.objects.get(pk=int(answer.client.id))
+                                                    if answer.client_activity is not None:
+                                                        try:
+                                                            c_d = datetime.date.today()
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                total_answers.append(answer)
+                                                        except ClientActivity.DoesNotExist:
+                                                            pass
+                else:
+                    #subsidiary IS NOT an instance, business unit IS NOT an instance, service IS an instance and moment IS NOT an instance
+                    for sub in subsidiary:
+                        for bu_un in business_unit:
+                            for mom in moment:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu_un):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                            #get attributes list
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                                coincidences = 0
+                                                for attrib in attributes_list:
+                                                    if attrib == s_bu_s_m_a.id_attribute:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    attributes_list.append(s_bu_s_m_a.id_attribute)
+                                            ##
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                    for answer in attrib_answers:
+                                                        client = Client.objects.get(pk=int(answer.client.id))
+                                                        if answer.client_activity is not None:
+                                                            try:
+                                                                c_d = datetime.date.today()
+                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                    total_answers.append(answer)
+                                                            except ClientActivity.DoesNotExist:
+                                                                pass
+            else:
+                if isinstance(moment, Moment):
+                    #subsidiary IS NOT an instance, business unit IS NOT an instance, service IS NOT an instance and moment IS an instance
+                    for sub in subsidiary:
+                        for bu_un in business_unit:
+                            for ser in service:
+                                for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu_un):
+                                    for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                        for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=moment):
+                                            #get attributes list
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                                coincidences = 0
+                                                for attrib in attributes_list:
+                                                    if attrib == s_bu_s_m_a.id_attribute:
+                                                        coincidences += 1
+                                                if coincidences == 0:
+                                                    attributes_list.append(s_bu_s_m_a.id_attribute)
+                                            ##
+                                            for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                                for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                    attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                    for answer in attrib_answers:
+                                                        client = Client.objects.get(pk=int(answer.client.id))
+                                                        if answer.client_activity is not None:
+                                                            try:
+                                                                c_d = datetime.date.today()
+                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                    total_answers.append(answer)
+                                                            except ClientActivity.DoesNotExist:
+                                                                pass
+                else:
+                    #subsidiary IS NOT an instance, business unit IS NOT an instance, service IS NOT an instance and moment IS NOT an instance
+                    for sub in subsidiary:
+                        for bu_un in business_unit:
+                            for ser in service:
+                                for mom in moment:
+                                    for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=sub, id_business_unit=bu_un):
+                                        for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=ser):
+                                            for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s, id_moment=mom):
+                                                #get the attribute list
+                                                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m):
+                                                    coincidences = 0
+                                                    for attrib in attributes_list:
+                                                        if attrib == s_bu_s_m_a.id_attribute:
+                                                            coincidences += 1
+                                                    if coincidences == 0:
+                                                        attributes_list.append(s_bu_s_m_a.id_attribute)
+                                                ###
+                                                for s_bu_s_m_a in sbu_service_moment_attribute.objects.filter(id_sbu_service_moment=s_bu_s_m, id_attribute=attribute):
+                                                    for s_bu_s_m_a_q in s_bu_s_m_a.question_sbu_s_m_a_set.all():
+                                                        attrib_answers = Answer.objects.filter(question=s_bu_s_m_a_q.question_id)
+                                                        for answer in attrib_answers:
+                                                            client = Client.objects.get(pk=int(answer.client.id))
+                                                            if answer.client_activity is not None:
+                                                                try:
+                                                                    c_d = datetime.date.today()
+                                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                                    if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == c_d.year and answer.date.month == c_d.month:
+                                                                        total_answers.append(answer)
+                                                                except ClientActivity.DoesNotExist:
+                                                                    pass
+    ##modify this
+
+    xindex_attribute = 0
+    promoters = 0
+    passives = 0
+    detractors = 0
+    promoters_percent = 0
+    passives_percent = 0
+    detractors_percent = 0
+    total_surveyed = len(total_answers)
+    if not total_surveyed == 0:
+        for answer in total_answers:
+            if answer.value == 10 or answer.value == 9:
+                promoters += 1
+            elif answer.value == 8 or answer.value == 7:
+                passives += 1
+            elif 1 <= answer.value <= 6:
+                detractors += 1
+
+        getcontext().prec = 5
+
+        if not promoters == 0:
+            promoters_percent = Decimal(promoters*100)/Decimal(total_surveyed)
+
+        if not passives == 0:
+            passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+
+        if not detractors == 0:
+            detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+
+    if promoters == 0 and passives == 0 and detractors == 0:
+        xindex_attribute = 0
+    else:
+        xindex_attribute = ((Decimal(promoters-detractors))/(Decimal(promoters+passives+detractors)))*Decimal(100)
+
+    historical_months = []
+
+
+    historical_months.append(functions.get_last_month_attribute_report_by_group(subsidiary, business_unit, service, moment, attribute))
+
+    getcontext().prec = 5
+
+    #current data
+    current_date = datetime.date.today()
+    current_data = {'month': str(current_date.year)+'-'+str(current_date.month), 'value': xindex_attribute}
+
+    #compare the xindex last month with the current xindex month
+    if len(historical_months) < 3:
+        if len(historical_months) == 2:
+            last_month = historical_months[1]
+        elif len(historical_months) == 1:
+            last_month = historical_months[0]
+        elif len(historical_months) == 0:
+            #create an object of the last month
+            if current_date.month == 01:
+                month = 12
+                year = current_date.year - 1
+            else:
+                month = current_date.month - 1
+                year = current_date.year
+            last_month = {
+                'month': str(year)+'-'+str(month),
+                'value': Decimal(0)
+            }
+            #historical_months.append(last_month)
+    else:
+        last_month = historical_months[2]
+
+    if last_month['value'] > current_data['value']:
+        xindex_diff = last_month['value'] - current_data['value']
+        diff_type = 'negative'
+    else:
+        diff_type = 'positive'
+        xindex_diff = current_data['value'] - last_month['value']
+
+    if total_answers == 0 and promoters == 0 and passives == 0 and detractors == 0:
+        attribute_data = {'promoters': 0, 'passives': 0, 'detractors': 0}
+    else:
+        attribute_data = {'promoters': promoters_percent, 'passives': passives_percent, 'detractors': detractors_percent}
+
+    if not isinstance(zone, Zone):
+        zone = 'all'
+    else:
+        zone = zone.id
+    if not isinstance(subsidiary, Subsidiary):
+        subsidiary = 'all'
+    else:
+        subsidiary = subsidiary.id
+    if not isinstance(business_unit, BusinessUnit):
+        business_unit = 'all'
+    else:
+        business_unit = business_unit.id
+
+    if not isinstance(service, Service):
+        service = 'all'
+    else:
+        service = service.id
+
+    if not isinstance(moment, Moment):
+        moment = 'all'
+    else:
+        moment = moment.id
+
+    template_vars = {
+        'promoters': promoters_percent,
+        'passives': passives_percent,
+        'attribute_data': attribute_data,
+        'xindex_attribute': xindex_attribute,
+        'historical_months': historical_months,
+        'current_data': current_data,
+        'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
+        'current_zone': zone,
+        'current_subsidiary': subsidiary,
+        'current_businessUnit': business_unit,
+        'current_service': service,
+        'current_moment': moment,
+        'current_attribute': attribute,
+        'zones_list': zones_list,
+        'subsidiaries_list': subsidiaries_list,
+        'business_units_list': business_units_list,
+        'services_list': services_list,
+        'moments_list': moments_list,
+        'attributes_list': attributes_list
+    }
+    request_context = RequestContext(request, template_vars)
+    return render(request, 'reports/by-group/attribute-report-by-group.html', request_context)
