@@ -52,19 +52,108 @@ def getClientsInJson(request):
 def add_client(request):
 
     if request.POST:
-        company = Company.objects.get(pk=request.POST['client_company'])
+        if request.POST['client_email'] == "":
+            return HttpResponseRedirect('/clients/')
+        else:
+            company = Company.objects.get(pk=request.POST['client_company'])
 
-        new_client = Client.objects.create(
-            first_name=request.POST['client_name'],
-            last_name=request.POST['client_surname'],
-            sex=request.POST['client_sex'],
-            #date_of_birth=request.POST['client_date'],
-            email=request.POST['client_email'],
-            phone=request.POST['client_phone'],
-            company=company,)
+            if Client.objects.filter(
+                    email=request.POST['client_email']).exists():
 
-        new_client.save()
-        return HttpResponseRedirect('/clients/')
+                actual_client = Client.objects.filter(
+                    email=request.POST['client_email'])[0]
+                if request.POST['client_business']:
+                    clientData = Client.objects.get(
+                        email=request.POST['client_email']
+                    )
+                    subsidiary = Subsidiary.objects.get(
+                        pk=request.POST['client_subsidiary']
+                    )
+                    businessUnit = BusinessUnit.objects.get(
+                        pk=request.POST['client_business']
+                    )
+                    service = Service.objects.get(
+                        pk=request.POST['client_service']
+                    )
+
+                    activityData = ClientActivity.objects.create(
+                        client=clientData,
+                        subsidiary=subsidiary,
+                        business_unit=businessUnit,
+                        service=service
+                    )
+                    activityData.save()
+
+                    a_id_and_c_id = str(activityData.id)+str(actual_client.id)
+                    activity_code = short_url.encode_url(int(a_id_and_c_id))
+                    actual_client.code = activity_code
+                    actual_client.save()
+
+                    try:
+                        survey = Survey.objects.get(
+                            business_unit_id=activityData.business_unit,
+                            service_id=activityData.service
+                        )
+                        activityData.survey = survey
+                        activityData.save()
+                        mailing(actual_client, survey, activityData.code)
+
+                    except Survey.DoesNotExist:
+                        print "NO EXISTE ENCUESTA"
+
+                return HttpResponseRedirect('/clients/')
+
+            else:
+                new_client = Client.objects.create(
+                    first_name=request.POST['client_name'],
+                    last_name=request.POST['client_surname'],
+                    sex=request.POST['client_sex'],
+                    email=request.POST['client_email'],
+                    phone=request.POST['client_phone'],
+                    company=company,)
+
+                new_client.save()
+
+                if request.POST['client_business']:
+                    clientData = Client.objects.get(
+                        email=request.POST['client_email']
+                    )
+                    subsidiary = Subsidiary.objects.get(
+                        pk=request.POST['client_subsidiary']
+                    )
+                    businessUnit = BusinessUnit.objects.get(
+                        pk=request.POST['client_business']
+                    )
+                    service = Service.objects.get(
+                        pk=request.POST['client_service']
+                    )
+
+                    activityData = ClientActivity.objects.create(
+                        client=clientData,
+                        subsidiary=subsidiary,
+                        business_unit=businessUnit,
+                        service=service
+                    )
+                    activityData.save()
+
+                    a_id_and_c_id = str(activityData.id)+str(new_client.id)
+                    activity_code = short_url.encode_url(int(a_id_and_c_id))
+                    new_client.code = activity_code
+                    new_client.save()
+
+                    try:
+                        survey = Survey.objects.get(
+                            business_unit_id=activityData.business_unit,
+                            service_id=activityData.service
+                        )
+                        activityData.survey = survey
+                        activityData.save()
+                        mailing(new_client, survey, activityData.code)
+
+                    except Survey.DoesNotExist:
+                        print "NO EXISTE ENCUESTA"
+
+                return HttpResponseRedirect('/clients/')
 
     else:
 
@@ -172,8 +261,9 @@ def csv_read(request):
         activity = request.POST.getlist("id_activity")
 
         for eachClient in clients:
-            clientData = str(eachClient).split("},")
+            clientData = eachClient.encode('utf-8').split("},")
 
+            print clientData
             for eachClientData in clientData:
                 if eachClientData[-1] != "}":
                     eachClientData += "}"
@@ -599,9 +689,13 @@ def getServicesInJson(request, business_id):
                 pk=eachService.id_service.id,
                 active=True
             )
+
             #myS.append(services)
             #myS = list(set(myS))
-            BIG PROBLEM HERE
+            """
+            Se repiten los servicios al agregar los clientes
+            """
+
             servicesToJson['services'].append(
                 {
                     "name": services.name,

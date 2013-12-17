@@ -65,6 +65,10 @@ $('#wait').hide();
                             "<option value='sex'>Sexo</option>" +
                             "<option value='phone'>Teléfono</option>" +
                             "<option value='email'>Email</option>" +
+                            "<option value='country'>País</option>" +
+                            "<option value='state'>Estado</option>" +
+                            "<option value='city'>Ciudad</option>" +
+                            "<option value='company'>Compañia</option>" +
                             "</select></div>" +
 
                             "<div class='ck-button btn col-sm-2'>" +
@@ -74,16 +78,16 @@ $('#wait').hide();
                             "</div>" +
                             "</div>" +
 
-                            "<br>" +
+                            "<br><div class='h-defined-description'>" +
                             "<table " +
                             "id='table"+a+"'" +
                             "class='table'" +
                             "style='margin: auto !important; width: 100%'></table>" +
                             "" +
-                            "</div>");
+                            "</div></div>");
                 }
 
-                for (var k=0; k<csvval.length-1; k++){
+                for (var k=0; k<csvval.length; k++){
                     var csvvalue=csvval[k].split(","),
                         str1 = false;
 
@@ -93,52 +97,56 @@ $('#wait').hide();
                         var dataValue=csvvalue[j],
                             myTable = $("#table"+j);
 
-                        myTable.append("<tr class="+k+"><td>"+dataValue+"</td></tr>");
-                        //Verificar si el archivo tiene algun encabezado
-                        if (k==0){
-                            var str2 = "fist name",
-                                str3 = "nombre",
-                                str4 = "last name",
-                                str5 = "apellido",
-                                str6 = "email",
-                                str7 = "correo",
-                                str8 = "phone",
-                                str9 = "telefono",
-                                str10 = "teléfono",
-                                str11 = "sex",
-                                str12 = "sexo";
+                        if( dataValue == ""){
+                            continue;
+                        }else{
+                            myTable.append("<tr class="+k+"><td>"+dataValue+"</td></tr>");
+                            //Verificar si el archivo tiene algun encabezado
+                            if (k==0){
+                                var str2 = "fist name",
+                                    str3 = "nombre",
+                                    str4 = "last name",
+                                    str5 = "apellido",
+                                    str6 = "email",
+                                    str7 = "correo",
+                                    str8 = "phone",
+                                    str9 = "telefono",
+                                    str10 = "teléfono",
+                                    str11 = "sex",
+                                    str12 = "sexo";
 
 
-                            switch(true) {
-                                case (dataValue.toLowerCase().indexOf(str2) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str3) != -1 ):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='first_name']").prop("selected", true);
-                                    str1 = true;
-                                    break;
-                                case (dataValue.toLowerCase().indexOf(str4) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str5) != -1 ):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='last_name']").prop("selected", true);
-                                    str1 = true;
-                                    break;
-                                case (dataValue.toLowerCase().indexOf(str6) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str7) != -1 ):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='email']").prop("selected", true);
-                                    str1 = true;
-                                    break;
-                                case (dataValue.toLowerCase().indexOf("@") != -1 ):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='email']").prop("selected", true);
-                                    break;
-                                case (dataValue.toLowerCase().indexOf(str8) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str9) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str10) != -1):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='phone']").prop("selected", true);
-                                    str1 = true;
-                                    break;
-                                case (dataValue.toLowerCase().indexOf(str11) != -1 ||
-                                    dataValue.toLowerCase().indexOf(str12) != -1 ):
-                                    myTable.closest("div.col-sm-3").find("select").children("option[value='sex']").prop("selected", true);
-                                    str1 = true;
-                                    break;
+                                switch(true) {
+                                    case (dataValue.toLowerCase().indexOf(str2) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str3) != -1 ):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='first_name']").prop("selected", true);
+                                        str1 = true;
+                                        break;
+                                    case (dataValue.toLowerCase().indexOf(str4) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str5) != -1 ):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='last_name']").prop("selected", true);
+                                        str1 = true;
+                                        break;
+                                    case (dataValue.toLowerCase().indexOf(str6) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str7) != -1 ):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='email']").prop("selected", true);
+                                        str1 = true;
+                                        break;
+                                    case (dataValue.toLowerCase().indexOf("@") != -1 ):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='email']").prop("selected", true);
+                                        break;
+                                    case (dataValue.toLowerCase().indexOf(str8) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str9) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str10) != -1):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='phone']").prop("selected", true);
+                                        str1 = true;
+                                        break;
+                                    case (dataValue.toLowerCase().indexOf(str11) != -1 ||
+                                        dataValue.toLowerCase().indexOf(str12) != -1 ):
+                                        myTable.closest("div.col-sm-3").find("select").children("option[value='sex']").prop("selected", true);
+                                        str1 = true;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -231,7 +239,7 @@ $('#wait').hide();
             if ( $(this).prop('checked') ) num_checked++;
         });
 
-        var max_checked = 4;
+        var max_checked = 9;
 
         /*
         * Verificar que se exceda el número máximo de elementos <checkbox> con
@@ -423,7 +431,7 @@ function addActivityClient(activity){
     $dataTables.each(function(a) {
         var dataRowsClient = $(this).find("tr").length;
 
-        for(var x=0; x<dataRowsClient; x++){
+        for(var x=1; x<dataRowsClient; x++){
             var newClient = {};
             newClient.name = "newClient";
             newClient.value = [];
@@ -588,4 +596,151 @@ function clientsReady(){
                 });
             }
         });
+    });
+
+/*=============================================================================
+* Agregar cliente manualmente
+* */
+
+$("#ask-too-manually").change(function(){
+
+    if($(this).is(":checked")){
+        $("#next-step-one").removeClass("hidden");
+        $("#save-one").addClass("hidden");
+    } else {
+        $("#next-step-one").addClass("hidden");
+        $("#save-one").removeClass("hidden");
+    }
+});
+
+$("#next-step-one").click(function(){
+    $("#first-side").addClass("hidden");
+    $("#send-survey-one").removeClass("hidden");
+});
+
+/*
+* Obtener sucursales de la zona
+* */
+    $("select#zone-to-one").on('change', function (e) {
+        e.preventDefault();
+
+        var zone_filter = $(this).children('option:selected').val();
+        var url = "/clients/zone/" + zone_filter;
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: 'nocache' + Math.random(),
+            success: function (response) {
+                var subOptions = '', busOptions = '', serOptions = '';
+                $.each(response["subsidiaries"], function(idx,subsidiary) {
+                    subOptions += '<option value="' + subsidiary.id + '">' +
+                               subsidiary.name + '</option>'
+                });
+
+                $.each(response["business"], function(idx,business) {
+                    busOptions += '<option value="' + business.id + '">' +
+                               business.name + '</option>'
+                });
+
+                $.each(response["services"], function(idx,service) {
+                    serOptions += '<option value="' + service.id + '">' +
+                               service.name + '</option>'
+                });
+
+                $("select#subsidiary-to-one").html(subOptions);
+                $("select#business-unit-to-one").html(busOptions);
+                $("select#service-to-one").html(serOptions);
+
+                $("#id_client_subsidiary").val($("select#subsidiary-to-one").children("option:selected").val());
+                $("#id_client_business").val($("select#business-unit-to-one").children("option:selected").val());
+                $("#id_client_service").val($("select#service-to-one").children("option:selected").val());
+            },
+            error: function (response) {
+                alert('NO!')
+            }
+        });
+
+    });
+
+/*
+* Obtener unidades de servicio de la sucursal
+* */
+    $("select#subsidiary-to-one").on('change', function (e) {
+        e.preventDefault();
+
+        var subsidiary_filter = $(this).children('option:selected').val();
+        var url = "/clients/subsidiary/" + subsidiary_filter;
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: 'nocache' + Math.random(),
+            success: function (response) {
+                var busOptions = '', serOptions = '';
+
+                $.each(response["business"], function(idx,business) {
+                    busOptions += '<option value="' + business.id + '">' +
+                               business.name + '</option>'
+                });
+
+                $.each(response["services"], function(idx,service) {
+                    serOptions += '<option value="' + service.id + '">' +
+                               service.name + '</option>'
+                });
+
+                $("select#business-unit-to-one").html(busOptions);
+                $("select#service-to-one").html(serOptions);
+
+                $("#id_client_business").val($("select#business-unit-to-one").children("option:selected").val());
+                $("#id_client_service").val($("select#service-to-one").children("option:selected").val());
+            },
+            error: function (response) {
+                alert('NO!')
+            }
+        });
+
+    });
+
+/*
+* Obtener servicios de la unidad de servicio
+* */
+    $("select#business-unit-to-one").on('change', function (e) {
+        e.preventDefault();
+
+        var business_filter = $(this).children('option:selected').val();
+        var url = "/clients/business/" + business_filter;
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: 'nocache' + Math.random(),
+            success: function (response) {
+                var serOptions = '';
+
+                $.each(response["services"], function(idx,service) {
+                    serOptions += '<option value="' + service.id + '">' +
+                               service.name + '</option>'
+                });
+
+                $("select#service-to-one").html(serOptions);
+
+                $("#id_client_service").val($("select#service-to-one").children("option:selected").val());
+            },
+            error: function (response) {
+                alert('NO!')
+            }
+        });
+
+    });
+
+    $("select#service-to-one").change(function(){
+        $("#id_client_service").val($("select#service-to-one").children("option:selected").val());
+    });
+
+    $("#final-post-one").click(function(){
+        $("form#add-client-form").submit();
     });
