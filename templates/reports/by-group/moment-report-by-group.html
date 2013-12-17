@@ -188,7 +188,7 @@
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
-                                <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
+                                <input type="hidden" name="service" id="id_service" value="{{ current_service }}">
                                 <select class="form-control text-primary header" name="moment" id="id_moment">
                                     {% for moment in moments %}
                                         {% if moment.id == current_moment.id %}
@@ -362,10 +362,10 @@
                                 <div class="panel-body text-center">
                                     <form action="/reports/attribute/" method="POST">
                                         {% csrf_token %}
-                                        <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                        <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                        <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
-                                        <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
+                                        <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
+                                        <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
+                                        <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
+                                        <input type="hidden" name="service" id="id_service" value="{{ current_service }}">
                                         <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
                                         <input type="hidden" name="attribute" id="id_attribute" value="{{ attribute.attribute_id }}">
                                         <strong>
