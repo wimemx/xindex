@@ -593,12 +593,15 @@ def getServicesInJson(request, business_id):
     )
 
     if sbuService:
+        myS = []
         for eachService in sbuService:
             services = Service.objects.get(
                 pk=eachService.id_service.id,
                 active=True
             )
-
+            #myS.append(services)
+            #myS = list(set(myS))
+            BIG PROBLEM HERE
             servicesToJson['services'].append(
                 {
                     "name": services.name,
