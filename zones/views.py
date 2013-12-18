@@ -184,7 +184,12 @@ def getZonesInJson(request):
 
 
 def country(request, country_id):
-    state_list = State.objects.filter(country_id=country_id)
+    #state_list = State.objects.filter(country_id=country_id)
+    states = State.objects.filter(active=True, country_id=country_id)
+    state_list = []
+    for state in states:
+        if not state.zone_set.all():
+            state_list.append(state)
 
     statesToJson = {'states': []}
 

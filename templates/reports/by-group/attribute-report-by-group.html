@@ -212,8 +212,8 @@
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone }}">
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit }}">
-                                <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
-                                <input type="hidden" name="moment" id="id_moment" value="{{ current_moment.id }}">
+                                <input type="hidden" name="service" id="id_service" value="{{ current_service }}">
+                                <input type="hidden" name="moment" id="id_moment" value="{{ current_moment }}">
                                 <select class="form-control text-primary header" name="attribute" id="id_attribute">
                                     {% for attribute in attributes_list %}
                                         {% if attribute.id == current_attribute.id %}

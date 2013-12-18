@@ -340,6 +340,8 @@ def report_by_moment(request):
     else:
         moment_data = {'promoters': Decimal((Decimal(total_promoters)/total_answers)*100), 'passives': Decimal((Decimal(total_passives)/total_answers)*100), 'detractors': Decimal((Decimal(total_detractors)/total_answers)*100)}
 
+    comparative_data = functions.get_comparative_moment_data(zone, subsidiary, businessUnit, service, moment)
+
     template_vars = {
         'title': '',
         'survey_is_designed': survey_is_designed,
@@ -358,7 +360,9 @@ def report_by_moment(request):
         'current_data': current_data,
         'comparison': {'xindex_diff': xindex_diff, 'diff_type': diff_type},
         'data_attribute': data_attribute,
-        'moment_data': moment_data
+        'moment_data': moment_data,
+        #comparative data
+        'comparative_data': comparative_data
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/moment-report.html', request_context)
@@ -592,6 +596,8 @@ def report_by_attribute(request):
     else:
         attribute_data = {'promoters': promoters_percent, 'passives': passives_percent, 'detractors': detractors_percent}
 
+    comparative_data = functions.get_comparative_attribute_data(zone, subsidiary, businessUnit, service, moment, attribute)
+
     template_vars = {
         'promoters': promoters_percent,
         'passives': passives_percent,
@@ -611,7 +617,9 @@ def report_by_attribute(request):
         'business_units_list': business_units_list,
         'services_list': services_list,
         'moments_list': moments_list,
-        'attributes_list': attributes_list
+        'attributes_list': attributes_list,
+        #comparative data
+        'comparative_data': comparative_data
     }
     request_context = RequestContext(request, template_vars)
     return render(request, 'reports/attribute-report.html', request_context)
@@ -3137,7 +3145,7 @@ def report_by_moment_by_group(request):
             if isinstance(service, Service):
                 #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
                 for s in subsidiary:
-                    for bu in service:
+                    for bu in business_unit:
                         for s_bu in SubsidiaryBusinessUnit.objects.filter(id_subsidiary=s, id_business_unit=bu):
                             for s_bu_s in sbu_service.objects.filter(id_subsidiaryBU=s_bu, id_service=service):
                                 for s_bu_s_m in sbu_service_moment.objects.filter(id_sbu_service=s_bu_s):
@@ -3223,7 +3231,7 @@ def report_by_moment_by_group(request):
                                             coincidences += 1
                                     if coincidences == 0:
                                         attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, serv, moment, child_sbu_s_m_a.id_attribute))
         else:
             if isinstance(service, Service):
                 #subsidiary IS an instance, business unit IS NOT an instance and service IS an instance
@@ -3251,7 +3259,7 @@ def report_by_moment_by_group(request):
                                             coincidences += 1
                                     if coincidences == 0:
                                         attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, bu_un, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS an instance, business unit IS NOT an instance and service IS NOT an instance
                 for bu_un in business_unit:
@@ -3279,7 +3287,7 @@ def report_by_moment_by_group(request):
                                                 coincidences += 1
                                         if coincidences == 0:
                                             attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, bu_un, serv, moment, child_sbu_s_m_a.id_attribute))
     else:
         if isinstance(business_unit, BusinessUnit):
             if isinstance(service, Service):
@@ -3296,9 +3304,9 @@ def report_by_moment_by_group(request):
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsid, business_unit=business_unit, service=service, pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
-                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                    if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == business_unit:
                                                         answers_list.append(a)
                                                 except ClientActivity.DoesNotExist:
                                                     pass
@@ -3309,7 +3317,7 @@ def report_by_moment_by_group(request):
                                             coincidences += 1
                                     if coincidences == 0:
                                         attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                        data_attribute.append(functions.get_attributes_xindex_by_group(subsid, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS NOT an instance, business unit IS an instance and service IS NOT an instance
                 for subsid in subsidiary:
@@ -3325,9 +3333,9 @@ def report_by_moment_by_group(request):
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsid, business_unit=business_unit, service=serv, pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == business_unit:
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -3337,7 +3345,7 @@ def report_by_moment_by_group(request):
                                                 coincidences += 1
                                         if coincidences == 0:
                                             attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsid, business_unit, serv, moment, child_sbu_s_m_a.id_attribute))
         else:
             if isinstance(service, Service):
                 #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS an instance
@@ -3354,9 +3362,9 @@ def report_by_moment_by_group(request):
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsid, business_unit=bu_un, service=service, pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == bu_un:
                                                             answers_list.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -3367,7 +3375,7 @@ def report_by_moment_by_group(request):
                                                 coincidences += 1
                                         if coincidences == 0:
                                             attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                            data_attribute.append(functions.get_attributes_xindex_by_group(subsid, bu_un, service, moment, child_sbu_s_m_a.id_attribute))
             else:
                 #subsidiary IS NOT an instance, business unit IS NOT an instance and service IS NOT an instance
                 for subsid in subsidiary:
@@ -3384,9 +3392,9 @@ def report_by_moment_by_group(request):
                                                     client = Client.objects.get(pk=a.client_id)
                                                     if a.client_activity is not None:
                                                         try:
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsid, business_unit=bu_un, service=serv, pk=a.client_activity.id)
                                                             c_d = datetime.date.today()
-                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == bu_un:
                                                                 answers_list.append(a)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -3396,7 +3404,7 @@ def report_by_moment_by_group(request):
                                                     coincidences += 1
                                             if coincidences == 0:
                                                 attribute_array.append(child_sbu_s_m_a.id_attribute)
-                                                data_attribute.append(functions.get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, child_sbu_s_m_a.id_attribute))
+                                                data_attribute.append(functions.get_attributes_xindex_by_group(subsid, bu_un, serv, moment, child_sbu_s_m_a.id_attribute))
 
     promoters_9 = 0
     promoters_10 = 0
@@ -3461,10 +3469,14 @@ def report_by_moment_by_group(request):
         diff_type = 'positive'
         xindex_diff = current_data['value'] - last_month['value']
 
-    if total_answers == 0 and total_promoters == 0 and total_passives == 0 and total_detractors == 0:
+    print 'lllll'
+    print total_surveyed
+    print 'lllll'
+
+    if total_surveyed == 0 and total_promoters == 0 and total_passives == 0 and total_detractors == 0:
         moment_data = {'promoters': 0, 'passives': 0, 'detractors': 0}
     else:
-        moment_data = {'promoters': Decimal((Decimal(total_promoters)/total_answers)*100), 'passives': Decimal((Decimal(total_passives)/total_answers)*100), 'detractors': Decimal((Decimal(total_detractors)/total_answers)*100)}
+        moment_data = {'promoters': Decimal((Decimal(total_promoters)/total_surveyed)*100), 'passives': Decimal((Decimal(total_passives)/total_surveyed)*100), 'detractors': Decimal((Decimal(total_detractors)/total_surveyed)*100)}
 
     if not isinstance(zone, Zone):
         zone = 'all'
@@ -3524,7 +3536,7 @@ def report_by_attribute_by_group(request):
         if 'zone' in request.POST and 'subsidiary' in request.POST \
                 and 'business_unit' in request.POST and 'moment' in request.POST:
             if request.POST['zone'] == 'all' or request.POST['subsidiary'] == 'all' \
-                    or request.POST['business_unit'] == 'all':
+                    or request.POST['business_unit'] == 'all' or request.POST['moment'] == 'all':
                 #get zone
                 if request.POST['zone'] == 'all':
                     zone = Zone.objects.filter(active=True)
@@ -4439,7 +4451,6 @@ def report_by_attribute_by_group(request):
         xindex_attribute = ((Decimal(promoters-detractors))/(Decimal(promoters+passives+detractors)))*Decimal(100)
 
     historical_months = []
-
 
     historical_months.append(functions.get_last_month_attribute_report_by_group(subsidiary, business_unit, service, moment, attribute))
 

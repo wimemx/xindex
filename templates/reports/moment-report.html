@@ -384,6 +384,38 @@
                     {% endfor %}
                 </section>
             </div>
+            <div class="row wrapper text-muted">
+                <div class="header text-center text-muted">
+                    <p class="h4">Comparativa entre sucursales de la <strong>{{ current_zone.name }}</strong> para el momento <strong>{{ current_moment.name }}</strong></p>
+                </div>
+                {% if comparative_data %}
+                    <section class="panel no-borders hbox">
+                        <aside class="lter r-l text-center v-middle">
+                            <div class="" id="comparative_graph">
+
+                            </div>
+                        </aside>
+                        <aside>
+                            <div class="pos-rlt">
+                                <div class="panel-body">
+                                    <div class="list-group bg-white">
+                                        {% for object in comparative_data %}
+                                            <a href="#" class="list-group-item">
+                                                <span class="badge" style="background-color: {{ service.color }} !important;">Xindex: {{ object.xindex }}%</span>
+                                                <i class="icon-stop" style="color: {{ service.color }} !important;"></i> {{ object.subsidiary.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                    {% else %}
+                    <div>
+                        <p class="h5">No se encontró el momento {{ current_moment.name }} en otra sucursal</p>
+                    </div>
+                {% endif %}
+            </div>
             {% else %}
             <section class="panel-body wrapper padder">
                 <div class="alert alert-danger text-center">
@@ -437,6 +469,56 @@
             grid: 'auto',
             barColors:['#5cb85c', '#f0ad4e', '#d9534f']
         });
+
+        {% if comparative_data %}
+            /*comparative data*/
+            new Morris.Bar({
+                element: 'comparative_graph',
+                data: [
+                    {
+                        {% for object in comparative_data %}
+                            {% if not forloop.last %}
+                                '{{ object.subsidiary.name }}': {{ object.xindex }},
+                            {% else %}
+                                '{{ object.subsidiary.name }}': {{ object.xindex }},
+                                'moment': 'Momentos'
+                            {% endif %}
+                        {% endfor %}
+                    }
+                ],
+                xkey: 'moment',
+                ykeys: [
+                    {% for object in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ object.subsidiary.name }}',
+                        {% else %}
+                            '{{ object.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                labels: [
+                    {% for object in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ object.subsidiary.name }}',
+                        {% else %}
+                            '{{ object.subsidiary.name }}'
+                        {% endif %}
+                    {% endfor %}
+                ],
+                hideHover: 'auto',
+                grid: 'auto',
+                barColors:[
+                    {% for object in comparative_data %}
+                        {% if not forloop.last %}
+                            '{{ object.color }}',
+                        {% else %}
+                            '{{ object.color }}'
+                        {% endif %}
+                    {% endfor %}
+
+                ]
+            });
+        {% endif %}
 
     </script>
 {% endblock %}
