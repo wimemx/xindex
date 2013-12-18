@@ -418,7 +418,7 @@ class Client(models.Model):
 
 
 class ClientActivity(models.Model):
-    STATUS = (('A', 'Answered'), ('NA', 'Not Answered'))
+    STATUS = (('A', 'Answered'), ('NA', 'Not Answered'), ('D', 'Descartado'))
 
     date = models.DateField(default=datetime.now, blank=True, null=True)
     client = models.ForeignKey('Client', null=True, blank=True)

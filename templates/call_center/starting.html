@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>{% block title %}Xindex Call Center{% endblock %}</title>
+</head>
+<body>
+{% block menu %}
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox wrapper-lg">
+        <header class="header b-b blue-xindex">
+            <p class="h5 animated bounceInDown">
+                <a href="/xindex/">Inicio</a><i class="icon-chevron-right">
+                </i>
+            </p>
+        </header>
+
+        <section class="scrollable panel padder padder-v animated fadeInRight">
+
+            <div class="wrapper-xl text-center v-middle">
+                <header class="text-center">
+                    <p class="h4">
+                        Seleccione la sucursal y el servicio para realizar una encuesta
+                    </p>
+                </header>
+                <section class="">
+                    <div class="wrapper">
+                        <div style="width: 40%; margin: auto;">
+                            <small class="text-muted pull-left">Zona:</small>
+                                <select class="form-control"
+                                        id="callCenterZone"
+                                        data-placeholder="Selecciona una zona">
+                                        <option>Selecciona una zona</option>
+                                    {% for eachZone in zones %}
+                                        <option value="{{ eachZone.id }}">
+                                        {{ eachZone.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select><br>
+                                <small class="text-muted pull-left">Sucursal:</small>
+                                <select class="form-control"
+                                        id="callCenterSubsidiary">
+                                        <option>
+                                            Sucursal
+                                        </option>
+                                </select><br>
+                                <small class="text-muted pull-left">Unidad de servicio:</small>
+                                <select class="form-control"
+                                        id="callCenterBusiness">
+                                        <option>
+                                            Unidad de servicio
+                                        </option>
+                                </select><br>
+                                <small class="text-muted pull-left">Servicio:</small>
+                                <select class="form-control"
+                                        id="callCenterService">
+                                        <option class="text-muted">
+                                            Servicio
+                                        </option>
+                                </select>
+                                <br>
+                                <a href="#"
+                                   style="width: 60%;"
+                                   class=" btn btn-modal-xindex btn-success padder-v">
+                                    <span class="h4">
+                                        Comenzar
+                                    </span>
+                                </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </section>
+    </section>
+
+{% endblock %}
+
+{% block externalJs %}
+    <script src="/static/js/app.callcenter.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+
+    <!-- Bootbox -->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
+
+{% endblock %}
+
+</body>
+</html>
