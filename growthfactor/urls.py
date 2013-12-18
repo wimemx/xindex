@@ -117,4 +117,7 @@ urlpatterns = patterns('',
     #Edit account
     url(r'^my_account/edit_account/(?P<data>\w+)$', 'rbacx.views.edit_account'),
 
+    #Call Center
+    url(r'^callcenter/', include('call_center.urls')),
+
 )

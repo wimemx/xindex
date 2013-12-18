@@ -14,7 +14,7 @@ def mailing(client, survey, activity_code):
         mandrill_client = mandrill.Mandrill('hzuTlBSxNBabQDBkpTZveA')
 
         message = {
-            'html': '<h2>Xindex Survey</h2>'
+            'html': '<h2>Xindex Prueba tildes</h2>'
                     + ''
                     + '<a href="http://xindex.wimjapps.com/surveys/answer/'
                     + str(short_url.encode_url(survey.id))
@@ -23,11 +23,11 @@ def mailing(client, survey, activity_code):
                     + '/'
                     + str(short_url.encode_url(client.id))
                     + ' ">' +
-                    'Responder encuesta'
+                    'Ignorar éste correo eléctronico'
                     + '</a>',
-            'subject': 'Customer Service',
+            'subject': 'Email de prueba [Xindex]',
             'from_email': 'team@xindex.com.mx',
-            'from_name': 'Xindex Survey',
+            'from_name': 'Xindex Survey Prueba tildes',
             'to': [
                 {'email': client.email,
                  'name': client.first_name,
@@ -90,7 +90,7 @@ def mailing(client, survey, activity_code):
 def addClientFromCSV(data):
 
     company = Company.objects.filter(active=True)[:1]
-    clientData = str(data).split("},")
+    clientData = data.encode('utf-8').split("},")
 
     print clientData
     newClient = Client.objects.create(rating=1, company=company[0])
@@ -112,6 +112,13 @@ def addClientFromCSV(data):
                 newClient.email = fieldData
         if modelField == "phone":
             newClient.phone = fieldData
+        if modelField == "country":
+            newClient.country = fieldData
+        if modelField == "state":
+            newClient.state = fieldData
+        if modelField == "city":
+            newClient.city = fieldData
+
     newClient.save()
     return newClient.id
 
@@ -123,7 +130,7 @@ def addClientActivity(data, activity):
     newActivity = ClientActivity.objects.create(client=myClient)
 
     for eachActivity in activity:
-        activityClient = str(eachActivity).split("},")
+        activityClient = eachActivity.encode('utf-8').split("},")
 
         for eachLine in activityClient:
             if eachLine[-1] != "}":
@@ -172,7 +179,7 @@ def addActivity(client, activity):
     newActivity = ClientActivity.objects.create(client=client)
 
     for eachActivity in activity:
-        activityClient = str(eachActivity).split("},")
+        activityClient = eachActivity.encode('utf-8').split("},")
 
         for eachLine in activityClient:
             if eachLine[-1] != "}":

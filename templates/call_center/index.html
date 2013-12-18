@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>{% block title %}Xindex Call Center{% endblock %}</title>
+</head>
+<body>
+{% block menu %}
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox wrapper-lg">
+        <header class="header b-b blue-xindex">
+            <p class="h5 animated bounceInDown">
+                <a href="/xindex/">Inicio</a><i class="icon-chevron-right">
+                </i>
+            </p>
+        </header>
+
+        <section class="scrollable panel padder padder-v animated fadeInRight">
+
+            <div class="wrapper-xl text-center v-middle">
+                <section class="" id="before-starting">
+                    <header class="text-center">
+                        <p class="h4">
+                            Seleccione la sucursal y el servicio para realizar una encuesta
+                        </p>
+                    </header>
+                    <div class="wrapper">
+                        <div style="width: 40%; margin: auto;">
+                            <small class="text-muted pull-left">Zona:</small>
+                                <select class="form-control callCenterZone"
+                                        data-placeholder="Selecciona una zona">
+                                        <option>Selecciona una zona</option>
+                                    {% for eachZone in zones %}
+                                        <option value="{{ eachZone.id }}">
+                                        {{ eachZone.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select><br>
+                                <small class="text-muted pull-left">Sucursal:</small>
+                                <select class="form-control callCenterSubsidiary">
+                                        <option>
+                                            Sucursal
+                                        </option>
+                                </select><br>
+                                <small class="text-muted pull-left">Unidad de servicio:</small>
+                                <select class="form-control callCenterBusiness">
+                                        <option>
+                                            Unidad de servicio
+                                        </option>
+                                </select><br>
+                                <small class="text-muted pull-left">Servicio:</small>
+                                <select class="form-control callCenterService">
+                                        <option class="text-muted">
+                                            Servicio
+                                        </option>
+                                </select>
+                                <br>
+                                <input type="button"
+                                       style="width: 60%;"
+                                       class=" btn btn-modal-xindex btn-success padder-v"
+                                       id="start-survey"
+                                       value="Comenzar"/>
+                        </div>
+                    </div>
+                </section>
+                <section class="hidden" id="starting-survey">
+                <span class="pull-left">Realizando encuestas para:</span><br>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <small class="text-muted pull-left">Zona:</small>
+                            <select class="form-control callCenterZone"
+                                    data-placeholder="Selecciona una zona">
+                                    <option>Selecciona una zona</option>
+                                {% for eachZone in zones %}
+                                    <option value="{{ eachZone.id }}">
+                                    {{ eachZone.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <small class="text-muted pull-left">Sucursal:</small>
+                            <select class="form-control callCenterSubsidiary">
+                                    <option>
+                                        Sucursal
+                                    </option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <small class="text-muted pull-left">Unidad de servicio:</small>
+                            <select class="form-control callCenterBusiness">
+                                    <option>
+                                        Unidad de servicio
+                                    </option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <small class="text-muted pull-left">Servicio:</small>
+                            <select class="form-control callCenterService">
+                                    <option class="text-muted">
+                                        Servicio
+                                    </option>
+                            </select>
+                        </div>
+                    </div>
+                    <br><br><br>
+                    <div class="wrapper">
+                        <div style="width: 40%; margin: auto;">
+                            <select class="form-control" id="options-client">
+                                <option value="random">Cliente aleatorio</option>
+                                <option value="search">Buscar cliente</option>
+                                <option value="new">Nuevo cliente</option>
+                            </select><br>
+                            <input type="button"
+                                   style="width: 60%;"
+                                   class=" btn btn-modal-xindex btn-success padder-v"
+                                   id="get-survey"
+                                   value="Relizar encuesta"/>
+                        </div>
+                    </div>
+                </div>
+                </section>
+                <form data-validate="parsley" id="call-center-form"
+                      method="post" action="/callcenter/get/" class="hidden"
+                      enctype="multipart/form-data">{% csrf_token %}
+                    <input type="text" name="cc-business" id="id_cc-business">
+                    <input type="text" name="cc-service" id="id_cc-service">
+                </form>
+            </div>
+        </section>
+    </section>
+    </section>
+
+{% endblock %}
+
+{% block externalJs %}
+    <script src="/static/js/app.callcenter.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+
+    <!-- Bootbox -->
+    <script src="/static/js/bootbox/bootbox.min.js"></script>
+
+{% endblock %}
+
+</body>
+</html>

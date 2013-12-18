@@ -23,27 +23,29 @@
                 <header class="panel-heading bg-light" id="tab-header">
                     <ul class="nav nav-tabs nav-justified">
                         <li class="active">
-                            <a href="#add-manual" data-toggle="tab">
-                                Subir manualmente
+                            <a href="#add-csv-file" data-toggle="tab">
+                                Subir archivo
                             </a>
                         </li>
                         <li class="">
-                            <a href="#add-csv-file" data-toggle="tab">
-                                Subir archivo
+                            <a href="#add-manual" data-toggle="tab">
+                                Subir manualmente
                             </a>
                         </li>
                     </ul>
                 </header>
                 <div class="panel-body">
                     <div class="tab-content">
-                        <div class="tab-pane active" id="add-manual">
+                        <div class="tab-pane" id="add-manual">
                             <div class="padder-xl">
+                            <div id="first-side">
                             <form class="form-horizontal animated"
                                   data-validate="parsley"
                                   id="add-client-form"
                                   method="post"
                                   action="/clients/add/"
                                   enctype="multipart/form-data">{% csrf_token %}
+
                                 <div class="form-group m-t-lg">
                                     Nombre:
                                     <input type="text"
@@ -92,6 +94,10 @@
                                            name="client_phone"
                                            id="id_client_phone">
                                 </div>
+                                <div class="form-group m-t-lg">
+                                    <input type="checkbox" id="ask-too-manually">
+                                    Deseo también encuestar a estos clientes
+                                </div>
                                 <div class="form-group m-t-lg hidden">
                                     Compañia:
                                     <select class="form-control"
@@ -104,16 +110,91 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-
+                                <input type="text"
+                                       class="hidden"
+                                       name="client_service"
+                                       id="id_client_service">
+                                <input type="text"
+                                           class="hidden"
+                                           name="client_business"
+                                           id="id_client_business">
+                                <input type="text"
+                                       class="hidden"
+                                       name="client_subsidiary"
+                                       id="id_client_subsidiary">
                                 <div class="form-group m-t-lg">
                                     <input type="submit"
                                             class="btn btn-modal-xindex blue-xindex pull-right"
+                                            id="save-one"
                                             value="Guardar" />
+                                    <input type="button"
+                                            class="btn btn-modal-xindex blue-xindex pull-right hidden"
+                                            id="next-step-one"
+                                            value="Continuar" />
                                 </div>
                             </form>
+                            </div>
+                            <div id="send-survey-one" class="hidden">
+                            <div class="form-group m-t-lg">
+                                Configura la forma en que deseas encuestar a tus clientes.
+                            </div>
+                            <div class="form-group m-t-lg">
+                                <input type="checkbox" class="" value="email" checked>
+                                Enviar encuesta por correo electrónico
+                                <br>
+                                <input type="checkbox" class="" value="call" checked>
+                                Enviar encuesta para su aplicación por teléfono
+                            </div>
+                            <div class="form-group m-t-lg">
+                                ¿Que sucursal y servicio utilizaron tus clientes?
+                            </div>
+                            <div class="form-group m-t-lg">
+                                <small class="text-muted">Zona:</small>
+                                <select class="form-control"
+                                        id="zone-to-one"
+                                        data-placeholder="Selecciona una zona">
+                                        <option>Selecciona una zona</option>
+                                    {% for eachZone in zones %}
+                                        <option value="{{ eachZone.id }}">
+                                        {{ eachZone.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select><br>
+                                <small class="text-muted">Sucursal:</small>
+                                <select class="form-control"
+                                        id="subsidiary-to-one">
+                                        <option>
+                                            Sucursal
+                                        </option>
+                                </select><br>
+                                <small class="text-muted">Unidad de servicio:</small>
+                                <select class="form-control"
+                                        id="business-unit-to-one">
+                                        <option>
+                                            Unidad de servicio
+                                        </option>
+                                </select><br>
+                                <small class="text-muted">Servicio:</small>
+                                <select class="form-control"
+                                        id="service-to-one">
+                                        <option class="text-muted">
+                                            Servicio
+                                        </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group m-t-lg">
+                                <a class="btn btn-modal-xindex blue-xindex pull-right"
+                                   href="#" id="final-post-one">
+                                    <i class='icon-upload text-white'></i>
+                                    Procesar
+                                </a>
+                            </div>
+                            </div>
+
                         </div>
                         </div>
-                        <div class="tab-pane" id="add-csv-file">
+                        <div class="tab-pane active" id="add-csv-file">
                         <div class="padder-xl">
                             <form class="form-horizontal animated"
                                   data-validate="parsley"
@@ -128,15 +209,16 @@
                                 </div>
 
                                 <div class="form-group m-t-lg">
-                                    Selecciona un archivo CSV:
+                                    Selecciona un archivo CSV: <br>
                                     <input type="file"
-                                           class="form-control"
+                                           class="btn blue-xindex m-b-sm"
                                            name="client_csv"
+                                           title="Seleccionar archivo"
                                            id="id_client_csv">
                                 </div>
 
                                 <div class="form-group m-t-lg">
-                                    <input type="checkbox" id="ask-too">
+                                    <input type="checkbox" id="ask-too" checked>
                                     Deseo también encuestar a estos clientes
                                 </div>
 
@@ -156,8 +238,8 @@
                                 <input type="checkbox" class="" value="email" checked>
                                 Enviar encuesta por correo electrónico
                                 <br>
-                                <input type="checkbox" class="" value="call">
-                                Enviar encuesta por teléfono
+                                <input type="checkbox" class="" value="call" checked>
+                                Enviar encuesta para su aplicación por teléfono
                             </div>
                             <div class="form-group m-t-lg">
                                 ¿Que sucursal y servicio utilizaron tus clientes?
@@ -228,6 +310,7 @@
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <input type='hidden' id='total-clients'>
+<script src="/static/js/file-input/bootstrap.file-input.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/js/app.client.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/js/spin.js" type="text/javascript" charset="utf-8"></script>
 <script>
