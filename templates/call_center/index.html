@@ -110,10 +110,15 @@
                     <div class="wrapper">
                         <div style="width: 40%; margin: auto;">
                             <select class="form-control" id="options-client">
-                                <option value="random">Cliente aleatorio</option>
-                                <option value="search">Buscar cliente</option>
-                                <option value="new">Nuevo cliente</option>
+                                <option value="1">Cliente aleatorio</option>
+                                <option value="2">Buscar cliente</option>
+                                <option value="3">Nuevo cliente</option>
                             </select><br>
+                            <input type="text" class="form-control hidden"
+                                   placeholder="Buscar" id="search-client">
+                            <input type="text" class="form-control hidden"
+                                   placeholder="Buscar" id="tags">
+                            <br>
                             <input type="button"
                                    style="width: 60%;"
                                    class=" btn btn-modal-xindex btn-success padder-v"
@@ -137,6 +142,7 @@
 {% endblock %}
 
 {% block externalJs %}
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="/static/js/app.callcenter.js" type="text/javascript" charset="utf-8"></script>
 
     <!-- App -->
@@ -150,4 +156,3 @@
 {% endblock %}
 
 </body>
-</html>

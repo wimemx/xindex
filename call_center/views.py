@@ -3,8 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from random import sample
+import short_url
+from call_center.functions import randomClient
 from xindex.models import Company, Zone, Subsidiary, SubsidiaryBusinessUnit, \
-    sbu_service, BusinessUnit, Service, Survey
+    sbu_service, BusinessUnit, Service, Survey, Client, ClientActivity
 
 
 @login_required(login_url='/signin/')
@@ -21,6 +24,7 @@ def index(request):
         )
     except:
         sbu_services = "Sin servicios"
+
     template_vars = {'companies': companies,
                      'zones': zones,
                      'zone': zones[0],
@@ -191,3 +195,114 @@ def getSurveyInJson(request, business_id, service_id):
             }
         )
     return HttpResponse(simplejson.dumps(surveyToJson))
+
+
+@login_required(login_url='/signin/')
+def getClient(request, business_id, service_id):
+
+    clientToJson = {'client': []}
+    myClientActivity = randomClient(business_id, service_id)
+
+    a_id_and_c_id = str(myClientActivity.id)+str(myClientActivity.client.id)
+    activity_code = short_url.encode_url(int(a_id_and_c_id))
+
+    url = "http://xindex.wimjapps.com/surveys/answer/"\
+          + str(short_url.encode_url(myClientActivity.survey.id))\
+          + "/"\
+          + str(activity_code)\
+          + "/"\
+          + str(short_url.encode_url(myClientActivity.client.id))
+
+    if myClientActivity:
+        clientToJson['client'].append({
+            "first_name": myClientActivity.client.first_name,
+            "last_name": myClientActivity.client.last_name,
+            "phone": myClientActivity.client.phone,
+            "email": myClientActivity.client.email,
+            "survey": url
+        })
+
+    template_vars = {
+        "first_name": myClientActivity.client.first_name,
+        "last_name": myClientActivity.client.last_name,
+        "phone": myClientActivity.client.phone,
+        "email": myClientActivity.client.email,
+        "survey": url,
+        "subsidiary": myClientActivity.subsidiary.name,
+        "service": myClientActivity.service.name
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("call_center/modal.html", request_context)
+    #return HttpResponse(simplejson.dumps(clientToJson))
+
+
+@login_required(login_url='/signin/')
+def getClientSearch(request, client_id, b_id, s_id):
+
+    clientToJson = {'client': []}
+
+    client = Client.objects.get(pk=client_id, active=True)
+    businessUnit = BusinessUnit.objects.get(pk=b_id, active=True)
+    service = Service.objects.get(pk=s_id, active=True)
+
+    myClientActivity = ClientActivity.objects.filter(
+        business_unit=businessUnit, service=service, client=client
+    ).order_by('?').exclude(status="A").exclude(status="D")[0]
+
+    a_id_and_c_id = str(myClientActivity.id)+str(myClientActivity.client.id)
+    activity_code = short_url.encode_url(int(a_id_and_c_id))
+
+    url = "http://xindex.wimjapps.com/surveys/answer/"\
+          + str(short_url.encode_url(myClientActivity.survey.id))\
+          + "/"\
+          + str(activity_code)\
+          + "/"\
+          + str(short_url.encode_url(myClientActivity.client.id))
+
+    if myClientActivity:
+        clientToJson['client'].append({
+            "first_name": myClientActivity.client.first_name,
+            "last_name": myClientActivity.client.last_name,
+            "phone": myClientActivity.client.phone,
+            "email": myClientActivity.client.email,
+            "survey": url
+        })
+
+    template_vars = {
+        "first_name": myClientActivity.client.first_name,
+        "last_name": myClientActivity.client.last_name,
+        "phone": myClientActivity.client.phone,
+        "email": myClientActivity.client.email,
+        "survey": url,
+        "subsidiary": myClientActivity.subsidiary.name,
+        "service": myClientActivity.service.name
+    }
+    request_context = RequestContext(request, template_vars)
+    return render_to_response("call_center/modal.html", request_context)
+    #return HttpResponse(simplejson.dumps(clientToJson))
+
+
+@login_required(login_url='/signin/')
+def getClientsInJson(request, text):
+
+    clientsToJson = {'client': []}
+
+    myClients = Client.objects.filter(
+        first_name__contains=text
+    ) | Client.objects.filter(
+        last_name__contains=text
+    ) | Client.objects.filter(
+        email__contains=text
+    )
+
+    if myClients:
+        for eachClient in myClients:
+            clientsToJson['client'].append(
+                {
+                    "name": eachClient.first_name + " " + eachClient.last_name,
+                    "id": eachClient.id
+                }
+            )
+
+    print clientsToJson
+    return HttpResponse(simplejson.dumps(clientsToJson))
