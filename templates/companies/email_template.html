@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+</head>
+<body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body out collapse">
+                    <li>
+                        <a href="#">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/" class="blue-xindex">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/clients/">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports/general">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+{% block mainContent %}
+    <section id="content">
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Plantilla de Email</p>
+        </header>
+        <section class="panel padder padder-v animated fadeInRight">
+            <form action="/companies/email_template/" method="POST" id="module-form">
+                {% csrf_token %}
+                <section class="header">
+                    <p class="h1">Plantilla de Email</p>
+                </section>
+                <section class="panel-body">
+                    {% if answer %}
+                        <section>
+                            <div class="alert alert-success">
+                                <button type="button" class="close" data-dismiss="alert"><i class="icon-remove"></i></button>
+                                <i class="icon-ok-sign"></i><strong>{{ answer }}</strong>
+                            </div>
+                        </section>
+                    {% endif %}
+                    <div>A continuaci&oacute;n puedes configurar la plantilla de email que ser&aacute; usada al enviar un correo electr&oacute;nico</div>
+                    <div class="padder-v text-center">
+                        <textarea id="id_text-area-field" name="text-area-field">{{ email_template }}</textarea>
+                    </div>
+                    <div class="padder-v" id="field-content">
+                        {% if email_template == '' %}
+                            <div class="text-center h3 text-muted">Vista previa</div>
+                        {% else %}
+                            {{ email_template|safe }}
+                        {% endif %}
+                    </div>
+                    <section class="padder-v">
+                        <a href="#" class="btn btn-success" id="btn-send-form"><strong>Guardar</strong></a>
+                    </section>
+                </section>
+            </form>
+        </section>
+    </section>
+    </section>
+{% endblock %}
+
+{% block externalJs %}
+    <!-- App -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.plugin.js"></script>
+    <script src="/static/js/app.grids.data.js"></script>
+    <!-- fuelux -->
+    <script src="/static/js/fuelux/fuelux.js"></script>
+    <script src="/static/js/libs/underscore-min.js"></script>
+    <!-- parsley -->
+    <script src="/static/js/parsley/parsley.min.js"></script>
+    <!-- tiny -->
+    <script type="text/javascript" src="/static/js/tinymce/tinymce.min.js"></script>
+    <!-- TinyMCE instances -->
+    <script src="/static/js/tinymce.company.app.js"></script>
+
+{% endblock %}
+</body>
+</html>

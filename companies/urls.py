@@ -13,4 +13,11 @@ urlpatterns = patterns('companies.views',
     #test
     url(r'^json/$', 'getCInJson'),
     url(r'^(?P<company_id>\d+)/details/$', 'details'),
+    #url to edit the privacy notice
+    url(r'^privacy_notice/$', 'edit_privacy_notice'),
+    #url to edit the email template
+    url(r'^email_template/$', 'edit_email_template'),
+    #url to upload company logo
+    url(r'^upload_logo/(?P<company_id>\d+)/$', 'upload_logo'),
+
 )

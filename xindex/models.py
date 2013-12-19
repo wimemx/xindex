@@ -143,6 +143,10 @@ class Company(models.Model):
     phone = models.CharField(max_length=50, null=False)
     email = models.CharField(max_length=50, null=True, blank=True)
     zone = models.ManyToManyField(Zone, blank=True, null=True)
+    privacy_notice = models.TextField(null=True, blank=True)
+    email_template = models.TextField(null=True, blank=True)
+    logo = models.CharField(max_length=70, null=True, blank=True,
+                            default="No image")
     staff = models.ManyToManyField(Xindex_User, blank=True, null=True)
     active = models.BooleanField(default=True)
     date = models.DateField(default=datetime.now, blank=True, null=True)

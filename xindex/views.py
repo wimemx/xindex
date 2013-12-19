@@ -7,12 +7,19 @@ from django.template.context import RequestContext
 import re
 from django.db.models import Q
 from models import Survey
+from xindex.models import Xindex_User
 
 @login_required(login_url='/signin/')
 def index(request):
     user = request.user
+    xindex_user = Xindex_User.objects.get(user=request.user)
+    logo_name = False
+    for company in xindex_user.company_set.all():
+        if company.logo != 'No image':
+            logo_name = company.logo
     template_vars = {
-        'user': user
+        'user': user,
+        'logo_name': logo_name
     }
     request_context = RequestContext(request, template_vars)
     return render_to_response("xindex/index.html", request_context)
