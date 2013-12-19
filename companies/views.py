@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -5,6 +6,7 @@ from xindex.models import Company
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyForm
 from django.utils import simplejson
+from xindex.models import Xindex_User
 
 
 @login_required(login_url='/signin/')
@@ -137,3 +139,92 @@ def details(request, business_unit_id):
     template_vars['company'] = c
     request_context = RequestContext(request, template_vars)
     return render_to_response('company/details.html', request_context)
+
+
+@login_required(login_url='/signin/')
+def edit_privacy_notice(request):
+    privacy_notice = ''
+    xindex_user = Xindex_User.objects.get(user=request.user)
+    company = xindex_user.company_set.all()[:1]
+    for com in company:
+        if com.privacy_notice:
+            privacy_notice = com.privacy_notice
+    if request.POST:
+        print request.POST
+        if 'text-area-field' in request.POST:
+            xindex_user = Xindex_User.objects.get(user=request.user)
+            company = xindex_user.company_set.all()[:1]
+            for c in company:
+                c.privacy_notice = request.POST['text-area-field']
+                c.save()
+                privacy_notice = c.privacy_notice
+            template_vars = {
+                'titulo': 'Aviso de privacidad',
+                'answer': 'La informacion ha sido guardada',
+                'privacy_notice': privacy_notice
+            }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('companies/privacy_notice.html', request_context)
+    else:
+        template_vars = {
+            'titulo': 'Aviso de privacidad',
+            'privacy_notice': privacy_notice
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('companies/privacy_notice.html', request_context)
+
+
+@login_required(login_url='/signin/')
+def edit_email_template(request):
+    email_template = ''
+    xindex_user = Xindex_User.objects.get(user=request.user)
+    company = xindex_user.company_set.all()[:1]
+    for com in company:
+        if com.email_template:
+            email_template = com.email_template
+    if request.POST:
+        print request.POST
+        if 'text-area-field' in request.POST:
+            xindex_user = Xindex_User.objects.get(user=request.user)
+            company = xindex_user.company_set.all()[:1]
+            for c in company:
+                c.email_template = request.POST['text-area-field']
+                c.save()
+                email_template = c.email_template
+            template_vars = {
+                'title': 'Plantilla de Email',
+                'answer': 'La informacion ha sido guardada',
+                'email_template': email_template
+            }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('companies/email_template.html', request_context)
+    else:
+        template_vars = {
+            'title': 'Plantilla de Email',
+            'email_template': email_template
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('companies/email_template.html', request_context)
+
+
+def upload_logo(request, company_id):
+    company = Company.objects.get(pk=int(company_id))
+
+    company.logo = str(company.id) + str(request.FILES['file'])
+    company.save()
+
+    path = os.path.join(
+        os.path.dirname(__file__), '..',
+        'templates/static/images/').replace('\\', '/')
+
+    path += str(company.id) + str(request.FILES['file'])
+    fileToUp = request.FILES['file']
+    handle_uploaded_file(path, fileToUp)
+    context = {}
+    context = simplejson.dumps(context)
+    return HttpResponse(context, mimetype='application/json')
+
+def handle_uploaded_file(destination, f):
+    with open(destination, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)

@@ -739,8 +739,13 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
         this.element.setAttribute("enctype", "multipart/form-data");
       }
       if (this.element.classList.contains("dropzone") && !this.element.querySelector(".dz-message")) {
+        var logo_icon = "<i class='icon-picture icon-3x'></i><br>";
+        if (this.element.classList.contains('empty-preview')){
+            logo_icon = '';
+        }
+
         this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>"+
-            "<i class='icon-picture icon-3x'></i><br>" +
+            logo_icon+
             this.options.dictDefaultMessage +
             "<br><br>" +
             "<div class='media-boody'><a class='file-input-wrapper btn btn btn-sm btn-success m-b-sm'>Sube una imagen</a>" +

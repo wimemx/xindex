@@ -186,6 +186,7 @@ $(document).ready(function(){
                     });
                     $('select#id_attribute').attr('disabled', false);
                 } else {
+                    alert('no hay atributos');
                     $('#id_attribute').html('<option value="invalid">No hay atributos</option>')
                     $('#id_attribute').attr('disabled', true);
                 }

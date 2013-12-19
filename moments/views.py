@@ -107,7 +107,7 @@ def get_attributes(request):
         if 'zone' in request.POST and 'subsidiary' in request.POST \
                 and 'business_unit' in request.POST and 'moment' in request.POST:
             if request.POST['zone'] == 'all' or request.POST['subsidiary'] == 'all' \
-                    or request.POST['business_unit'] == 'all':
+                    or request.POST['business_unit'] == 'all' or request.POST['moment'] == 'all':
                 #get zone
                 if request.POST['zone'] == 'all':
                     zone = Zone.objects.filter(active=True)
@@ -293,6 +293,10 @@ def get_attributes(request):
                                                             moment.append(s_bu_s_m.id_moment)
                 else:
                     moment = Moment.objects.get(pk=int(request.POST['moment']))
+
+                print 'kkkkkkkk'
+                print moment
+                print 'kkkkkkkk'
 
                 #get attributes
                 attributes = []

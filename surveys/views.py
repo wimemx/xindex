@@ -1112,7 +1112,11 @@ def add_ajax(request):
 
 
 def deployment(request, action, next_step, survey_id=False):
-
+    xindex_user = Xindex_User.objects.get(user=request.user)
+    private_notice = 'Este es un aviso de privacidad por default cuando la empresa no tiene dado de alta el suyo'
+    for c in xindex_user.company_set.filter(active=True):
+        if c.privacy_notice:
+            private_notice = c.privacy_notice
     #function to validate hash or cookie
     #TODO: find the best way to implement this
     try:
@@ -1237,6 +1241,9 @@ def deployment(request, action, next_step, survey_id=False):
             setup['survey_picture'] = survey.picture
         else:
             setup['survey_picture'] = False
+
+
+
         template_vars = {
             'survey_title': survey.name,
             'survey_id': survey.id,
@@ -1244,141 +1251,14 @@ def deployment(request, action, next_step, survey_id=False):
             'company_address': company_address,
             'company_email': company_email,
             'company_phone': company_phone,
-            'setup': setup
+            'setup': setup,
+            'private_notice': private_notice
         }
         request_context = RequestContext(request, template_vars)
         return render_to_response('surveys/deployment.html',
                                   request_context)
     except Survey.DoesNotExist:
         HttpResponse('La encuesta no existe')
-    '''
-    try:
-        company = Company.objects.get(staff=xindex_user)
-
-    except:
-        company = False
-
-    if company:
-        company_name = company.name
-        company_address = company.address
-        company_email = 'atencion@hollidayinn.com'
-        company_phone = company.phone
-    else:
-        company_name = 'Default company NAME'
-        company_address = 'Default company ADDRESS'
-        company_email = 'Default company EMAIL'
-        company_phone = 'Default company PHONE'
-
-    if int(next_step) == 2 and action == 'next':
-        survey.step = 2
-        survey.save()
-
-        template_vars = {
-            'survey_title': survey.name,
-            'survey_id': survey.id,
-            'next_step': str(int(next_step) + 1)
-        }
-        request_context = RequestContext(request, template_vars)
-        return render_to_response('surveys/add-step-2.html',
-                                  request_context)
-
-    question_types = Question_Type.objects.all().order_by('name')
-    if int(next_step) == 4 and action == 'next':
-
-        configuration = json.loads(survey.configuration)
-
-        setup = {}
-
-        setup['blocks'] = []
-
-        setup['moments'] = []
-
-        user = Xindex_User.objects.get(pk=request.user.id)
-
-        for company in user.company_set.all():
-            for subsidiary in company.subsidiary_set.all():
-                for business_unit in subsidiary.businessunit_set.all():
-                    for service in business_unit.service.all():
-                        for moment in service.moments.all():
-                            setup['moments'].append(
-                                {
-                                    'moment': moment
-                                }
-                            )
-
-        #print simplejson.dumps(configuration)
-        for key, values in configuration.items():
-            if key == 'blocks':
-                for block in values:
-                    questions = []
-                    for q in block['questions']:
-                        print 'verificando q exista el campo'
-                        if 'db_id' in q:
-
-                            try:
-                                question = Question.objects.get(pk=q['db_id'])
-                                options = question.option_set.all().order_by('id')
-                                options_o = []
-                                for option in options:
-                                    options_o.append(
-                                        {
-                                            'id_option': option.id,
-                                            'text': option.label,
-                                            'option': option
-                                        }
-                                    )
-                                questions.append(
-                                    {
-                                        'question': question,
-                                        'survey_question_id': q[
-                                            'question_survey_id'],
-                                        'db_question_id': q['db_id'],
-                                        'question_title': question.title,
-                                        'question_type': question.type.id,
-                                        'question_type_name': question.type.name,
-                                        'question_options': options_o
-                                    }
-                                )
-                            except Question.DoesNotExist:
-                                question = None
-
-                    if 'block_description' in block:
-                        block_description = block['block_description']
-                    else:
-                        block_description = ''
-
-                    if 'block_type' in block:
-                        block_type = block['block_type']
-                    else:
-                        block_type = 'questions-block'
-                    setup['blocks'].append(
-                        {
-                            'block_id': block['block_id'],
-                            'block_default_class': block['class_default'],
-                            'block_description': block_description,
-                            'questions': questions,
-                            'block_type': block_type
-                        }
-                    )
-
-        for block in setup['blocks']:
-            print block
-
-        template_vars = {
-            'survey_title': survey.name,
-            'survey_id': survey.id,
-            'next_step': str(int(next_step) + 1),
-            'question_types': question_types,
-            'company_name': company_name,
-            'company_address': company_address,
-            'company_email': company_email,
-            'company_phone': company_phone,
-            'setup': setup
-        }
-        request_context = RequestContext(request, template_vars)
-        return render_to_response('surveys/deployment.html',
-                                  request_context)
-        '''
 
 
 #function to get question data to update
@@ -1387,20 +1267,11 @@ def get_question_data_to_update(request, question_id):
         question_types = Question_Type.objects.all().order_by('name')
         question = get_object_or_404(Question, pk=question_id)
 
-        #TODO: Refactor using the factory
         if question.type.name == "Matrix":
             #We get the pattern of the options based on the first child
             rows = Question.objects.filter(
                 parent_question=question).order_by('id')
             options = rows[0].option_set.all().order_by('id')
-
-            '''
-            return render_to_response('questions/edit.html',
-                                      {'question': question,
-                                       'question_types': question_types,
-                                       'rows': rows,
-                                       'options': options})
-            '''
 
             question_json = {'question_type_id': question.type.id,
                              'question_type_name': question.type.name,
@@ -2784,7 +2655,8 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
                     service=service,
                     pk=client_activity_id
                 )
-                if not activity.status == 'A':
+
+                if activity.status == 'NA':
                     #function to validate hash or cookie
                     try:
                         survey = Survey.objects.get(pk=survey_id)
@@ -2792,12 +2664,15 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
 
                         #get the company name
                         companies = survey.user.company_set.all()
-
+                        privacy_notice = 'Este es un aviso de privacidad de prueba'
                         for company in companies:
                             company_name = company.name
                             company_address = company.address
                             company_email = company.email
                             company_phone = company.phone
+                            if company.privacy_notice:
+                                privacy_notice = company.privacy_notice
+
 
                         setup = {}
 
@@ -2912,6 +2787,7 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
                             'company_address': company_address,
                             'company_email': company_email,
                             'company_phone': company_phone,
+                            'privacy_notice': privacy_notice,
                             'client_id': client_id,
                             'client_name': client.first_name+' '+client.last_name,
                             'client_activity': short_url.encode_url(activity.id),
