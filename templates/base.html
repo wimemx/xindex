@@ -53,12 +53,16 @@
             <i class="icon-reorder"></i>
         </a>
         <a href="#" class="nav-brand" id="logo_image">
+        {% load my_company_filters %}
         {% block company_logo %}
-            {% if logo_name %}
-                    <img src="{{ STATIC_URL }}images/{{ logo_name }}"
-                         alt="XINDEX Home" class="hidden-vertical"/>
-                {% else %}
-                <i class="icon-renren icon-2x"></i>
+            {% if user %}
+                {% if user|get_logo_name == 'xindex-logo.png' %}
+                    <i class="icon-home icon-2x"></i>
+                    {% else %}
+                    <img src="{{ STATIC_URL }}images/{{ user|get_logo_name }}"
+                         alt="XINDEX Home" class="hidden-vertical"
+                         width="91px"/>
+                {% endif %}
             {% endif %}
         {% endblock %}
             {% block title-menu %}
@@ -129,12 +133,12 @@
                         <a href="#">Informaci&oacute;n General</a>
                     </li>
                     <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
                         <a href="/subsidiaries/">
                             Mis Sucursales
                         </a>
-                    </li>
-                    <li>
-                        <a href="/zones/">Zonas</a>
                     </li>
                     <li>
                         <a href="/business_units/">
@@ -150,58 +154,22 @@
                 </a>
             </li>
             <li>
-                <a href="/clients/">
-                    <i class="icon-group"></i>
-                    <span>Mis Clientes</span>
-                </a>
-            </li>
-            <li>
                 <a href="/surveys/">
                     <i class="icon-file-text-alt"></i>
                     <span>Mis Encuestas</span>
                 </a>
             </li>
             <li>
-                <a data-toggle="collapse" data-parent="#nav-accordion"
-                   href="#collapseTwo">
+                <a href="/clients/">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports/general">
                     <i class="icon-book"></i>
                     <span>Mis Reportes</span>
                 </a>
-                <ul id="collapseTwo" class="nav accordion-body out collapse">
-                    <li>
-                        <a href="/reports/general/">Satisfacci&oacute;n General</a>
-                    </li>
-                    <li>
-                        <a href="/reports/zone/">
-                            Zona
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/reports/subsidiary/">
-                            Sucursal
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/reports/business_unit/">
-                            Unidad de servicio
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/reports/service/">
-                            Servicio
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/reports/moment/">
-                            Punto de contacto
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/reports/attribute/">
-                            Atributo
-                        </a>
-                    </li>
-                </ul>
             </li>
         </ul>
     </nav>

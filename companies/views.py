@@ -7,6 +7,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyForm
 from django.utils import simplejson
 from xindex.models import Xindex_User
+from django.template.loader import render_to_string
 
 
 @login_required(login_url='/signin/')
@@ -228,3 +229,12 @@ def handle_uploaded_file(destination, f):
     with open(destination, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+
+def load_company_logo(request):
+    xindex_user = Xindex_User.objects.get(user=request.user)
+    logo_name = 'xindex_logo.png'
+    for company in xindex_user.company_set.filter(active=True):
+        if company.logo != 'No image':
+            logo_name = company.logo
+    return render_to_string(logo_name)

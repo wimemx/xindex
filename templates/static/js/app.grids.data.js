@@ -1108,7 +1108,7 @@ function attributesDatagrid() {
                 // Create IMG tag for each returned image
                 formatter: function (items) {
                     $.each(items, function (index, item) {
-                        item.name = '<a href="/indicators/details/' + item.attribute_id + ' ">' + item.name + '</a>';
+                        //item.name = '<a href="/indicators/details/' + item.attribute_id + ' ">' + item.name + '</a>';
                         item.attribute_id =
                             '<a class="update-attribute" href="/indicators/update/' + item.attribute_id + '"><i class="icon-edit text-warning"></i></a>'
                                 +
