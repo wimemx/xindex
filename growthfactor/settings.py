@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'clients',
     #report tasks
     'report_tasks',
+    'call_center',
 )
 
 # A sample logging configuration. The only tangible logging

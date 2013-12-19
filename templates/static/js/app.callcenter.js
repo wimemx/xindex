@@ -1,8 +1,92 @@
+    $(function() {
+        var availableTags = [],
+            inputSearch = $("#search-client"),
+            inputTags = $( "#tags" );
+
+        inputSearch.keyup(function(){
+            if ($(this).val().length > 3){
+                var inputValue = inputSearch.val(),
+                    url = "/callcenter/search/"+ inputValue,
+                    business = $("select.callCenterBusiness").children("option:selected").val(),
+                    service = $("select.callCenterService").children("option:selected").val();
+
+                if (inputValue.length > 3){
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        dataType: 'json',
+                        data: 'nocache' + Math.random(),
+                        success: function (response) {
+                            availableTags = [];
+                            $.each(response["client"], function(idx,client) {
+                                availableTags.push({
+                                    "value": client.id,
+                                    "label": client.name
+                                });
+                            });
+                            inputSearch.autocomplete({
+                                source: availableTags,
+                                select: function (event, ui) {
+                                    inputSearch.val(ui.item.label);
+                                    inputTags.val( ui.item.value );
+
+                                    var url = "/callcenter/getsearch/" + inputTags.val() + "/" + business + "/" + service;
+                                    if (url.indexOf('#') == 0) {
+                                        $(url).modal('open');
+                                    } else {
+                                        $.get(url,function (data) {
+                                            $('<div class="modal" id="cc-modal">' + data + '</div>').modal();
+                                        }).success(function () {
+                                                $('input:text:visible:first').focus();
+                                            });
+                                    }
+
+                                    return false;
+                                }
+                            });
+                        },
+                        error: function (response) {
+                        }
+                    });
+                }
+            }
+        });
+    });
+
 //// <------ Remove modal with close class ->
     $('.close').on('click', function (e) {
         e.preventDefault();
         $('div.modal').modal('hide');
         $('#ajaxModal').remove();
+    });
+
+    $("select#options-client").change(function(){
+        var option = $("select#options-client").children("option:selected").val(),
+            selectRandom = $("#get-survey"),
+            selectSearch = $("#search-client");
+
+        if (option=="1"){
+            if(selectRandom.hasClass("hidden")){
+                selectRandom.removeClass("hidden");
+                selectSearch.addClass("hidden").val("");
+            }
+        } else if (option=="2"){
+            if(selectSearch.hasClass("hidden")){
+                selectSearch.removeClass("hidden");
+                selectRandom.addClass("hidden");
+            }
+        } else if (option=="3"){
+            var url = "/clients/add/";
+            if (url.indexOf('#') == 0) {
+                $(url).modal('open');
+            } else {
+                $.get(url,function (data) {
+                    $('<div class="modal" id="cc-modal">' + data + '</div>').modal();
+                }).success(function () {
+                        $('input:text:visible:first').focus();
+                    });
+            }
+        }
     });
 
 /*
@@ -137,18 +221,25 @@
     $("#get-survey").click(function (){
         var business = $("select.callCenterBusiness").children("option:selected").val(),
             service = $("select.callCenterService").children("option:selected").val(),
-            option = $("select.options-client").children("option:selected").val();
+            option = $("select#options-client").children("option:selected").val();
 
         $("#id_cc-business").val(business);
         $("#id_cc-service").val(service);
 
-        alert(option);
-
-        if(option=="random"){
-
-        }else if(option=="search"){
-
-        }else if(option=="new"){
-
+        if(option==1){
+            var url = "/callcenter/random/" + business + "/" + service;
+            if (url.indexOf('#') == 0) {
+                $(url).modal('open');
+            } else {
+                $.get(url,function (data) {
+                    $('<div class="modal" id="cc-modal">' + data + '</div>').modal();
+                }).success(function () {
+                        $('input:text:visible:first').focus();
+                    });
+            }
+        }else if(option==2){
+            alert("SEARCH");
+        }else if(option==3){
+            alert("NEW");
         }
     });

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<div class="modal-dialog" id="callCenterModal"
+     style="width: 700px !important; top:20%">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close"
+                    data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Encuestar cliente</h4>
+        </div>
+        <div class="modal-body">
+            <div class="padder-xl text-center">
+                <span class="h4">{{ first_name }}</span>&nbsp;
+                <span class="h4">{{ last_name }}</span><br>
+                <span class="h4">{{ phone }}</span><br><br>
+                <span>{{ subsidiary }},</span>&nbsp;
+                <span>{{ service }}</span>
+            </div>
+            <div class="col-sm-12" style="padding-top: 30px">
+                <div class="row">
+                    <div class="col-sm-4" style="padding-top: 9px">
+                        <input type="button"
+                               style="width: 100%;"
+                               class=" btn btn-modal-xindex btn-warning pull-left"
+                               id="call-later"
+                               value="Llamar más tarde"/>
+                    </div>
+                    <div class="col-sm-4">
+                        <a href="{{ survey }}" class="hidden" id="survey-url"></a>
+                        <input type="button"
+                               style="width: 100%;"
+                               class=" btn btn-modal-xindex btn-success padder-v"
+                               id="apply-survey"
+                               value="Relizar encuesta"/>
+                        <br><br>
+                        <small>
+                            <a href="" class="text-muted">Enviar encuesta por correo electrónico</a>
+                        </small>
+                        <br><br>
+                        <input type="button"
+                               style="width: 100%;"
+                               class=" btn btn-modal-xindex blue-xindex"
+                               id="go-back"
+                               value="Regresar"/>
+                    </div>
+                    <div class="col-sm-4"  style="padding-top: 9px">
+                        <input type="button"
+                               style="width: 100%;"
+                               class=" btn btn-modal-xindex btn-danger pull-right"
+                               id="finish-process"
+                               value="Terminar Proceso"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+<script>
+
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#cc-modal').remove();
+    });
+
+    $('#go-back').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#cc-modal').remove();
+    });
+
+    $('#call-later').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#cc-modal').remove();
+    });
+
+    $('#finish-process').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#cc-modal').remove();
+    });
+
+    $("#apply-survey").click(function(){
+        var url = $("a#survey-url").attr("href");
+        window.open(url, "CallCenter", "height=500,width=500");
+    });
+</script>
