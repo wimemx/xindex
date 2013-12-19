@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Subsidiarias{% endblock %}</title>
+    <title>{% block title %}Sucursales{% endblock %}</title>
 </head>
 <body>
 {% block menu %}
@@ -25,13 +25,13 @@
                         <a href="#">Informaci&oacute;n General</a>
                     </li>
                     <li>
-                        <a href="/subsidiaries/" class="blue-xindex">
-                            Mis Sucursales
+                        <a href="/zones/">
+                            Zonas
                         </a>
                     </li>
                     <li>
-                        <a href="/zones/">
-                            Zonas
+                        <a href="/subsidiaries/" class="blue-xindex">
+                            Mis Sucursales
                         </a>
                     </li>
                     <li>
@@ -48,46 +48,22 @@
                 </a>
             </li>
             <li>
-                <a href="/clients/">
-                    <i class="icon-group"></i>
-                    <span>Mis Clientes</span>
-                </a>
-            </li>
-            <li>
                 <a href="/surveys/">
                     <i class="icon-file-text-alt"></i>
                     <span>Mis Encuestas</span>
                 </a>
             </li>
             <li>
-                <a data-toggle="collapse" data-parent="#nav-accordion"
-                   href="#report-list">
+                <a href="/clients/">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports/general">
                     <i class="icon-book"></i>
                     <span>Mis Reportes</span>
                 </a>
-                <ul id="report-list" class="nav accordion-body in collapse">
-                    <li>
-                        <a href="/reports/general">Satisfacci&oacute;n General</a>
-                    </li>
-                    <li>
-                        <a href="/reports/zone">Zona</a>
-                    </li>
-                    <li>
-                        <a href="/reports/subsidiary">Sucursal</a>
-                    </li>
-                    <li>
-                        <a href="/reports/business_unit">Unidad de servicio</a>
-                    </li>
-                    <li>
-                        <a href="/reports/service">Servicio</a>
-                    </li>
-                    <li>
-                        <a href="/reports/moment">Punto de contacto</a>
-                    </li>
-                    <li>
-                        <a href="/reports/attribute">Atributo</a>
-                    </li>
-                </ul>
             </li>
         </ul>
     </nav>
@@ -95,7 +71,7 @@
 {% block mainContent %}
     <section class="vbox">
         <header class="header b-b">
-            <p class="h4 animated bounceInDown">Subsidiarias</p>
+            <p class="h4 animated bounceInDown">Sucursales</p>
         </header>
         <section class="panel padder padder-v animated fadeInRight">
 

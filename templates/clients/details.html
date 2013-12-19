@@ -5,6 +5,67 @@
     <title>{% block title %}Detalles Cliente{% endblock %}</title>
 </head>
 <body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body out collapse">
+                    <li>
+                        <a href="#">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/business_units/">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/clients/" class="blue-xindex">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports/general">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
 {% block mainContent %}
     <input type="hidden"  id="id-client-grid"
            value="{{ sub.id }}">
