@@ -37,7 +37,7 @@ def getClientsInJson(request):
                 "first_name": eachClient.first_name,
                 "last_name": eachClient.last_name,
                 "email": eachClient.email,
-                "company": eachClient.company.name,
+                "company": eachClient.company,
                 "state": eachClient.state,
                 "city": eachClient.city,
                 "rating": eachClient.rating,
@@ -55,7 +55,7 @@ def add_client(request):
         if request.POST['client_email'] == "":
             return HttpResponseRedirect('/clients/')
         else:
-            company = Company.objects.get(pk=request.POST['client_company'])
+            company = request.POST['client_company']
 
             if Client.objects.filter(
                     email=request.POST['client_email']).exists():
@@ -96,7 +96,7 @@ def add_client(request):
                         )
                         activityData.survey = survey
                         activityData.save()
-                        mailing(actual_client, survey, activityData.code)
+                        mailing(actual_client, survey, activity_code)
 
                     except Survey.DoesNotExist:
                         print "NO EXISTE ENCUESTA"
@@ -195,7 +195,7 @@ def edit_client(request, client_id):
     client = Client.objects.get(pk=client_id)
 
     if request.POST:
-        company = Company.objects.get(pk=request.POST['client_company'])
+        company = request.POST['client_company']
 
         client.name = request.POST['client_name']
         client.first_name = request.POST['client_name']

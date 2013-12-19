@@ -1,11 +1,12 @@
 import simplejson
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from random import sample
 import short_url
 from call_center.functions import randomClient
+from clients.functions import mailing
 from xindex.models import Company, Zone, Subsidiary, SubsidiaryBusinessUnit, \
     sbu_service, BusinessUnit, Service, Survey, Client, ClientActivity
 
@@ -306,3 +307,134 @@ def getClientsInJson(request, text):
 
     print clientsToJson
     return HttpResponse(simplejson.dumps(clientsToJson))
+
+
+@login_required(login_url='/signin/')
+def add_client(request):
+
+    if request.POST:
+        if request.POST['client_email'] == "":
+            return HttpResponseRedirect('/callcenter/')
+        else:
+            company = request.POST['client_company']
+
+            if Client.objects.filter(
+                    email=request.POST['client_email']).exists():
+
+                actual_client = Client.objects.filter(
+                    email=request.POST['client_email'])[0]
+                if request.POST['client_business']:
+                    clientData = Client.objects.get(
+                        email=request.POST['client_email']
+                    )
+                    subsidiary = Subsidiary.objects.get(
+                        pk=request.POST['client_subsidiary']
+                    )
+                    businessUnit = BusinessUnit.objects.get(
+                        pk=request.POST['client_business']
+                    )
+                    service = Service.objects.get(
+                        pk=request.POST['client_service']
+                    )
+
+                    activityData = ClientActivity.objects.create(
+                        client=clientData,
+                        subsidiary=subsidiary,
+                        business_unit=businessUnit,
+                        service=service
+                    )
+                    activityData.save()
+
+                    a_id_and_c_id = str(activityData.id)+str(actual_client.id)
+                    activity_code = short_url.encode_url(int(a_id_and_c_id))
+                    actual_client.code = activity_code
+                    actual_client.save()
+
+                    try:
+                        survey = Survey.objects.get(
+                            business_unit_id=activityData.business_unit,
+                            service_id=activityData.service
+                        )
+                        activityData.survey = survey
+                        activityData.save()
+                        mailing(actual_client, survey, activityData.code)
+
+                    except Survey.DoesNotExist:
+                        print "NO EXISTE ENCUESTA"
+
+                return HttpResponseRedirect('/callcenter/')
+
+            else:
+                new_client = Client.objects.create(
+                    first_name=request.POST['client_name'],
+                    last_name=request.POST['client_surname'],
+                    sex=request.POST['client_sex'],
+                    email=request.POST['client_email'],
+                    phone=request.POST['client_phone'],
+                    company=company)
+
+                new_client.save()
+
+                if request.POST['client_business']:
+                    clientData = Client.objects.get(
+                        email=request.POST['client_email']
+                    )
+                    subsidiary = Subsidiary.objects.get(
+                        pk=request.POST['client_subsidiary']
+                    )
+                    businessUnit = BusinessUnit.objects.get(
+                        pk=request.POST['client_business']
+                    )
+                    service = Service.objects.get(
+                        pk=request.POST['client_service']
+                    )
+
+                    activityData = ClientActivity.objects.create(
+                        client=clientData,
+                        subsidiary=subsidiary,
+                        business_unit=businessUnit,
+                        service=service
+                    )
+                    activityData.save()
+
+                    a_id_and_c_id = str(activityData.id)+str(new_client.id)
+                    activity_code = short_url.encode_url(int(a_id_and_c_id))
+                    new_client.code = activity_code
+                    new_client.save()
+
+                    try:
+                        survey = Survey.objects.get(
+                            business_unit_id=activityData.business_unit,
+                            service_id=activityData.service
+                        )
+                        activityData.survey = survey
+                        activityData.save()
+                        mailing(new_client, survey, activityData.code)
+
+                    except Survey.DoesNotExist:
+                        print "NO EXISTE ENCUESTA"
+
+                return HttpResponseRedirect('/callcenter/')
+
+    else:
+
+        companies = Company.objects.filter(active=True)[:1]
+        zones = Zone.objects.filter(active=True)
+        subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
+        businessUnits = SubsidiaryBusinessUnit.objects.filter(
+            id_subsidiary__id=subsidiaries[0].id)
+
+        try:
+            sbu_services = sbu_service.objects.filter(
+                id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
+            )
+        except:
+            sbu_services = "Sin servicios"
+        template_vars = {'companies': companies,
+                         'zones': zones,
+                         'zone': zones[0],
+                         'subsidiaries': subsidiaries,
+                         'businessUnits': businessUnits,
+                         'sbu_services': sbu_services}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("call_center/add_client.html", request_context)

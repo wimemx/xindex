@@ -89,11 +89,10 @@ def mailing(client, survey, activity_code):
 
 def addClientFromCSV(data):
 
-    company = Company.objects.filter(active=True)[:1]
     clientData = data.encode('utf-8').split("},")
 
     print clientData
-    newClient = Client.objects.create(rating=1, company=company[0])
+    newClient = Client.objects.create(rating=1)
 
     for eachClientData in clientData:
         if eachClientData[-1] != "}":

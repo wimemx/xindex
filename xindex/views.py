@@ -46,7 +46,7 @@ def login(request):
     if request.user.is_authenticated():
         variables = dict(username=username, password=password, error=error)
         variables_template = RequestContext(request, variables)
-        return render_to_response("access/index.html", variables_template)
+        return render_to_response("xindex/index.html", variables_template)
 
     if request.method == "POST":
         username = request.POST['username']

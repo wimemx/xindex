@@ -411,7 +411,7 @@ class Client(models.Model):
     country = models.CharField(max_length=50, blank=True, null=True)
     state = models.CharField(max_length=50, blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True)
-    company = models.ForeignKey('Company', blank=True, null=True)
+    company = models.CharField(max_length=50, blank=True, null=True)
     rating = models.DecimalField(max_digits=5, decimal_places=2,
                                  blank=True, null=True)
     active = models.BooleanField(default=True)

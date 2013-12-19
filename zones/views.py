@@ -163,9 +163,10 @@ def detail(request, zone_id):
 
     except Zone.DoesNotExist:
         raise Http404
-    return render_to_response('zones/detail.html',
-                              {'zones': zones,
-                               'id': zone.id})
+
+    request_context = RequestContext(request, {'zones': zones,
+                                                'id': zone.id})
+    return render_to_response("zones/detail.html", request_context)
 
 
 def getZonesInJson(request):

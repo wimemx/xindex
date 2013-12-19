@@ -6,6 +6,7 @@ urlpatterns = patterns('call_center.views',
     #Call center
     url(r'^$', 'index'),
 
+    url(r'^add/$', views.add_client),
     url(r'^search/(?P<text>\w+)$', views.getClientsInJson),
 
     url(r'^zone/(?P<zone_id>\d+)$', views.getZonesInJson),

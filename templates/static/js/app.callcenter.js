@@ -42,6 +42,10 @@
                                     }
 
                                     return false;
+                                },
+                                focus: function( event, ui ) {
+                                    inputSearch.val( ui.item.label );
+                                    return false;
                                 }
                             });
                         },
@@ -76,7 +80,7 @@
                 selectRandom.addClass("hidden");
             }
         } else if (option=="3"){
-            var url = "/clients/add/";
+            var url = "/callcenter/add/";
             if (url.indexOf('#') == 0) {
                 $(url).modal('open');
             } else {
