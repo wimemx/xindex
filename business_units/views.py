@@ -6,107 +6,148 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from django.utils import simplejson
 from business_units.forms import AddBusinessUnit
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit
 from xindex.models import Xindex_User, Service, sbu_service, Zone
+
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
+
+#VIEW = Operation.objects.get(name="Ver")
+#CREATE = Operation.objects.get(name="Crear")
+#DELETE = Operation.objects.get(name="Eliminar")
+#UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')
 def index(request):
-    all_business_units = BusinessUnit.objects.all().order_by('-name')
-    template_vars = {
-        "titulo": "Unidades de negocio",
-        "all_business_units": all_business_units
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("business_units/index.html", request_context)
+
+    if has_permission(request.user, VIEW, "Ver unidades de negocio") or \
+            request.user.is_superuser:
+        all_business_units = BusinessUnit.objects.all().order_by('-name')
+        template_vars = {
+            "titulo": "Unidades de negocio",
+            "all_business_units": all_business_units
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("business_units/index.html", request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def add(request):
-    if request.POST:
-        formulario = AddBusinessUnit(request.POST or None)
 
-        if formulario.is_valid():
+    if has_permission(request.user, CREATE, "Crear unidades de negocio") or \
+            request.user.is_superuser:
+        if request.POST:
+            formulario = AddBusinessUnit(request.POST or None)
 
-            newBusinessUnit = formulario.save()
+            if formulario.is_valid():
 
-            newBusinessUnit.save()
-            subSelected = request.POST.getlist('bu-sub')
-            serSelected = request.POST.getlist('bu-ser')
+                newBusinessUnit = formulario.save()
 
-            for eachSub in subSelected:
-                subToAssign = Subsidiary.objects.get(pk=eachSub)
+                newBusinessUnit.save()
+                subSelected = request.POST.getlist('bu-sub')
+                serSelected = request.POST.getlist('bu-ser')
 
-                alias = newBusinessUnit.name + ', ' + subToAssign.name
+                for eachSub in subSelected:
+                    subToAssign = Subsidiary.objects.get(pk=eachSub)
 
-                bu_assignment = SubsidiaryBusinessUnit.objects.create(
-                    id_subsidiary=subToAssign,
-                    id_business_unit=newBusinessUnit,
-                    alias=alias
-                )
+                    alias = newBusinessUnit.name + ', ' + subToAssign.name
 
-                bu_assignment.save()
-
-                for eachService in serSelected:
-                    serToAssign = Service.objects.get(pk=eachService)
-                    alias = serToAssign.name + ', ' \
-                            + bu_assignment.alias
-
-                    service_assignment = sbu_service.objects.create(
-                        id_subsidiaryBU=bu_assignment,
-                        id_service=serToAssign,
+                    bu_assignment = SubsidiaryBusinessUnit.objects.create(
+                        id_subsidiary=subToAssign,
+                        id_business_unit=newBusinessUnit,
                         alias=alias
                     )
 
-                    service_assignment.save()
+                    bu_assignment.save()
 
-            return HttpResponseRedirect('/business_units/')
-            #return HttpResponse('Si')
+                    for eachService in serSelected:
+                        serToAssign = Service.objects.get(pk=eachService)
+                        alias = serToAssign.name + ', ' \
+                                + bu_assignment.alias
+
+                        service_assignment = sbu_service.objects.create(
+                            id_subsidiaryBU=bu_assignment,
+                            id_service=serToAssign,
+                            alias=alias
+                        )
+
+                        service_assignment.save()
+
+                return HttpResponseRedirect('/business_units/')
+                #return HttpResponse('Si')
+            else:
+
+                template_vars = {
+                    "titulo": "Agregar unidad de negocio",
+                    "message": "",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return HttpResponse('No')
         else:
+            subsidiaries = Subsidiary.objects.filter(active=True)
+            services = Service.objects.filter(active=True)
 
+            formulario = AddBusinessUnit()
             template_vars = {
                 "titulo": "Agregar unidad de negocio",
                 "message": "",
-                "formulario": formulario
+                "formulario": formulario,
+                "subsidiaries": subsidiaries,
+                "services": services
             }
             request_context = RequestContext(request, template_vars)
-            return HttpResponse('No')
+            return render_to_response("business_units/add.html", request_context)
     else:
-        subsidiaries = Subsidiary.objects.filter(active=True)
-        services = Service.objects.filter(active=True)
-
-        formulario = AddBusinessUnit()
-        template_vars = {
-            "titulo": "Agregar unidad de negocio",
-            "message": "",
-            "formulario": formulario,
-            "subsidiaries": subsidiaries,
-            "services": services
-        }
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        return render_to_response("business_units/add.html", request_context)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def update(request, business_unit_id):
-    try:
-        bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
-    except BusinessUnit.DoesNotExist:
-        bus_unit = False
 
-    if bus_unit:
-        if request.method == 'POST':
-            formulario = AddBusinessUnit(request.POST or None,
-                                         instance=bus_unit)
-            if formulario.is_valid():
-                formulario.save()
-                template_vars = {
-                    "titulo": "Unidades de negocio",
-                    "message": "Se ha modificado la unidad de negocio"
-                }
-                request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/business_units/')
+    if has_permission(request.user, UPDATE, "Editar unidades de negocio") or \
+            request.user.is_superuser:
+        try:
+            bus_unit = BusinessUnit.objects.get(pk=business_unit_id)
+        except BusinessUnit.DoesNotExist:
+            bus_unit = False
+
+        if bus_unit:
+            if request.method == 'POST':
+                formulario = AddBusinessUnit(request.POST or None,
+                                             instance=bus_unit)
+                if formulario.is_valid():
+                    formulario.save()
+                    template_vars = {
+                        "titulo": "Unidades de negocio",
+                        "message": "Se ha modificado la unidad de negocio"
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return HttpResponseRedirect('/business_units/')
+                else:
+                    template_vars = {
+                        "titulo": "Modificar unidad de negocio",
+                        "message": "",
+                        "formulario": formulario,
+                        "business_unit_id": business_unit_id
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return render_to_response("business_units/update.html",
+                                              request_context)
             else:
+                formulario = AddBusinessUnit(request.POST or None,
+                                             instance=bus_unit)
                 template_vars = {
                     "titulo": "Modificar unidad de negocio",
                     "message": "",
@@ -117,78 +158,91 @@ def update(request, business_unit_id):
                 return render_to_response("business_units/update.html",
                                           request_context)
         else:
-            formulario = AddBusinessUnit(request.POST or None,
-                                         instance=bus_unit)
-            template_vars = {
-                "titulo": "Modificar unidad de negocio",
-                "message": "",
-                "formulario": formulario,
-                "business_unit_id": business_unit_id
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response("business_units/update.html",
-                                      request_context)
+            message = "No se ha podido encontrar la unidad de negocio"
+            return HttpResponseRedirect('/business_units/')
     else:
-        message = "No se ha podido encontrar la unidad de negocio"
-        return HttpResponseRedirect('/business_units/')
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def remove(request, business_unit_id):
 
-    try:
-        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-    except BusinessUnit.DoesNotExist:
-        business_unit = False
+    if has_permission(request.user, DELETE, "Eliminar unidades de negocio") or \
+            request.user.is_superuser:
+        try:
+            business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+        except BusinessUnit.DoesNotExist:
+            business_unit = False
 
-    if business_unit:
-        business_unit.active = False
-        business_unit.save()
-        return HttpResponse('Si')
+        if business_unit:
+            business_unit.active = False
+            business_unit.save()
+            return HttpResponse('Si')
+        else:
+            return HttpResponse('No')
     else:
-        return HttpResponse('No')
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def getBUInJson(request):
-    b_u = {'business_u': []}
 
-    business_unit = BusinessUnit.objects.filter(active=True)
-    for eachBusinessUnit in business_unit:
+    if has_permission(request.user, VIEW, "Ver unidades de negocio") or \
+            request.user.is_superuser:
 
-        subsidiaries = SubsidiaryBusinessUnit.objects.filter(
-            id_business_unit__id=eachBusinessUnit.id
-        )
+        b_u = {'business_u': []}
 
-        counter_subsidiaries = 0
-        for eachSubsidiary in subsidiaries:
-            counter_subsidiaries += 1
+        business_unit = BusinessUnit.objects.filter(active=True)
+        for eachBusinessUnit in business_unit:
 
+            subsidiaries = SubsidiaryBusinessUnit.objects.filter(
+                id_business_unit__id=eachBusinessUnit.id
+            )
 
-        b_u['business_u'].append(
-            {
-                "name": eachBusinessUnit.name,
-                "subsidiary": counter_subsidiaries,
-                "business_unit_id": eachBusinessUnit.id
-            }
-        )
+            counter_subsidiaries = 0
+            for eachSubsidiary in subsidiaries:
+                counter_subsidiaries += 1
 
-    return HttpResponse(simplejson.dumps(b_u))
+            b_u['business_u'].append(
+                {
+                    "name": eachBusinessUnit.name,
+                    "subsidiary": counter_subsidiaries,
+                    "business_unit_id": eachBusinessUnit.id
+                }
+            )
+
+        return HttpResponse(simplejson.dumps(b_u))
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def details(request, business_unit_id):
-    template_vars = {'titulo': 'Detalles'}
-    try:
-        bus_u = BusinessUnit.objects.get(id=business_unit_id)
 
-        bus_u = False if bus_u.active == False else bus_u
-    except BusinessUnit.DoesNotExist:
-        bus_u = False
+    if has_permission(request.user, VIEW, "Ver unidades de negocio") or \
+            request.user.is_superuser:
 
-    template_vars['bus_u'] = bus_u
-    request_context = RequestContext(request, template_vars)
-    return render_to_response('business_units/details.html', request_context)
+        template_vars = {'titulo': 'Detalles'}
+        try:
+            bus_u = BusinessUnit.objects.get(id=business_unit_id)
+
+            bus_u = False if bus_u.active == False else bus_u
+        except BusinessUnit.DoesNotExist:
+            bus_u = False
+
+        template_vars['bus_u'] = bus_u
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('business_units/details.html', request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 def get_services(request):

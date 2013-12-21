@@ -7,6 +7,8 @@ from django.shortcuts import render_to_response, HttpResponse, \
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required, user_passes_test
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 
 from xindex.models import Subsidiary, Zone, SubsidiaryBusinessUnit, \
     sbu_service, Client, Company, ClientActivity, BusinessUnit, Service, \
@@ -14,216 +16,264 @@ from xindex.models import Subsidiary, Zone, SubsidiaryBusinessUnit, \
 from clients.functions import mailing, addClientFromCSV, addClientActivity, \
     addActivity
 
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
+
+#VIEW = Operation.objects.get(name="Ver")
+#CREATE = Operation.objects.get(name="Crear")
+#DELETE = Operation.objects.get(name="Eliminar")
+#UPDATE = Operation.objects.get(name="Editar")
 
 @login_required(login_url='/signin/')
 def client_list(request):
 
-    template_vars = {}
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("clients/client_list.html", request_context)
+    if has_permission(request.user, VIEW, "Ver clientes") or \
+            request.user.is_superuser:
+
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("clients/client_list.html", request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 #@user_passes_test(lambda u: u.is_superuser)
 def getClientsInJson(request):
-    clients = {'clients': []}
 
-    clientQuery = Client.objects.filter(active=True)
+    if has_permission(request.user, VIEW, "Ver clientes") or \
+            request.user.is_superuser:
 
-    for eachClient in clientQuery:
+        clients = {'clients': []}
 
-        clients['clients'].append(
-            {
-                "first_name": eachClient.first_name,
-                "last_name": eachClient.last_name,
-                "email": eachClient.email,
-                "company": eachClient.company,
-                "state": eachClient.state,
-                "city": eachClient.city,
-                "rating": eachClient.rating,
-                "actions": eachClient.id
-            }
-        )
+        clientQuery = Client.objects.filter(active=True)
 
-    return HttpResponse(simplejson.dumps(clients))
+        for eachClient in clientQuery:
+
+            clients['clients'].append(
+                {
+                    "first_name": eachClient.first_name,
+                    "last_name": eachClient.last_name,
+                    "email": eachClient.email,
+                    "company": eachClient.company,
+                    "state": eachClient.state,
+                    "city": eachClient.city,
+                    "rating": eachClient.rating,
+                    "actions": eachClient.id
+                }
+            )
+
+        return HttpResponse(simplejson.dumps(clients))
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def add_client(request):
 
-    if request.POST:
-        if request.POST['client_email'] == "":
-            return HttpResponseRedirect('/clients/')
-        else:
-            company = request.POST['client_company']
+    if has_permission(request.user, CREATE, "Crear clientes") or \
+            request.user.is_superuser:
 
-            if Client.objects.filter(
-                    email=request.POST['client_email']).exists():
-
-                actual_client = Client.objects.filter(
-                    email=request.POST['client_email'])[0]
-                if request.POST['client_business']:
-                    clientData = Client.objects.get(
-                        email=request.POST['client_email']
-                    )
-                    subsidiary = Subsidiary.objects.get(
-                        pk=request.POST['client_subsidiary']
-                    )
-                    businessUnit = BusinessUnit.objects.get(
-                        pk=request.POST['client_business']
-                    )
-                    service = Service.objects.get(
-                        pk=request.POST['client_service']
-                    )
-
-                    activityData = ClientActivity.objects.create(
-                        client=clientData,
-                        subsidiary=subsidiary,
-                        business_unit=businessUnit,
-                        service=service
-                    )
-                    activityData.save()
-
-                    a_id_and_c_id = str(activityData.id)+str(actual_client.id)
-                    activity_code = short_url.encode_url(int(a_id_and_c_id))
-                    actual_client.code = activity_code
-                    actual_client.save()
-
-                    try:
-                        survey = Survey.objects.get(
-                            business_unit_id=activityData.business_unit,
-                            service_id=activityData.service
-                        )
-                        activityData.survey = survey
-                        activityData.save()
-                        mailing(actual_client, survey, activity_code)
-
-                    except Survey.DoesNotExist:
-                        print "NO EXISTE ENCUESTA"
-
+        if request.POST:
+            if request.POST['client_email'] == "":
                 return HttpResponseRedirect('/clients/')
-
             else:
-                new_client = Client.objects.create(
-                    first_name=request.POST['client_name'],
-                    last_name=request.POST['client_surname'],
-                    sex=request.POST['client_sex'],
-                    email=request.POST['client_email'],
-                    phone=request.POST['client_phone'],
-                    company=company,)
+                company = request.POST['client_company']
 
-                new_client.save()
+                if Client.objects.filter(
+                        email=request.POST['client_email']).exists():
 
-                if request.POST['client_business']:
-                    clientData = Client.objects.get(
-                        email=request.POST['client_email']
-                    )
-                    subsidiary = Subsidiary.objects.get(
-                        pk=request.POST['client_subsidiary']
-                    )
-                    businessUnit = BusinessUnit.objects.get(
-                        pk=request.POST['client_business']
-                    )
-                    service = Service.objects.get(
-                        pk=request.POST['client_service']
-                    )
+                    actual_client = Client.objects.filter(
+                        email=request.POST['client_email'])[0]
+                    if request.POST['client_business']:
+                        clientData = Client.objects.get(
+                            email=request.POST['client_email']
+                        )
+                        subsidiary = Subsidiary.objects.get(
+                            pk=request.POST['client_subsidiary']
+                        )
+                        businessUnit = BusinessUnit.objects.get(
+                            pk=request.POST['client_business']
+                        )
+                        service = Service.objects.get(
+                            pk=request.POST['client_service']
+                        )
 
-                    activityData = ClientActivity.objects.create(
-                        client=clientData,
-                        subsidiary=subsidiary,
-                        business_unit=businessUnit,
-                        service=service
-                    )
-                    activityData.save()
+                        activityData = ClientActivity.objects.create(
+                            client=clientData,
+                            subsidiary=subsidiary,
+                            business_unit=businessUnit,
+                            service=service
+                        )
+                        activityData.save()
 
-                    a_id_and_c_id = str(activityData.id)+str(new_client.id)
-                    activity_code = short_url.encode_url(int(a_id_and_c_id))
-                    new_client.code = activity_code
+                        a_id_and_c_id = str(activityData.id)+str(actual_client.id)
+                        activity_code = short_url.encode_url(int(a_id_and_c_id))
+                        actual_client.code = activity_code
+                        actual_client.save()
+
+                        try:
+                            survey = Survey.objects.get(
+                                business_unit_id=activityData.business_unit,
+                                service_id=activityData.service
+                            )
+                            activityData.survey = survey
+                            activityData.save()
+                            mailing(actual_client, survey, activity_code)
+
+                        except Survey.DoesNotExist:
+                            print "NO EXISTE ENCUESTA"
+
+                    return HttpResponseRedirect('/clients/')
+
+                else:
+                    new_client = Client.objects.create(
+                        first_name=request.POST['client_name'],
+                        last_name=request.POST['client_surname'],
+                        sex=request.POST['client_sex'],
+                        email=request.POST['client_email'],
+                        phone=request.POST['client_phone'],
+                        company=company,)
+
                     new_client.save()
 
-                    try:
-                        survey = Survey.objects.get(
-                            business_unit_id=activityData.business_unit,
-                            service_id=activityData.service
+                    if request.POST['client_business']:
+                        clientData = Client.objects.get(
+                            email=request.POST['client_email']
                         )
-                        activityData.survey = survey
+                        subsidiary = Subsidiary.objects.get(
+                            pk=request.POST['client_subsidiary']
+                        )
+                        businessUnit = BusinessUnit.objects.get(
+                            pk=request.POST['client_business']
+                        )
+                        service = Service.objects.get(
+                            pk=request.POST['client_service']
+                        )
+
+                        activityData = ClientActivity.objects.create(
+                            client=clientData,
+                            subsidiary=subsidiary,
+                            business_unit=businessUnit,
+                            service=service
+                        )
                         activityData.save()
-                        mailing(new_client, survey, activityData.code)
 
-                    except Survey.DoesNotExist:
-                        print "NO EXISTE ENCUESTA"
+                        a_id_and_c_id = str(activityData.id)+str(new_client.id)
+                        activity_code = short_url.encode_url(int(a_id_and_c_id))
+                        new_client.code = activity_code
+                        new_client.save()
 
-                return HttpResponseRedirect('/clients/')
+                        try:
+                            survey = Survey.objects.get(
+                                business_unit_id=activityData.business_unit,
+                                service_id=activityData.service
+                            )
+                            activityData.survey = survey
+                            activityData.save()
+                            mailing(new_client, survey, activityData.code)
+
+                        except Survey.DoesNotExist:
+                            print "NO EXISTE ENCUESTA"
+
+                    return HttpResponseRedirect('/clients/')
+
+        else:
+
+            companies = Company.objects.filter(active=True)[:1]
+            zones = Zone.objects.filter(active=True)
+            subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
+            businessUnits = SubsidiaryBusinessUnit.objects.filter(
+                id_subsidiary__id=subsidiaries[0].id)
+
+            try:
+                sbu_services = sbu_service.objects.filter(
+                    id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
+                )
+            except:
+                sbu_services = "Sin servicios"
+            template_vars = {'companies': companies,
+                             'zones': zones,
+                             'zone': zones[0],
+                             'subsidiaries': subsidiaries,
+                             'businessUnits': businessUnits,
+                             'sbu_services': sbu_services}
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("clients/add_client.html", request_context)
 
     else:
-
-        companies = Company.objects.filter(active=True)[:1]
-        zones = Zone.objects.filter(active=True)
-        subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
-        businessUnits = SubsidiaryBusinessUnit.objects.filter(
-            id_subsidiary__id=subsidiaries[0].id)
-
-        try:
-            sbu_services = sbu_service.objects.filter(
-                id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
-            )
-        except:
-            sbu_services = "Sin servicios"
-        template_vars = {'companies': companies,
-                         'zones': zones,
-                         'zone': zones[0],
-                         'subsidiaries': subsidiaries,
-                         'businessUnits': businessUnits,
-                         'sbu_services': sbu_services}
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        return render_to_response("clients/add_client.html", request_context)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def remove_client(request,  client_id):
 
-    client = Client.objects.get(pk=client_id)
-    client.active = False
-    client.save()
+    if has_permission(request.user, DELETE, "Eliminar clientes") or \
+            request.user.is_superuser:
 
-    return HttpResponse('Si')
+        client = Client.objects.get(pk=client_id)
+        client.active = False
+        client.save()
+
+        return HttpResponse('Si')
+
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def edit_client(request, client_id):
 
-    client = Client.objects.get(pk=client_id)
+    if has_permission(request.user, UPDATE, "Editar clientes") or \
+            request.user.is_superuser:
 
-    if request.POST:
-        company = request.POST['client_company']
+        client = Client.objects.get(pk=client_id)
 
-        client.name = request.POST['client_name']
-        client.first_name = request.POST['client_name']
-        client.last_name = request.POST['client_surname']
-        client.sex = request.POST['client_sex']
-        client.email = request.POST['client_email']
-        #client.date_of_birth = request.POST['client_date']
-        client.phone = request.POST['client_phone']
-        client.company = company
-        client.save()
+        if request.POST:
+            company = request.POST['client_company']
 
-        return HttpResponseRedirect('/clients/')
+            client.name = request.POST['client_name']
+            client.first_name = request.POST['client_name']
+            client.last_name = request.POST['client_surname']
+            client.sex = request.POST['client_sex']
+            client.email = request.POST['client_email']
+            #client.date_of_birth = request.POST['client_date']
+            client.phone = request.POST['client_phone']
+            client.company = company
+            client.save()
+
+            return HttpResponseRedirect('/clients/')
+        else:
+
+            companies = Company.objects.filter(active=True)
+
+            template_vars = {'id': client.id,
+                             'name': client.first_name,
+                             'surname': client.last_name,
+                             'email': client.email,
+                             'phone': client.phone,
+                             #'date': client.date_of_birth,
+                             'sex': client.sex,
+                             'company': client.company,
+                             'companies': companies}
+
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("clients/edit_client.html", request_context)
+
     else:
-
-        companies = Company.objects.filter(active=True)
-
-        template_vars = {'id': client.id,
-                         'name': client.first_name,
-                         'surname': client.last_name,
-                         'email': client.email,
-                         'phone': client.phone,
-                         #'date': client.date_of_birth,
-                         'sex': client.sex,
-                         'company': client.company,
-                         'companies': companies}
-
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        return render_to_response("clients/edit_client.html", request_context)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 '''

@@ -57,13 +57,6 @@
         });
     });
 
-//// <------ Remove modal with close class ->
-    $('.close').on('click', function (e) {
-        e.preventDefault();
-        $('div.modal').modal('hide');
-        $('#ajaxModal').remove();
-    });
-
     $("select#options-client").change(function(){
         var option = $("select#options-client").children("option:selected").val(),
             selectRandom = $("#get-survey"),
@@ -130,7 +123,7 @@
                 $("select.callCenterService").html(serOptions);
             },
             error: function (response) {
-                alert('Zona inválida')
+                alert('Get was not successfull');
             }
         });
 
@@ -168,7 +161,7 @@
                 $("select.callCenterService").html(serOptions);
             },
             error: function (response) {
-                alert('Subsidiaria inválida')
+                alert('Get was not successfull');
             }
         });
 
@@ -200,7 +193,7 @@
                 $("select.callCenterService").html(serOptions);
             },
             error: function (response) {
-                alert('Unidad de servicio inválida')
+                alert('Get was not successfull');
             }
         });
 

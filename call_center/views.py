@@ -7,33 +7,53 @@ from random import sample
 import short_url
 from call_center.functions import randomClient
 from clients.functions import mailing
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.models import Company, Zone, Subsidiary, SubsidiaryBusinessUnit, \
     sbu_service, BusinessUnit, Service, Survey, Client, ClientActivity
+
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
+
+#VIEW = Operation.objects.get(name="Ver")
+#CREATE = Operation.objects.get(name="Crear")
+#DELETE = Operation.objects.get(name="Eliminar")
+#UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')
 def index(request):
-    companies = Company.objects.filter(active=True)[:1]
-    zones = Zone.objects.filter(active=True)
-    subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
-    businessUnits = SubsidiaryBusinessUnit.objects.filter(
-        id_subsidiary__id=subsidiaries[0].id)
 
-    try:
-        sbu_services = sbu_service.objects.filter(
-            id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
-        )
-    except:
-        sbu_services = "Sin servicios"
+    if has_permission(request.user, VIEW, "Ver call center") or \
+            request.user.is_superuser:
 
-    template_vars = {'companies': companies,
-                     'zones': zones,
-                     'zone': zones[0],
-                     'subsidiaries': subsidiaries,
-                     'businessUnits': businessUnits,
-                     'sbu_services': sbu_services}
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("call_center/index.html", request_context)
+        companies = Company.objects.filter(active=True)[:1]
+        zones = Zone.objects.filter(active=True)
+        subsidiaries = Subsidiary.objects.filter(zone=zones[0], active=True)
+        businessUnits = SubsidiaryBusinessUnit.objects.filter(
+            id_subsidiary__id=subsidiaries[0].id)
+
+        try:
+            sbu_services = sbu_service.objects.filter(
+                id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
+            )
+        except sbu_service.DoesNotExist:
+            sbu_services = "Sin servicios"
+
+        template_vars = {'companies': companies,
+                         'zones': zones,
+                         'zone': zones[0],
+                         'subsidiaries': subsidiaries,
+                         'businessUnits': businessUnits,
+                         'sbu_services': sbu_services}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("call_center/index.html", request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
@@ -312,6 +332,11 @@ def getClientsInJson(request, text):
 @login_required(login_url='/signin/')
 def add_client(request):
 
+    id_client = ""
+    id_busines = ""
+    id_service = ""
+    clientsToJson = {'client': []}
+
     if request.POST:
         if request.POST['client_email'] == "":
             return HttpResponseRedirect('/callcenter/')
@@ -357,12 +382,20 @@ def add_client(request):
                         )
                         activityData.survey = survey
                         activityData.save()
-                        mailing(actual_client, survey, activityData.code)
+                        mailing(actual_client, survey, activity_code)
+
+                        clientsToJson['client'].append(
+                            {
+                                "id_client": actual_client.id,
+                                "id_business": activityData.business_unit.id,
+                                "id_service": activityData.service.id
+                            }
+                        )
 
                     except Survey.DoesNotExist:
                         print "NO EXISTE ENCUESTA"
 
-                return HttpResponseRedirect('/callcenter/')
+                return HttpResponse(simplejson.dumps(clientsToJson))
 
             else:
                 new_client = Client.objects.create(
@@ -371,7 +404,8 @@ def add_client(request):
                     sex=request.POST['client_sex'],
                     email=request.POST['client_email'],
                     phone=request.POST['client_phone'],
-                    company=company)
+                    city=request.POST['client_state'],
+                    company=request.POST['client_company'])
 
                 new_client.save()
 
@@ -411,10 +445,18 @@ def add_client(request):
                         activityData.save()
                         mailing(new_client, survey, activityData.code)
 
+                        clientsToJson['client'].append(
+                            {
+                                "id_client": new_client.id,
+                                "id_business": activityData.business_unit.id,
+                                "id_service": activityData.service.id
+                            }
+                        )
+
                     except Survey.DoesNotExist:
                         print "NO EXISTE ENCUESTA"
 
-                return HttpResponseRedirect('/callcenter/')
+                return HttpResponse(simplejson.dumps(clientsToJson))
 
     else:
 
