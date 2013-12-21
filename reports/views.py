@@ -1332,8 +1332,13 @@ def report_by_subsidiary(request):
                 subsidiary = False
     else:
         zone = Zone.objects.filter(active=True)[0]
+        subsidiary = zone.subsidiary_set.filter(active=True)
+        if subsidiary:
+            subsidiary = subsidiary[0]
+        else:
+            #TODO: make a method to return empty reports with disabled select controls
+            pass
 
-        subsidiary = zone.subsidiary_set.filter(active=True)[0]
 
     #Get subsidiaries
     subsidiaries_list = zone.subsidiary_set.filter(active=True)
@@ -1871,15 +1876,22 @@ def general_report(request):
     zones_data = []
     #data for relation?
     survey_is_designed = True
-
-    user = Xindex_User.objects.get(user=request.user.id)
+    try:
+        user = Xindex_User.objects.get(user=request.user.id)
+    except Xindex_User.DoesNotExist:
+        pass
 
     #Get data for zone subsidiaries
     total_promoters = 0
     total_passives = 0
     total_detractors = 0
     total_surveyed = 0
-    company = user.company_set.get()
+    try:
+        company = Company.objects.get(staff=user)
+    except Company.DoesNotExist:
+        #TODO: create a method to return empty reports with disabled select controls
+        pass
+
     if len(user.company_set.all()) == 0:
         survey_is_designed = False
     for zone in company.zone.filter(active=True):
@@ -1904,7 +1916,6 @@ def general_report(request):
                                     client = Client.objects.get(pk=int(answer.client.id))
                                     if answer.client_activity is not None:
                                         try:
-                                            #client_activity = client.clientactivity_set.get(company=company)
                                             c_d = datetime.date.today()
                                             client_activity = ClientActivity.objects.get(client=client, pk=answer.client_activity.id)
                                             if c_d.year == answer.date.year and c_d.month == answer.date.month:

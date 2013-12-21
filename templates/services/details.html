@@ -5,15 +5,75 @@
     <title>{% block title %}Detalles del Servicio{% endblock %}</title>
 </head>
 <body>
+{% block menu %}
+    <nav class="nav-primary hidden-xs">
+        <ul class="nav" id="nav-accordion">
+            <li>
+                <a href="/xindex/">
+                    <i class="icon-beer"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="collapse" data-parent="#nav-accordion"
+                   href="#collapseOne">
+                    <i class="icon-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <ul id="collapseOne" class="nav accordion-body in collapse">
+                    <li>
+                        <a href="#">Informaci&oacute;n General</a>
+                    </li>
+                    <li>
+                        <a href="/zones/">Zonas</a>
+                    </li>
+                    <li>
+                        <a href="/subsidiaries/">
+                            Mis Sucursales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/business_units/" class="blue-xindex">
+                            Mis unidades de servicio
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/indicators/">
+                    <i class="icon-bar-chart"></i>
+                    <span>Mis Atributos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/surveys/">
+                    <i class="icon-file-text-alt"></i>
+                    <span>Mis Encuestas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/clients/">
+                    <i class="icon-group"></i>
+                    <span>Mis Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/reports/general">
+                    <i class="icon-book"></i>
+                    <span>Mis Reportes</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
 {% block mainContent %}
     <section id="content" class="bg-white-xindex">
         <section class="vbox">
             <header class="header b-b blue-xindex">
                 <p class="h5 animated bounceInDown">
-                <a href="/xindex/">Inicio</a><i class="icon-chevron-right"></i>
-                <a href="/xindex/">Mi empresa</a><i class="icon-chevron-right"></i>
-                <a href="/business_units">Mis Unidades de Servicio</a><i class="icon-chevron-right"></i>
-                <a href="/services/{{ business_unit.id }}">Servicios</a><i class="icon-chevron-right"></i>
+                <a href="/">Inicio</a><i class="icon-chevron-right"></i>
+                <a href="/business_units/">Mis Unidades de Servicio</a><i class="icon-chevron-right"></i>
+                <a href="javascript: history.back();">Detalles Unidad de Servicio</a><i class="icon-chevron-right"></i>
                 <a href="/services/details/{{ service_id }}">{{ serviceData.name }}</a>
             </p>
             </header>
