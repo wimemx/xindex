@@ -23,9 +23,9 @@
             <div style="padding-left: 50px; padding-right: 50px">
                 <form class="form-horizontal animated"
                       data-validate="parsley"
-                      id="add-client-form"
+                      id="add-client-form-cc"
                       method="post"
-                      action="/clients/add/"
+                      action="/callcenter/add/"
                       enctype="multipart/form-data">{% csrf_token %}
 
                     <div class="form-group m-t-lg">
@@ -103,14 +103,10 @@
                            name="client_subsidiary"
                            id="id_client_subsidiary">
                     <div class="form-group m-t-lg">
-                        <input type="submit"
-                                class="btn btn-modal-xindex blue-xindex pull-right"
-                                id="save-one"
-                                value="Guardar" />
                         <input type="button"
-                                class="btn btn-modal-xindex blue-xindex pull-right hidden"
-                                id="next-step-one"
-                                value="Continuar" />
+                                class="btn btn-modal-xindex blue-xindex pull-right"
+                                id="post-from-cc"
+                                value="Guardar" />
                     </div>
                 </form>
                 </div>
@@ -118,29 +114,60 @@
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 <input type='hidden' id='total-clients'>
-<script src="/static/js/app.client.js" type="text/javascript" charset="utf-8"></script>
-<script src="/static/js/spin.js" type="text/javascript" charset="utf-8"></script>
-<script>
-    var opts = {
-        lines: 15, // The number of lines to draw
-        length: 10, // The length of each line
-        width: 4, // The line thickness
-        radius: 9, // The radius of the inner circle
-        corners: 1, // Corner roundness (0-1)
-        rotate: 0, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        color: '#000', // #rgb or #rrggbb or array of colors
-        speed: 1, // Rounds per second
-        trail: 60, // Afterglow percentage
-        shadow: false, // Whether to render a shadow
-        hwaccel: false, // Whether to use hardware acceleration
-        className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 2e9, // The z-index (defaults to 2000000000)
-        top: 'auto', // Top position relative to parent in px
-        left: 'auto' // Left position relative to parent in px
-    };
-    var target = document.getElementById('wait');
-    var spinner = new Spinner(opts).spin(target);
-</script>
 </body>
+<script>
+    //// <------ Remove modal with close class ->
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        $('div.modal').modal('hide');
+        $('#cc-modal').remove();
+    });
+
+    $("#post-from-cc").click(function(){
+        $("#id_client_subsidiary").val($("select#ccSub").children("option:selected").val());
+        $("#id_client_business").val($("select#ccBus").children("option:selected").val());
+        $("#id_client_service").val($("select#ccSer").children("option:selected").val());
+
+        $("form#add-client-form-cc").submit();
+    });
+
+    $('form#add-client-form-cc').submit(function() {
+        $.ajax({
+            url: this.action,
+            type: this.method,
+            dataType: "json",
+            data: $(this).serialize(),
+            success: function(response) {
+                var client = "",
+                    business = "",
+                    service = "";
+
+                $('div.modal').modal('hide');
+                $('#cc-modal').remove();
+
+                $.each(response["client"], function(idx,c) {
+                    client = c.id_client;
+                    business = c.id_business;
+                    service = c.id_service;
+                });
+
+                var url = "/callcenter/getsearch/" + client + "/" + business + "/" + service;
+                if (url.indexOf('#') == 0) {
+                    $(url).modal('open');
+                } else {
+                    $.get(url,function (data) {
+                        $('<div class="modal" id="cc-modal">' + data + '</div>').modal();
+                    }).success(function () {
+                            $('input:text:visible:first').focus();
+                        });
+                }
+            },
+            error: function(result) {
+               alert('Post was not successful!');
+            }
+        });
+        return false;
+    });
+
+</script>
 </html>

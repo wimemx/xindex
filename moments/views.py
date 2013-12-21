@@ -1,103 +1,151 @@
 import json
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.models import Moment, Service, sbu_service, sbu_service_moment, \
     Zone, SubsidiaryBusinessUnit
 from xindex.models import sbu_service_moment_attribute, Subsidiary, BusinessUnit
 from xindex.forms import MomentForm
 
+VIEW = "Ver"
+CREATE = "Crear"
+DELETE = "Eliminar"
+UPDATE = "Editar"
+
+#VIEW = Operation.objects.get(name="Ver")
+#CREATE = Operation.objects.get(name="Crear")
+#DELETE = Operation.objects.get(name="Eliminar")
+#UPDATE = Operation.objects.get(name="Editar")
+
 
 @login_required(login_url='/signin/')
 def index(request):
-    moments = Moment.objects.all().order_by('-date')
-    template_vars = {"title": "Moments",
-                     "moments": moments}
-    request_context = RequestContext(request, template_vars)
-    return render(request, 'moments/index.html', request_context)
+
+    if has_permission(request.user, VIEW, "Ver indicadores") or \
+            request.user.is_superuser:
+        moments = Moment.objects.all().order_by('-date')
+        template_vars = {"title": "Moments",
+                         "moments": moments}
+        request_context = RequestContext(request, template_vars)
+        return render(request, 'moments/index.html', request_context)
+
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def detail(request, moment_id):
-    try:
-        moment = Moment.objects.get(pk=moment_id)
-    except Moment.DoesNotExist:
-        raise Http404
-    return render(request, 'moments/detail.html', {'moment': moment})
+
+    if has_permission(request.user, VIEW, "Ver indicadores") or \
+            request.user.is_superuser:
+        try:
+            moment = Moment.objects.get(pk=moment_id)
+        except Moment.DoesNotExist:
+            raise Http404
+        return render(request, 'moments/detail.html', {'moment': moment})
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def add(request, service_id):
-    print("Entrando al metodo")
-    if request.method=='POST':
-        form = MomentForm(request.POST)
 
-        if form.is_valid():
-            id_return = form.save()
-            sbuService = sbu_service.objects.filter(id_service=service_id)
+    if has_permission(request.user, CREATE, "Crear momentos") or \
+            request.user.is_superuser:
+        if request.method=='POST':
+            form = MomentForm(request.POST)
 
-            for each_sbuService in sbuService:
-                alias = id_return.name + ',' + each_sbuService.alias
-                newSbuServiceMoment = sbu_service_moment.objects.create(
-                    id_sbu_service=each_sbuService,
-                    id_moment=id_return,
-                    alias=alias
-                )
-                newSbuServiceMoment.save()
+            if form.is_valid():
+                id_return = form.save()
+                sbuService = sbu_service.objects.filter(id_service=service_id)
 
-            return HttpResponseRedirect('/services/details/'+service_id)
+                for each_sbuService in sbuService:
+                    alias = id_return.name + ',' + each_sbuService.alias
+                    newSbuServiceMoment = sbu_service_moment.objects.create(
+                        id_sbu_service=each_sbuService,
+                        id_moment=id_return,
+                        alias=alias
+                    )
+                    newSbuServiceMoment.save()
+
+                return HttpResponseRedirect('/services/details/'+service_id)
+            else:
+                return HttpResponse("No")
         else:
-            return HttpResponse("No")
+            form = MomentForm()
+            return render(request,
+                          "moments/add.html",
+                          {"formulario": form,
+                           "service_id": service_id})
     else:
-        form = MomentForm()
-        return render(request, "moments/add.html", {"formulario": form,
-                                                    "service_id": service_id})
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def edit(request, moment_id):
-    moment = Moment.objects.get(pk=moment_id)
-    if request.POST:
-        form = MomentForm(request.POST, instance=moment)
-        if form.is_valid():
-            form.save()
-            return HttpResponse('Si')
-    else:
-        form = MomentForm(instance=moment)
 
-    return render(request, "moments/edit.html", {"formulario": form,
-                                                 "moment_id": moment_id})
+    if has_permission(request.user, UPDATE, "Editar momentos") or \
+            request.user.is_superuser:
+        moment = Moment.objects.get(pk=moment_id)
+        if request.POST:
+            form = MomentForm(request.POST, instance=moment)
+            if form.is_valid():
+                form.save()
+                return HttpResponse('Si')
+        else:
+            form = MomentForm(instance=moment)
+
+        return render(request, "moments/edit.html", {"formulario": form,
+                                                     "moment_id": moment_id})
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def remove(request, service_id, moment_id):
 
-    try:
-        moment = Moment.objects.get(pk=moment_id)
-    except Moment.DoesNotExist:
-        moment = False
+    if has_permission(request.user, DELETE, "Eliminar momentos") or \
+            request.user.is_superuser:
+        try:
+            moment = Moment.objects.get(pk=moment_id)
+        except Moment.DoesNotExist:
+            moment = False
 
-    try:
-        service = Service.objects.get(pk=service_id)
-    except Service.DoesNotExist:
-        service = False
+        try:
+            service = Service.objects.get(pk=service_id)
+        except Service.DoesNotExist:
+            service = False
 
-    if moment and service:
-        moment.active = False
-        moment.save()
+        if moment and service:
+            moment.active = False
+            moment.save()
 
-        mySbuServiceMoment = sbu_service_moment.objects.filter(
-            id_moment_id=moment
-        )
+            mySbuServiceMoment = sbu_service_moment.objects.filter(
+                id_moment_id=moment
+            )
 
-        for eachSBSM in mySbuServiceMoment:
-            eachSBSM.delete()
+            for eachSBSM in mySbuServiceMoment:
+                eachSBSM.delete()
 
-        return HttpResponse('Si')
+            return HttpResponse('Si')
+        else:
+            return HttpResponse('No')
     else:
-        return HttpResponse('No')
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
