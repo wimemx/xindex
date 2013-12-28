@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template.context import RequestContext
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from services.forms import AddService
 from django.utils import simplejson
 
@@ -10,136 +12,168 @@ from xindex.models import Service, BusinessUnit, Subsidiary, Moment, \
     sbu_service, Zone, sbu_service_moment_attribute, SubsidiaryBusinessUnit, \
     sbu_service_moment, Question_sbu_s_m_a, Question, Attributes, Survey
 
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
+
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
+
 
 @login_required(login_url='/signin/')
 def index(request, business_unit_id=False):
-    global service_list
-    if business_unit_id:
-        try:
-            business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-            service_list = sbu_service.objects.filter(
-                id_subsidiaryBU__id_business_unit=business_unit_id)
-        except BusinessUnit.DoesNotExist:
+
+    if has_permission(request.user, VIEW, "Ver servicios") or \
+            request.user.is_superuser:
+
+        global service_list
+        if business_unit_id:
+            try:
+                business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+                service_list = sbu_service.objects.filter(
+                    id_subsidiaryBU__id_business_unit=business_unit_id)
+            except BusinessUnit.DoesNotExist:
+                business_unit = False
+                service_list = False
+        else:
             business_unit = False
-            service_list = False
-    else:
-        business_unit = False
 
-    services = {'services': [],
-                'business_units': []}
+        services = {'services': [],
+                    'business_units': []}
 
-    myServiceList = []
-    mySubsidiaryList = []
+        myServiceList = []
+        mySubsidiaryList = []
 
-    for eachAssignment in service_list:
+        for eachAssignment in service_list:
 
-        myServiceList.append(eachAssignment.id_service.id)
-        myServiceList = list(set(myServiceList))
+            myServiceList.append(eachAssignment.id_service.id)
+            myServiceList = list(set(myServiceList))
 
-        mySubsidiaryList.append(eachAssignment.id_subsidiaryBU.id)
-        mySubsidiaryList = list(set(mySubsidiaryList))
+            mySubsidiaryList.append(eachAssignment.id_subsidiaryBU.id)
+            mySubsidiaryList = list(set(mySubsidiaryList))
 
-    for eachSubsidiaryBusinessUnit in mySubsidiaryList:
+        for eachSubsidiaryBusinessUnit in mySubsidiaryList:
 
-        mySubsidiaryBusinessUnit = SubsidiaryBusinessUnit.objects.get(
-            pk=eachSubsidiaryBusinessUnit
-        )
-
-        mySubsidiary = Subsidiary.objects.get(
-            pk=mySubsidiaryBusinessUnit.id_subsidiary.id
-        )
-
-        services['business_units'].append(
-            {
-                "name": mySubsidiary.name,
-                "type": mySubsidiary.subsidiary_types.name,
-                "zone": mySubsidiary.zone.name,
-                "location": mySubsidiary.city_id.name,
-                "id": mySubsidiary.id,
-            }
-        )
-
-    for eachService in myServiceList:
-
-        myServices = Service.objects.get(pk=eachService)
-        myMoments = sbu_service_moment.objects.filter(
-            id_sbu_service__id_service__id=myServices.id
-        )
-
-        #Counters!
-        myMomentCounter = []
-        myAttributeCounter = []
-        for eachMoment in myMoments:
-            print "================================"
-            myMomentCounter.append(eachMoment.id_moment.id)
-
-        myMomentCounter = list(set(myMomentCounter))
-
-        touch_count = 0
-        indicator_count = 0
-        for eachSetMoment in myMomentCounter:
-            touch_count += 1
-
-            myAtributtes = sbu_service_moment_attribute.objects.filter(
-                id_sbu_service_moment__id_moment__id=eachSetMoment
+            mySubsidiaryBusinessUnit = SubsidiaryBusinessUnit.objects.get(
+                pk=eachSubsidiaryBusinessUnit
             )
 
-            for eachAttribute in myAtributtes:
+            mySubsidiary = Subsidiary.objects.get(
+                pk=mySubsidiaryBusinessUnit.id_subsidiary.id
+            )
 
-                att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
-                myAttributeCounter.append(att.id)
+            services['business_units'].append(
+                {
+                    "name": mySubsidiary.name,
+                    "type": mySubsidiary.subsidiary_types.name,
+                    "zone": mySubsidiary.zone.name,
+                    "location": mySubsidiary.city_id.name,
+                    "id": mySubsidiary.id,
+                }
+            )
 
-        myAttributeCounter = list(set(myAttributeCounter))
+        for eachService in myServiceList:
 
-        for x in myAttributeCounter:
-            indicator_count += 1
+            myServices = Service.objects.get(pk=eachService)
+            myMoments = sbu_service_moment.objects.filter(
+                id_sbu_service__id_service__id=myServices.id
+            )
+
+            #Counters!
+            myMomentCounter = []
+            myAttributeCounter = []
+            for eachMoment in myMoments:
+                print "================================"
+                myMomentCounter.append(eachMoment.id_moment.id)
+
+            myMomentCounter = list(set(myMomentCounter))
+
+            touch_count = 0
+            indicator_count = 0
+            for eachSetMoment in myMomentCounter:
+                touch_count += 1
+
+                myAtributtes = sbu_service_moment_attribute.objects.filter(
+                    id_sbu_service_moment__id_moment__id=eachSetMoment
+                )
+
+                for eachAttribute in myAtributtes:
+
+                    att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+                    myAttributeCounter.append(att.id)
+
+            myAttributeCounter = list(set(myAttributeCounter))
+
+            for x in myAttributeCounter:
+                indicator_count += 1
 
 
-        services['services'].append(
-            {
-                "name": myServices.name,
-                "id": myServices.id,
-                "indicator_counter": indicator_count,
-                "touchPoint_counter": touch_count
-            }
-        )
+            services['services'].append(
+                {
+                    "name": myServices.name,
+                    "id": myServices.id,
+                    "indicator_counter": indicator_count,
+                    "touchPoint_counter": touch_count
+                }
+            )
 
-    template_vars = {
-        "titulo": "Servicios",
-        "all_services": services,
-        "business_unit": business_unit,
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("services/index.html", request_context)
+        template_vars = {
+            "titulo": "Servicios",
+            "all_services": services,
+            "business_unit": business_unit,
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("services/index.html", request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def add(request, business_unit_id):
-    business_unit = BusinessUnit.objects.get(pk=business_unit_id)
-    if request.POST:
-        formulario = AddService(request.POST or None)
-        if formulario.is_valid():
-            formToSave = formulario.save()
 
-            allSubdidiaryBU = SubsidiaryBusinessUnit.objects.filter(
-                id_business_unit=business_unit_id
-            )
+    if has_permission(request.user, CREATE, "Crear servicios") or \
+            request.user.is_superuser:
 
-            for eachSubsidiaryBU in allSubdidiaryBU:
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
+        if request.POST:
+            formulario = AddService(request.POST or None)
+            if formulario.is_valid():
+                formToSave = formulario.save()
 
-                alias = str(formToSave.name) \
-                        + ', ' \
-                        + str(eachSubsidiaryBU.alias)
-
-                newSBU_service = sbu_service.objects.create(
-                    id_subsidiaryBU=eachSubsidiaryBU,
-                    id_service=formToSave,
-                    alias=alias
+                allSubdidiaryBU = SubsidiaryBusinessUnit.objects.filter(
+                    id_business_unit=business_unit_id
                 )
-                newSBU_service.save()
 
-            return HttpResponseRedirect('/services/'+str(business_unit_id))
+                for eachSubsidiaryBU in allSubdidiaryBU:
+
+                    alias = str(formToSave.name) \
+                            + ', ' \
+                            + str(eachSubsidiaryBU.alias)
+
+                    newSBU_service = sbu_service.objects.create(
+                        id_subsidiaryBU=eachSubsidiaryBU,
+                        id_service=formToSave,
+                        alias=alias
+                    )
+                    newSBU_service.save()
+
+                return HttpResponseRedirect('/services/'+str(business_unit_id))
+            else:
+                template_vars = {
+                    "titulo": "Agregar servicio",
+                    "message": "",
+                    "formulario": formulario,
+                    "buid": business_unit_id
+                }
+                request_context = RequestContext(request, template_vars)
+                return render_to_response("services/add.html", request_context)
         else:
+            formulario = AddService()
             template_vars = {
                 "titulo": "Agregar servicio",
                 "message": "",
@@ -149,91 +183,100 @@ def add(request, business_unit_id):
             request_context = RequestContext(request, template_vars)
             return render_to_response("services/add.html", request_context)
     else:
-        formulario = AddService()
-        template_vars = {
-            "titulo": "Agregar servicio",
-            "message": "",
-            "formulario": formulario,
-            "buid": business_unit_id
-        }
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        return render_to_response("services/add.html", request_context)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def update(request, service_id, business_unit_id):
 
-    try:
-        service = Service.objects.get(id=service_id)
-    except Service.DoesNotExist:
-        service = False
+    if has_permission(request.user, UPDATE, "Editar servicios") or \
+            request.user.is_superuser:
 
-    if service:
-        if request.POST:
-            formulario = AddService(request.POST or None, request.FILES,
-                                    instance=service)
-            if formulario.is_valid():
-                formulario.save()
-                template_vars = {
-                    "titulo": "Servicios",
-                    "message": "Servicios"
-                }
-                request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/services/'+ business_unit_id)
+        try:
+            service = Service.objects.get(id=service_id)
+        except Service.DoesNotExist:
+            service = False
+
+        if service:
+            if request.POST:
+                formulario = AddService(request.POST or None, request.FILES,
+                                        instance=service)
+                if formulario.is_valid():
+                    formulario.save()
+                    template_vars = {
+                        "titulo": "Servicios",
+                        "message": "Servicios"
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return HttpResponseRedirect('/services/'+ business_unit_id)
+                else:
+                    template_vars = {
+                        "titulo": "Editar servicio",
+                        "message": "",
+                        "formulario": formulario
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return render_to_response("services/update.html",
+                                              request_context)
             else:
+                formulario = AddService(instance=service)
                 template_vars = {
                     "titulo": "Editar servicio",
                     "message": "",
-                    "formulario": formulario
+                    "formulario": formulario,
+                    "service_id": service_id
                 }
                 request_context = RequestContext(request, template_vars)
-                return render_to_response("services/update.html",
-                                          request_context)
+                return render_to_response("services/update.html", request_context)
         else:
-            formulario = AddService(instance=service)
-            template_vars = {
-                "titulo": "Editar servicio",
-                "message": "",
-                "formulario": formulario,
-                "service_id": service_id
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response("services/update.html", request_context)
+            message = "No se ha podido encontrar el servicio"
+            #return HttpResponse(message+"%s." % service_id)
+            return HttpResponseRedirect('/services/'+business_unit_id)
     else:
-        message = "No se ha podido encontrar el servicio"
-        #return HttpResponse(message+"%s." % service_id)
-        return HttpResponseRedirect('/services/'+ business_unit_id)
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def remove(request, service_id, business_unit_id):
-    try:
-        mySbuService = sbu_service.objects.filter(
-            id_subsidiaryBU__id_business_unit__id=business_unit_id,
-            id_service__id=service_id
-        )
 
-        for each_serviceRelation in mySbuService:
-            each_serviceRelation.delete()
+    if has_permission(request.user, DELETE, "Eliminar servicios") or \
+            request.user.is_superuser:
 
-        message = "Se ha eliminado el servicio"
-        template_vars = {
-            "titulo": "Servicios",
-            "message": "Se ha eliminado el servicio"
-        }
+        try:
+            mySbuService = sbu_service.objects.filter(
+                id_subsidiaryBU__id_business_unit__id=business_unit_id,
+                id_service__id=service_id
+            )
+
+            for each_serviceRelation in mySbuService:
+                each_serviceRelation.delete()
+
+            message = "Se ha eliminado el servicio"
+            template_vars = {
+                "titulo": "Servicios",
+                "message": "Se ha eliminado el servicio"
+            }
+            request_context = RequestContext(request, template_vars)
+            #return render_to_response("services/index.html", request_context)
+            return HttpResponseRedirect('/services/' + str(business_unit_id))
+
+        except:
+            message = "No se pudo eliminar"
+            template_vars = {
+                "titulo": "Servicios",
+                "message": message
+            }
+            request_context = RequestContext(request, template_vars)
+            #return render_to_response("services/index.html", request_context)
+            return HttpResponseRedirect('/services/' + str(business_unit_id))
+    else:
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        #return render_to_response("services/index.html", request_context)
-        return HttpResponseRedirect('/services/' + str(business_unit_id))
-
-    except:
-        message = "No se pudo eliminar"
-        template_vars = {
-            "titulo": "Servicios",
-            "message": message
-        }
-        request_context = RequestContext(request, template_vars)
-        #return render_to_response("services/index.html", request_context)
-        return HttpResponseRedirect('/services/' + str(business_unit_id))
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 
@@ -262,29 +305,38 @@ def getSInJson(request):
 
 @login_required(login_url='/signin/')
 def getSByBUInJson(request, business_unit_id):
-    business_unit = BusinessUnit.objects.get(pk=business_unit_id)
 
-    services = {'services': []}
-    service_query = Service.objects.filter(active=True).order_by('-date')
-    business_unit_query = BusinessUnit.objects.filter(active=True)
+    if has_permission(request.user, VIEW, "Ver servicios") or \
+            request.user.is_superuser:
 
-    for service in business_unit.service.all():
-        if service.active == True:
-            services['services'].append(
-                {
-                    "name": service.name,
-                    "business_unit": business_unit.name,
-                    "business_unit_id": business_unit.id,
-                    "subsidiary": business_unit.subsidiary.name,
-                    "subsidiary_id": business_unit.subsidiary.id,
-                    "zone": business_unit.subsidiary.address,
-                    "delete": service.id,
-                    "edit": service.id,
-                    "details": service.id
-                }
-            )
+        business_unit = BusinessUnit.objects.get(pk=business_unit_id)
 
-    return HttpResponse(simplejson.dumps(services))
+        services = {'services': []}
+        service_query = Service.objects.filter(active=True).order_by('-date')
+        business_unit_query = BusinessUnit.objects.filter(active=True)
+
+        for service in business_unit.service.all():
+            if service.active == True:
+                services['services'].append(
+                    {
+                        "name": service.name,
+                        "business_unit": business_unit.name,
+                        "business_unit_id": business_unit.id,
+                        "subsidiary": business_unit.subsidiary.name,
+                        "subsidiary_id": business_unit.subsidiary.id,
+                        "zone": business_unit.subsidiary.address,
+                        "delete": service.id,
+                        "edit": service.id,
+                        "details": service.id
+                    }
+                )
+
+        return HttpResponse(simplejson.dumps(services))
+
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 '''
@@ -307,111 +359,119 @@ def details(request, service_id):
 
 @login_required(login_url='/signin/')
 def details(request, service_id):
-    try:
-        all_sbuServiceMoment = sbu_service_moment.objects.filter(
-            id_sbu_service__id_service=service_id
-        )
-        status = 'STATUS'
-    except Service.DoesNotExist:
-        raise Http404
 
-    momentsInService = {'moments': []}
-    myMomentList = []
+    if has_permission(request.user, VIEW, "Ver servicios") or \
+            request.user.is_superuser:
+
+        try:
+            all_sbuServiceMoment = sbu_service_moment.objects.filter(
+                id_sbu_service__id_service=service_id
+            )
+            status = 'STATUS'
+        except Service.DoesNotExist:
+            raise Http404
+
+        momentsInService = {'moments': []}
+        myMomentList = []
 
 
-    #Counters!
-    myMomentCounter = []
-    myAttributeCounter = []
-    myScounter = []
-    myQcounter = []
-    mySurveyCounter = []
-    for eachMoment in all_sbuServiceMoment:
-        myMomentCounter.append(eachMoment.id_moment.id)
+        #Counters!
+        myMomentCounter = []
+        myAttributeCounter = []
+        myScounter = []
+        myQcounter = []
+        mySurveyCounter = []
+        for eachMoment in all_sbuServiceMoment:
+            myMomentCounter.append(eachMoment.id_moment.id)
 
-    myMomentCounter = list(set(myMomentCounter))
+        myMomentCounter = list(set(myMomentCounter))
 
-    touch_count = 0
-    indicator_count = 0
-    question_count = 0
-    survey_count = 0
-    for eachSetMoment in myMomentCounter:
-        touch_count += 1
+        touch_count = 0
+        indicator_count = 0
+        question_count = 0
+        survey_count = 0
+        for eachSetMoment in myMomentCounter:
+            touch_count += 1
 
-        myAtributtes = sbu_service_moment_attribute.objects.filter(
-            id_sbu_service_moment__id_moment__id=eachSetMoment
-        )
-
-        for eachAttribute in myAtributtes:
-
-            att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
-            myAttributeCounter.append(att)
-            myQuestions = Question_sbu_s_m_a.objects.filter(
-                sbu_s_m_a_id=eachAttribute
+            myAtributtes = sbu_service_moment_attribute.objects.filter(
+                id_sbu_service_moment__id_moment__id=eachSetMoment
             )
 
-            for eachQuestion in myQuestions:
+            for eachAttribute in myAtributtes:
 
-                question = Question.objects.get(pk=eachQuestion.question_id.id)
-                myQcounter.append(question.id)
-
-
-                """
-                myQuestionsToSurveys = Question.objects.filter(
-                    pk=eachQuestion.question_id
+                att = Attributes.objects.get(pk=eachAttribute.id_attribute.id)
+                myAttributeCounter.append(att)
+                myQuestions = Question_sbu_s_m_a.objects.filter(
+                    sbu_s_m_a_id=eachAttribute
                 )
 
-                for eachQuestionToSurvey in myQuestionsToSurveys:
-                    mySurveyCounter.append(eachQuestionToSurvey)
-                """
-    myAttributeCounter = list(set(myAttributeCounter))
-    myQcounter = list(set(myQcounter))
+                for eachQuestion in myQuestions:
 
-    for a in myAttributeCounter:
-        indicator_count += 1
+                    question = Question.objects.get(pk=eachQuestion.question_id.id)
+                    myQcounter.append(question.id)
 
-    for b in myQcounter:
-        question_count += 1
 
-        qq = Question.objects.get(pk=b)
-        mySurvey = Survey.objects.filter(questions=qq)
+                    """
+                    myQuestionsToSurveys = Question.objects.filter(
+                        pk=eachQuestion.question_id
+                    )
 
-        for eachSurvey in mySurvey:
-            myScounter.append(eachSurvey.id)
+                    for eachQuestionToSurvey in myQuestionsToSurveys:
+                        mySurveyCounter.append(eachQuestionToSurvey)
+                    """
+        myAttributeCounter = list(set(myAttributeCounter))
+        myQcounter = list(set(myQcounter))
 
-    myScounter = list(set(myScounter))
+        for a in myAttributeCounter:
+            indicator_count += 1
 
-    for s in myScounter:
-        survey_count += 1
-    #dd
+        for b in myQcounter:
+            question_count += 1
 
-    for eachSbuServiceMoment in all_sbuServiceMoment:
-        myMomentList.append(eachSbuServiceMoment.id_moment.id)
+            qq = Question.objects.get(pk=b)
+            mySurvey = Survey.objects.filter(questions=qq)
 
-    myMomentList = list(set(myMomentList))
+            for eachSurvey in mySurvey:
+                myScounter.append(eachSurvey.id)
 
-    for eachMoment in myMomentList:
-        myMoment = Moment.objects.get(pk=eachMoment)
-        momentsInService['moments'].append(
-            {
-                "id": myMoment.id,
-                "name": myMoment.name,
-                "description": myMoment.description
-            }
-        )
+        myScounter = list(set(myScounter))
 
-    template_vars = {
-        'titulo': 'Detalles',
-        'service': momentsInService,
-        'service_id': service_id,
-        'serviceData': Service.objects.get(pk=service_id),
-        'counter_moments': touch_count,
-        'counter_attributes': indicator_count,
-        'counter_questions': question_count,
-        'counter_surveys': survey_count,
-        'business_unit': 'business_unit'
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response('services/details.html', request_context)
+        for s in myScounter:
+            survey_count += 1
+        #dd
+
+        for eachSbuServiceMoment in all_sbuServiceMoment:
+            myMomentList.append(eachSbuServiceMoment.id_moment.id)
+
+        myMomentList = list(set(myMomentList))
+
+        for eachMoment in myMomentList:
+            myMoment = Moment.objects.get(pk=eachMoment)
+            momentsInService['moments'].append(
+                {
+                    "id": myMoment.id,
+                    "name": myMoment.name,
+                    "description": myMoment.description
+                }
+            )
+
+        template_vars = {
+            'titulo': 'Detalles',
+            'service': momentsInService,
+            'service_id': service_id,
+            'serviceData': Service.objects.get(pk=service_id),
+            'counter_moments': touch_count,
+            'counter_attributes': indicator_count,
+            'counter_questions': question_count,
+            'counter_surveys': survey_count,
+            'business_unit': 'business_unit'
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('services/details.html', request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 def get_moments(request):

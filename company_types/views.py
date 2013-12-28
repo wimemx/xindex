@@ -7,15 +7,15 @@ from xindex.models import Company_Type
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from xindex.forms import CompanyTypeForm
 
-VIEW = "Ver"
-CREATE = "Crear"
-DELETE = "Eliminar"
-UPDATE = "Editar"
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
 
-#VIEW = Operation.objects.get(name="Ver")
-#CREATE = Operation.objects.get(name="Crear")
-#DELETE = Operation.objects.get(name="Eliminar")
-#UPDATE = Operation.objects.get(name="Editar")
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')

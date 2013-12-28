@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.models import Subsidiary_Type
 from django.http import HttpResponseRedirect, HttpResponse
 from subsidiary_types.forms import AddSubsidiaryType
@@ -7,134 +9,175 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from xindex.models import Subsidiary, Company
 
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
+
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
+
 
 @login_required(login_url='/signin/')
 def index(request):
-    all_subsidiary_types = Subsidiary_Type.objects.all().order_by('-name')
-    for s_t in all_subsidiary_types:
-        print s_t.name
-    template_vars = {
-        "titulo": "Tipos de subsidiarias",
-        "message": "",
-        "all_subsidiary_types": all_subsidiary_types
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("subsidiary_types/index.html", request_context)
+
+    if has_permission(request.user, VIEW, "Ver tipos de subsidiarias") or \
+            request.user.is_superuser:
+
+        all_subsidiary_types = Subsidiary_Type.objects.all().order_by('-name')
+        for s_t in all_subsidiary_types:
+            print s_t.name
+        template_vars = {
+            "titulo": "Tipos de subsidiarias",
+            "message": "",
+            "all_subsidiary_types": all_subsidiary_types
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("subsidiary_types/index.html", request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def add(request):
-    if request.POST:
-        formulario = AddSubsidiaryType(request.POST or None)
-        if formulario.is_valid():
-            formulario.save()
-            template_vars = {
-                "titulo": "Tipos de subsidiarias",
-                "message": "Se ha dado de alta el tipo de subsidiaria",
-                "formulario": formulario
-            }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponseRedirect('/subsidiary_types')
+
+    if has_permission(request.user, CREATE, "Crear tipos de subsidiarias") or \
+            request.user.is_superuser:
+
+        if request.POST:
+            formulario = AddSubsidiaryType(request.POST or None)
+            if formulario.is_valid():
+                formulario.save()
+                template_vars = {
+                    "titulo": "Tipos de subsidiarias",
+                    "message": "Se ha dado de alta el tipo de subsidiaria",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return HttpResponseRedirect('/subsidiary_types')
+            else:
+                template_vars = {
+                    "titulo": "Agregar tipo de subsidiaria",
+                    "message": "",
+                    "formulario": formulario
+                }
+                request_context = RequestContext(request, template_vars)
+                return render_to_response("subsidiary_types/add.html",
+                                          request_context)
+
         else:
+            formulario = AddSubsidiaryType()
             template_vars = {
                 "titulo": "Agregar tipo de subsidiaria",
                 "message": "",
                 "formulario": formulario
             }
             request_context = RequestContext(request, template_vars)
-            return render_to_response("subsidiary_types/add.html",
-                                      request_context)
-
+            return render_to_response("subsidiary_types/add.html", request_context)
     else:
-        formulario = AddSubsidiaryType()
-        template_vars = {
-            "titulo": "Agregar tipo de subsidiaria",
-            "message": "",
-            "formulario": formulario
-        }
+        template_vars = {}
         request_context = RequestContext(request, template_vars)
-        return render_to_response("subsidiary_types/add.html", request_context)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def update(request, subsidiary_type_id):
-    try:
-        sub_type = Subsidiary_Type.objects.get(id=subsidiary_type_id)
-    except Subsidiary_Type.DoesNotExist:
-        sub_type = False
 
-    if sub_type:
-        if request.POST:
-            formulario = AddSubsidiaryType(request.POST or None,
-                                           instance=sub_type)
-            if formulario.is_valid():
-                formulario.save()
-                template_vars = {
-                    "titulo": "Tipos de subsidiarias",
-                    "message": "Se ha modificado el tipo de subsidiaria"
-                }
-                request_context = RequestContext(request, template_vars)
-                return HttpResponseRedirect('/subsidiary_types/')
+    if has_permission(request.user, UPDATE, "Editar tipos de subsidiarias") or \
+            request.user.is_superuser:
+
+        try:
+            sub_type = Subsidiary_Type.objects.get(id=subsidiary_type_id)
+        except Subsidiary_Type.DoesNotExist:
+            sub_type = False
+
+        if sub_type:
+            if request.POST:
+                formulario = AddSubsidiaryType(request.POST or None,
+                                               instance=sub_type)
+                if formulario.is_valid():
+                    formulario.save()
+                    template_vars = {
+                        "titulo": "Tipos de subsidiarias",
+                        "message": "Se ha modificado el tipo de subsidiaria"
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return HttpResponseRedirect('/subsidiary_types/')
+                else:
+                    template_vars = {
+                        "titulo": "Editar tipo de subsidiaria",
+                        "message": "",
+                        "formulario": formulario
+                    }
+                    request_context = RequestContext(request, template_vars)
+                    return render_to_response("subsidiary_types/update.html",
+                                              request_context)
             else:
+                formulario = AddSubsidiaryType(request.POST or None,
+                                               instance=sub_type)
                 template_vars = {
                     "titulo": "Editar tipo de subsidiaria",
                     "message": "",
-                    "formulario": formulario
+                    "formulario": formulario,
+                    "subsidiary_type_id": subsidiary_type_id
                 }
                 request_context = RequestContext(request, template_vars)
                 return render_to_response("subsidiary_types/update.html",
                                           request_context)
         else:
-            formulario = AddSubsidiaryType(request.POST or None,
-                                           instance=sub_type)
-            template_vars = {
-                "titulo": "Editar tipo de subsidiaria",
-                "message": "",
-                "formulario": formulario,
-                "subsidiary_type_id": subsidiary_type_id
-            }
-            request_context = RequestContext(request, template_vars)
-            return render_to_response("subsidiary_types/update.html",
-                                      request_context)
+            message = "No se ha podido encontrar la subsidiaria"
+            return HttpResponseRedirect('/subsidiary_types/')
     else:
-        message = "No se ha podido encontrar la subsidiaria"
-        return HttpResponseRedirect('/subsidiary_types/')
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
 def remove(request, subsidiary_type_id):
 
-    try:
-        sub_type = Subsidiary_Type.objects.get(id=subsidiary_type_id)
-    except Subsidiary_Type.DoesNotExist:
-        sub_type = False
+    if has_permission(request.user, DELETE, "Eliminar tipos de subsidiarias") or \
+            request.user.is_superuser:
 
-    if sub_type:
         try:
-            sub_type.active = False
-            sub_type.save()
-            message="Se ha eliminado el tipo de subsidiaria"
-            template_vars = {
-                "titulo": "Tipos de subsidiarias",
-                "message": message
-            }
-            return HttpResponse("Si")
+            sub_type = Subsidiary_Type.objects.get(id=subsidiary_type_id)
+        except Subsidiary_Type.DoesNotExist:
+            sub_type = False
 
-        except:
-            message = "No se pudo eliminar el tipo de subsidiaria"
+        if sub_type:
+            try:
+                sub_type.active = False
+                sub_type.save()
+                message="Se ha eliminado el tipo de subsidiaria"
+                template_vars = {
+                    "titulo": "Tipos de subsidiarias",
+                    "message": message
+                }
+                return HttpResponse("Si")
+
+            except:
+                message = "No se pudo eliminar el tipo de subsidiaria"
+                template_vars = {
+                    "titulo": "Tipos de subsidiarias",
+                    "message": message
+                }
+                request_context = RequestContext(request, template_vars)
+                return HttpResponse('No se pudo eliminar el tipo de subsidiaria')
+        else:
+            message = "No se ha encontrado el tipo de subsidiaria"
             template_vars = {
-                "titulo": "Tipos de subsidiarias",
+                "titulo": "tipos de subsidiarias",
                 "message": message
             }
-            request_context = RequestContext(request, template_vars)
-            return HttpResponse('No se pudo eliminar el tipo de subsidiaria')
+            return HttpResponseRedirect('/subsidiary_types')
     else:
-        message = "No se ha encontrado el tipo de subsidiaria"
-        template_vars = {
-            "titulo": "tipos de subsidiarias",
-            "message": message
-        }
-        return HttpResponseRedirect('/subsidiary_types')
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
@@ -157,19 +200,27 @@ def getSTInJson(request):
 
 @login_required(login_url='/signin/')
 def details(request, subsidiary_type_id):
-    template_vars = {
-        'titulo': 'Detalles'
-    }
-    try:
-        sub_t = Subsidiary_Type.objects.get(id=subsidiary_type_id)
 
-        sub_t = False if sub_t.active==False else sub_t
-    except Subsidiary_Type.DoesNotExist:
-        sub_t = False
+    if has_permission(request.user, VIEW, "Ver tipos de subsidiarias") or \
+            request.user.is_superuser:
 
-    template_vars['sub_t'] = sub_t
-    request_context = RequestContext(request, template_vars)
-    return render_to_response('subsidiary_types/details.html', request_context)
+        template_vars = {
+            'titulo': 'Detalles'
+        }
+        try:
+            sub_t = Subsidiary_Type.objects.get(id=subsidiary_type_id)
+
+            sub_t = False if sub_t.active==False else sub_t
+        except Subsidiary_Type.DoesNotExist:
+            sub_t = False
+
+        template_vars['sub_t'] = sub_t
+        request_context = RequestContext(request, template_vars)
+        return render_to_response('subsidiary_types/details.html', request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')

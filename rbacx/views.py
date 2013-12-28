@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from rbacx.functions import mailing
 from xindex.models import Company, Subsidiary, BusinessUnit, Service, \
     Xindex_User
-from rbacx.models import Operation, Role
+from rbacx.models import Operation, Role, UserRole
 
 
 VIEW = "Ver"
@@ -182,6 +182,13 @@ def create_user(request):
         new_user.is_active = True
 
         new_user.save()
+        role = Role.objects.get(pk=request.POST['user_role'])
+        userRole = UserRole.objects.create(
+            user_id=new_user,
+            role_id=role
+        )
+
+        userRole.save()
 
         content = 'Username:' + username + ' - Password:' + password
 

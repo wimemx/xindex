@@ -6,23 +6,46 @@ from django.http import HttpResponseRedirect
 from django.template.context import RequestContext
 import re
 from django.db.models import Q
-from models import Survey
+from models import Survey, SubsidiaryBusinessUnit, Company, Zone, Subsidiary, sbu_service
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.models import Xindex_User
+
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
+
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
+
 
 @login_required(login_url='/signin/')
 def index(request):
-    user = request.user
-    xindex_user = Xindex_User.objects.get(user=request.user)
-    logo_name = False
-    for company in xindex_user.company_set.all():
-        if company.logo != 'No image':
-            logo_name = company.logo
-    template_vars = {
-        'user': user,
-        'logo_name': logo_name
-    }
-    request_context = RequestContext(request, template_vars)
-    return render_to_response("xindex/index.html", request_context)
+    if has_permission(request.user, VIEW, "Ver index") or \
+            request.user.is_superuser:
+        user = request.user
+        xindex_user = Xindex_User.objects.get(user=request.user)
+        logo_name = False
+        for company in xindex_user.company_set.all():
+            if company.logo != 'No image':
+                logo_name = company.logo
+        template_vars = {
+            'user': user,
+            'logo_name': logo_name
+        }
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("xindex/index.html", request_context)
+    else:
+        if has_permission(request.user, VIEW, "Ver call center"):
+
+            return HttpResponseRedirect("/callcenter/")
+        else:
+            template_vars = {}
+            request_context = RequestContext(request, template_vars)
+            return render_to_response("rbac/generic_error.html", request_context)
 
 
 def signin(request):
