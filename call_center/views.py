@@ -12,15 +12,15 @@ from rbacx.models import Operation
 from xindex.models import Company, Zone, Subsidiary, SubsidiaryBusinessUnit, \
     sbu_service, BusinessUnit, Service, Survey, Client, ClientActivity
 
-VIEW = "Ver"
-CREATE = "Crear"
-DELETE = "Eliminar"
-UPDATE = "Editar"
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
 
-#VIEW = Operation.objects.get(name="Ver")
-#CREATE = Operation.objects.get(name="Crear")
-#DELETE = Operation.objects.get(name="Eliminar")
-#UPDATE = Operation.objects.get(name="Editar")
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')
@@ -405,7 +405,8 @@ def add_client(request):
                     email=request.POST['client_email'],
                     phone=request.POST['client_phone'],
                     city=request.POST['client_state'],
-                    company=request.POST['client_company'])
+                    company=request.POST['client_company'],
+                    rating=1)
 
                 new_client.save()
 
@@ -433,8 +434,8 @@ def add_client(request):
 
                     a_id_and_c_id = str(activityData.id)+str(new_client.id)
                     activity_code = short_url.encode_url(int(a_id_and_c_id))
-                    new_client.code = activity_code
-                    new_client.save()
+                    activityData.code = activity_code
+                    activityData.save()
 
                     try:
                         survey = Survey.objects.get(
@@ -470,7 +471,9 @@ def add_client(request):
             sbu_services = sbu_service.objects.filter(
                 id_subsidiaryBU__id_subsidiary__id=businessUnits[0].id_subsidiary.id
             )
-        except:
+        except sbu_service.DoesNotExist:
+            sbu_services = "Sin servicios"
+        except sbu_service.MultipleObjectsReturned:
             sbu_services = "Sin servicios"
         template_vars = {'companies': companies,
                          'zones': zones,

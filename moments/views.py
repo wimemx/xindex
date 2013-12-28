@@ -11,15 +11,15 @@ from xindex.models import Moment, Service, sbu_service, sbu_service_moment, \
 from xindex.models import sbu_service_moment_attribute, Subsidiary, BusinessUnit
 from xindex.forms import MomentForm
 
-VIEW = "Ver"
-CREATE = "Crear"
-DELETE = "Eliminar"
-UPDATE = "Editar"
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
 
-#VIEW = Operation.objects.get(name="Ver")
-#CREATE = Operation.objects.get(name="Crear")
-#DELETE = Operation.objects.get(name="Eliminar")
-#UPDATE = Operation.objects.get(name="Editar")
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')

@@ -11,15 +11,15 @@ from rbacx.models import Operation
 from xindex.models import BusinessUnit, Subsidiary, SubsidiaryBusinessUnit
 from xindex.models import Xindex_User, Service, sbu_service, Zone
 
-VIEW = "Ver"
-CREATE = "Crear"
-DELETE = "Eliminar"
-UPDATE = "Editar"
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
 
-#VIEW = Operation.objects.get(name="Ver")
-#CREATE = Operation.objects.get(name="Crear")
-#DELETE = Operation.objects.get(name="Eliminar")
-#UPDATE = Operation.objects.get(name="Editar")
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
 
 
 @login_required(login_url='/signin/')
@@ -27,6 +27,7 @@ def index(request):
 
     if has_permission(request.user, VIEW, "Ver unidades de negocio") or \
             request.user.is_superuser:
+
         all_business_units = BusinessUnit.objects.all().order_by('-name')
         template_vars = {
             "titulo": "Unidades de negocio",

@@ -8,6 +8,8 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils import simplejson
+from rbacx.functions import has_permission
+from rbacx.models import Operation
 from xindex.forms import SurveyForm
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
@@ -17,42 +19,60 @@ from xindex.models import Question, Option, Catalog, Moment, Service, Answer, \
     sbu_service_moment, sbu_service_moment_attribute, BusinessUnit, Service, \
     Client, Subsidiary, Question_Type, Xindex_User, Survey, Company, ClientActivity
 
+#VIEW = "Ver"
+#CREATE = "Crear"
+#DELETE = "Eliminar"
+#UPDATE = "Editar"
+
+VIEW = Operation.objects.get(name="Ver")
+CREATE = Operation.objects.get(name="Crear")
+DELETE = Operation.objects.get(name="Eliminar")
+UPDATE = Operation.objects.get(name="Editar")
+
 
 @login_required(login_url='/signin/')
 def index(request):
-    surveys = {'surveys': []}
-    survey_query = Survey.objects.filter(active=True).order_by('name')
-    question_attribute_moment_query = Question_sbu_s_m_a.objects.all()
 
-    for each_survey in survey_query:
-        counter_question = 0
-        counter_attributes = 0
+    if has_permission(request.user, VIEW, "Ver encuestas") or \
+            request.user.is_superuser:
 
-        for each_question in each_survey.questions.all():
-            counter_question += 1
+        surveys = {'surveys': []}
+        survey_query = Survey.objects.filter(active=True).order_by('name')
+        question_attribute_moment_query = Question_sbu_s_m_a.objects.all()
 
-            for each_question_attribute in question_attribute_moment_query:
-                if each_question == each_question_attribute.question_id:
-                    counter_attributes += 1
+        for each_survey in survey_query:
+            counter_question = 0
+            counter_attributes = 0
 
-        surveys['surveys'].append(
-            {
-                "id": each_survey.id,
-                "name": each_survey.name,
-                "date": each_survey.date,
-                "status": each_survey.available,
-                "counter_question": counter_question,
-                "counter_attribute": counter_attributes,
-                "next_step": each_survey.step
-            }
-        )
-    template_vars = {
-        "title": "Surveys",
-        "surveys": surveys,
-        "order_query": "Nombre"
-    }
-    request_context = RequestContext(request, template_vars)
-    return render(request, 'surveys/index.html', request_context)
+            for each_question in each_survey.questions.all():
+                counter_question += 1
+
+                for each_question_attribute in question_attribute_moment_query:
+                    if each_question == each_question_attribute.question_id:
+                        counter_attributes += 1
+
+            surveys['surveys'].append(
+                {
+                    "id": each_survey.id,
+                    "name": each_survey.name,
+                    "date": each_survey.date,
+                    "status": each_survey.available,
+                    "counter_question": counter_question,
+                    "counter_attribute": counter_attributes,
+                    "next_step": each_survey.step
+                }
+            )
+        template_vars = {
+            "title": "Surveys",
+            "surveys": surveys,
+            "order_query": "Nombre"
+        }
+        request_context = RequestContext(request, template_vars)
+        return render(request, 'surveys/index.html', request_context)
+    else:
+        template_vars = {}
+        request_context = RequestContext(request, template_vars)
+        return render_to_response("rbac/generic_error.html", request_context)
 
 
 @login_required(login_url='/signin/')
