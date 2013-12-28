@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Xindex | Administracion{% endblock %}</title>
+    <meta name="description"
+          content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/font.css" cache="false">
+    <link rel="stylesheet" href="/static/js/select2/select2.css">
+    <link rel="stylesheet" href="/static/js/fuelux/fuelux.css">
+    <link rel="stylesheet" href="/static/js/datepicker/datepicker.css">
+    <link rel="stylesheet" href="/static/js/slider/slider.css">
+    <link rel="stylesheet" href="/static/css/plugin.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    {% block externalCss %}
+
+    {% endblock %}
+    <!--[if lt IE 9]>
+    <script src="js/ie/respond.min.js" cache="false"></script>
+    <script src="js/ie/html5.js" cache="false"></script>
+    <script src="js/ie/fix.js" cache="false"></script>
+    <![endif]-->
+
+</head>
+<body>
+<!-- Seccion Principal -->
+<section class="hbox stretch">
+    <aside class="aside-md yellow-xindex-nohover" id="nav">
+        <!-- Yellow Section -->
+        <section class="vbox">
+            <!--header deleted-->
+            <!--Footer-->
+            <footer class="footer yellow-xindex-nohover bg-gradient hidden-xs">
+                <a href="#nav" data-toggle="class:nav-vertical"
+                   class="btn btn-sm btn-link m-l-n-sm">
+                    <i class="icon-reorder"></i>
+                </a>
+            </footer>
+            <!--End Footer-->
+            <section>
+                <div class="nav-bar blue-xindex">
+                    <a class="btn btn-link visible-xs" data-toggle="class:show"
+                       data-target=".nav-user">
+                        <i class="icon-comment-alt"></i>
+                    </a>
+                </div>
+                <!--Seccion Usuario-->
+                <div class="blue-xindex nav-user hidden-xs pos-rlt">
+                    <div class="nav-avatar pos-rlt">
+                        <a href="#" class="thumb-sm avatar animated fadeIn"
+                           data-toggle="dropdown">
+                            <i class="icon-user icon-2x"></i>
+                            <i class="hidden-vertical" style="margin-left: 20px;">
+                                <label class="h4">
+                                    {% block username %}
+                                    Admin
+                                    {% endblock %}
+                                </label>
+                                <span class="caret-white icon-chevron-down"></span>
+                            </i>
+                        </a>
+                        <ul class="dropdown-menu m-t-sm animated fadeInLeft">
+                            <span class="arrow top"></span>
+                            <li>
+                                <a href="/control_panel/">Configuración</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="/logout/">Cerrar sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Termina Seccion Usuario-->
+                <!-- Seccion Menu-->
+                {% block menu %}
+                <nav class="nav-primary hidden-xs">
+                    <ul class="nav" id="nav-accordion">
+                        <li>
+                            <a data-toggle="collapse" data-parent="#nav-accordion"
+                               href="#collapseOne">
+                                <i class="icon-building"></i>
+                                <span>Usuarios</span>
+                            </a>
+                        </li>
+                    </ul>
+                {% endblock %}
+            </section>
+        </section>
+        <!-- Ends Yellow Section -->
+    </aside>
+    {% block mainContent %}
+    <section class="vbox">
+        <header class="header b-b">
+            <p class="h4 animated bounceInDown">Xindex | Administracion</p>
+        </header>
+        <section class="vbox">
+        <section class="scrollable wrapper">
+        <div class="tab-pane active" id="static">
+        <section class="panel">
+            <header class="panel-heading">
+                Clientes registrados
+            </header>
+            <div class="row text-sm wrapper">
+                <div class="col-sm-5 m-b-xs">
+                    <form action="/manager_list/" method="post">
+                        {% csrf_token %}
+                        <select class="input-sm form-control input-s-sm inline">
+                            <option value="0">Accion</option>
+                            <option value="1">Habilitar Seleccion</option>
+                            <option value="2">Suspender Seleccion</option>
+                            <option value="3">Eliminar Seleccion</option>
+                        </select>
+                        <input type="submit" name="bulk" class="btn btn-sm btn-white" value="Aplicar"></input>
+                    </form>
+                </div>
+                <div class="col-sm-4 m-b-xs">
+                </div>
+                <div class="col-sm-2">
+                    <div class="input-group">
+                        <form action="/manager_list/" method="post">
+                            {% csrf_token %}
+                      <span class="input-group-btn">
+                            <input type="text" class="input-sm form-control" style="height: 30px !important;" placeholder="Buscar">
+                            <input type="submit" class="btn btn-white" value="Enviar"></input>
+                      </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped b-t text-sm">
+                    <thead>
+                    <tr>
+                        <th width="20"><input type="checkbox"></th>
+                        <th width="150">Nombre de usuario</th>
+                        <th>Dominio</th>
+                        <th>Fecha de Registro</th>
+                        <th>Fecha de Expiracion</th>
+                        <th>Mail</th>
+                        <th width="30">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if clients %}
+                        {% for client in clients %}
+                        {% if client.name != "xindex" %}
+                        <tr>
+                            <td><input type="checkbox" name="client_ids" value="{{ client.id }}"></td>
+                            <td>{{ client.name }}</td>
+                            <td>{{ client.domain_url }}</td>
+                            <td>{{ client.registered_on }}</td>
+                            <td>{{ client.paid_until }}</td>
+                            <td>{{ client.mail }}</td>
+                            {% if client.status == True %}
+                                <td>
+                                    Activo
+                                <td>
+                            {% else %}
+                                <td>
+                                    Prueba
+                                </td>
+                            {% endif %}
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <footer class="panel-footer">
+                <div class="row">
+                    <div class="col-sm-4 hidden-xs">
+                        <small class="text-muted inline m-t-sm m-b-sm">
+                            Xindex | Administrador
+                        </small>
+                    </div>
+                    <div class="col-sm-4 text-center">
+                        <small class="text-muted inline m-t-sm m-b-sm">
+                            Pagina {{ clients.number }} de {{ clients.paginator.num_pages }}
+                        </small>
+                    </div>
+                    <div class="col-sm-4 text-right text-center-xs">
+                        <ul class="pagination pagination-sm m-t-none m-b-none">
+                            {% if clients.has_previous %}
+                            <li><a href="?page={{ clients.previous_page_number }}">
+                                <i class="icon-chevron-left"></i>
+                            </a></li>
+                            <li></li>
+                            {% endif %}
+
+                            {%for num in clients.paginator.page_range %}
+                                {% ifequal num contacts.number %}
+                                    <li><b>{{ num }}</b></li>
+                                {%else%}
+                                    <li><a href="?page={{ num }}">{{ num }}</a ></li>
+                                {% endifequal %}
+                            {% endfor %}
+                            {% if clients.has_next %}
+                            <li><a href="?page={{ clients.next_page_number }}">
+                                <i class="icon-chevron-right"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </footer>
+        </section>
+    </section>
+    {% endblock %}
+</section>
+<!-- Termina Seccion Principal -->
+{% block header %}
+{% endblock %}
+{% block contenido %}
+
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
+<script src="/static/js/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/static/js/bootstrap.js"></script>
+
+{% block externalJs %}
+<!-- App -->
+<script src="/static/js/app.js"></script>
+<script src="/static/js/app.plugin.js"></script>
+<script src="/static/js/app.data.js"></script>
+{% endblock %}
+</body>
+</html>

@@ -439,8 +439,8 @@ class ClientActivity(models.Model):
     
 
 class Cumulative_Report(models.Model):
-    #id_company = models.ForeignKey(Company, blank=True, null=True)
-    #id_zone = models.ForeignKey(Zone, blank=True, null=True)
+    id_company = models.ForeignKey(Company, blank=True, null=True)
+    id_zone = models.ForeignKey(Zone, blank=True, null=True)
     id_subsidiary = models.ForeignKey(Subsidiary, blank=True, null=True)
     id_business_unit = models.ForeignKey(BusinessUnit, blank=True, null=True)
     id_service = models.ForeignKey(Service, blank=True, null=True)

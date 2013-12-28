@@ -708,13 +708,15 @@ def get_moments(request):
                                             pass
 
                 if len(momentList) == 0:
-                        pass
+                    json_response = {
+                        'answer': False
+                    }
                 else:
                     json_response = {
                         'answer': True,
                         'moments': momentList
                     }
-                    return HttpResponse(json.dumps(json_response))
+                return HttpResponse(json.dumps(json_response))
             else:
                 try:
                     zone = Zone.objects.get(pk=int(request.POST['zone']))
@@ -738,13 +740,15 @@ def get_moments(request):
                                     }
                                 )
                     if len(momentList) == 0:
-                        pass
+                        json_response = {
+                            'answer': False
+                        }
                     else:
                         json_response = {
                             'answer': True,
                             'moments': momentList
                         }
-                        return HttpResponse(json.dumps(json_response))
+                    return HttpResponse(json.dumps(json_response))
                 except Zone.DoesNotExist:
                     pass
         else:

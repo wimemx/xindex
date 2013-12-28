@@ -11,12 +11,12 @@ ADMINS = (
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'tenant_schemas.postgresql_backend', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'xindex',                      # Or path to database file if using sqlite3.
         'USER': 'postgres',               # Not used with sqlite3.
         'PASSWORD': 'A8d32e08.',    # Not used with sqlite3.
         'HOST': '0.0.0.0',     # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                  # Set to empty string for default. Not used with sqlite3.
+        'PORT': '',                  # Set to empty string for default. Not used with sqlite3.
     }
 }
 # Local time zone for this installation. Choices can be found here:
@@ -59,15 +59,15 @@ MEDIA_URL = '/templates/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), '..',
+                                 'templates/static').replace('\\','/')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
 # Additional locations of static files
-STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), '..',
-                                 'templates/static').replace('\\','/'),
+STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -91,7 +91,13 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+)
+
 MIDDLEWARE_CLASSES = (
+    'tenant_schemas.middleware.TenantMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -101,26 +107,35 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'growthfactor.urls'
-
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'growthfactor.wsgi.application'
 
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').\
                      replace('\\','/'),)
 
-INSTALLED_APPS = (
+ROOT_URLCONF = 'growthfactor.urls_tenants'
+PUBLIC_SCHEMA_URLCONF = 'growthfactor.urls_public'
+
+SHARED_APPS = (
+    'tenant_schemas',
+    'tenantCustomer',
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admindocs',
+)
+
+TENANT_APPS = (
+    'django.contrib.contenttypes',
+    'django.contrib.auth',
+    'django.contrib.sites',
     'xindex',
+    'xindex_user',
     'moments',
     'questions',
     'subsidiaries',
@@ -136,6 +151,10 @@ INSTALLED_APPS = (
     'report_tasks',
     'call_center',
 )
+
+INSTALLED_APPS = SHARED_APPS + TENANT_APPS
+
+TENANT_MODEL = 'tenantCustomer.Customer_info'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

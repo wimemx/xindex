@@ -159,49 +159,56 @@
                 </section>
             </div>
             <div class="row wrapper">
-                <div class="header text-muted">
-                    <p class="h4">Nivel de Satisfaccion por zonas</p>
+                <div class="header text-muted text-center">
+                    <p class="h4">Comparativa de Nivel de Satisfacci&oacute;n por Zonas</p>
                 </div>
-                <section class="panel no-border hbox">
-                    <aside class="lter r-l text-center v-middle">
-                        <div class="wrapper">
-                            <div id="zones_graph">
-
-                            </div>
-                        </div>
-                    </aside>
-                    <aside>
-                        <div class="pos-rlt">
-                            <div class="panel-body">
-                                <div class="header h4 text-muted text-center">
-                                    Nivel de satisfacci&oacute;n en los ultimos meses:
-                                </div>
-                                <div class="media">
-                                    <ul class="list-group alt">
-                                        {% for zone in zones_data %}
-                                            <form method="POST" action="/reports/zone/">
-                                                {% csrf_token %}
-                                                <li class="list-group-item no-border btn btn-white btn_send_zone">
-                                                    <input type="hidden" name="zone" id="id_zone" value="{{ zone.zone_id }}">
-                                                    <div class="media">
-                                                        <div class="pull-left text-success m-t-sm">
-                                                            <i class="icon-stop icon-xlarge" style="color: {{ zone.color }} !important;"></i>
-                                                        </div>
-                                                        <div class="media-body">
-                                                            <div><a href="#">{{ zone.zone_name }}</a></div>
-                                                            <small class="text-muted">Xindex: {{ zone.xindex_zone }}</small>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </form>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-                </section>
             </div>
+            {% if zones_data %}
+                <div class="row wrapper">
+                    <section class="panel no-border hbox">
+                        <aside class="lter r-l text-center v-middle">
+                            <div class="wrapper">
+                                <div id="zones_graph">
+
+                                </div>
+                            </div>
+                        </aside>
+                        <aside>
+                            <div class="pos-rlt">
+                                <div class="panel-body">
+                                    <div class="media">
+                                        <ul class="list-group alt">
+                                            {% for zone in zones_data %}
+                                                <form method="POST" action="/reports/zone/">
+                                                    {% csrf_token %}
+                                                    <li class="list-group-item no-border btn btn-white btn_send_zone">
+                                                        <input type="hidden" name="zone" id="id_zone" value="{{ zone.zone_id }}">
+                                                        <div class="media">
+                                                            <div class="pull-left text-success m-t-sm">
+                                                                <i class="icon-stop icon-xlarge" style="color: {{ zone.color }} !important;"></i>
+                                                            </div>
+                                                            <div class="media-body">
+                                                                <div><a href="#">{{ zone.zone_name }}</a></div>
+                                                                <small class="text-muted">Xindex: {{ zone.xindex_zone }}</small>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </form>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                </div>
+            {% else %}
+                <div class="row wrapper">
+                    <section class="panel no-border hbox">
+                        <p>No se encontraron mas Zonas</p>
+                    </section>
+                </div>
+            {% endif %}
             <div class="row wrapper text-center text-muted h1">
                 <section class="panel no-borders hbox">
                     <aside class="lter r-l text-center v-middle">

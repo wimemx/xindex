@@ -989,7 +989,7 @@ def create_range_question(request, data):
     new_option.save()
 
     not_apply_option = Option(question=question, label='No aplica',
-                              value=end_number+1,
+                              value=0,
                               order=end_number+1,
                               meta='not editable')
     not_apply_option.save()
@@ -2745,7 +2745,6 @@ def answer_survey(request, survey_id_encoded, hash_code, client_id_encoded):
                                         style = ''
                                     if 'block_moment_associated_id' in block:
                                         block_moment_associated_id = block['block_moment_associated_id']
-                                        print block_moment_associated_id
                                     else:
                                         block_moment_associated_id = False
                                     if 'block_type' in block:

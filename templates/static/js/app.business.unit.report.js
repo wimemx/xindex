@@ -38,6 +38,9 @@ $(document).ready(function(){
                     $('select#id_business_unit').html(
                         '<option value="default">Seleccione una sucursal</option>'
                     )
+                } else {
+                    $('#form_select_subsidiary #id_subsidiary').html('<option value="invalid">Sin sucursales</option>');
+                    $('#form_select_subsidiary #id_subsidiary').attr('disabled', true);
                 }
             },
             error: function(){

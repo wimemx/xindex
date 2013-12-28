@@ -353,13 +353,15 @@ def get_business_units(request):
                                 }
                             )
                         if len(businessUnitsList) == 0:
-                            pass
+                            json_response = {
+                                'answer': False
+                            }
                         else:
                             json_response = {
                                 'answer': True,
                                 'business_units': businessUnitsList
                             }
-                            return HttpResponse(json.dumps(json_response))
+                        return HttpResponse(json.dumps(json_response))
                     except Zone.DoesNotExist:
                         pass
             else:

@@ -270,7 +270,8 @@ def get_subsidiaries(request):
                             'answer': True,
                             'subsidiaries': subsidiariesList
                         }
-                        return HttpResponse(json.dumps(json_response))
+
+                    return HttpResponse(json.dumps(json_response))
                 except Zone.DoesNotExist:
                     pass
         else:

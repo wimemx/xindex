@@ -371,13 +371,15 @@ def get_services(request):
                             except SubsidiaryBusinessUnit.DoesNotExist:
                                 pass
                 if len(servicesList) == 0:
-                        pass
+                    json_response = {
+                        'answer': False
+                    }
                 else:
                     json_response = {
                         'answer': True,
                         'services': servicesList
                     }
-                    return HttpResponse(json.dumps(json_response))
+                return HttpResponse(json.dumps(json_response))
 
             else:
                 try:
@@ -392,13 +394,15 @@ def get_services(request):
                                 }
                             )
                     if len(servicesList) == 0:
-                        pass
+                        json_response = {
+                            'answer': False
+                        }
                     else:
                         json_response = {
                             'answer': True,
                             'services': servicesList
                         }
-                        return HttpResponse(json.dumps(json_response))
+                    return HttpResponse(json.dumps(json_response))
                 except Zone.DoesNotExist:
                     pass
         else:

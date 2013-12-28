@@ -114,7 +114,8 @@
                             <p>Zona</p>
                             <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="zone" id="id_zone">
+                                <select class="form-control text-primary header" name="zone" id="id_zone" {% if not zones %}disabled="disabled" {% endif %}>
+                                {% if zones %}
                                     {% for zone in zones %}
                                         {% if zone.id == current_zone.id %}
                                             <option value="{{ zone.id }}" selected>{{ zone.name }}</option>
@@ -122,6 +123,9 @@
                                             <option value="{{ zone.id }}">{{ zone.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin zonas</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -130,7 +134,8 @@
                             <form id="form_select_subsidiary" action="/reports/subsidiary/" method="POST">
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
+                                <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary" {% if not subsidiaries %}disabled="disabled" {% endif %}>
+                                {% if subsidiaries %}
                                     {% for subsidiary in subsidiaries %}
                                         {% if subsidiary.id == current_subsidiary.id %}
                                             <option value="{{ subsidiary.id }}" selected>{{ subsidiary.name }}</option>
@@ -138,6 +143,9 @@
                                             <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin sucursales</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -184,9 +192,11 @@
                 </section>
             </div>
             <div class="row wrapper">
-                <div class="header text-muted">
+                <div class="header text-muted text-center">
                     <p class="h4">Nivel de Satisfaccion por Unidad de Servicio</p>
                 </div>
+            </div>
+            <div class="row wrapper">
                 <section class="panel no-border hbox">
                     <aside class="lter r-l text-center v-middle">
                         <div class="wrapper">
@@ -198,9 +208,6 @@
                     <aside>
                         <div class="pos-rlt">
                             <div class="panel-body">
-                                <div class="header h4 text-muted text-center">
-                                    Nivel de satisfacci&oacute;n en los ultimos meses:
-                                </div>
                                 <div class="media">
                                     <ul class="list-group alt">
                                         {% for business_unit in business_units_data %}

@@ -114,7 +114,8 @@
                             <p>Zona</p>
                             <form id="form_select_zone" action="/zones/get_subsidiaries/" method="POST">
                             {% csrf_token %}
-                                <select class="form-control text-primary header" name="zone" id="id_zone">
+                                <select class="form-control text-primary header" name="zone" id="id_zone" {% if not zones %}disabled="disabled" {% endif %}>
+                                {% if zones %}
                                 <option value="all">Todas</option>
                                     {% for zone in zones %}
                                         {% if zone.id == current_zone.id %}
@@ -123,6 +124,9 @@
                                             <option value="{{ zone.id }}">{{ zone.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin zonas</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -131,7 +135,8 @@
                             <form id="form_select_subsidiary" action="/subsidiaries/get_business_units/" method="POST">
                             {% csrf_token %}
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
-                                <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary">
+                                <select class="form-control text-primary header" name="subsidiary" id="id_subsidiary" {% if not subsidiaries %}disabled="disabled" {% endif %}>
+                                {% if subsidiaries %}
                                 <option value="all">Todas</option>
                                     {% for subsidiary in subsidiaries %}
                                         {% if subsidiary.id == current_subsidiary.id %}
@@ -140,6 +145,9 @@
                                             <option value="{{ subsidiary.id }}">{{ subsidiary.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin sucursales</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -149,7 +157,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                             <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
-                                <select class="form-control text-primary header" name="business_unit" id="id_business_unit">
+                                <select class="form-control text-primary header" name="business_unit" id="id_business_unit" {% if not businessUnits %}disabled="disabled" {% endif %}>
+                                {% if businessUnits %}
                                 <option value="all">Todas</option>
                                     {% for businessUnit in businessUnits %}
                                         {% if businessUnit.id == current_businessUnit.id %}
@@ -158,6 +167,9 @@
                                             <option value="{{ businessUnit.id }}">{{ businessUnit.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin unidades de servicio</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -169,8 +181,9 @@
                                 <input type="hidden" name="zone" id="id_zone" value="{{ current_zone.id }}">
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
-                                <select class="form-control text-primary header" name="service" id="id_service">
-                                <option value="all">Todas</option>
+                                <select class="form-control text-primary header" name="service" id="id_service" {% if not services %}disabled="disabled"{% endif %}>
+                                {% if services %}
+                                <option value="all">Todos</option>
                                     {% for service in services %}
                                         {% if service.id == current_service.id %}
                                             <option value="{{ service.id }}" selected>{{ service.name }}</option>
@@ -178,6 +191,9 @@
                                             <option value="{{ service.id }}">{{ service.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin servicios</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -189,7 +205,8 @@
                                 <input type="hidden" name="subsidiary" id="id_subsidiary" value="{{ current_subsidiary.id }}">
                                 <input type="hidden" name="business_unit" id="id_business_unit" value="{{ current_businessUnit.id }}">
                                 <input type="hidden" name="service" id="id_service" value="{{ current_service.id }}">
-                                <select class="form-control text-primary header" name="moment" id="id_moment">
+                                <select class="form-control text-primary header" name="moment" id="id_moment" {% if not moments %}disabled="disabled" {% endif %}>
+                                {% if moments %}
                                     {% for moment in moments %}
                                         {% if moment.id == current_moment.id %}
                                             <option value="{{ moment.id }}" selected>{{ moment.name }}</option>
@@ -197,6 +214,9 @@
                                             <option value="{{ moment.id }}">{{ moment.name }}</option>
                                         {% endif %}
                                     {% endfor %}
+                                    {% else %}
+                                    <option value="invalid">Sin momentos</option>
+                                {% endif %}
                                 </select>
                             </form>
                         </div>
@@ -443,6 +463,7 @@
     <!-- App for reports -->
     <script src="/static/js/app.reports.js"></script>
     <script>
+        {% if historical_months %}
         new Morris.Line({
             element: 'historical-graph',
             data: [
@@ -456,7 +477,9 @@
             labels: ['Value'],
             xLabels: 'month'
         });
+        {% endif %}
 
+        {% if moment_data %}
         new Morris.Bar({
             element: 'prom_pass_det_graph',
             data: [
@@ -469,6 +492,7 @@
             grid: 'auto',
             barColors:['#5cb85c', '#f0ad4e', '#d9534f']
         });
+        {% endif %}
 
         {% if comparative_data %}
             /*comparative data*/

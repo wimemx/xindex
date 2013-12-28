@@ -40,6 +40,9 @@ $(document).ready(function(){
                     $('select#id_business_unit').html('<option value="default">Seleccione una sucursal</option>');
                     $('select#id_service').attr('disabled', true);
                     $('select#id_service').html('<option value="default">Seleccione una unidad de servicio</option>');
+                } else {
+                    $('#form_select_subsidiary #id_subsidiary').html('<option value="invalid">Sin sucursales</option>');
+                    $('#form_select_subsidiary #id_subsidiary').attr('disabled', true);
                 }
             },
             error: function(){
@@ -73,6 +76,9 @@ $(document).ready(function(){
 
                     $('select#id_service').attr('disabled', true);
                     $('select#id_service').html('<option value="default">Seleccione una unidad de servicio</option>');
+                } else {
+                    $('#form_select_business_unit #id_business_unit').html('<option value="invalid">Sin unidades de servicio</option>');
+                    $('#form_select_business_unit #id_business_unit').attr('disabled', true);
                 }
             },
             error: function(){
@@ -99,6 +105,9 @@ $(document).ready(function(){
                         );
                     });
                     $('select#id_service').attr('disabled', false);
+                } else {
+                    $('#form_select_service #id_service').html('<option value="invalid">Sin servicios</option>');
+                    $('#form_select_service #id_service').attr('disabled', true);
                 }
             },
             error: function(){

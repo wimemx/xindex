@@ -342,10 +342,6 @@ def get_attributes(request):
                 else:
                     moment = Moment.objects.get(pk=int(request.POST['moment']))
 
-                print 'kkkkkkkk'
-                print moment
-                print 'kkkkkkkk'
-
                 #get attributes
                 attributes = []
                 if isinstance(subsidiary, Subsidiary):
@@ -684,8 +680,7 @@ def get_attributes(request):
                                                                     )
                 if len(attributesList) == 0:
                     json_response = {
-                        'answer': False,
-                        'attributes': attributesList
+                        'answer': False
                     }
                 else:
                     json_response = {
@@ -719,13 +714,15 @@ def get_attributes(request):
                                         }
                                     )
                     if len(attributesList) == 0:
-                        pass
+                        json_response = {
+                            'answer': False
+                        }
                     else:
                         json_response = {
                             'answer': True,
                             'attributes': attributesList
                         }
-                        return HttpResponse(json.dumps(json_response))
+                    return HttpResponse(json.dumps(json_response))
                 except Zone.DoesNotExist:
                     pass
         else:

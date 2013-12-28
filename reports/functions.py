@@ -66,7 +66,7 @@ def get_service_xindex_by_group(subsidiary, business_unit, service):
     if not len(total_answers_by_service) == 0:
         for answer_service in total_answers_by_service:
             #total answers for service
-            if answer_service > 0:
+            if not answer_service.value == 0:
                 total_surveyed += 1
             if answer_service.value == 10 or answer_service.value == 9:
                 total_promoters += 1
@@ -77,14 +77,14 @@ def get_service_xindex_by_group(subsidiary, business_unit, service):
 
     getcontext().prec = 5
 
-    if total_answers_by_service != 0 and total_promoters != 0:
-        promoters_percent = Decimal(total_promoters*100)/Decimal(len(total_answers_by_service))
-    if total_answers_by_service != 0 and total_passives != 0:
-        passives_percent = Decimal(total_passives*100)/Decimal(len(total_answers_by_service))
-    if total_answers_by_service != 0 and total_detractors != 0:
-        detractors_percent = Decimal(total_detractors*100)/Decimal(len(total_answers_by_service))
+    if total_surveyed != 0:
+        promoters_percent = Decimal(total_promoters*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        passives_percent = Decimal(total_passives*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        detractors_percent = Decimal(total_detractors*100)/Decimal(total_surveyed)
 
-    if not total_answers_by_service == 0:
+    if total_surveyed != 0:
         #xindex_service = ((Decimal(promoters_percent_service-detractors_percent_service))/(Decimal(promoters_percent_service+passives_percent_service+detractors_percent_service)))*Decimal(100)
         xindex_service = Decimal(promoters_percent-detractors_percent)
 
@@ -92,7 +92,7 @@ def get_service_xindex_by_group(subsidiary, business_unit, service):
 
     service = {
         #xindex for moment
-        'xindex_service': xindex,
+        'xindex_service': xindex_service,
         #info
         'service_id': service.id,
         'service_name': service.name,
@@ -624,13 +624,15 @@ def get_last_month_moment_xindex(subsidiary, business_unit, service, moment):
 
 def get_moment_xindex_by_group(subsidiary, business_unit, service, moment):
     #Get data for moment
-    total_promoters = 0
-    total_passives = 0
-    total_detractors = 0
-    total_surveyed = 0
-    promoters_percent = 0
+    promoters_10 = 0
+    promoters_9 = 0
+    passives = 0
+    detractors = 0
+    promoters_10_percent = 0
+    promoters_9_percent = 0
     passives_percent = 0
     detractors_percent = 0
+    total_surveyed = 0
     xindex = 0
     total_answers = []
     c_d = datetime.date.today()
@@ -743,25 +745,32 @@ def get_moment_xindex_by_group(subsidiary, business_unit, service, moment):
     if not len(total_answers) == 0:
         for answer in total_answers:
             #total answers
-            if answer > 0:
+            if not answer.value == 0:
                 total_surveyed += 1
-            if answer.value == 10 or answer.value == 9:
-                total_promoters += 1
+            if answer.value == 10:
+                promoters_10 += 1
+            if answer.value == 9:
+                promoters_9 += 1
             elif answer.value == 8 or answer.value == 7:
-                total_passives += 1
+                passives += 1
             elif 1 <= answer.value <= 6:
-                total_detractors += 1
+                detractors += 1
 
     getcontext().prec = 5
 
-    if total_answers != 0 and total_promoters != 0:
-        promoters_percent = Decimal(total_promoters*100)/Decimal(len(total_answers))
-    if total_answers != 0 and total_passives != 0:
-        passives_percent = Decimal(total_passives*100)/Decimal(len(total_answers))
-    if total_answers != 0 and total_detractors != 0:
-        detractors_percent = Decimal(total_detractors*100)/Decimal(len(total_answers))
+    if not total_surveyed == 0:
+        promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
+    if not total_surveyed == 0:
+        promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
 
-    if not total_answers == 0:
+    promoters_percent = Decimal(promoters_10+promoters_9)*100/Decimal(total_surveyed)
+
+    if not total_surveyed == 0:
+        passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+    if not total_surveyed == 0:
+        detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+
+    if not total_surveyed == 0:
         xindex = Decimal(promoters_percent-detractors_percent)
 
     r = lambda: random.randint(0, 255)
@@ -773,7 +782,8 @@ def get_moment_xindex_by_group(subsidiary, business_unit, service, moment):
         'moment_id': moment.id,
         'moment_name': moment.name,
         #data
-        'promoters': promoters_percent,
+        'promoters_10': promoters_10_percent,
+        'promoters_9': promoters_9_percent,
         'passives': passives_percent,
         'detractors': detractors_percent,
         #extra
@@ -1139,11 +1149,13 @@ def get_last_month_moment_xindex(subsidiary, business_unit, service, moment):
 
 def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, attribute):
     #Get data for attribute
-    total_promoters = 0
-    total_passives = 0
-    total_detractors = 0
+    promoters_10 = 0
+    promoters_9 = 0
+    passives = 0
+    detractors = 0
     total_surveyed = 0
-    promoters_percent = 0
+    promoters_10_percent = 0
+    promoters_9_percent = 0
     passives_percent = 0
     detractors_percent = 0
     xindex = 0
@@ -1165,8 +1177,7 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                         client = Client.objects.get(pk=a.client_id)
                                         if a.client_activity is not None:
                                             try:
-                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
-                                                c_d = datetime.date.today()
+                                                client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                 if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                     total_answers.append(a)
                                             except ClientActivity.DoesNotExist:
@@ -1185,8 +1196,7 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
-                                                    c_d = datetime.date.today()
+                                                    client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                     if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
                                                         total_answers.append(a)
                                                 except ClientActivity.DoesNotExist:
@@ -1206,7 +1216,7 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
                                                     if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                         total_answers.append(a)
@@ -1227,7 +1237,7 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
                                                         if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
                                                             total_answers.append(a)
@@ -1249,7 +1259,7 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                             client = Client.objects.get(pk=a.client_id)
                                             if a.client_activity is not None:
                                                 try:
-                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsid, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                    client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                     c_d = datetime.date.today()
                                                     if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == business_unit:
                                                         total_answers.append(a)
@@ -1270,9 +1280,9 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == business_unit:
                                                             total_answers.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -1292,9 +1302,9 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                                 client = Client.objects.get(pk=a.client_id)
                                                 if a.client_activity is not None:
                                                     try:
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                         c_d = datetime.date.today()
-                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                        if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == bu_un:
                                                             total_answers.append(a)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -1314,9 +1324,9 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
                                                     client = Client.objects.get(pk=a.client_id)
                                                     if a.client_activity is not None:
                                                         try:
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=bu_un, service=service, pk=a.client_activity.id)
+                                                            client_activity = ClientActivity.objects.get(pk=a.client_activity.id)
                                                             c_d = datetime.date.today()
-                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un:
+                                                            if a.date.year == c_d.year and a.date.month == c_d.month and client_activity.subsidiary == subsid and client_activity.business_unit == bu_un:
                                                                 total_answers.append(a)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1324,26 +1334,32 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
     if not len(total_answers) == 0:
         for answer in total_answers:
             #total answers
-            if answer > 0:
+            if not answer.value == 0:
                 total_surveyed += 1
-            if answer.value == 10 or answer.value == 9:
-                total_promoters += 1
+            if answer.value == 10:
+                promoters_10 += 1
+            if answer.value == 9:
+                promoters_9 += 1
             elif answer.value == 8 or answer.value == 7:
-                total_passives += 1
+                passives += 1
             elif 1 <= answer.value <= 6:
-                total_detractors += 1
+                detractors += 1
 
     getcontext().prec = 5
 
-    if total_answers != 0 and total_promoters != 0:
-        promoters_percent = Decimal(total_promoters*100)/Decimal(len(total_answers))
-    if total_answers != 0 and total_passives != 0:
-        passives_percent = Decimal(total_passives*100)/Decimal(len(total_answers))
-    if total_answers != 0 and total_detractors != 0:
-        detractors_percent = Decimal(total_detractors*100)/Decimal(len(total_answers))
+    if total_surveyed != 0:
+        promoters_10_percent = Decimal(promoters_10*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        promoters_9_percent = Decimal(promoters_9*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        passives_percent = Decimal(passives*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        detractors_percent = Decimal(detractors*100)/Decimal(total_surveyed)
+    if total_surveyed != 0:
+        total_promoters_percent = Decimal(promoters_10+promoters_9)*100/Decimal(total_surveyed)
 
-    if not total_answers == 0:
-        xindex = Decimal(promoters_percent-detractors_percent)
+    if total_surveyed != 0:
+        xindex = Decimal(total_promoters_percent)-Decimal(detractors_percent)
 
     r = lambda: random.randint(0, 255)
 
@@ -1354,11 +1370,10 @@ def get_attributes_xindex_by_group(subsidiary, business_unit, service, moment, a
         'attribute_id': attribute.id,
         'attribute_name': attribute.name,
         #data
-        'promoters': promoters_percent,
+        'promoters_10': promoters_10_percent,
+        'promoters_9': promoters_9_percent,
         'passives': passives_percent,
-        'detractors': detractors_percent,
-        #extra
-        'color': ('#%02X%02X%02X' % (r(), r(), r()))
+        'detractors': detractors_percent
     }
 
     return attribute_object
@@ -1416,7 +1431,7 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                 if answer.client_activity is not None:
                                                     try:
                                                         c_d = datetime.date.today()
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
                                                         if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                             total_answers.append(answer)
                                                     except ClientActivity.DoesNotExist:
@@ -1436,7 +1451,7 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                 if answer.client_activity is not None:
                                                     try:
                                                         c_d = datetime.date.today()
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                        client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
                                                         if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                             total_answers.append(answer)
                                                     except ClientActivity.DoesNotExist:
@@ -1456,7 +1471,7 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
                                                             if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
@@ -1477,8 +1492,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                 if answer.client_activity is not None:
                                                     try:
                                                         c_d = datetime.date.today()
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                        client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                             total_answers.append(answer)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -1497,8 +1512,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1518,8 +1533,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1539,8 +1554,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                         if answer.client_activity is not None:
                                                             try:
                                                                 c_d = datetime.date.today()
-                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                                client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                     total_answers.append(answer)
                                                             except ClientActivity.DoesNotExist:
                                                                 pass
@@ -1561,8 +1576,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                 if answer.client_activity is not None:
                                                     try:
                                                         c_d = datetime.date.today()
-                                                        client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                        if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                        client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                        if client_activity.subsidiary == sub and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                             total_answers.append(answer)
                                                     except ClientActivity.DoesNotExist:
                                                         pass
@@ -1581,8 +1596,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == sub and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1602,8 +1617,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == sub and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1623,8 +1638,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                         if answer.client_activity is not None:
                                                             try:
                                                                 c_d = datetime.date.today()
-                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                                client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == sub and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
                                                                     total_answers.append(answer)
                                                             except ClientActivity.DoesNotExist:
                                                                 pass
@@ -1645,8 +1660,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                     if answer.client_activity is not None:
                                                         try:
                                                             c_d = datetime.date.today()
-                                                            client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                            if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                            client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                            if client_activity.subsidiary == sub and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                 total_answers.append(answer)
                                                         except ClientActivity.DoesNotExist:
                                                             pass
@@ -1666,8 +1681,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                         if answer.client_activity is not None:
                                                             try:
                                                                 c_d = datetime.date.today()
-                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                                client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == sub and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                     total_answers.append(answer)
                                                             except ClientActivity.DoesNotExist:
                                                                 pass
@@ -1688,8 +1703,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                         if answer.client_activity is not None:
                                                             try:
                                                                 c_d = datetime.date.today()
-                                                                client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                                if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                                client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                                if client_activity.subsidiary == sub and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                     total_answers.append(answer)
                                                             except ClientActivity.DoesNotExist:
                                                                 pass
@@ -1710,8 +1725,8 @@ def get_last_month_attribute_report_by_group(subsidiary, business_unit, service,
                                                             if answer.client_activity is not None:
                                                                 try:
                                                                     c_d = datetime.date.today()
-                                                                    client_activity = ClientActivity.objects.get(client=client, subsidiary=subsidiary, business_unit=business_unit, service=service, pk=answer.client_activity.id)
-                                                                    if client_activity.subsidiary == subsidiary and client_activity.business_unit == business_unit and answer.date.year == year and answer.date.month == last_month:
+                                                                    client_activity = ClientActivity.objects.get(pk=answer.client_activity.id)
+                                                                    if client_activity.subsidiary == sub and client_activity.business_unit == bu_un and answer.date.year == year and answer.date.month == last_month:
                                                                         total_answers.append(answer)
                                                                 except ClientActivity.DoesNotExist:
                                                                     pass
