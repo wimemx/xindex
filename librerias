@@ -1,0 +1,19 @@
+Librerías Python:
+
+short_url:  Es una implementación de Python para generar URLs cortas. Esta librería usa un método bajo-aleatorio para la generación consecutiva y predecible de URLs. Sin embargo el algoritmo que usa es determinista, lo cual garantiza que no se producirán colisiones.
+
+APIs:
+
+Mandrill: Es un servicio de infraestructura de email escalable y accesible. Se utiliza para el envío de mails. Una característica importante de esta api es que todas las peticiones deben de realizarse mediante HTTP POST. Además de busqueda especifica de email que se han enviado, personalización de contenido dinámico usando la API.
+Rackspace Pyrex: Es un servicio que se instala dentro del servidor que contiene la aplicación. Sirve como conector entre la API de Rackspace y nuestro sistema. Se utiliza en el archivo tenantCustomer/views.py
+
+Librerías JavaScript:
+
+JQuery Autocomplete: Librería usada para campos de autocompletado.
+Bootbox: Esta librería es usada para cajas modales personalizables.
+Morris.js: Librería usada para la generación de gráficas.
+Colorpicker: Librería usada para selectores de color en formularios.
+Tinymce: Usado para la generación de contenido HTML de manera dinámica.
+Jquery.dataTables.js: Librería usada para la generación tablas dinámicas que incluye paginación y búsqueda.
+
+Bootstrap: Framework usado para el front-end, es una colección de convenciones HTML y CSS. Usa los métodos más actuales para proveer tipografías, formularios, botones, tablas, grids, navegación y más componentes HTML.
